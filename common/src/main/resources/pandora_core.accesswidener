@@ -1,0 +1,7 @@
+accessWidener v1 named
+
+# Used to apply screen shake rotation to the camera
+accessible method net/minecraft/client/Camera setRotation (FF)V # setRotation
+
+# Used to make a method that allows accessing partialTick anywhere
+accessible field net/minecraft/client/Minecraft pausePartialTick F # pausePartialTick

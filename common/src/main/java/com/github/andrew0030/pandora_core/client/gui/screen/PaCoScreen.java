@@ -45,6 +45,8 @@ public class PaCoScreen extends Screen {
     public void renderBackground(GuiGraphics graphics) {}
 
     private void renderBlurredBackground(float partialTick) {
+        RenderSystem.disableDepthTest(); // Needed so it works if chat is rendering.
+        // TODO: if PaCo menu behaviour is weird, for example elements disappear, maybe look into re-enabling depth test.
         Minecraft minecraft = Minecraft.getInstance();
         parameters.put("multiplier", this.fadeInProgress);
         PaCoPostShaderRegistry.PACO_BLUR.processPostChain(partialTick, parameters);

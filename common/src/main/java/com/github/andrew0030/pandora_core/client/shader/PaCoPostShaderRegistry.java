@@ -19,10 +19,12 @@ public class PaCoPostShaderRegistry {
             new ResourceLocation(PandoraCore.MOD_ID, "shaders/post/blur.json"),
             (postChain, partialTick, parameters) -> {
                 // TODO: add config to adjust blurriness and fade in time
-                float blurriness = 5.0F * (float) parameters.getOrDefault("multiplier", 1.0F);
+                float blurriness = 5.0F;
+                float multiplier = (float) parameters.getOrDefault("multiplier", 1.0F);
                 if (postChain != null && blurriness >= 1.0f) {
                     RenderSystem.enableBlend();
                     ((IPaCoSetUniform) postChain).setPaCoUniform("Radius", blurriness);
+                    ((IPaCoSetUniform) postChain).setPaCoUniform("RadiusMultiplier", multiplier);
                     postChain.process(partialTick);
                     RenderSystem.disableBlend();
                 }

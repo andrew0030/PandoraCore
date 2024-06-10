@@ -100,9 +100,9 @@ public class PaCoScreen extends Screen {
         graphics.pose().pushPose();
         graphics.pose().translate(-width * (1 - Easing.CUBIC_OUT.apply(slideProgress)), 0.0F, 0.0F);
         graphics.fill(posX, posY, posX + width, posY + height, color);
-//        int rimColor = FastColor.ARGB32.color(255, 207, 207, 196);
-//        graphics.fill(posX, posY, posX + width, posY + 1, rimColor);
-//        graphics.fill(posX, posY + height - 1, posX + width, posY + height, rimColor);
+        int rimColor = FastColor.ARGB32.color(255, 207, 207, 196);
+        graphics.fill(posX, posY, posX + width, posY + 1, rimColor);
+        graphics.fill(posX, posY + height - 1, posX + width, posY + height, rimColor);
         graphics.pose().popPose();
     }
 }

@@ -4,7 +4,6 @@ import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import com.terraformersmc.modmenu.gui.ModsScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -14,8 +13,8 @@ public class ModMenuConfig implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return screen -> {
-            if (screen instanceof ModsScreen modsScreen)
-                if (((IPaCoParentScreenGetter) modsScreen).getPaCoParentScreen() instanceof TitleScreen titleScreen)
+            if (screen instanceof IPaCoParentScreenGetter pacoParentScreenGetter)
+                if (pacoParentScreenGetter.getPaCoParentScreen() instanceof TitleScreen titleScreen)
                     return new PaCoScreen(titleScreen, screen);
             return new PaCoScreen(null, screen);
         };

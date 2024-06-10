@@ -23,8 +23,8 @@ public class PandoraCoreClientForge {
         PaCoKeyMappings.KEY_MAPPINGS.registerKeyBindings();
         // Registers Config Screen (Basically opens the PaCo screen if you press the config button in the Forge Mods Screen)
         MinecraftForge.registerConfigScreen(screen -> {
-            if (screen instanceof ModListScreen modListScreen)
-                if (((IPaCoParentScreenGetter) modListScreen).getPaCoParentScreen() instanceof TitleScreen titleScreen)
+            if (screen instanceof IPaCoParentScreenGetter pacoParentScreenGetter)
+                if (pacoParentScreenGetter.getPaCoParentScreen() instanceof TitleScreen titleScreen)
                     return new PaCoScreen(titleScreen, screen);
             return new PaCoScreen(null, screen);
         });

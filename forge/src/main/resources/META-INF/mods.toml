@@ -25,3 +25,6 @@ issueTrackerURL="${issue_tracker_url}"
     versionRange = "${minecraft_version_range_forge}"
     ordering = "NONE"
     side = "BOTH"
+
+[modproperties.controllable]
+    catalogueImageIcon="${mod_id}.png"

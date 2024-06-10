@@ -3,9 +3,12 @@ package com.github.andrew0030.pandora_core.client.gui.screen;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
@@ -18,11 +21,17 @@ public class PaCoScreen extends Screen {
     private final Map<String, Object> parameters;
     private float fadeInProgress = 0.0F;
     private final long openTime;
+    private TitleScreen titleScreen = null;
 
     public PaCoScreen() {
         super(TITLE);
         parameters = new HashMap<>();
         this.openTime = System.currentTimeMillis();
+    }
+
+    public PaCoScreen(TitleScreen titleScreen) {
+        this();
+        this.titleScreen = titleScreen;
     }
 
     @Override
@@ -31,6 +40,14 @@ public class PaCoScreen extends Screen {
         long elapsed = System.currentTimeMillis() - openTime;
         int fadeInTime = 160; //TODO add config options for fade in time and blurriness
         this.fadeInProgress = (elapsed + partialTick) < fadeInTime ? (elapsed + partialTick) / fadeInTime : 1.0F;
+
+        if (this.titleScreen != null) {
+            if (this.titleScreen.fadeInStart == 0L && this.titleScreen.fading)
+                this.titleScreen.fadeInStart = Util.getMillis();
+
+            float f = this.titleScreen.fading ? (float)(Util.getMillis() - this.titleScreen.fadeInStart) / 1000.0F : 1.0F;
+            this.titleScreen.panorama.render(partialTick, Mth.clamp(f, 0.0F, 1.0F));
+        }
 
         RenderSystem.disableDepthTest(); // Needed so it works if chat is rendering.
         // TODO: if PaCo menu behaviour is weird, for example elements disappear, maybe look into re-enabling depth test.
@@ -49,6 +66,20 @@ public class PaCoScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics graphics) {}
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
+    @Override
+    public void onClose() {
+        if (this.titleScreen != null) {
+            Minecraft.getInstance().setScreen(this.titleScreen);
+        } else {
+            super.onClose();
+        }
+    }
 
     private void renderBlurredBackground(float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();

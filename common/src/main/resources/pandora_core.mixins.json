@@ -13,7 +13,9 @@
   "client": [
     "CameraMixin",
     "GameRendererMixin",
-    "PostChainMixin"
+    "PostChainMixin",
+    "ScreenMixin",
+    "TitleScreenMixin"
   ],
   "server": [],
   "injectors": {

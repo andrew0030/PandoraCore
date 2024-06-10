@@ -1,5 +1,7 @@
 package com.github.andrew0030.pandora_core.client.shader.holder;
 
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoSetUniform;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
 
@@ -18,11 +20,13 @@ public class PostChainHolder {
     private final ResourceLocation resourceLocation;
     private final IPaCoPostChainProcessor processor;
     private PostChain postChain;
+    private final Map<String, PaCoUniformHolder> uniforms;
 
     public PostChainHolder(ResourceLocation resourceLocation, IPaCoPostChainProcessor processor) {
         this.resourceLocation = resourceLocation;
         this.processor = processor;
         this.postChain = null;
+        uniforms = new Object2ObjectAVLTreeMap<>();
     }
 
     public ResourceLocation getResourceLocation() {
@@ -41,5 +45,17 @@ public class PostChainHolder {
 
     public void setPostChain(PostChain postChain) {
         this.postChain = postChain;
+        for (PaCoUniformHolder value : uniforms.values()) {
+            value.isDirty = true;
+        }
+    }
+
+    public PaCoUniformHolder getUniform(String name) {
+        PaCoUniformHolder holder = uniforms.get(name);
+        if (holder == null)
+            uniforms.put(name, holder = new PaCoUniformHolder());
+        if (holder.isDirty)
+            holder.value.uniforms = ((IPaCoSetUniform) postChain).getPaCoUniforms(name);
+        return holder;
     }
 }

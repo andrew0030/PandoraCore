@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.gui.screen;
 
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
+import com.github.andrew0030.pandora_core.client.shader.holder.PaCoUniformHolder;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
@@ -8,24 +9,22 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class PaCoScreen extends Screen {
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
-    private final Map<String, Object> parameters;
+    private final PaCoUniformHolder radius;
+    private final PaCoUniformHolder radiusMul;
     private float fadeInProgress = 0.0F;
     private final long openTime;
     private TitleScreen titleScreen = null;
 
     public PaCoScreen() {
         super(TITLE);
-        parameters = new HashMap<>();
+        radius = PaCoPostShaderRegistry.PACO_BLUR.getUniform("Radius");
+        radiusMul = PaCoPostShaderRegistry.PACO_BLUR.getUniform("RadiusMultiplier");
         this.openTime = System.currentTimeMillis();
     }
 
@@ -83,8 +82,9 @@ public class PaCoScreen extends Screen {
 
     private void renderBlurredBackground(float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        parameters.put("multiplier", this.fadeInProgress);
-        PaCoPostShaderRegistry.PACO_BLUR.processPostChain(partialTick, parameters);
+        radius.get().set(5);
+        radiusMul.get().set(this.fadeInProgress);
+        PaCoPostShaderRegistry.PACO_BLUR.processPostChain(partialTick, null);
         minecraft.getMainRenderTarget().bindWrite(false);
     }
 

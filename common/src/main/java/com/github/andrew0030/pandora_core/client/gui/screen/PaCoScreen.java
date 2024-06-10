@@ -20,6 +20,7 @@ public class PaCoScreen extends Screen {
     private float fadeInProgress = 0.0F;
     private final long openTime;
     private TitleScreen titleScreen = null;
+    private Screen previousScreen = null;
 
     public PaCoScreen() {
         super(TITLE);
@@ -33,10 +34,15 @@ public class PaCoScreen extends Screen {
         this.titleScreen = titleScreen;
     }
 
+    public PaCoScreen(TitleScreen titleScreen, Screen previousScreen) {
+        this(titleScreen);
+        this.previousScreen = previousScreen;
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 
-        long elapsed = System.currentTimeMillis() - openTime;
+        long elapsed = System.currentTimeMillis() - this.openTime;
         int fadeInTime = 160; //TODO add config options for fade in time and blurriness
         this.fadeInProgress = (elapsed + partialTick) < fadeInTime ? (elapsed + partialTick) / fadeInTime : 1.0F;
 
@@ -73,7 +79,9 @@ public class PaCoScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (this.titleScreen != null) {
+        if (this.previousScreen != null) {
+            Minecraft.getInstance().setScreen(this.previousScreen);
+        } else if (this.titleScreen != null) {
             Minecraft.getInstance().setScreen(this.titleScreen);
         } else {
             super.onClose();
@@ -82,8 +90,8 @@ public class PaCoScreen extends Screen {
 
     private void renderBlurredBackground(float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        radius.get().set(5);
-        radiusMul.get().set(this.fadeInProgress);
+        this.radius.get().set(5);// TODO: add config to adjust blurriness and fade in time
+        this.radiusMul.get().set(this.fadeInProgress);
         PaCoPostShaderRegistry.PACO_BLUR.processPostChain(partialTick, null);
         minecraft.getMainRenderTarget().bindWrite(false);
     }

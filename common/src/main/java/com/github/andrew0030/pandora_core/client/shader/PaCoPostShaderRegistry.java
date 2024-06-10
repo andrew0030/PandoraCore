@@ -18,7 +18,6 @@ public class PaCoPostShaderRegistry {
     public static final PostChainHolder PACO_BLUR = PaCoPostShaderRegistry.register(
             new ResourceLocation(PandoraCore.MOD_ID, "shaders/post/blur.json"),
             (postChain, partialTick, parameters) -> {
-                // TODO: add config to adjust blurriness and fade in time
                 if (postChain != null) {
                     RenderSystem.enableBlend();
                     postChain.process(partialTick);

@@ -11,7 +11,7 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
 
     @Override
     public UniformSetter get() {
-        return value;
+        return this.value;
     }
 
     public class UniformSetter {

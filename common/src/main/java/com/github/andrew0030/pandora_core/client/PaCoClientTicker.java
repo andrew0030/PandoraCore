@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client;
 
 import net.minecraft.client.Minecraft;
+import org.jetbrains.annotations.ApiStatus;
 
 public class PaCoClientTicker {
     public static int globalTickCount = 0;
@@ -16,17 +17,19 @@ public class PaCoClientTicker {
         return PaCoClientTicker.gameTickCount;
     }
 
-    public static void tickGlobal() {
-        PaCoClientTicker.globalTickCount++;
-    }
-
-    public static void tickGame() {
-        PaCoClientTicker.gameTickCount++;
-    }
-
     /** @return The current partialTick. */
     public static float getPartialTick() {
         Minecraft mc = Minecraft.getInstance();
         return mc.isPaused() ? mc.pausePartialTick : mc.getFrameTime();
+    }
+
+    @ApiStatus.Internal
+    public static void tickGlobal() {
+        PaCoClientTicker.globalTickCount++;
+    }
+
+    @ApiStatus.Internal
+    public static void tickGame() {
+        PaCoClientTicker.gameTickCount++;
     }
 }

@@ -18,6 +18,9 @@
         "main": [
             "com.github.andrew0030.pandora_core.PandoraCoreFabric"
         ],
+        "modmenu": [
+            "com.github.andrew0030.pandora_core.config.modmenu.ModMenuConfig"
+        ],
         "client": [
             "com.github.andrew0030.pandora_core.PandoraCoreClientFabric"
         ]

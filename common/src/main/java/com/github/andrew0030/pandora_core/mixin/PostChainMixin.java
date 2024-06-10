@@ -26,8 +26,11 @@ public class PostChainMixin implements IPaCoSetUniform {
     @Override
     public List<AbstractUniform> getPaCoUniforms(String key) {
         List<AbstractUniform> uniforms = new ArrayList<>();
-        for (PostPass postPass : this.passes)
-            uniforms.add(postPass.getEffect().safeGetUniform(key));
+        for (PostPass postPass : this.passes) {
+            AbstractUniform u = postPass.getEffect().getUniform(key);
+            if (u != null)
+                uniforms.add(u);
+        }
         return uniforms;
     }
 }

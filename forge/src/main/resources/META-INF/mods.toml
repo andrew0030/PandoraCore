@@ -26,5 +26,5 @@ issueTrackerURL="${issue_tracker_url}"
     ordering = "NONE"
     side = "BOTH"
 
-[modproperties.controllable]
+[modproperties.${mod_id}]
     catalogueImageIcon="${mod_id}.png"

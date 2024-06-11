@@ -4,6 +4,10 @@
   ],
   "passes": [
     {
+      "paco_tags": [
+        "blur_x",
+        "pass_0"
+      ],
       "name": "pandora_core:box_blur",
       "intarget": "minecraft:main",
       "outtarget": "swap",
@@ -15,6 +19,10 @@
       ]
     },
     {
+      "paco_tags": [
+        "blur_y",
+        "pass_0"
+      ],
       "name": "pandora_core:box_blur",
       "intarget": "swap",
       "outtarget": "minecraft:main",
@@ -24,7 +32,12 @@
           "values": [ 0.0, 1.0 ]
         }
       ]
-    }, {
+    },
+    {
+      "paco_tags": [
+        "blur_x",
+        "pass_1"
+      ],
       "name": "pandora_core:box_blur",
       "intarget": "minecraft:main",
       "outtarget": "swap",
@@ -37,6 +50,10 @@
       ]
     },
     {
+      "paco_tags": [
+        "blur_y",
+        "pass_1"
+      ],
       "name": "pandora_core:box_blur",
       "intarget": "swap",
       "outtarget": "minecraft:main",
@@ -47,7 +64,12 @@
           "RadiusMultiplier" : 0.5
         }
       ]
-    }, {
+    },
+    {
+      "paco_tags": [
+        "blur_x",
+        "pass_2"
+      ],
       "name": "pandora_core:box_blur",
       "intarget": "minecraft:main",
       "outtarget": "swap",
@@ -60,6 +82,10 @@
       ]
     },
     {
+      "paco_tags": [
+        "blur_y",
+        "pass_2"
+      ],
       "name": "pandora_core:box_blur",
       "intarget": "swap",
       "outtarget": "minecraft:main",

@@ -2,8 +2,8 @@ package com.github.andrew0030.pandora_core.client.shader;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.holder.IPaCoPostChainProcessor;
+import com.github.andrew0030.pandora_core.client.shader.holder.PaCoUniformHolder;
 import com.github.andrew0030.pandora_core.client.shader.holder.PostChainHolder;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoSetUniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +25,14 @@ public class PaCoPostShaderRegistry {
                 }
             }
     );
+
+    public static final class BlurVariables {
+        public static final PaCoUniformHolder BLUR_RADIUS = PACO_BLUR.getUniform("Radius");
+        public static final PaCoUniformHolder RADIUS_MUL = PACO_BLUR.getUniform("RadiusMultiplier");
+        public static final PaCoUniformHolder PASS0_MUL = RADIUS_MUL.tagged("pass_0");
+        public static final PaCoUniformHolder PASS1_MUL = RADIUS_MUL.tagged("pass_1");
+        public static final PaCoUniformHolder PASS2_MUL = RADIUS_MUL.tagged("pass_2");
+    }
 
     /**
      * Used to register a custom {@link PostChain}.

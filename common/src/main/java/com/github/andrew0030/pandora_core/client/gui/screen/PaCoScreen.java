@@ -13,10 +13,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
+import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry.BlurVariables.*;
+
 public class PaCoScreen extends Screen {
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
-    private final PaCoUniformHolder radius;
-    private final PaCoUniformHolder radiusMul;
     private float fadeInProgress = 0.0F;
     private final long openTime;
     private TitleScreen titleScreen = null;
@@ -24,8 +24,6 @@ public class PaCoScreen extends Screen {
 
     public PaCoScreen() {
         super(TITLE);
-        radius = PaCoPostShaderRegistry.PACO_BLUR.getUniform("Radius");
-        radiusMul = PaCoPostShaderRegistry.PACO_BLUR.getUniform("RadiusMultiplier");
         this.openTime = System.currentTimeMillis();
     }
 
@@ -90,8 +88,13 @@ public class PaCoScreen extends Screen {
 
     private void renderBlurredBackground(float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        this.radius.get().set(5);// TODO: add config to adjust blurriness and fade in time
-        this.radiusMul.get().set(this.fadeInProgress);
+
+        // TODO: add config to adjust blurriness and fade in time
+        BLUR_RADIUS.get().set(5);
+        PASS0_MUL.get().set(fadeInProgress);
+        PASS1_MUL.get().set(fadeInProgress * 0.5f);
+        PASS2_MUL.get().set(fadeInProgress * 0.25f);
+
         PaCoPostShaderRegistry.PACO_BLUR.processPostChain(partialTick, null);
         minecraft.getMainRenderTarget().bindWrite(false);
     }

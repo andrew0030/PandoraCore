@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.client.shader.holder;
 
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoSetUniform;
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoUniformAccess;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
@@ -53,9 +53,9 @@ public class PostChainHolder {
     public PaCoUniformHolder getUniform(String name) {
         PaCoUniformHolder holder = this.uniforms.get(name);
         if (holder == null)
-            this.uniforms.put(name, holder = new PaCoUniformHolder());
+            this.uniforms.put(name, holder = new PaCoUniformHolder((IPaCoUniformAccess) postChain, name));
         if (holder.isDirty)
-            holder.value.uniforms = ((IPaCoSetUniform) postChain).getPaCoUniforms(name);
+            holder.value.uniforms = ((IPaCoUniformAccess) postChain).getPaCoUniforms(name);
         return holder;
     }
 }

@@ -14,6 +14,7 @@
     "CameraMixin",
     "GameRendererMixin",
     "PostChainMixin",
+    "PostPassMixin",
     "ScreenMixin",
     "TitleScreenMixin"
   ],

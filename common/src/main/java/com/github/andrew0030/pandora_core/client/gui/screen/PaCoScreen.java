@@ -12,10 +12,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry.BlurVariables.*;
 
 public class PaCoScreen extends Screen {
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
+    private final Map<String, Object> parameters;
     private float fadeInProgress = 0.0F;
     private final long openTime;
     private TitleScreen titleScreen = null;
@@ -23,6 +27,7 @@ public class PaCoScreen extends Screen {
 
     public PaCoScreen() {
         super(TITLE);
+        this.parameters = new HashMap<>();
         this.openTime = System.currentTimeMillis();
     }
 
@@ -89,12 +94,14 @@ public class PaCoScreen extends Screen {
         Minecraft minecraft = Minecraft.getInstance();
 
         // TODO: add config to adjust blurriness and fade in time
-        BLUR_RADIUS.get().set(5);
+        // Map Approach
+        this.parameters.put("radius", 5.0F);
+        // Uniform Holder Approach
         PASS0_MUL.get().set(fadeInProgress);
         PASS1_MUL.get().set(fadeInProgress * 0.5f);
         PASS2_MUL.get().set(fadeInProgress * 0.25f);
 
-        PaCoPostShaderRegistry.PACO_BLUR.processPostChain(partialTick, null);
+        PaCoPostShaderRegistry.PACO_BLUR.processPostChain(partialTick, this.parameters);
         minecraft.getMainRenderTarget().bindWrite(false);
     }
 
@@ -102,9 +109,11 @@ public class PaCoScreen extends Screen {
         graphics.pose().pushPose();
         graphics.pose().translate(-width * (1 - Easing.CUBIC_OUT.apply(slideProgress)), 0.0F, 0.0F);
         graphics.fill(posX, posY, posX + width, posY + height, color);
+        // Rims
         int rimColor = FastColor.ARGB32.color(255, 207, 207, 196);
         graphics.fill(posX, posY, posX + width, posY + 1, rimColor);
         graphics.fill(posX, posY + height - 1, posX + width, posY + height, rimColor);
+
         graphics.pose().popPose();
     }
 }

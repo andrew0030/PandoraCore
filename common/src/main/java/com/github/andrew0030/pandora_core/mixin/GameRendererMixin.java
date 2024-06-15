@@ -29,7 +29,7 @@ public class GameRendererMixin {
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     public void initPaCoPostShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
-        this.loadPaCoPostShaders(resourceProvider);
+        this.pandoraCore$loadPostShaders(resourceProvider);
     }
 
     @Inject(method = "close", at = @At("TAIL"))
@@ -47,7 +47,7 @@ public class GameRendererMixin {
     }
 
     @Unique
-    private void loadPaCoPostShaders(ResourceProvider resourceProvider) {
+    private void pandoraCore$loadPostShaders(ResourceProvider resourceProvider) {
         for (PostChainHolder holder : PaCoPostShaderRegistry.POST_SHADERS) {
             // If the post shader is already loaded we close it
             if (holder.getPostChain() != null)
@@ -65,6 +65,7 @@ public class GameRendererMixin {
         }
     }
 
+    // Used to apply camera rotation (roll)
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.AFTER))
     private void applyPaCoCameraZRot(float partialTick, long finishTimeNano, PoseStack poseStack, CallbackInfo ci) {
         poseStack.mulPose(Axis.ZP.rotationDegrees(((IPaCoSetCameraRotation) this.mainCamera).pandoraCore$getZRot()));

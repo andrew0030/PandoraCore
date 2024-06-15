@@ -5,5 +5,5 @@ import net.minecraft.client.renderer.PostPass;
 import java.util.List;
 
 public interface IPaCoPostChainAccess {
-    List<PostPass> paCoGetPasses();
+    List<PostPass> pandoraCore$getPasses();
 }

@@ -24,7 +24,7 @@ public class ScreenShakeManager {
             rollOffset += shake.getRollOffset(partialTick);
         }
 
-        ((IPaCoSetCameraRotation) camera).setPaCoRotation(camera.getYRot() + yawOffset, camera.getXRot() + pitchOffset, rollOffset);
+        ((IPaCoSetCameraRotation) camera).pandoraCore$setRotation(camera.getYRot() + yawOffset, camera.getXRot() + pitchOffset, rollOffset);
     }
 
     public static void tickCameraShakes() {

@@ -3,7 +3,6 @@ package com.github.andrew0030.pandora_core.mixin;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoPostChainAccess;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoTagged;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoUniformAccess;
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,7 +14,6 @@ import net.minecraft.util.GsonHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -28,14 +26,14 @@ public class PostChainMixin implements IPaCoUniformAccess, IPaCoPostChainAccess 
     @Shadow @Final private List<PostPass> passes;
 
     @Override
-    public void setPaCoUniform(String key, float value) {
+    public void pandoraCore$setUniform(String key, float value) {
         for (PostPass postPass : this.passes) {
             postPass.getEffect().safeGetUniform(key).set(value);
         }
     }
 
     @Override
-    public List<AbstractUniform> getPaCoUniforms(String key) {
+    public List<AbstractUniform> pandoraCore$getUniforms(String key) {
         List<AbstractUniform> uniforms = new ArrayList<>();
         for (PostPass postPass : this.passes) {
             AbstractUniform u = postPass.getEffect().getUniform(key);
@@ -56,16 +54,16 @@ public class PostChainMixin implements IPaCoUniformAccess, IPaCoPostChainAccess 
 
             JsonArray array = GsonHelper.getAsJsonArray(jsonObject, "paco_tags");
             for (JsonElement jsonElement : array) {
-                ((IPaCoTagged) pass).addPaCoTag(
+                ((IPaCoTagged) pass).pandoraCore$addTag(
                         GsonHelper.convertToString(jsonElement, "paco_tag element")
                 );
             }
         }
-        ((IPaCoTagged) pass).lockPaCoTags();
+        ((IPaCoTagged) pass).pandoraCore$lockTags();
     }
 
     @Override
-    public List<PostPass> paCoGetPasses() {
+    public List<PostPass> pandoraCore$getPasses() {
         return passes;
     }
 }

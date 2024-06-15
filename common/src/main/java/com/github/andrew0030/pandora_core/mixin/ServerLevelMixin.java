@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public class ServerLevelMixin implements IPaCoLevelSideCheck {
 
     @Override
-    public boolean isPaCoServerSide() {
+    public boolean pandoraCore$isServerSide() {
         return true;
     }
 }

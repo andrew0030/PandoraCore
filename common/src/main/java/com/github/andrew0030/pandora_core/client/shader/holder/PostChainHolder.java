@@ -55,7 +55,7 @@ public class PostChainHolder {
         if (holder == null)
             this.uniforms.put(name, holder = new PaCoUniformHolder((IPaCoUniformAccess) postChain, name));
         if (holder.isDirty)
-            holder.value.uniforms = ((IPaCoUniformAccess) postChain).getPaCoUniforms(name);
+            holder.value.uniforms = ((IPaCoUniformAccess) postChain).pandoraCore$getUniforms(name);
         return holder;
     }
 }

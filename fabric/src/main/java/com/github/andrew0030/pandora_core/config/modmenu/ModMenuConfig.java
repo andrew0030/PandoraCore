@@ -14,7 +14,7 @@ public class ModMenuConfig implements ModMenuApi {
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return screen -> {
             if (screen instanceof IPaCoParentScreenGetter pacoParentScreenGetter)
-                if (pacoParentScreenGetter.getPaCoParentScreen() instanceof TitleScreen titleScreen)
+                if (pacoParentScreenGetter.pandoraCore$getParentScreen() instanceof TitleScreen titleScreen)
                     return new PaCoScreen(titleScreen, screen);
             return new PaCoScreen(null, screen);
         };

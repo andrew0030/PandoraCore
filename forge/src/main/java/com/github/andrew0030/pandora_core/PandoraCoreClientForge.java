@@ -5,7 +5,6 @@ import com.github.andrew0030.pandora_core.client.key.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.events.ForgeClientTickEvent;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraftforge.client.gui.ModListScreen;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -24,7 +23,7 @@ public class PandoraCoreClientForge {
         // Registers Config Screen (Basically opens the PaCo screen if you press the config button in the Forge Mods Screen)
         MinecraftForge.registerConfigScreen(screen -> {
             if (screen instanceof IPaCoParentScreenGetter pacoParentScreenGetter)
-                if (pacoParentScreenGetter.getPaCoParentScreen() instanceof TitleScreen titleScreen)
+                if (pacoParentScreenGetter.pandoraCore$getParentScreen() instanceof TitleScreen titleScreen)
                     return new PaCoScreen(titleScreen, screen);
             return new PaCoScreen(null, screen);
         });

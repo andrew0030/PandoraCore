@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public class TitleScreenMixin implements IPaCoCheckTitleScreen {
 
     @Override
-    public boolean isPaCoTitleScreen() {
+    public boolean pandoraCore$isTitleScreen() {
         return true;
     }
 }

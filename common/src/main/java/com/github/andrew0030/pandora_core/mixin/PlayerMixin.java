@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public class PlayerMixin implements IPaCoPlayerSideCheck {
 
     @Override
-    public boolean isPaCoServerPlayer() {
+    public boolean pandoraCore$isServerPlayer() {
         return false;
     }
 }

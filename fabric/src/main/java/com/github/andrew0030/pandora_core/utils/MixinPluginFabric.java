@@ -33,6 +33,7 @@ public class MixinPluginFabric implements IMixinConfigPlugin
     }
 
     static {
+        addClassLookup("com.github.andrew0030.pandora_core.mixin.CatalogueModListScreenMixin");
         addClassLookup("com.github.andrew0030.pandora_core.mixin.ModsScreenMixin");
     }
 

@@ -8,6 +8,7 @@ base {
     archivesName = "${mod_name}-fabric-${minecraft_version}"
 }
 repositories {
+    maven { url "https://www.cursemaven.com" }
     maven { url "https://api.modrinth.com/maven/" }
 }
 dependencies {
@@ -21,7 +22,9 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation project(":common")
     // Mod Menu
-    modImplementation "maven.modrinth:modmenu:${modmenu_version}"
+    modImplementation  "maven.modrinth:modmenu:${modmenu_version}"
+    // MrCrayfish Config Mods
+    modCompileOnly "curse.maven:catalogue-fabric-667377:4766089" // Catalogue
 }
 
 loom {

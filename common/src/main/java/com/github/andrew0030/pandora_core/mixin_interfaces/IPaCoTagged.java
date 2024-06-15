@@ -3,8 +3,8 @@ package com.github.andrew0030.pandora_core.mixin_interfaces;
 import java.util.Collection;
 
 public interface IPaCoTagged {
-    void addPaCoTag(String name);
-    void lockPaCoTags();
-    Collection<String> getPaCoTags();
-    boolean hasPaCoTag(String tag);
+    void pandoraCore$addTag(String name);
+    void pandoraCore$lockTags();
+    Collection<String> pandoraCore$getTags();
+    boolean pandoraCore$hasTag(String tag);
 }

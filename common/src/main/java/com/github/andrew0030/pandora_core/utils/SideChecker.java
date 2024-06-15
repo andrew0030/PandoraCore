@@ -15,7 +15,7 @@ public class SideChecker {
      * @return Whether the given {@link Level} is a {@link ServerLevel}
      */
     public static boolean isServerLevel(Level level) {
-        return ((IPaCoLevelSideCheck) level).isPaCoServerSide();
+        return ((IPaCoLevelSideCheck) level).pandoraCore$isServerSide();
     }
 
     /**
@@ -23,6 +23,6 @@ public class SideChecker {
      * @return Whether the given {@link Player} is a {@link ServerPlayer}
      */
     public static boolean isServerPlayer(Player player) {
-        return ((IPaCoPlayerSideCheck) player).isPaCoServerPlayer();
+        return ((IPaCoPlayerSideCheck) player).pandoraCore$isServerPlayer();
     }
 }

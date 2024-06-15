@@ -15,13 +15,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ScreenMixin implements IPaCoCheckTitleScreen {
 
     @Override
-    public boolean isPaCoTitleScreen() {
+    public boolean pandoraCore$isTitleScreen() {
         return false;
     }
 
     @Inject(method = "keyPressed", at = @At("HEAD"))
     public void titleScreenPaCoKeyBind(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-        if (((IPaCoCheckTitleScreen) (Object) this).isPaCoTitleScreen()) {
+        if (((IPaCoCheckTitleScreen) (Object) this).pandoraCore$isTitleScreen()) {
             if (PaCoKeyMappings.KEY_PACO.matches(keyCode, scanCode))
                 Minecraft.getInstance().setScreen(new PaCoScreen((TitleScreen) (Object) this));
         }

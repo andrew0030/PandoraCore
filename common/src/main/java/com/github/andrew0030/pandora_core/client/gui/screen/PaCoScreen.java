@@ -1,7 +1,6 @@
 package com.github.andrew0030.pandora_core.client.gui.screen;
 
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
-import com.github.andrew0030.pandora_core.client.shader.holder.PaCoUniformHolder;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;

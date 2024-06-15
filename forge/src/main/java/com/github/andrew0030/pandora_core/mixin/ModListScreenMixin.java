@@ -12,7 +12,7 @@ public class ModListScreenMixin implements IPaCoParentScreenGetter {
     @Shadow @Final private Screen parentScreen;
 
     @Override
-    public Screen getPaCoParentScreen() {
+    public Screen pandoraCore$getParentScreen() {
         return this.parentScreen;
     }
 }

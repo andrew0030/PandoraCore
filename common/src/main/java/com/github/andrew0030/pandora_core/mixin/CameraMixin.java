@@ -28,13 +28,13 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     }
 
     @Override
-    public void setPaCoRotation(float yaw, float pitch, float roll) {
+    public void pandoraCore$setRotation(float yaw, float pitch, float roll) {
         this.PaCoZRot = roll;
         this.setRotation(yaw, pitch);
     }
 
     @Override
-    public float getPaCoZRot() {
+    public float pandoraCore$getZRot() {
         return this.PaCoZRot;
     }
 }

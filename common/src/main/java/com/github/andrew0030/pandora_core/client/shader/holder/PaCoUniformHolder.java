@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.renderer.PostPass;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -41,7 +40,7 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
     @Override
     public UniformSetter get() {
         if (isDirty) {
-            this.value.uniforms = uniformAccess.getPaCoUniforms(key);
+            this.value.uniforms = uniformAccess.pandoraCore$getUniforms(key);
             isDirty = false;
         }
 
@@ -49,20 +48,17 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
     }
 
     @Override
-    public List<PostPass> paCoGetPasses() {
-        return ((IPaCoPostChainAccess) uniformAccess).paCoGetPasses();
+    public List<PostPass> pandoraCore$getPasses() {
+        return ((IPaCoPostChainAccess) uniformAccess).pandoraCore$getPasses();
     }
 
     public class TaggedUniformHolder extends PaCoUniformHolder {
         private final String tag;
         private final List<PostPass> passes = new ArrayList<>();
-        private final ReadOnlyList readOnlyView = new ReadOnlyList(passes);
+        private final ReadOnlyList<PostPass> readOnlyView = new ReadOnlyList<>(passes);
         private final IPaCoPostChainAccess chainAccess;
 
-        public TaggedUniformHolder(
-                IPaCoPostChainAccess chainAccess,
-                String key, String tag
-        ) {
+        public TaggedUniformHolder(IPaCoPostChainAccess chainAccess, String key, String tag) {
             super(null, key);
             this.chainAccess = chainAccess;
             this.tag = tag;
@@ -71,8 +67,8 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
         private void checkDirty() {
             if (isDirty) {
                 passes.clear();
-                for (PostPass pass : chainAccess.paCoGetPasses()) {
-                    if (((IPaCoTagged) pass).hasPaCoTag(tag)) {
+                for (PostPass pass : chainAccess.pandoraCore$getPasses()) {
+                    if (((IPaCoTagged) pass).pandoraCore$hasTag(tag)) {
                         passes.add(pass);
                     }
                 }
@@ -80,10 +76,10 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
                 isDirty = false;
 
                 List<AbstractUniform> uniforms = new ArrayList<>();
-                for (PostPass pass : paCoGetPasses()) {
-                    AbstractUniform uform = pass.getEffect().getUniform(key);
-                    if (uform != null)
-                        uniforms.add(uform);
+                for (PostPass pass : pandoraCore$getPasses()) {
+                    AbstractUniform uniform = pass.getEffect().getUniform(key);
+                    if (uniform != null)
+                        uniforms.add(uniform);
                 }
                 value.uniforms = uniforms;
             }
@@ -96,7 +92,7 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
         }
 
         @Override
-        public List<PostPass> paCoGetPasses() {
+        public List<PostPass> pandoraCore$getPasses() {
             checkDirty();
             return readOnlyView;
         }

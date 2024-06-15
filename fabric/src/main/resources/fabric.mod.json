@@ -18,12 +18,17 @@
         "main": [
             "com.github.andrew0030.pandora_core.PandoraCoreFabric"
         ],
-        "modmenu": [
-            "com.github.andrew0030.pandora_core.config.modmenu.ModMenuConfig"
-        ],
         "client": [
             "com.github.andrew0030.pandora_core.PandoraCoreClientFabric"
+        ],
+        "modmenu": [
+            "com.github.andrew0030.pandora_core.config.modmenu.ModMenuConfig"
         ]
+    },
+    "custom": {
+        "catalogue": {
+            "configFactory": "com.github.andrew0030.pandora_core.config.catalogue.CatalogueConfig"
+        }
     },
     "mixins": [
         "${mod_id}.mixins.json",

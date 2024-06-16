@@ -7,9 +7,10 @@ import java.util.List;
 
 public class PaCoGuiUtils {
 
-    public static void renderBoxWithRim(GuiGraphics graphics, int posX, int posY, int width, int height, int boxColor, @Nullable List<PaCoBorderSide> rims) {
+    public static void renderBoxWithRim(GuiGraphics graphics, int posX, int posY, int width, int height, @Nullable Integer boxColor, @Nullable List<PaCoBorderSide> rims) {
         // Box
-        graphics.fill(posX, posY, posX + width, posY + height, boxColor);
+        if (boxColor != null)
+            graphics.fill(posX, posY, posX + width, posY + height, boxColor);
         // Rims
         if (rims != null) {
             for (PaCoBorderSide side : rims) {

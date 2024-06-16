@@ -1,5 +1,10 @@
 package com.github.andrew0030.pandora_core.platform.services;
 
+import com.mojang.blaze3d.platform.NativeImage;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+
 public interface IPlatformHelper {
 
     /**
@@ -30,7 +35,10 @@ public interface IPlatformHelper {
      * @return The name of the environment type.
      */
     default String getEnvironmentName() {
-
         return isDevelopmentEnvironment() ? "development" : "production";
     }
+
+    Optional<String> getModLogoFile(String modId);
+
+    void loadNativeImage(String modId, String resource, Consumer<NativeImage> consumer);
 }

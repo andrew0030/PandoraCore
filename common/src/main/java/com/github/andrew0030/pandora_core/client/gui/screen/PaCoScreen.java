@@ -1,12 +1,9 @@
 package com.github.andrew0030.pandora_core.client.gui.screen;
 
-import com.github.andrew0030.pandora_core.client.PaCoClientTicker;
+import com.github.andrew0030.pandora_core.client.gui.screen.elements.ModLogoManager;
 import com.github.andrew0030.pandora_core.client.gui.screen.elements.ModsPanelScreenElement;
-import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoBorderSide;
-import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
-import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -14,7 +11,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
 import java.util.*;
@@ -23,13 +19,14 @@ import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderReg
 
 public class PaCoScreen extends Screen {
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
+    private final ModLogoManager logoManager = new ModLogoManager();
     private final Map<String, Object> parameters;
     private float fadeInProgress = 0.0F;
     private final long openTime;
     private TitleScreen titleScreen = null;
     private Screen previousScreen = null;
 
-    private static final ModsPanelScreenElement MODS_PANEL = new ModsPanelScreenElement();
+    private final ModsPanelScreenElement MODS_PANEL = new ModsPanelScreenElement(this.logoManager);
 
     public PaCoScreen() {
         super(TITLE);
@@ -92,6 +89,9 @@ public class PaCoScreen extends Screen {
 
     @Override
     public void onClose() {
+        // Clears the Icon cache
+        this.logoManager.close();
+        // Handles returning to previous Screen if needed
         if (this.previousScreen != null) {
             Minecraft.getInstance().setScreen(this.previousScreen);
         } else if (this.titleScreen != null) {

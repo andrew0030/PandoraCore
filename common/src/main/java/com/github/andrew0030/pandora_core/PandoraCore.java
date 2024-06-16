@@ -17,6 +17,7 @@ public class PandoraCore {
         addPaCoManagedMod(MOD_ID);
         addPaCoManagedMod("test_mod_1");
         addPaCoManagedMod("table_top_craft");
+        addPaCoManagedMod("TgjI|oipUy");
     }
 
     /** Thread Safe Common Init */

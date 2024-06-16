@@ -1,6 +1,11 @@
 package com.github.andrew0030.pandora_core.client.gui.screen;
 
+import com.github.andrew0030.pandora_core.client.PaCoClientTicker;
+import com.github.andrew0030.pandora_core.client.gui.screen.elements.ModsPanelScreenElement;
+import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoBorderSide;
+import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
+import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
@@ -12,8 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry.BlurVariables.*;
 
@@ -24,6 +28,8 @@ public class PaCoScreen extends Screen {
     private final long openTime;
     private TitleScreen titleScreen = null;
     private Screen previousScreen = null;
+
+    private static final ModsPanelScreenElement MODS_PANEL = new ModsPanelScreenElement();
 
     public PaCoScreen() {
         super(TITLE);
@@ -39,6 +45,11 @@ public class PaCoScreen extends Screen {
     public PaCoScreen(TitleScreen titleScreen, Screen previousScreen) {
         this(titleScreen);
         this.previousScreen = previousScreen;
+    }
+
+    @Override
+    protected void init() {
+
     }
 
     @Override
@@ -65,7 +76,7 @@ public class PaCoScreen extends Screen {
 
         int slideInTime = 500; //TODO add config options for slide in time
         float slideInProgress = (elapsed + partialTick) < slideInTime ? (elapsed + partialTick) / slideInTime : 1.0F;
-        this.renderModsPanel(graphics, 0, 20, Mth.floor(this.width * 0.32F), this.height - 40, FastColor.ARGB32.color(100, 0, 0, 0), slideInProgress);
+        MODS_PANEL.render(graphics, 0, 20, Mth.floor(this.width * 0.32F), this.height - 40, PaCoColor.color(100, 0, 0, 0), slideInProgress);
 
         // Renders the screens widgets
         super.render(graphics, mouseX, mouseY, partialTick);
@@ -103,17 +114,5 @@ public class PaCoScreen extends Screen {
 
         PaCoPostShaderRegistry.PACO_BLUR.processPostChain(partialTick, this.parameters);
         minecraft.getMainRenderTarget().bindWrite(false);
-    }
-
-    private void renderModsPanel(GuiGraphics graphics, int posX, int posY, int width, int height, int color, float slideProgress) {
-        graphics.pose().pushPose();
-        graphics.pose().translate(-width * (1 - Easing.CUBIC_OUT.apply(slideProgress)), 0.0F, 0.0F);
-        graphics.fill(posX, posY, posX + width, posY + height, color);
-        // Rims
-        int rimColor = FastColor.ARGB32.color(255, 207, 207, 196);
-        graphics.fill(posX, posY, posX + width, posY + 1, rimColor);
-        graphics.fill(posX, posY + height - 1, posX + width, posY + height, rimColor);
-
-        graphics.pose().popPose();
     }
 }

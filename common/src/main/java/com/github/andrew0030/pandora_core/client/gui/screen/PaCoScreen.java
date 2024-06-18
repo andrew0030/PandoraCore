@@ -1,9 +1,14 @@
 package com.github.andrew0030.pandora_core.client.gui.screen;
 
-import com.github.andrew0030.pandora_core.client.gui.screen.elements.ModLogoManager;
-import com.github.andrew0030.pandora_core.client.gui.screen.elements.ModsPanelScreenElement;
+import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
+import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIconManager;
+import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoBorderSide;
+import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
+import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
+import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -13,20 +18,20 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry.BlurVariables.*;
 
 public class PaCoScreen extends Screen {
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
-    private final ModLogoManager logoManager = new ModLogoManager();
+    private final ModIconManager iconManager = new ModIconManager();
     private final Map<String, Object> parameters;
     private float fadeInProgress = 0.0F;
     private final long openTime;
     private TitleScreen titleScreen = null;
     private Screen previousScreen = null;
-
-    private final ModsPanelScreenElement MODS_PANEL = new ModsPanelScreenElement(this.logoManager);
 
     public PaCoScreen() {
         super(TITLE);
@@ -46,7 +51,14 @@ public class PaCoScreen extends Screen {
 
     @Override
     protected void init() {
-
+        int modsPanelWidth = Mth.floor(this.width * 0.32F);
+        int modButtonWidth = modsPanelWidth - 4;
+        int modsButtonHeight = 25;
+        int idx = 0;
+        for (String modId : PandoraCore.getPaCoManagedMods()) {
+            this.addRenderableWidget(new ModButton(2, 23 + (idx * (modsButtonHeight + 1)), modButtonWidth, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this.iconManager));
+            idx++;
+        }
     }
 
     @Override
@@ -71,9 +83,20 @@ public class PaCoScreen extends Screen {
         graphics.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
+
         int slideInTime = 500; //TODO add config options for slide in time
         float slideInProgress = (elapsed + partialTick) < slideInTime ? (elapsed + partialTick) / slideInTime : 1.0F;
-        MODS_PANEL.render(graphics, 0, 20, Mth.floor(this.width * 0.32F), this.height - 40, PaCoColor.color(100, 0, 0, 0), slideInProgress);
+
+
+        graphics.pose().pushPose();
+        graphics.pose().translate(-width * (1 - Easing.CUBIC_OUT.apply(slideInProgress)), 0.0F, 0.0F);
+        int rimColor = PaCoColor.color(207, 207, 196);
+        PaCoGuiUtils.renderBoxWithRim(graphics, 0, 20,  Mth.floor(this.width * 0.32F), this.height - 40, PaCoColor.color(100, 0, 0, 0), List.of(
+                PaCoBorderSide.TOP.setColor(rimColor).setSize(1),
+                PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(1)
+        ));
+        graphics.pose().popPose();
+
 
         // Renders the screens widgets
         super.render(graphics, mouseX, mouseY, partialTick);
@@ -90,7 +113,7 @@ public class PaCoScreen extends Screen {
     @Override
     public void onClose() {
         // Clears the Icon cache
-        this.logoManager.close();
+        this.iconManager.close();
         // Handles returning to previous Screen if needed
         if (this.previousScreen != null) {
             Minecraft.getInstance().setScreen(this.previousScreen);

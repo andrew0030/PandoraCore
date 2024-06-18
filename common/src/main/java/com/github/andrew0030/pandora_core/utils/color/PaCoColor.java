@@ -5,7 +5,11 @@ import org.jetbrains.annotations.Range;
 
 public class PaCoColor extends FastColor.ARGB32 {
 
-    public static int color(int red, int green, int blue) {
+    public static int color (@Range(from = 0, to = 255) int alpha, @Range(from = 0, to = 255) int red, @Range(from = 0, to = 255) int green, @Range(from = 0, to = 255) int blue) {
+        return FastColor.ARGB32.color(alpha, red, green, blue);
+    }
+
+    public static int color(@Range(from = 0, to = 255) int red, @Range(from = 0, to = 255) int green, @Range(from = 0, to = 255) int blue) {
         return color(255, red, green, blue);
     }
 

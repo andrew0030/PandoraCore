@@ -34,8 +34,8 @@ public class VoxelShapeTransformer {
         // If any of the Directions aren't Horizontal we return without making any changes
         if(!from.getAxis().isHorizontal() || !to.getAxis().isHorizontal()) {
             LOGGER.warn("Found a non Horizontal Direction in VoxelShapeTransformer.rotateShape");
-            LOGGER.warn("from: " + from.getName());
-            LOGGER.warn("to: " + to.getName());
+            LOGGER.warn("from: {}", from.getName());
+            LOGGER.warn("to: {}", to.getName());
             LOGGER.warn("No changes have been made!");
             return this;
         }
@@ -74,7 +74,7 @@ public class VoxelShapeTransformer {
         // If the Direction isn't Horizontal we return a size 4 Array filled with the current VoxelShape
         if(!facing.getAxis().isHorizontal()) {
             LOGGER.warn("Found a non Horizontal Direction in VoxelShapeTransformer.createHorizontalArray");
-            LOGGER.warn("facing: " + facing.getName());
+            LOGGER.warn("facing: {}", facing.getName());
             LOGGER.warn("Returning Array of current VoxelShape!");
             return new VoxelShape[] {this.getShape(), this.getShape(), this.getShape(), this.getShape()};
         }

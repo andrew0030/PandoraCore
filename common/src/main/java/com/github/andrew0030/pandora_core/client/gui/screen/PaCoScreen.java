@@ -13,11 +13,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +31,7 @@ import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderReg
 public class PaCoScreen extends Screen {
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
     private final ModIconManager iconManager = new ModIconManager();
+    private final List<Renderable> modsPanelButtons = new ArrayList<>();
     private final Map<String, Object> parameters;
     private float fadeInProgress = 0.0F;
     private final long openTime;
@@ -56,7 +61,9 @@ public class PaCoScreen extends Screen {
         int modsButtonHeight = 25;
         int idx = 0;
         for (String modId : PandoraCore.getPaCoManagedMods()) {
-            this.addRenderableWidget(new ModButton(2, 23 + (idx * (modsButtonHeight + 1)), modButtonWidth, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this.iconManager));
+            AbstractButton button = new ModButton(2, 23 + (idx * (modsButtonHeight + 1)), modButtonWidth, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this.iconManager);
+            this.modsPanelButtons.add(button);
+            this.addWidget(button);
             idx++;
         }
     }
@@ -84,14 +91,25 @@ public class PaCoScreen extends Screen {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
 
-        int slideInTime = 500; //TODO add config options for slide in time
+        int slideInTime = 600; //TODO add config options for slide in time
         float slideInProgress = (elapsed + partialTick) < slideInTime ? (elapsed + partialTick) / slideInTime : 1.0F;
-
-
         graphics.pose().pushPose();
         graphics.pose().translate(-width * (1 - Easing.CUBIC_OUT.apply(slideInProgress)), 0.0F, 0.0F);
+        // Mods Panel Background
         int rimColor = PaCoColor.color(207, 207, 196);
         PaCoGuiUtils.renderBoxWithRim(graphics, 0, 20,  Mth.floor(this.width * 0.32F), this.height - 40, PaCoColor.color(100, 0, 0, 0), List.of(
+                PaCoBorderSide.TOP.setColor(rimColor).setSize(1),
+                PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(1)
+        ));
+        // Renders Mod Buttons
+        for (Renderable renderable : this.modsPanelButtons) {
+            renderable.render(graphics, mouseX, mouseY, partialTick);
+        }
+        graphics.pose().popPose();
+
+        graphics.pose().pushPose();
+        graphics.pose().translate(width * (1 - Easing.CUBIC_OUT.apply(slideInProgress)), 0.0F, 0.0F);
+        PaCoGuiUtils.renderBoxWithRim(graphics, Mth.floor(this.width * 0.32F) + 2, 20,  this.width, this.height - 40, PaCoColor.color(100, 0, 0, 0), List.of(
                 PaCoBorderSide.TOP.setColor(rimColor).setSize(1),
                 PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(1)
         ));
@@ -99,7 +117,7 @@ public class PaCoScreen extends Screen {
 
 
         // Renders the screens widgets
-        super.render(graphics, mouseX, mouseY, partialTick);
+//        super.render(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override

@@ -3,9 +3,28 @@ package com.github.andrew0030.pandora_core.client.gui.screen.utils;
 import net.minecraft.client.gui.GuiGraphics;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PaCoGuiUtils {
+
+    private static final ArrayList<PaCoBorderSide> borderList = new ArrayList<>();
+
+    public static void renderBox(GuiGraphics graphics, int posX, int posY, int width, int height, int boxColor) {
+        PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, width, height, boxColor, null, null);
+    }
+
+    public static void renderBoxWithRim(GuiGraphics graphics, int posX, int posY, int width, int height, @Nullable Integer boxColor, @Nullable Integer rimColor, @Nullable Integer rimSize) {
+        ArrayList<PaCoBorderSide> rims = null;
+        if (rimColor != null && rimSize != null) {
+            rims = PaCoGuiUtils.getBorderList();
+            rims.add(PaCoBorderSide.TOP.setColor(rimColor).setSize(rimSize));
+            rims.add(PaCoBorderSide.RIGHT.setColor(rimColor).setSize(rimSize));
+            rims.add(PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(rimSize));
+            rims.add(PaCoBorderSide.LEFT.setColor(rimColor).setSize(rimSize));
+        }
+        PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, width, height, boxColor, rims);
+    }
 
     public static void renderBoxWithRim(GuiGraphics graphics, int posX, int posY, int width, int height, @Nullable Integer boxColor, @Nullable List<PaCoBorderSide> rims) {
         // Box
@@ -24,5 +43,11 @@ public class PaCoGuiUtils {
                     graphics.fill(posX, posY, posX + side.getSize(), posY + height, side.getColor());
             }
         }
+    }
+
+    /** @return Reusable list for {@link PaCoBorderSide} that clears itself when obtained. */
+    public static ArrayList<PaCoBorderSide> getBorderList() {
+        PaCoGuiUtils.borderList.clear();
+        return PaCoGuiUtils.borderList;
     }
 }

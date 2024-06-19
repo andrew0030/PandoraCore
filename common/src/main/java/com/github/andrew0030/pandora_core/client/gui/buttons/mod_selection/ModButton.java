@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoBorderSide;
 import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.ModDataHolder;
@@ -16,6 +17,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+
 public class ModButton extends AbstractButton {
     public static final ResourceLocation MISSING_MOD_ICON = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/missing_mod_icon.png");
     private final ModDataHolder modDataHolder;
@@ -30,16 +33,24 @@ public class ModButton extends AbstractButton {
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Button Background
-        int boxColor = this.isHovered ? PaCoColor.color(100, 100, 100, 100) : PaCoColor.color(100, 0, 0, 0);
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), boxColor, null);
+        int boxColor = PaCoColor.color(100, 0, 0, 0);
+        ArrayList<PaCoBorderSide> buttonRims = null;
+        if (this.isHovered()) {
+            boxColor = PaCoColor.color(100, 90, 90, 90);
+            buttonRims = PaCoGuiUtils.getBorderList();
+            buttonRims.add(PaCoBorderSide.TOP.setSize(1).setColor(PaCoColor.color(157, 157, 146)));
+            buttonRims.add(PaCoBorderSide.RIGHT.setSize(1).setColor(PaCoColor.color(157, 157, 146)));
+            buttonRims.add(PaCoBorderSide.BOTTOM.setSize(1).setColor(PaCoColor.color(157, 157, 146)));
+            buttonRims.add(PaCoBorderSide.LEFT.setSize(1).setColor(PaCoColor.color(157, 157, 146)));
+        }
+        // Mod Button Background
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), boxColor, buttonRims);
         // Mod Icon
         this.renderModIcon(this.modDataHolder.getModId(), graphics, this.getX() + 1, this.getY() + 1, this.getHeight() - 2);
         // Mod Name
-        graphics.drawString(Minecraft.getInstance().font, this.modDataHolder.getModNameOrId(), this.getX() + this.getHeight() + 2, this.getY() + 2, PaCoColor.color(255, 255, 255), false);
+        graphics.drawString(Minecraft.getInstance().font, this.modDataHolder.getModNameOrId(), this.getX() + this.getHeight() + 2, this.getY() + 3, PaCoColor.color(255, 255, 255), false);
         // Mod Version
-        graphics.drawString(Minecraft.getInstance().font, (modDataHolder.getModVersion() == null ? "unknown" : "v" + modDataHolder.getModVersion()), this.getX() + this.getHeight() + 2, this.getY() + 11, PaCoColor.color(100, 100, 100), false);
-
-//        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        graphics.drawString(Minecraft.getInstance().font, (modDataHolder.getModVersion() == null ? "unknown" : "v" + modDataHolder.getModVersion()), this.getX() + this.getHeight() + 2, this.getY() + 14, PaCoColor.color(130, 130, 130), false);
     }
 
     @Override

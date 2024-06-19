@@ -15,8 +15,11 @@ public class PandoraCore {
     /** Common Init */
     public static void init() {
         addPaCoManagedMod(MOD_ID);
-        addPaCoManagedMod("test_mod_1");
+        addPaCoManagedMod("swampier_swamps");
         addPaCoManagedMod("table_top_craft");
+        addPaCoManagedMod("online_detector");
+        addPaCoManagedMod("test_mod_1");
+        addPaCoManagedMod("tacos_mc");
         addPaCoManagedMod("TgjI|oipUy");
     }
 

@@ -65,6 +65,11 @@ dependencies {
     // MrCrayfish Config Mods
     compileOnly fg.deobf("curse.maven:catalogue-459701:4766090") // Catalogue
     compileOnly fg.deobf("curse.maven:configured-457570:5180900") // Configured
+
+    // My Mods (PaCo Screen Tests)
+    runtimeOnly fg.deobf("curse.maven:swampier-swamps-632591:4578599") // Swampier Swamps
+    runtimeOnly fg.deobf("curse.maven:table-top-craft-467136:5318681") // Table Top Craft
+    runtimeOnly fg.deobf("curse.maven:online-detector-454487:4574905") // Online Detector
 }
 
 tasks.withType(JavaCompile).configureEach {

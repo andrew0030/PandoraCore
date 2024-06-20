@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class FabricPlatformHelper implements IPlatformHelper {
 
@@ -32,12 +32,17 @@ public class FabricPlatformHelper implements IPlatformHelper {
     }
 
     @Override
-    public void loadNativeImage(String modId, String resource, Consumer<NativeImage> consumer) {
+    public <T> T loadNativeImage(String modId, String resource, Function<NativeImage, T> consumer) {
+        Object[] o = new Object[1];
         FabricLoader.getInstance().getModContainer(modId).flatMap(container -> container.findPath(resource)).ifPresent(path -> {
             try(InputStream is = Files.newInputStream(path); NativeImage icon = NativeImage.read(is)) {
-                consumer.accept(icon);
-            } catch(IOException ignored) {}
+                o[0] = (T) consumer.apply(icon);
+            } catch(IOException ignored) {
+                // If the icon fails to load, provide a null texture so that it can be cached as attempted
+                o[0] = consumer.apply(null);
+            }
         });
+        return (T) o[0];
     }
 
     @Override

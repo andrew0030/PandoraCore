@@ -24,16 +24,12 @@ public class ModIconManager implements Closeable {
         return this.modIconCache.containsKey(modId);
     }
 
-    public DynamicTexture getCachedTexture(String modId) {
-        return this.modIconCache.get(modId).getSecond();
-    }
-
-    public ResourceLocation getCachedLocation(String modId) {
-        return this.modIconCache.get(modId).getFirst();
+    public Pair<ResourceLocation, DynamicTexture> getCachedEntry(String modId) {
+        return this.modIconCache.get(modId);
     }
 
     public void cacheModIcon(String modId, ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
-        this.modIconCache.put(modId, new Pair<>(resourceLocation, dynamicTexture));
+        this.modIconCache.put(modId, new Pair(resourceLocation, dynamicTexture));
         PandoraCore.LOGGER.info("No cache entry for '{}' mod icon, generating...", modId);
     }
 }

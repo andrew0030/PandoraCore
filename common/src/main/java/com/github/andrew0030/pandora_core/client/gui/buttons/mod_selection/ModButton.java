@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -76,41 +77,68 @@ public class ModButton extends AbstractButton {
         }
     }
 
+    /**
+     * Attempts to load the icon of a Mod with the given mod ID.
+     * @param modId the id of the mod to load the icon for
+     * @return If this attempt succeeds iconData is used to get the ResourceLocation and dimensions of the icon.
+     *         If the attempt fails, it returns null and the placeholder image should be rendered.
+     */
+    @Nullable
     private Pair<ResourceLocation, Pair<Integer, Integer>> getIconData(String modId) {
-        // Attempts to load the icon of a Mod with the given mod ID.
-        // If this attempt succeeds iconData is used to get the ResourceLocation and dimensions of the icon.
-        // If the attempt fails the placeholder image is rendered.
         String iconFile = this.modDataHolder.getModIconFile();
-        if (iconFile != null) {
-            // Checks if the modId is already present in the cache, and grabs the values if so.
-            if (this.iconManager.isPresent(modId)) {
-                NativeImage cachedImage = this.iconManager.getCachedTexture(modId).getPixels();
-                return Pair.of(this.iconManager.getCachedLocation(modId), Pair.of(cachedImage.getWidth(), cachedImage.getHeight()));
-            }
-            // If the cache doesn't contain the mod we create the icon.
-            final Pair<ResourceLocation, Pair<Integer, Integer>>[] result = new Pair[1];
-            result[0] = Pair.of(null, Pair.of(0, 0)); // Default value in case of failure
+        // If the mod doesn't have an icon file, then there's no point in continuing.
+        if (iconFile == null)
+            return null;
 
-            Services.PLATFORM.loadNativeImage(modId, iconFile, nativeImage -> {
-                try {
-                    DynamicTexture dynamicTexture = new DynamicTexture(nativeImage) {
-                        @Override
-                        public void upload() {
-                            this.bind();
-                            NativeImage image = this.getPixels();
-                            this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), true, false, false, false);
-                        }
-                    };
-                    // We register the texture
-                    ResourceLocation resourceLocation = Minecraft.getInstance().getTextureManager().register("modicon", dynamicTexture);
-                    // We cache the loaded texture for easy access next time.
-                    this.iconManager.cacheModIcon(modId, resourceLocation, dynamicTexture);
-                    // Sets the result, using the new texture and its dimensions.
-                    result[0] = Pair.of(resourceLocation, Pair.of(nativeImage.getWidth(), nativeImage.getHeight()));
-                } catch (Exception ignored) {}
-            });
-            return result[0];
+        // Check if the modId is already present in the cache, and grabs the values if so.
+        Pair<ResourceLocation, DynamicTexture> cachedEntry = iconManager.getCachedEntry(modId);
+        if (cachedEntry != null) {
+            // If the cached entry's resource location is null, then null should be returned for consistency reasons
+            // The first entry being null indicates that the mod has an icon, but said icon failed to load
+            if (cachedEntry.getFirst() == null)
+                return null;
+
+            // return the entry
+            return Pair.of(
+                    cachedEntry.getFirst(),
+                    Pair.of(cachedEntry.getSecond().getPixels().getWidth(), cachedEntry.getSecond().getPixels().getHeight())
+            );
         }
-        return null;
+
+        // If the icon is not already cached, then load it
+        return Services.PLATFORM.loadNativeImage(modId, iconFile, nativeImage -> {
+            if (nativeImage == null) {
+                // If the icon fails to load, null is provided
+                // So cache null,null to indicate that
+                this.iconManager.cacheModIcon(modId, null, null);
+                return null;
+            }
+
+            DynamicTexture dynamicTexture = null;
+            try {
+                dynamicTexture = new DynamicTexture(nativeImage) {
+                    @Override
+                    public void upload() {
+                        this.bind();
+                        NativeImage image = this.getPixels();
+                        this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), true, false, false, false);
+                    }
+                };
+                // Register and cache the texture, and return it
+                ResourceLocation resourceLocation = Minecraft.getInstance().getTextureManager().register("modicon", dynamicTexture);
+                this.iconManager.cacheModIcon(modId, resourceLocation, dynamicTexture);
+                return Pair.of(resourceLocation, Pair.of(nativeImage.getWidth(), nativeImage.getHeight()));
+            } catch (Exception ignored) {
+                // Safety reasons
+                // To my knowledge, the try here should never fail
+                // However, VRAM leaks are particularly annoying in that they're unnoticeable until the device crashes, at which point the screen blacks out until drivers reboot
+                if (dynamicTexture != null)
+                    dynamicTexture.close();
+
+                // Cache null,null so that the icon doesn't load again
+                this.iconManager.cacheModIcon(modId, null, null);
+                return null;
+            }
+        });
     }
 }

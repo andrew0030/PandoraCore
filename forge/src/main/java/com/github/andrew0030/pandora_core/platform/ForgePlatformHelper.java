@@ -14,7 +14,7 @@ import net.minecraftforge.resource.ResourcePackLoader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ForgePlatformHelper implements IPlatformHelper {
 
@@ -34,15 +34,20 @@ public class ForgePlatformHelper implements IPlatformHelper {
     }
 
     @Override
-    public void loadNativeImage(String modId, String resource, Consumer<NativeImage> consumer) {
+    public <T> T loadNativeImage(String modId, String resource, Function<NativeImage, T> consumer) {
+        Object[] o = new Object[1];
         ResourcePackLoader.getPackFor(modId).ifPresent(resources -> {
             IoSupplier<InputStream> supplier = resources.getRootResource(resource);
             if(supplier != null) {
                 try(InputStream is = supplier.get(); NativeImage image = NativeImage.read(is)) {
-                    consumer.accept(image);
-                } catch(IOException ignored) {}
+                    o[0] = consumer.apply(image);
+                } catch(IOException ignored) {
+                    // If the icon fails to load, provide a null texture so that it can be cached as attempted
+                    o[0] = consumer.apply(null);
+                }
             }
         });
+        return (T) o[0];
     }
 
     @Override

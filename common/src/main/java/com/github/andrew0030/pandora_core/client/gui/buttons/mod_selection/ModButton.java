@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoBorderSide;
 import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
@@ -23,16 +24,21 @@ import java.util.ArrayList;
 public class ModButton extends AbstractButton {
     public static final ResourceLocation MISSING_MOD_ICON = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/missing_mod_icon.png");
     private final ModDataHolder modDataHolder;
-    private final ModIconManager iconManager;
+    private final PaCoScreen screen;
 
-    public ModButton(int x, int y, int width, int height, ModDataHolder modDataHolder, ModIconManager iconManager) {
+    public ModButton(int x, int y, int width, int height, ModDataHolder modDataHolder, PaCoScreen screen) {
         super(x, y, width, height, Component.literal(modDataHolder.getModNameOrId()));
         this.modDataHolder = modDataHolder;
-        this.iconManager = iconManager;
+        this.screen = screen;
     }
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // TODO: tweak this a bit if needed, so its pixel perfect both on the top and the bottom.
+        boolean inMenuBounds = mouseY < this.screen.menuHeight + this.screen.menuHeightStart && mouseY > this.screen.menuHeightStart;
+        this.isHovered = inMenuBounds && this.isHovered;
+        this.active = inMenuBounds;
+
         // Button Background
         int boxColor = PaCoColor.color(100, 0, 0, 0);
         ArrayList<PaCoBorderSide> buttonRims = null;
@@ -91,7 +97,7 @@ public class ModButton extends AbstractButton {
             return null;
 
         // Check if the modId is already present in the cache, and grabs the values if so.
-        Pair<ResourceLocation, DynamicTexture> cachedEntry = iconManager.getCachedEntry(modId);
+        Pair<ResourceLocation, DynamicTexture> cachedEntry = this.screen.iconManager.getCachedEntry(modId);
         if (cachedEntry != null) {
             // If the cached entry's resource location is null, then null should be returned for consistency reasons
             // The first entry being null indicates that the mod has an icon, but said icon failed to load
@@ -110,7 +116,7 @@ public class ModButton extends AbstractButton {
             if (nativeImage == null) {
                 // If the icon fails to load, null is provided
                 // So cache null,null to indicate that
-                this.iconManager.cacheModIcon(modId, null, null);
+                this.screen.iconManager.cacheModIcon(modId, null, null);
                 return null;
             }
 
@@ -126,7 +132,7 @@ public class ModButton extends AbstractButton {
                 };
                 // Register and cache the texture, and return it
                 ResourceLocation resourceLocation = Minecraft.getInstance().getTextureManager().register("modicon", dynamicTexture);
-                this.iconManager.cacheModIcon(modId, resourceLocation, dynamicTexture);
+                this.screen.iconManager.cacheModIcon(modId, resourceLocation, dynamicTexture);
                 return Pair.of(resourceLocation, Pair.of(nativeImage.getWidth(), nativeImage.getHeight()));
             } catch (Exception ignored) {
                 // Safety reasons
@@ -136,7 +142,7 @@ public class ModButton extends AbstractButton {
                     dynamicTexture.close();
 
                 // Cache null,null so that the icon doesn't load again
-                this.iconManager.cacheModIcon(modId, null, null);
+                this.screen.iconManager.cacheModIcon(modId, null, null);
                 return null;
             }
         });

@@ -14,12 +14,12 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +29,13 @@ import java.util.Map;
 import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry.BlurVariables.*;
 
 public class PaCoScreen extends Screen {
+    public int menuHeight;
+    public int modsPanelWidth;
+    public int modContentWidth;
+    public int menuHeightStart;
+    public int menuHeightStop;
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
-    private final ModIconManager iconManager = new ModIconManager();
+    public final ModIconManager iconManager = new ModIconManager();
     private final List<Renderable> modsPanelButtons = new ArrayList<>();
     private final Map<String, Object> parameters;
     private float fadeInProgress = 0.0F;
@@ -56,13 +61,20 @@ public class PaCoScreen extends Screen {
 
     @Override
     protected void init() {
+        // Field Init
+        this.menuHeight = this.height - 40;
+        this.modsPanelWidth = Mth.floor(this.width * 0.32F);
+        this.modContentWidth = this.width - this.modsPanelWidth - 2;
+        this.menuHeightStart = (this.height - this.menuHeight) / 2;
+        this.menuHeightStop = this.menuHeightStart + this.menuHeight;
+        // Adding Widgets
         int modsPanelWidth = Mth.floor(this.width * 0.32F);
         int modButtonWidth = modsPanelWidth - 4;
         int modsButtonHeight = 25;
         int idx = 0;
         this.modsPanelButtons.clear();
         for (String modId : PandoraCore.getPaCoManagedMods()) {
-            AbstractButton button = new ModButton(2, 23 + (idx * (modsButtonHeight + 1)), modButtonWidth, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this.iconManager);
+            AbstractButton button = new ModButton(2, 23 + (idx * (modsButtonHeight + 1)), modButtonWidth, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this);
             this.modsPanelButtons.add(button);
             this.addWidget(button);
             idx++;
@@ -70,12 +82,12 @@ public class PaCoScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 
         long elapsed = System.currentTimeMillis() - this.openTime;
         int fadeInTime = 160; //TODO add config options for fade in time and blurriness
         this.fadeInProgress = (elapsed + partialTick) < fadeInTime ? (elapsed + partialTick) / fadeInTime : 1.0F;
-
+        // Renders the Panorama if needed
         if (this.titleScreen != null) {
             if (this.titleScreen.fadeInStart == 0L && this.titleScreen.fading)
                 this.titleScreen.fadeInStart = Util.getMillis();
@@ -98,31 +110,31 @@ public class PaCoScreen extends Screen {
         graphics.pose().translate(-width * (1 - Easing.CUBIC_OUT.apply(slideInProgress)), 0.0F, 0.0F);
         // Mods Panel Background
         int rimColor = PaCoColor.color(207, 207, 196);
-        PaCoGuiUtils.renderBoxWithRim(graphics, 0, 20,  Mth.floor(this.width * 0.32F), this.height - 40, PaCoColor.color(100, 0, 0, 0), List.of(
+        PaCoGuiUtils.renderBoxWithRim(graphics, 0, this.menuHeightStart,  this.modsPanelWidth, this.menuHeight, PaCoColor.color(100, 0, 0, 0), List.of(
                 PaCoBorderSide.TOP.setColor(rimColor).setSize(1),
                 PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(1)
         ));
         // Renders Mod Buttons
-        for (Renderable renderable : this.modsPanelButtons) {
+        graphics.enableScissor(2, this.menuHeightStart + 1, this.modsPanelWidth - 2, this.menuHeightStop - 1);
+        graphics.pose().pushPose();
+        for (Renderable renderable : this.modsPanelButtons)
             renderable.render(graphics, mouseX, mouseY, partialTick);
-        }
+        graphics.pose().popPose();
+        graphics.disableScissor();
         graphics.pose().popPose();
 
+        // Mod Content Panel
         graphics.pose().pushPose();
         graphics.pose().translate(width * (1 - Easing.CUBIC_OUT.apply(slideInProgress)), 0.0F, 0.0F);
-        PaCoGuiUtils.renderBoxWithRim(graphics, Mth.floor(this.width * 0.32F) + 2, 20,  this.width, this.height - 40, PaCoColor.color(100, 0, 0, 0), List.of(
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + 2, this.menuHeightStart,  this.modContentWidth, this.menuHeight, PaCoColor.color(100, 0, 0, 0), List.of(
                 PaCoBorderSide.TOP.setColor(rimColor).setSize(1),
                 PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(1)
         ));
         graphics.pose().popPose();
-
-
-        // Renders the screens widgets
-//        super.render(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics) {}
+    public void renderBackground(@NotNull GuiGraphics graphics) {}
 
     @Override
     public boolean isPauseScreen() {

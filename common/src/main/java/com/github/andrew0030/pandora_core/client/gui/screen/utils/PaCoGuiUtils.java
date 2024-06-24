@@ -50,4 +50,18 @@ public class PaCoGuiUtils {
         PaCoGuiUtils.borderList.clear();
         return PaCoGuiUtils.borderList;
     }
+
+    /**
+     * Alternative method to enable scissors, this method doesn't take start and end coordinates,
+     * instead it only takes start coordinates and then the wanted width and height.<br/>
+     * <strong>NOTE</strong>: it is important to call {@link GuiGraphics#disableScissor()} when done to disable the scissors.
+     * @param graphics The {@link GuiGraphics}.
+     * @param posX The starting X position.
+     * @param posY The starting Y position.
+     * @param width The width of the scissor rectangle.
+     * @param height The height of the scissor rectangle.
+     */
+    public static void enableScissor(GuiGraphics graphics, int posX, int posY, int width, int height) {
+        graphics.enableScissor(posX, posY, posX + width, posY + height);
+    }
 }

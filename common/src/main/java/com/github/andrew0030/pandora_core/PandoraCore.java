@@ -20,7 +20,10 @@ public class PandoraCore {
         addPaCoManagedMod("online_detector");
         addPaCoManagedMod("test_mod_1");
         addPaCoManagedMod("tacos_mc");
-        addPaCoManagedMod("TgjI|oipUy");
+        addPaCoManagedMod("some_mod");
+        addPaCoManagedMod("this_does_not_exist");
+        addPaCoManagedMod("place_holder");
+        addPaCoManagedMod("kinda_far_down");
     }
 
     /** Thread Safe Common Init */

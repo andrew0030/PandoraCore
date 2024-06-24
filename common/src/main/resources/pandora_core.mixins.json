@@ -5,18 +5,19 @@
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "LevelMixin",
-    "PlayerMixin",
-    "ServerLevelMixin",
-    "ServerPlayerMixin"
+    "level.LevelMixin",
+    "level.ServerLevelMixin",
+    "player.PlayerMixin",
+    "player.ServerPlayerMixin"
   ],
   "client": [
-    "CameraMixin",
-    "GameRendererMixin",
-    "PostChainMixin",
-    "PostPassMixin",
-    "ScreenMixin",
-    "TitleScreenMixin"
+    "camera.CameraMixin",
+    "post_shader.GameRenderer_PostShaderMixin",
+    "post_shader.PostChainMixin",
+    "post_shader.PostPassMixin",
+    "gui.ScreenMixin",
+    "gui.TitleScreenMixin",
+    "camera.GameRenderer_CameraMixin"
   ],
   "server": [],
   "injectors": {

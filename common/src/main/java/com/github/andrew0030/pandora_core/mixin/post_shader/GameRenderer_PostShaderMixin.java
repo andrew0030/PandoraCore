@@ -1,20 +1,14 @@
-package com.github.andrew0030.pandora_core.mixin;
+package com.github.andrew0030.pandora_core.mixin.post_shader;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.client.shader.holder.PostChainHolder;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoSetCameraRotation;
 import com.google.gson.JsonSyntaxException;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,9 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.io.IOException;
 
 @Mixin(GameRenderer.class)
-public class GameRendererMixin {
-
-    @Shadow @Final private Camera mainCamera;
+public class GameRenderer_PostShaderMixin {
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     public void initPaCoPostShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
@@ -63,11 +55,5 @@ public class GameRendererMixin {
                 PandoraCore.LOGGER.warn("Failed to parse shader: {}", holder.getResourceLocation(), jsonSyntaxException);
             }
         }
-    }
-
-    // Used to apply camera rotation (roll)
-    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.AFTER))
-    private void applyPaCoCameraZRot(float partialTick, long finishTimeNano, PoseStack poseStack, CallbackInfo ci) {
-        poseStack.mulPose(Axis.ZP.rotationDegrees(((IPaCoSetCameraRotation) this.mainCamera).pandoraCore$getZRot()));
     }
 }

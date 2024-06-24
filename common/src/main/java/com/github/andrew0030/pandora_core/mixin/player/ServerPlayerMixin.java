@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.mixin;
+package com.github.andrew0030.pandora_core.mixin.player;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoPlayerSideCheck;
 import net.minecraft.server.level.ServerPlayer;

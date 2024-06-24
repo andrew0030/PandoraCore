@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.mixin;
+package com.github.andrew0030.pandora_core.mixin.camera;
 
 import com.github.andrew0030.pandora_core.client.screen_shaker.ScreenShakeManager;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoSetCameraRotation;

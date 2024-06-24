@@ -60,6 +60,7 @@ public class PaCoScreen extends Screen {
         int modButtonWidth = modsPanelWidth - 4;
         int modsButtonHeight = 25;
         int idx = 0;
+        this.modsPanelButtons.clear();
         for (String modId : PandoraCore.getPaCoManagedMods()) {
             AbstractButton button = new ModButton(2, 23 + (idx * (modsButtonHeight + 1)), modButtonWidth, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this.iconManager);
             this.modsPanelButtons.add(button);

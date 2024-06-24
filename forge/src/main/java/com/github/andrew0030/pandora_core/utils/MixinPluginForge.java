@@ -33,7 +33,8 @@ public class MixinPluginForge implements IMixinConfigPlugin
     }
 
     static {
-        addClassLookup("com.github.andrew0030.pandora_core.mixin.CatalogueModListScreenMixin");
+        addPkgLookup("com.github.andrew0030.pandora_core.mixin.compat.gui");
+//        addClassLookup("com.github.andrew0030.pandora_core.mixin.compat.gui.CatalogueModListScreenMixin");
     }
 
     @Override

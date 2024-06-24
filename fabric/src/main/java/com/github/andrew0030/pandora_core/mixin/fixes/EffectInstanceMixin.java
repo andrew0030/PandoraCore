@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.mixin;
+package com.github.andrew0030.pandora_core.mixin.fixes;
 
 import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 /* this should be a part of fapi */
 @Mixin(EffectInstance.class)
 public class EffectInstanceMixin {
+    @Unique
     protected ResourceLocation trueId;
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/resources/ResourceLocation;<init>(Ljava/lang/String;)V"))

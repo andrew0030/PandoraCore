@@ -6,7 +6,7 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginForge",
   "mixins": [
-    "CatalogueModListScreenMixin"
+    "compat.gui.CatalogueModListScreenMixin"
   ],
   "client": [
     "ModListScreenMixin"

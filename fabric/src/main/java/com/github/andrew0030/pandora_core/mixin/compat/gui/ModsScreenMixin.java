@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.mixin;
+package com.github.andrew0030.pandora_core.mixin.compat.gui;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
 import com.terraformersmc.modmenu.gui.ModsScreen;

@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.mixin;
+package com.github.andrew0030.pandora_core.mixin.post_shader;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoTagged;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlySet;

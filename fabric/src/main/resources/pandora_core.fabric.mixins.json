@@ -5,12 +5,11 @@
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginFabric",
-  "mixins": [
-    "CatalogueModListScreenMixin"
-  ],
+  "mixins": [],
   "client": [
-    "EffectInstanceMixin",
-    "ModsScreenMixin"
+    "compat.gui.CatalogueModListScreenMixin",
+    "compat.gui.ModsScreenMixin",
+    "fixes.EffectInstanceMixin"
   ],
   "server": [],
   "injectors": {

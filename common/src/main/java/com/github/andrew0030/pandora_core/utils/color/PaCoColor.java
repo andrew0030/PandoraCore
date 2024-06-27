@@ -79,4 +79,8 @@ public class PaCoColor extends FastColor.ARGB32 {
 
         return color((int)(finalAlpha * 255), red, green, blue);
     }
+
+    public static int lerp(float delta, int color1, int color2) {
+        return FastColor.ARGB32.lerp(delta, color1, color2);
+    }
 }

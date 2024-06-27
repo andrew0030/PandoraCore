@@ -205,6 +205,33 @@ public class PaCoSlider extends AbstractSliderButton {
     protected void applyValue() {}
 
     @Override
+    protected boolean clicked(double mouseX, double mouseY) {
+        boolean mouseOverSlider = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
+        boolean mouseOverIndicator = false;
+        // Only check if the indicator is bigger than the slider
+        if (this.indicatorWidth > this.width || this.indicatorHeight > this.height) {
+            int posX = this.getX() + (int)(this.value * (double)(this.width - this.indicatorWidth));
+            int posY = this.getY() + (this.height - this.indicatorHeight) / 2;
+            mouseOverIndicator = mouseX >= posX && mouseY >= posY && mouseX < posX + this.indicatorWidth && mouseY < posY + this.indicatorHeight;
+        }
+        return this.active && this.visible && (mouseOverSlider || mouseOverIndicator);
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float pPartialTick) {
+        if (this.visible) {
+            this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
+            if (this.indicatorWidth > this.width || this.indicatorHeight > this.height) {
+                int posX = this.getX() + (int)(this.value * (double)(this.width - this.indicatorWidth));
+                int posY = this.getY() + (this.height - this.indicatorHeight) / 2;
+                this.isHovered = this.isHovered || mouseX >= posX && mouseY >= posY && mouseX < posX + this.indicatorWidth && mouseY < posY + this.indicatorHeight;
+            }
+            this.renderWidget(graphics, mouseX, mouseY, pPartialTick);
+//            this.updateTooltip();
+        }
+    }
+
+    @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
         graphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);

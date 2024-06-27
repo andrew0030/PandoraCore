@@ -6,9 +6,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 
@@ -27,12 +29,12 @@ public class PaCoSlider extends AbstractSliderButton {
     protected boolean isSilent;
     protected Integer sliderColor;
     protected Integer sliderRimColor;
-    // Slider Indicator Stuff
-    protected int indicatorWidth;
-    protected int indicatorHeight;
-    protected Integer indicatorColor;
-    protected Integer indicatorRimColor;
-    protected Integer indicatorHighlightedRimColor;
+    // Slider Handle Stuff
+    protected int handleWidth;
+    protected int handleHeight;
+    protected Integer handleColor;
+    protected Integer handleRimColor;
+    protected Integer handleHighlightedRimColor;
     // Slider Text Format
     private final DecimalFormat format;
     private Integer textColor;
@@ -43,8 +45,8 @@ public class PaCoSlider extends AbstractSliderButton {
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.stepSize = stepSize;
-        this.indicatorWidth = 8;
-        this.indicatorHeight = height;
+        this.handleWidth = 8;
+        this.handleHeight = height;
 
         String pattern = !Mth.equal(this.stepSize, Mth.floor(this.stepSize)) ? Double.toString(this.stepSize).replaceAll("\\d", "0") : "0";
         this.format = new DecimalFormat(pattern);
@@ -74,15 +76,15 @@ public class PaCoSlider extends AbstractSliderButton {
         return this;
     }
 
-    public PaCoSlider setIndicatorWidth(int width) {
+    public PaCoSlider setHandleWidth(int width) {
         width = Math.max(2, width);
-        this.indicatorWidth = width;
+        this.handleWidth = width;
         return this;
     }
 
-    public PaCoSlider setIndicatorHeight(int height) {
+    public PaCoSlider setHandleHeight(int height) {
         height = Math.max(2, height);
-        this.indicatorHeight = height;
+        this.handleHeight = height;
         return this;
     }
 
@@ -92,10 +94,10 @@ public class PaCoSlider extends AbstractSliderButton {
         return this;
     }
 
-    public PaCoSlider setIndicatorColor(int indicatorColor, int indicatorRimColor, int indicatorHighlightedRimColor) {
-        this.indicatorColor = indicatorColor;
-        this.indicatorRimColor = indicatorRimColor;
-        this.indicatorHighlightedRimColor = indicatorHighlightedRimColor;
+    public PaCoSlider setHandleColor(int handleColor, int handleRimColor, int handleHighlightedRimColor) {
+        this.handleColor = handleColor;
+        this.handleRimColor = handleRimColor;
+        this.handleHighlightedRimColor = handleHighlightedRimColor;
         return this;
     }
 
@@ -150,7 +152,7 @@ public class PaCoSlider extends AbstractSliderButton {
     @Override
     public void onRelease(double mouseX, double mouseY) {
         if (!this.isSilent) // Prevent click sound if needed
-            super.onRelease(mouseX, mouseY);
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     @Override
@@ -166,7 +168,7 @@ public class PaCoSlider extends AbstractSliderButton {
     }
 
     protected void setValueFromMouse(double mouseX) {
-        this.setSliderValue((mouseX - (double)(this.getX() + (this.indicatorWidth / 2F))) / (double)(this.width - this.indicatorWidth));
+        this.setSliderValue((mouseX - (double)(this.getX() + (this.handleWidth / 2F))) / (double)(this.width - this.handleWidth));
     }
 
     protected void setSliderValue(double value) {
@@ -207,27 +209,27 @@ public class PaCoSlider extends AbstractSliderButton {
     @Override
     protected boolean clicked(double mouseX, double mouseY) {
         boolean mouseOverSlider = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
-        boolean mouseOverIndicator = false;
-        // Only check if the indicator is bigger than the slider
-        if (this.indicatorWidth > this.width || this.indicatorHeight > this.height) {
-            int posX = this.getX() + (int)(this.value * (double)(this.width - this.indicatorWidth));
-            int posY = this.getY() + (this.height - this.indicatorHeight) / 2;
-            mouseOverIndicator = mouseX >= posX && mouseY >= posY && mouseX < posX + this.indicatorWidth && mouseY < posY + this.indicatorHeight;
+        boolean mouseOverHandle = false;
+        // Only check if the handle is bigger than the slider
+        if (this.handleWidth > this.width || this.handleHeight > this.height) {
+            int posX = this.getX() + (int)(this.value * (double)(this.width - this.handleWidth));
+            int posY = this.getY() + (this.height - this.handleHeight) / 2;
+            mouseOverHandle = mouseX >= posX && mouseY >= posY && mouseX < posX + this.handleWidth && mouseY < posY + this.handleHeight;
         }
-        return this.active && this.visible && (mouseOverSlider || mouseOverIndicator);
+        return this.active && this.visible && (mouseOverSlider || mouseOverHandle);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float pPartialTick) {
         if (this.visible) {
             this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
-            if (this.indicatorWidth > this.width || this.indicatorHeight > this.height) {
-                int posX = this.getX() + (int)(this.value * (double)(this.width - this.indicatorWidth));
-                int posY = this.getY() + (this.height - this.indicatorHeight) / 2;
-                this.isHovered = this.isHovered || mouseX >= posX && mouseY >= posY && mouseX < posX + this.indicatorWidth && mouseY < posY + this.indicatorHeight;
+            if (this.handleWidth > this.width || this.handleHeight > this.height) {
+                int posX = this.getX() + (int)(this.value * (double)(this.width - this.handleWidth));
+                int posY = this.getY() + (this.height - this.handleHeight) / 2;
+                this.isHovered = this.isHovered || mouseX >= posX && mouseY >= posY && mouseX < posX + this.handleWidth && mouseY < posY + this.handleHeight;
             }
             this.renderWidget(graphics, mouseX, mouseY, pPartialTick);
-//            this.updateTooltip();
+//            this.updateTooltip(); // TODO: fix this
         }
     }
 
@@ -244,14 +246,14 @@ public class PaCoSlider extends AbstractSliderButton {
         } else {
             graphics.blitNineSliced(SLIDER_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, 0);
         }
-        // Slider Indicator
-        int posX = this.getX() + (int)(this.value * (double)(this.width - this.indicatorWidth));
-        int posY = this.getY() + (this.height - this.indicatorHeight) / 2;
-        if (this.indicatorColor != null || this.indicatorRimColor != null) {
-            int rimColor = this.shouldHighlight() ? this.indicatorHighlightedRimColor : this.indicatorRimColor;
-            PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, this.indicatorWidth, this.indicatorHeight, this.indicatorColor, rimColor, 1);
+        // Slider Handle
+        int posX = this.getX() + (int)(this.value * (double)(this.width - this.handleWidth));
+        int posY = this.getY() + (this.height - this.handleHeight) / 2;
+        if (this.handleColor != null || this.handleRimColor != null) {
+            int rimColor = this.shouldHighlight() ? this.handleHighlightedRimColor : this.handleRimColor;
+            PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, this.handleWidth, this.handleHeight, this.handleColor, rimColor, 1);
         } else {
-            graphics.blitNineSliced(SLIDER_LOCATION, posX, posY, this.indicatorWidth, this.indicatorHeight, 20, 4, 200, 20, 0, this.getIndicatorTextureY());
+            graphics.blitNineSliced(SLIDER_LOCATION, posX, posY, this.handleWidth, this.handleHeight, 20, 4, 200, 20, 0, this.getSliderHandleTextureY());
         }
 
         int color = this.active ?
@@ -261,7 +263,7 @@ public class PaCoSlider extends AbstractSliderButton {
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    private int getIndicatorTextureY() {
+    private int getSliderHandleTextureY() {
         return this.shouldHighlight() ? 60 : 40;
     }
 

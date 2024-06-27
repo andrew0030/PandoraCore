@@ -84,15 +84,15 @@ public class PaCoScreen extends Screen {
 
         this.addRenderableWidget(new PaCoSlider(this.width / 3, this.height / 2, 300, 12, 0, 60, 0, 1)
                 .setSilent()
-                .setIndicatorWidth(150)
+                .setHandleWidth(150)
                 .setSliderColor(PaCoColor.color(100, 0, 0, 0), PaCoColor.color(0, 0, 0))
         );
         this.addRenderableWidget(new PaCoSlider(this.width / 3, this.height / 3, 300, 12, 0, 300, 0, 0.5)
                 .setSilent()
                 .setPrefix(Component.literal("val: "))
-                .setIndicatorColor(PaCoColor.color(200, 100, 100), PaCoColor.color(20, 20, 20), PaCoColor.color(255, 255, 255))
-                .setIndicatorWidth(5)
-                .setIndicatorHeight(18)
+                .setHandleColor(PaCoColor.color(200, 100, 100), PaCoColor.color(20, 20, 20), PaCoColor.color(255, 255, 255))
+                .setHandleWidth(5)
+                .setHandleHeight(18)
                 .setTextColor(PaCoColor.color(200, 60, 60))
         );
     }

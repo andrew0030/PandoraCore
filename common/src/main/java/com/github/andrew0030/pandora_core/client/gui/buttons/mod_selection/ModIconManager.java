@@ -1,25 +1,27 @@
 package com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection;
 
+import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ModIconManager implements Closeable {
-    // TODO: create a wrapper for loggers to allow easy condition based logging
-    private static final Logger LOGGER = LoggerFactory.getLogger("Pandora Core | ModIconManager");
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "ModIconManager");
     private final Map<String, Pair<ResourceLocation, DynamicTexture>> modIconCache = new HashMap<>();
+    // Just a boolean that can be toggled to get some debug info about icon caching.
+    public static final boolean SHOW_DEBUG_MESSAGES = false;
 
     @Override
     public void close() {
         for (Map.Entry<String, Pair<ResourceLocation, DynamicTexture>> entry : this.modIconCache.entrySet()) {
             entry.getValue().getSecond().close();
-            LOGGER.info("Removing cache entry for '{}' mod icon...", entry.getKey());
+            PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "Removing mod icon cache entry for '{}'", entry.getKey());
         }
     }
 
@@ -32,7 +34,7 @@ public class ModIconManager implements Closeable {
     }
 
     public void cacheModIcon(String modId, ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
-        this.modIconCache.put(modId, new Pair(resourceLocation, dynamicTexture));
-        LOGGER.info("No cache entry for '{}' mod icon, generating...", modId);
+        this.modIconCache.put(modId, new Pair<>(resourceLocation, dynamicTexture));
+        PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "No mod icon cache entry for '{}', generating...", modId);
     }
 }

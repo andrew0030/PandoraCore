@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core;
 
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 public class PandoraCore {
     public static final String MOD_ID = "pandora_core";
     public static final String MOD_NAME = "Pandora Core";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
+    public static final Logger LOGGER = PaCoLogger.create(MOD_NAME);
     private static final List<String> MODS = new ArrayList<>();
 
     /** Common Init */

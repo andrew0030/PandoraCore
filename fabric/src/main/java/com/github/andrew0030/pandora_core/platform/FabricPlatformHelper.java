@@ -3,10 +3,12 @@ package com.github.andrew0030.pandora_core.platform;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
 import com.github.andrew0030.pandora_core.utils.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +17,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class FabricPlatformHelper implements IPlatformHelper {
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "FabricPlatformHelper");
 
     @Override
     public String getPlatformName() {
@@ -57,7 +60,7 @@ public class FabricPlatformHelper implements IPlatformHelper {
 
             return holder;
         }
-        PandoraCore.LOGGER.warn("Couldn't get ModContainer for: '{}', returning empty ModDataHolder!", modId);
+        LOGGER.warn("Couldn't get ModContainer for: '{}', returning empty ModDataHolder!", modId);
         return ModDataHolder.forMod(modId);
     }
 }

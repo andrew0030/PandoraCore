@@ -3,11 +3,13 @@ package com.github.andrew0030.pandora_core.mixin.post_shader;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.client.shader.holder.PostChainHolder;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +20,7 @@ import java.io.IOException;
 
 @Mixin(GameRenderer.class)
 public class GameRenderer_PostShaderMixin {
+    private static final @Unique Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "GameRenderer_PostShaderMixin");
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     public void initPaCoPostShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
@@ -50,9 +53,9 @@ public class GameRenderer_PostShaderMixin {
                 holder.setPostChain(new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), minecraft.getMainRenderTarget(), holder.getResourceLocation()));
                 holder.getPostChain().resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
             } catch (IOException iOException) {
-                PandoraCore.LOGGER.warn("Failed to load shader: {}", holder.getResourceLocation(), iOException);
+                LOGGER.warn("Failed to load post shader: {}", holder.getResourceLocation(), iOException);
             } catch (JsonSyntaxException jsonSyntaxException) {
-                PandoraCore.LOGGER.warn("Failed to parse shader: {}", holder.getResourceLocation(), jsonSyntaxException);
+                LOGGER.warn("Failed to parse post shader: {}", holder.getResourceLocation(), jsonSyntaxException);
             }
         }
     }

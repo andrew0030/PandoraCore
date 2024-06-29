@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.platform;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
 import com.github.andrew0030.pandora_core.utils.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraftforge.fml.ModContainer;
@@ -10,6 +11,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.resource.ResourcePackLoader;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +19,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class ForgePlatformHelper implements IPlatformHelper {
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "ForgePlatformHelper");
 
     @Override
     public String getPlatformName() {
@@ -62,7 +65,7 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
             return holder;
         }
-        PandoraCore.LOGGER.warn("Couldn't get ModContainer for: '{}', returning empty ModDataHolder!", modId);
+        LOGGER.warn("Couldn't get ModContainer for: '{}', returning empty ModDataHolder!", modId);
         return ModDataHolder.forMod(modId);
     }
 }

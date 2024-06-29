@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.utils;
 
-import com.mojang.logging.LogUtils;
+import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -10,7 +11,7 @@ import java.util.function.BiFunction;
 
 /** Helper Class that allows transforming VoxelShapes */
 public class VoxelShapeTransformer {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "VoxelShapeTransformer");
     private VoxelShape shape;
 
     private VoxelShapeTransformer(VoxelShape shape) {
@@ -33,7 +34,7 @@ public class VoxelShapeTransformer {
     public VoxelShapeTransformer rotateHorizontally(Direction from, Direction to) {
         // If any of the Directions aren't Horizontal we return without making any changes
         if(!from.getAxis().isHorizontal() || !to.getAxis().isHorizontal()) {
-            LOGGER.warn("Found a non Horizontal Direction in VoxelShapeTransformer.rotateShape");
+            LOGGER.warn("Found a non Horizontal Direction in VoxelShapeTransformer#rotateHorizontally");
             LOGGER.warn("from: {}", from.getName());
             LOGGER.warn("to: {}", to.getName());
             LOGGER.warn("No changes have been made!");
@@ -73,7 +74,7 @@ public class VoxelShapeTransformer {
     public VoxelShape[] createHorizontalArray(Direction facing) {
         // If the Direction isn't Horizontal we return a size 4 Array filled with the current VoxelShape
         if(!facing.getAxis().isHorizontal()) {
-            LOGGER.warn("Found a non Horizontal Direction in VoxelShapeTransformer.createHorizontalArray");
+            LOGGER.warn("Found a non Horizontal Direction in VoxelShapeTransformer#createHorizontalArray");
             LOGGER.warn("facing: {}", facing.getName());
             LOGGER.warn("Returning Array of current VoxelShape!");
             return new VoxelShape[] {this.getShape(), this.getShape(), this.getShape(), this.getShape()};

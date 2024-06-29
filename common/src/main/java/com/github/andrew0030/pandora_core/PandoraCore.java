@@ -9,7 +9,7 @@ import java.util.List;
 public class PandoraCore {
     public static final String MOD_ID = "pandora_core";
     public static final String MOD_NAME = "Pandora Core";
-    public static final Logger LOGGER = PaCoLogger.create(MOD_NAME);
+    private static final Logger LOGGER = PaCoLogger.create(MOD_NAME);
     private static final List<String> MODS = new ArrayList<>();
 
     /** Common Init */

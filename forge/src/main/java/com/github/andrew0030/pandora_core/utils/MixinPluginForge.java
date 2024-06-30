@@ -23,7 +23,7 @@ public class MixinPluginForge implements IMixinConfigPlugin
      * Essentially the Package based bulk operation of using {@link com.github.andrew0030.pandora_core.utils.MixinPluginForge#addClassLookup(String)}
      */
     private static void addPkgLookup(String mixin) {
-        classLookup.add(mixin);
+        pkgLookup.add(mixin);
     }
 
     /** Doesn't load the given Mixin, if one of the given classes exists. */
@@ -33,7 +33,7 @@ public class MixinPluginForge implements IMixinConfigPlugin
     }
 
     static {
-        addPkgLookup("com.github.andrew0030.pandora_core.mixin.compat.gui");
+        addPkgLookup("com.github.andrew0030.pandora_core.mixin.compat");
 //        addClassLookup("com.github.andrew0030.pandora_core.mixin.compat.gui.CatalogueModListScreenMixin");
     }
 

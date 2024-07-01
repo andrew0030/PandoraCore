@@ -1,11 +1,15 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.utils;
 
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO maybe/probably move to client.utils
 public class PaCoGuiUtils {
 
     private static final ArrayList<PaCoBorderSide> borderList = new ArrayList<>();
@@ -63,5 +67,48 @@ public class PaCoGuiUtils {
      */
     public static void enableScissor(GuiGraphics graphics, int posX, int posY, int width, int height) {
         graphics.enableScissor(posX, posY, posX + width, posY + height);
+    }
+
+    /**
+     * Draws a centered string at the specified coordinates using the given font, text, color and dropShadow.
+     * @param graphics The {@link GuiGraphics}.
+     * @param font the {@link Font} to use for rendering.
+     * @param text the text to draw.
+     * @param x the x-coordinate of the center of the string.
+     * @param y the y-coordinate of the string.
+     * @param color the color of the string.
+     * @param dropShadow – whether to apply a drop shadow to the string.
+     */
+    public static void drawCenteredString(GuiGraphics graphics, Font font, String text, int x, int y, int color, boolean dropShadow) {
+        graphics.drawString(font, text, x - font.width(text) / 2, y, color, dropShadow);
+    }
+
+    /**
+     * Draws a centered string at the specified coordinates using the given font, text component, color and dropShadow.
+     * @param graphics The {@link GuiGraphics}.
+     * @param font the {@link Font} to use for rendering.
+     * @param text the text {@link Component} to draw.
+     * @param x the x-coordinate of the center of the string.
+     * @param y the y-coordinate of the string.
+     * @param color the color of the string.
+     * @param dropShadow – whether to apply a drop shadow to the string.
+     */
+    public static void drawCenteredString(GuiGraphics graphics, Font font, Component text, int x, int y, int color, boolean dropShadow) {
+        FormattedCharSequence charSequence = text.getVisualOrderText();
+        graphics.drawString(font, charSequence, x - font.width(charSequence) / 2, y, color, dropShadow);
+    }
+
+    /**
+     * Draws a centered string at the specified coordinates using the given font, formatted character sequence, color and dropShadow.
+     * @param graphics The {@link GuiGraphics}.
+     * @param font the {@link Font} to use for rendering.
+     * @param text the {@link FormattedCharSequence} to draw.
+     * @param x the x-coordinate of the center of the string.
+     * @param y the y-coordinate of the string.
+     * @param color the color of the string.
+     * @param dropShadow – whether to apply a drop shadow to the string.
+     */
+    public static void drawCenteredString(GuiGraphics graphics, Font font, FormattedCharSequence text, int x, int y, int color, boolean dropShadow) {
+        graphics.drawString(font, text, x - font.width(text) / 2, y, color, dropShadow);
     }
 }

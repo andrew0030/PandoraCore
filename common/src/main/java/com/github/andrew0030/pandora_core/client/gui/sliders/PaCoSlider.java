@@ -35,10 +35,12 @@ public class PaCoSlider extends AbstractSliderButton {
     protected Integer handleColor;
     protected Integer handleRimColor;
     protected Integer handleHighlightedRimColor;
-    // Slider Text Format
+    // Slider Text Stuff
     private final DecimalFormat format;
     private Integer textColor;
     private Integer textColorInactive;
+    private int textOffsetX;
+    private int textOffsetY;
 
     public PaCoSlider(int x, int y, int width, int height, double minValue, double maxValue, double value, double stepSize) {
         super(x, y, Math.max(2, width), Math.max(height, 2), Component.empty(), value);
@@ -122,6 +124,12 @@ public class PaCoSlider extends AbstractSliderButton {
     public PaCoSlider setTextColor(int textColor, int textColorInactive) {
         this.textColor = textColor;
         this.textColorInactive = textColorInactive;
+        return this;
+    }
+
+    public PaCoSlider setTextOffset(int offsetX, int offsetY) {
+        this.textOffsetX = offsetX;
+        this.textOffsetY = offsetY;
         return this;
     }
 
@@ -235,7 +243,7 @@ public class PaCoSlider extends AbstractSliderButton {
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        Minecraft minecraft = Minecraft.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         graphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -259,7 +267,10 @@ public class PaCoSlider extends AbstractSliderButton {
         int color = this.active ?
                 (this.textColor != null ? this.textColor : 16777215) :
                 (this.textColorInactive != null ? this.textColorInactive : 10526880);
-        this.renderScrollingString(graphics, minecraft.font, 2, color | Mth.ceil(this.alpha * 255.0F) << 24);
+        int textPosX = this.getX() + this.getWidth() / 2 + this.textOffsetX;
+        int textPosY = this.getY() + this.getHeight() / 2 + this.textOffsetY - 4; // We subtract 4 because text has a size of 8 pixels, and we want it centered.
+//        this.renderScrollingString(graphics, mc.font, 2, color | Mth.ceil(this.alpha * 255.0F) << 24); // TODO deal with alpha
+        PaCoGuiUtils.drawCenteredString(graphics, mc.font, this.getMessage(), textPosX, textPosY, color, true);
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 

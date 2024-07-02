@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "package": "com.github.andrew0030.pandora_core.mixin",
   "refmap": "${mod_id}.refmap.json",
+  "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginCommon",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "level.LevelMixin",
@@ -17,7 +18,9 @@
     "post_shader.PostPassMixin",
     "gui.ScreenMixin",
     "gui.TitleScreenMixin",
-    "camera.GameRenderer_CameraMixin"
+    "camera.GameRenderer_CameraMixin",
+    "compat.shader.vanilla.GlStateManagerMixin",
+    "compat.shader.vanilla.ProgramMixin"
   ],
   "server": [],
   "injectors": {

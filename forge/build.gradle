@@ -70,6 +70,9 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:swampier-swamps-632591:4578599") // Swampier Swamps
     runtimeOnly fg.deobf("curse.maven:table-top-craft-467136:5318681") // Table Top Craft
     runtimeOnly fg.deobf("curse.maven:online-detector-454487:4574905") // Online Detector
+
+//    implementation fg.deobf("curse.maven:embeddium-908741:5456704")
+//    implementation fg.deobf("curse.maven:oculus-581495:5299671")
 }
 
 tasks.withType(JavaCompile).configureEach {

@@ -37,10 +37,13 @@ public class PaCoSlider extends AbstractSliderButton {
     protected Integer handleHighlightedRimColor;
     // Slider Text Stuff
     private final DecimalFormat format;
-    private Integer textColor;
-    private Integer textColorInactive;
-    private int textOffsetX;
-    private int textOffsetY;
+    protected Integer textColor;
+    protected Integer textColorInactive;
+    protected int textOffsetX;
+    protected int textOffsetY;
+    protected HorizontalTextSnap horizontalTextSnap = HorizontalTextSnap.CENTER;
+    protected VerticalTextSnap verticalTextSnap = VerticalTextSnap.CENTER;
+    protected boolean dropShadow = true;
 
     public PaCoSlider(int x, int y, int width, int height, double minValue, double maxValue, double value, double stepSize) {
         super(x, y, Math.max(2, width), Math.max(height, 2), Component.empty(), value);
@@ -90,6 +93,10 @@ public class PaCoSlider extends AbstractSliderButton {
         return this;
     }
 
+    public PaCoSlider setHandleSize(int width, int height) {
+        return this.setHandleWidth(width).setHandleHeight(height);
+    }
+
     public PaCoSlider setSliderColor(int sliderColor, int sliderRimColor) {
         this.sliderColor = sliderColor;
         this.sliderRimColor = sliderRimColor;
@@ -130,6 +137,25 @@ public class PaCoSlider extends AbstractSliderButton {
     public PaCoSlider setTextOffset(int offsetX, int offsetY) {
         this.textOffsetX = offsetX;
         this.textOffsetY = offsetY;
+        return this;
+    }
+
+    public PaCoSlider setHorizontalTextSnap(HorizontalTextSnap horizontalTextSnap) {
+        this.horizontalTextSnap = horizontalTextSnap;
+        return this;
+    }
+
+    public PaCoSlider setVerticalTextSnap(VerticalTextSnap verticalTextSnap) {
+        this.verticalTextSnap = verticalTextSnap;
+        return this;
+    }
+
+    public PaCoSlider setTextSnap(HorizontalTextSnap horizontalTextSnap, VerticalTextSnap verticalTextSnap) {
+        return this.setHorizontalTextSnap(horizontalTextSnap).setVerticalTextSnap(verticalTextSnap);
+    }
+
+    public PaCoSlider setDropShadow(boolean dropShadow) {
+        this.dropShadow = dropShadow;
         return this;
     }
 
@@ -267,10 +293,29 @@ public class PaCoSlider extends AbstractSliderButton {
         int color = this.active ?
                 (this.textColor != null ? this.textColor : 16777215) :
                 (this.textColorInactive != null ? this.textColorInactive : 10526880);
-        int textPosX = this.getX() + this.getWidth() / 2 + this.textOffsetX;
-        int textPosY = this.getY() + this.getHeight() / 2 + this.textOffsetY - 4; // We subtract 4 because text has a size of 8 pixels, and we want it centered.
-//        this.renderScrollingString(graphics, mc.font, 2, color | Mth.ceil(this.alpha * 255.0F) << 24); // TODO deal with alpha
-        PaCoGuiUtils.drawCenteredString(graphics, mc.font, this.getMessage(), textPosX, textPosY, color, true);
+        int textPosX = this.textOffsetX;
+        int textPosY = this.textOffsetY;
+
+        switch (this.horizontalTextSnap) {
+            default -> textPosX += this.getX() + this.getWidth() / 2;
+            case LEFT_INSIDE -> textPosX += this.getX();
+            case LEFT_OUTSIDE -> textPosX += this.getX() - mc.font.width(this.getMessage()) + (this.dropShadow ? 0 : 1);
+            case RIGHT_INSIDE -> textPosX += this.getX() + this.getWidth() - mc.font.width(this.getMessage()) + (this.dropShadow ? 0 : 1);
+            case RIGHT_OUTSIDE -> textPosX += this.getX() + this.getWidth();
+        }
+        switch (this.verticalTextSnap) {
+            default -> textPosY += this.getY() + this.getHeight() / 2 - 4; // We subtract 4 because text has a height of 8 pixels (+1 with drop shadow), and we want it centered.
+            case TOP_INSIDE -> textPosY += this.getY();
+            case TOP_OUTSIDE -> textPosY += this.getY() - (this.dropShadow ? 9 : 8);
+            case BOTTOM_INSIDE -> textPosY += this.getY() + this.getHeight() - (this.dropShadow ? 9 : 8);
+            case BOTTOM_OUTSIDE -> textPosY += this.getY() + this.getHeight();
+        }
+
+        if (this.horizontalTextSnap != HorizontalTextSnap.CENTER) {
+            graphics.drawString(mc.font, this.getMessage(), textPosX, textPosY, color, this.dropShadow);
+        } else {
+            PaCoGuiUtils.drawCenteredString(graphics, mc.font, this.getMessage(), textPosX, textPosY, color, this.dropShadow);
+        }
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 

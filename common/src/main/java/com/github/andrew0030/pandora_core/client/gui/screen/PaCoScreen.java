@@ -5,7 +5,9 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModBu
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIconManager;
 import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoBorderSide;
 import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoGuiUtils;
+import com.github.andrew0030.pandora_core.client.gui.sliders.HorizontalTextSnap;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
+import com.github.andrew0030.pandora_core.client.gui.sliders.VerticalTextSnap;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
@@ -87,12 +89,13 @@ public class PaCoScreen extends Screen {
                 .setHandleWidth(150)
                 .setSliderColor(PaCoColor.color(100, 0, 0, 0), PaCoColor.color(0, 0, 0))
         );
-        this.addRenderableWidget(new PaCoSlider(this.width / 3, this.height / 3, 300, 12, 0, 300, 0, 0.5)
+        this.addRenderableWidget(new PaCoSlider(this.width / 3, this.height / 3, 300, 19, 0, 300, 0, 0.5)
                 .setSilent()
-                .setPrefix(Component.literal("val: "))
-                .setHandleColor(PaCoColor.color(200, 100, 100), PaCoColor.color(20, 20, 20), PaCoColor.color(255, 255, 255))
-                .setHandleWidth(5)
-                .setHandleHeight(18)
+                .setPrefix(Component.literal("gval: "))
+                .setDropShadow(false)
+                .setTextSnap(HorizontalTextSnap.CENTER, VerticalTextSnap.CENTER)
+                .setHandleColor(PaCoColor.color(100, 20, 20), PaCoColor.color(20, 20, 20), PaCoColor.color(255, 255, 255))
+                .setHandleSize(5, 25)
                 .setTextColor(PaCoColor.color(200, 60, 60))
         );
     }

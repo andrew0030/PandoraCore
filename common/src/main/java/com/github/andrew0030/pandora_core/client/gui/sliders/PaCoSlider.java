@@ -45,6 +45,7 @@ public class PaCoSlider extends AbstractSliderButton {
     protected HorizontalTextSnap horizontalTextSnap = HorizontalTextSnap.CENTER;
     protected VerticalTextSnap verticalTextSnap = VerticalTextSnap.CENTER;
     protected boolean dropShadow = true;
+    protected boolean zeroPad = false;
 
     public PaCoSlider(int x, int y, int width, int height, double minValue, double maxValue, double value, double stepSize) {
         super(x, y, Math.max(2, width), Math.max(height, 2), Component.empty(), value);
@@ -160,6 +161,12 @@ public class PaCoSlider extends AbstractSliderButton {
         return this;
     }
 
+    public PaCoSlider setZeroPadding(boolean zeroPad) {
+        this.zeroPad = zeroPad;
+        this.updateMessage();
+        return this;
+    }
+
     public double getValue() {
         return this.value * (this.maxValue - this.minValue) + this.minValue;
     }
@@ -231,11 +238,31 @@ public class PaCoSlider extends AbstractSliderButton {
     protected void updateMessage() {
         MutableComponent component = Component.literal("");
         if (!this.isTextHidden) {
+            // Prefix
             if (this.prefix != null) component.append(this.prefix);
-            component.append(this.getAsString());
+            // Value
+            component.append(this.zeroPad ? this.zeroPadString() : this.getAsString());
+            // Suffix
             if (this.suffix != null) component.append(this.suffix);
         }
         this.setMessage(component);
+    }
+
+    /**
+     * Gets the current value of the slider and pads it with zeros, to match the length of maxValue.
+     * @return The padded value string.
+     */
+    protected String zeroPadString() {
+        String str = this.getAsString();
+        int commaIndex = str.indexOf(',');
+        String integerPart = commaIndex != -1 ? str.substring(0, commaIndex) : str;
+        String fractionalPart = commaIndex != -1 ? str.substring(commaIndex) : "";
+
+        int digits = (int) Math.log10(this.maxValue) + 1;
+        if (integerPart.length() < digits) {
+            integerPart = "0".repeat(digits - integerPart.length()) + integerPart;
+        }
+        return integerPart + fractionalPart;
     }
 
     @Override

@@ -1,6 +1,6 @@
 // TODO: remove this eventually
 
-#paco_templated vanilla rendertype_entity_solid
+#paco_templated vanilla minecraft:shaders/core/rendertype_entity_solid
 #paco_templated iris gbuffers_entities
 
 // when a variable is missmatched between vec2 and ivec2, paco assumes the data is meant to be interpreted bitwise

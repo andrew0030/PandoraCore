@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.Templa
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.VanillaTemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TemplateManager {
     /**
@@ -39,6 +41,7 @@ public class TemplateManager {
 
     @ApiStatus.Internal
     private static Throwable cause;
+    private static LoadManager templateLoadManager;
 
     @ApiStatus.Internal
     public TemplateManager() {
@@ -48,6 +51,7 @@ public class TemplateManager {
         }
         cause = new Throwable("Previously created by");
         cause.setStackTrace(Thread.currentThread().getStackTrace());
+        templateLoadManager = new LoadManager();
     }
 
     public static List<TemplateLoader> LOADERS = new ArrayList<>();
@@ -55,7 +59,7 @@ public class TemplateManager {
     @ApiStatus.Internal
     private static final ArrayList<TemplateTransformation> TRANSFORMATIONS = new ArrayList<>();
     @ApiStatus.Internal
-    private static final ArrayList<JsonObject> JSONS = new ArrayList<>();
+    private static final Map<ResourceLocation, JsonObject> JSONS = new HashMap<>();
     @ApiStatus.Internal
     private static final HashMap<String, TemplatedShader> TEMPLATED = new HashMap<>();
 
@@ -75,14 +79,14 @@ public class TemplateManager {
     }
 
     @ApiStatus.Internal
-    public void addJson(String string) {
-        JSONS.add(GSON.fromJson(string, JsonObject.class));
+    public void addJson(ResourceLocation location, String string) {
+        JSONS.put(location, GSON.fromJson(string, JsonObject.class));
     }
 
     @ApiStatus.Internal
     protected static boolean loadTemplate(TemplateTransformation transformation) {
         for (TemplateLoader loader : LOADERS)
-            if (loader.attempt(transformation))
+            if (loader.attempt(templateLoadManager, transformation))
                 return true;
 
         LOGGER.warn("Failed to load template shader " + transformation.location.toString());
@@ -113,6 +117,18 @@ public class TemplateManager {
             for (TemplateLoader loader : LOADERS)
                 builder.append("- ").append(loader.name()).append("\n");
             LOGGER.info(builder.toString().trim());
+        }
+    }
+
+    public final class LoadManager {
+        /**
+         * Loads a templated shader into the cache
+         * Only to be called by template loaders
+         *
+         * @param shader the shader to load
+         */
+        public void load(TemplatedShader shader) {
+
         }
     }
 

@@ -51,7 +51,7 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
                         StringBuilder builder = new StringBuilder();
                         try (BufferedReader reader = resource.openAsReader()) {
                             reader.lines().forEach(line -> builder.append(line).append("\n"));
-                            templateManager.addJson(builder.toString());
+                            templateManager.addJson(location, builder.toString());
                         } catch (Throwable err) {
                             LOGGER.warn("Failed to parse vanilla json " + location.toString(), err);
                         }

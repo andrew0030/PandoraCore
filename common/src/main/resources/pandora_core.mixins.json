@@ -20,7 +20,8 @@
     "gui.TitleScreenMixin",
     "camera.GameRenderer_CameraMixin",
     "compat.shader.vanilla.GlStateManagerMixin",
-    "compat.shader.vanilla.ProgramMixin"
+    "compat.shader.vanilla.ProgramMixin",
+    "compat.shader.vanilla.ShaderInstanceMixin"
   ],
   "server": [],
   "injectors": {

@@ -1,18 +1,16 @@
 package com.github.andrew0030.pandora_core.client.shader.templating;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformationParser;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.resource.PacoResourceManager;
 import com.github.andrew0030.pandora_core.utils.resource.ResourceDispatcher;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
-import java.io.Reader;
 
+@ApiStatus.Internal
 public class TemplateShaderResourceLoader implements PacoResourceManager {
     public TemplateShaderResourceLoader() {
     }
@@ -24,9 +22,11 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
 
     @Override
     public void run(ResourceManager manager, ResourceDispatcher dispatcher) {
+        // clear caches
         templateManager.beginReload();
 
         dispatcher
+                // load template shader files
                 .prepare("paco_parse_template_shaders", () -> {
                     manager.listResources(
                             "shaders/paco/templated",
@@ -42,6 +42,7 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
                         }
                     });
                 })
+                // load the vanilla shader jsons into a cache
                 .prepare("paco_get_shader_jsons", (v) -> {
                     manager.listResources(
                             "shaders/core",
@@ -56,7 +57,9 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
                         }
                     });
                  })
+                // await preparation completion
                 .barrier()
+                // load shaders
                 .apply("paco_load_template_shaders", (result) -> {
                     templateManager.reload();
                 });

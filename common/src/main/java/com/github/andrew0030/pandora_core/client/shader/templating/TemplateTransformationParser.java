@@ -2,13 +2,13 @@ package com.github.andrew0030.pandora_core.client.shader.templating;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.action.*;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public class TemplateTransformationParser {
     public TemplateTransformationParser() {
     }
 
-    // is there anything for me to even say about this method?
-    // seems pretty straightforward to me
     public TemplateTransformation parse(ResourceLocation location, String text) {
         TemplateTransformation transformation = new TemplateTransformation(location);
 
@@ -19,6 +19,7 @@ public class TemplateTransformationParser {
             String trim = s.trim();
 
             if (blockType != null) {
+                // end block directive (inject&undef) parsing
                 if (trim.startsWith("#paco_end")) {
                     transformation.actions.add(switch (blockType) {
                         case "inject" -> new Injection(block);
@@ -34,9 +35,12 @@ public class TemplateTransformationParser {
                 continue;
             }
 
+            // skip comments
+            // TODO: support block comments (/* */)
             if (trim.startsWith("//"))
                 continue;
 
+            // parse normal (single line) directives
             if (trim.startsWith("#paco_")) {
                 int indx;
                 String proc = trim.substring(0, (indx = trim.indexOf(" ")) == -1 ? trim.length() : indx);

@@ -1,12 +1,14 @@
 package com.github.andrew0030.pandora_core.client.shader.templating;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
 
 /**
  * A helper class containing mappings of vanilla variable names to iris/of variable names
  */
+@ApiStatus.Internal
 public class NameMapper {
     private static final Map<String, String> SHADER_MAPPING = new Object2ObjectRBTreeMap<>();
     private static final Map<String, String> IRIS_MAPPING = new Object2ObjectRBTreeMap<>();

@@ -19,16 +19,17 @@ import java.util.List;
 
 public class TemplateManager {
     /**
-     * Gets a template shader instance
+     * Gets a {@link TemplatedShaderInstance}
      * This instance may arbitrarily switch between shader loaders, including without reloading resources/shaders
      *
-     * @param resource a resource location pointing to the template's glsl file
+     * @param resource a {@link ResourceLocation} pointing to the template's glsl file
      * @return the corresponding template shader instance
      */
     public static TemplatedShaderInstance getTemplated(ResourceLocation resource) {
         throw new RuntimeException("TODO");
     }
 
+    @ApiStatus.Experimental
     public static void reloadTemplate(
             String modRef,
             String mod,
@@ -78,11 +79,12 @@ public class TemplateManager {
         JSONS.add(GSON.fromJson(string, JsonObject.class));
     }
 
+    @ApiStatus.Internal
     protected static boolean loadTemplate(TemplateTransformation transformation) {
-        for (TemplateLoader loader : LOADERS) {
+        for (TemplateLoader loader : LOADERS)
             if (loader.attempt(transformation))
                 return true;
-        }
+
         LOGGER.warn("Failed to load template shader " + transformation.location.toString());
         return false;
     }
@@ -90,18 +92,21 @@ public class TemplateManager {
     /**
      * Reloads all template shaders
      * This gets called when the template resource loader finishes
+     * <p>
      * Template shaders may also be reloaded on the fly as necessary
      */
     @ApiStatus.Internal
     public void reload() {
         boolean failedAny = false;
 
+        // reload shaders
         for (TemplateTransformation transformation : TRANSFORMATIONS) {
             boolean result = loadTemplate(transformation);
             if (result) continue;
             failedAny = true;
         }
 
+        // dump info about active template shader loaders
         if (failedAny) {
             StringBuilder builder = new StringBuilder();
             builder.append("Current template shader loaders:\n");
@@ -113,9 +118,16 @@ public class TemplateManager {
 
     /**
      * Construct template loaders
-     * If a mod wants to add its own, it should mixin to "<clinit>" here
+     * If a mod wants to add its own, it should mixin to this
+     * <p>
+     * Why is this a method?
+     * Because javadocs don't work on static init.
      */
-    static {
+    public static void init() {
         LOADERS.add(new VanillaTemplateLoader(JSONS));
+    }
+
+    static {
+        init();
     }
 }

@@ -23,6 +23,7 @@ public class ResourceDispatcher {
     final Executor applyExecutor;
     List<CompletedDispatch> dispatches = new ArrayList<>();
 
+    @ApiStatus.Internal
     public ResourceDispatcher(PreparableReloadListener.PreparationBarrier barrier, ProfilerFiller prepareProfiler, ProfilerFiller applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
         this.barrier = barrier;
         this.prepareProfiler = prepareProfiler;

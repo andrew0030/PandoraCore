@@ -8,11 +8,13 @@ import com.github.andrew0030.pandora_core.client.shader.templating.transformer.i
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@ApiStatus.Internal
 public class VanillaTemplateLoader extends TemplateLoader {
     private static String MOD = null;
     private static String ACTIVE = null;

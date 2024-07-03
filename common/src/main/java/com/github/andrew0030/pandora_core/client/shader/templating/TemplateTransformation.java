@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.action.Insert
 import com.github.andrew0030.pandora_core.client.shader.templating.action.TransformVar;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,10 +18,12 @@ public class TemplateTransformation {
     protected HashMap<String, String> funcCache = new HashMap<>();
     public final ResourceLocation location;
 
+    @ApiStatus.Internal
     public TemplateTransformation(ResourceLocation location) {
         this.location = location;
     }
 
+    @ApiStatus.Internal
     public void lock() {
         boolean hasQuatTransform = false;
         // resolve required information from the transformation definition

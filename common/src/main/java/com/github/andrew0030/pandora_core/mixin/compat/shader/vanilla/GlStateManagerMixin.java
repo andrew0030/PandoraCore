@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-@Mixin(GlStateManager.class)
+@Mixin(value = GlStateManager.class, remap = false)
 public class GlStateManagerMixin {
     @Inject(at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL20C;nglShaderSource(IIJJ)V"), method = "glShaderSource")
     private static void preShaderSource(int $$0, List<String> $$1, CallbackInfo ci) {

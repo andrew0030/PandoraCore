@@ -9,6 +9,7 @@ public class PandoraCoreClientFabric implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // Common Module Initialization.
+        PandoraCoreClient.earlyInit();
         PandoraCoreClient.init();
         PandoraCoreClient.initThreadSafe();
 

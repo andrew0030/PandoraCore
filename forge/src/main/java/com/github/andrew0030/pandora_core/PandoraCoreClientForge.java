@@ -13,6 +13,7 @@ public class PandoraCoreClientForge {
 
     public static void init(IEventBus modEventBus, IEventBus forgeEventBus)
     {
+        PandoraCoreClient.earlyInit();
         // Mod Event Bus
         modEventBus.addListener(PandoraCoreClientForge::clientSetup);
         // Forge Event Bus

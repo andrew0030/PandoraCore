@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.loader;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
+import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class VanillaTemplateLoader {
+public class VanillaTemplateLoader extends TemplateLoader {
     private static String MOD = null;
     private static String ACTIVE = null;
     private static List<String> SOURCE = new ArrayList<>();
@@ -28,5 +29,10 @@ public class VanillaTemplateLoader {
     public static void link() {
         sources.put(MOD, ACTIVE, new ReadOnlyList<>(SOURCE));
         TemplateManager.reloadTemplate("vanilla", MOD, ACTIVE);
+    }
+
+    @Override
+    public boolean attempt(TemplateTransformation transformation) {
+        return false;
     }
 }

@@ -7,6 +7,9 @@ import com.github.andrew0030.pandora_core.utils.resource.PacoResourceManager;
 import com.github.andrew0030.pandora_core.utils.resource.ResourceDispatcher;
 import net.minecraft.server.packs.resources.ResourceManager;
 
+import java.io.BufferedReader;
+import java.io.Reader;
+
 public class TemplateShaderResourceLoader implements PacoResourceManager {
     public TemplateShaderResourceLoader() {
     }
@@ -16,25 +19,36 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
 
     @Override
     public void run(ResourceManager manager, ResourceDispatcher dispatcher) {
+        templateManager.beginReload();
+
         dispatcher
                 .prepare("paco_parse_template_shaders", () -> {
-                    templateManager.beginReload();
-
                     manager.listResources(
                             "shaders/paco/templated",
                             (location) -> location.getPath().endsWith(".glsl")
                     ).forEach((location, resource) -> {
                         StringBuilder builder = new StringBuilder();
-                        try {
-                            resource.openAsReader().lines().forEach(line -> {
-                                builder.append(line).append("\n");
-                            });
+                        try (BufferedReader reader = resource.openAsReader()) {
+                            reader.lines().forEach(line -> builder.append(line).append("\n"));
+                            TemplateTransformation transformation = parser.parse(builder.toString());
+                            templateManager.register(transformation);
                         } catch (Throwable err) {
                             throw new RuntimeException(err);
                         }
-                        TemplateTransformation transformation = parser.parse(builder.toString());
-
-                        templateManager.register(transformation);
+                    });
+                })
+                .prepare("paco_get_shader_jsons", (v) -> {
+                    manager.listResources(
+                            "shaders/core",
+                            (location) -> location.getPath().endsWith(".json")
+                    ).forEach((location, resource) -> {
+                        StringBuilder builder = new StringBuilder();
+                        try (BufferedReader reader = resource.openAsReader()) {
+                            reader.lines().forEach(line -> builder.append(line).append("\n"));
+                            templateManager.addJson(builder.toString());
+                        } catch (Throwable err) {
+                            throw new RuntimeException(err);
+                        }
                     });
                 })
                 .barrier()

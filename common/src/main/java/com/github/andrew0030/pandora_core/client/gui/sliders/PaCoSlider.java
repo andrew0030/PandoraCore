@@ -13,11 +13,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.text.DecimalFormat;
 
-// TODO: write javadoc for this class and make more slider classes (vertical slider and 2D slider).
 public class PaCoSlider extends AbstractSliderButton {
     public static final ResourceLocation SLIDER_LOCATION = new ResourceLocation("textures/gui/slider.png");
     // Slider Stuff
@@ -47,10 +47,21 @@ public class PaCoSlider extends AbstractSliderButton {
     protected boolean dropShadow = true;
     protected boolean zeroPad = false;
 
+    /**
+     * @param x The x position of upper left corner
+     * @param y The y position of upper left corner
+     * @param width The width of the slider
+     * @param height The height of the slider
+     * @param minValue The minimum (left) value of the slider
+     * @param maxValue The maximum (right) value of the slider
+     * @param value The value of the slider when its first displayed
+     * @param stepSize Size of steps used
+     */
     public PaCoSlider(int x, int y, int width, int height, double minValue, double maxValue, double value, double stepSize) {
-        super(x, y, Math.max(2, width), Math.max(height, 2), Component.empty(), value);
+        super(x, y, Math.max(2, width), Math.max(height, 2), Component.empty(), 0D);
         this.minValue = minValue;
         this.maxValue = maxValue;
+        this.value = this.snapToNearest((value - minValue) / (maxValue - minValue));
         this.stepSize = stepSize;
         this.handleWidth = 8;
         this.handleHeight = height;
@@ -60,52 +71,105 @@ public class PaCoSlider extends AbstractSliderButton {
         this.updateMessage();
     }
 
+    /**
+     * Allows to hide/show the text of this slider.
+     * @param isTextHidden Whether the slider text should be hidden
+     */
     public PaCoSlider setTextHidden(boolean isTextHidden) {
         this.isTextHidden = isTextHidden;
         this.updateMessage();
         return this;
     }
 
-    public PaCoSlider setPrefix(Component prefix) {
+    /**
+     * Adds the given {@link Component} as a prefix, to the text of the slider.<br/>
+     * Note: <strong>null</strong> can be passed to hide the prefix.
+     * @param prefix The {@link Component} that will be used as the prefix
+     */
+    public PaCoSlider setPrefix(@Nullable Component prefix) {
         this.prefix = prefix;
         this.updateMessage();
         return this;
     }
 
-    public PaCoSlider setSuffix(Component suffix) {
+    /**
+     * Adds the given {@link Component} as a suffix, to the text of the slider.<br/>
+     * Note: <strong>null</strong> can be passed to hide the suffix.
+     * @param suffix The {@link Component} that will be used as the suffix
+     */
+    public PaCoSlider setSuffix(@Nullable Component suffix) {
         this.suffix = suffix;
         this.updateMessage();
         return this;
     }
 
+    /**
+     * Used to prevent the click sound from playing, when the mouse is released over the slider.
+     * @param isSilent Whether to prevent the click sound
+     */
     public PaCoSlider setSilent(boolean isSilent) {
         this.isSilent = isSilent;
         return this;
     }
 
+    /**
+     * Used to alter the sliders handle width.<br/>
+     * Note: the minimum width is 2.
+     * @param width The width the slider handle should have, in pixels
+     */
     public PaCoSlider setHandleWidth(int width) {
         width = Math.max(2, width);
         this.handleWidth = width;
         return this;
     }
 
+    /**
+     * Used to alter the sliders handle height.<br/>
+     * Note: the minimum height is 2.
+     * @param height The height the slider handle should have, in pixels
+     */
     public PaCoSlider setHandleHeight(int height) {
         height = Math.max(2, height);
         this.handleHeight = height;
         return this;
     }
 
+    /**
+     * Used to alter the sliders handle size.<br/>
+     * Note: the minimum width and height is 2.
+     * @param width The width the slider handle should have, in pixels
+     * @param height The height the slider handle should have, in pixels
+     */
     public PaCoSlider setHandleSize(int width, int height) {
         return this.setHandleWidth(width).setHandleHeight(height);
     }
 
-    public PaCoSlider setSliderColor(int sliderColor, int sliderRimColor) {
+    /**
+     * Used to specify colors that should be used to render the slider and its rim.<br/>
+     * Note: This replaces the slider rendering from using a texture to creating a color based blit,
+     * meaning that it makes it impossible for resource packs to modify the slider, so use it responsibly.<br/>
+     * Additionally, {@link PaCoColor} can be used to easily create a color.<br/>
+     * If null is given the element won't be rendered.
+     * @param sliderColor The main color the slider will have
+     * @param sliderRimColor The rim color the slider will have
+     */
+    public PaCoSlider setSliderColor(@Nullable Integer sliderColor, @Nullable Integer sliderRimColor) {
         this.sliderColor = sliderColor;
         this.sliderRimColor = sliderRimColor;
         return this;
     }
 
-    public PaCoSlider setHandleColor(int handleColor, int handleRimColor, int handleHighlightedRimColor) {
+    /**
+     * Used to specify colors that should be used to render the slider handle and its rim.<br/>
+     * Note: This replaces the slider handle rendering from using a texture to creating a color based blit,
+     * meaning that it makes it impossible for resource packs to modify the slider handle, so use it responsibly.<br/>
+     * Additionally, {@link PaCoColor} can be used to easily create a color.<br/>
+     * If null is given the element won't be rendered.
+     * @param handleColor The main color the slider handle will have
+     * @param handleRimColor The rim color the slider handle will have
+     * @param handleHighlightedRimColor The highlighted rim color the slider handle will have
+     */
+    public PaCoSlider setHandleColor(@Nullable Integer handleColor, @Nullable Integer handleRimColor, @Nullable Integer handleHighlightedRimColor) {
         this.handleColor = handleColor;
         this.handleRimColor = handleRimColor;
         this.handleHighlightedRimColor = handleHighlightedRimColor;
@@ -136,46 +200,80 @@ public class PaCoSlider extends AbstractSliderButton {
         return this;
     }
 
+    /**
+     * Used to offset the slider text by x and y pixels.
+     * @param offsetX The x offset, negative values move the text to the left, and positive values to the right
+     * @param offsetY The y offset, negative values move the text up, and positive values down
+     */
     public PaCoSlider setTextOffset(int offsetX, int offsetY) {
         this.textOffsetX = offsetX;
         this.textOffsetY = offsetY;
         return this;
     }
 
+    /**
+     * Used to specify a position the text will snap too horizontally.<br/>
+     * Note: this can be combined with<br/>
+     * {@link PaCoSlider#setVerticalTextSnap(VerticalTextSnap)} and {@link PaCoSlider#setTextOffset(int, int)}.
+     * @param horizontalTextSnap The {@link HorizontalTextSnap} position the text will snap to
+     */
     public PaCoSlider setHorizontalTextSnap(HorizontalTextSnap horizontalTextSnap) {
         this.horizontalTextSnap = horizontalTextSnap;
         return this;
     }
 
+    /**
+     * Used to specify a position the text will snap too vertically.<br/>
+     * Note: this can be combined with<br/>
+     * {@link PaCoSlider#setHorizontalTextSnap(HorizontalTextSnap)} and {@link PaCoSlider#setTextOffset(int, int)}.
+     * @param verticalTextSnap The {@link VerticalTextSnap} position the text will snap to
+     */
     public PaCoSlider setVerticalTextSnap(VerticalTextSnap verticalTextSnap) {
         this.verticalTextSnap = verticalTextSnap;
         return this;
     }
 
+    /**
+     * Used to specify the horizontal and vertical positions the text will snap too.<br/>
+     * Note: this can be combined with {@link PaCoSlider#setTextOffset(int, int)}.
+     * @param horizontalTextSnap The {@link HorizontalTextSnap} position the text will snap to
+     * @param verticalTextSnap The {@link VerticalTextSnap} position the text will snap to
+     */
     public PaCoSlider setTextSnap(HorizontalTextSnap horizontalTextSnap, VerticalTextSnap verticalTextSnap) {
         return this.setHorizontalTextSnap(horizontalTextSnap).setVerticalTextSnap(verticalTextSnap);
     }
 
+    /**
+     * Used to specify whether the slider text should render with a drop shadow.
+     * @param dropShadow Renders with drop shadow
+     */
     public PaCoSlider setDropShadow(boolean dropShadow) {
         this.dropShadow = dropShadow;
         return this;
     }
 
+    // TODO write zero padding javadoc once its fully working...
     public PaCoSlider setZeroPadding(boolean zeroPad) {
         this.zeroPad = zeroPad;
         this.updateMessage();
         return this;
     }
 
+    /** @return The current value of the slider. */
     public double getValue() {
         return this.value * (this.maxValue - this.minValue) + this.minValue;
     }
 
-    public void setValue(double value) {
+    /**
+     * Used to set the value of the slider.
+     * @param value The value the slider should be set to
+     */
+    public void setValue(double value) { //TODO: maybe look into what happens if the given value is out of bounds?
         this.value = this.snapToNearest((value - this.minValue) / (this.maxValue - this.minValue));
         this.updateMessage();
     }
 
+    /** @return The current value of the slider as a string. */
     public String getAsString() {
         return this.format.format(this.getValue());
     }
@@ -258,7 +356,10 @@ public class PaCoSlider extends AbstractSliderButton {
         String integerPart = commaIndex != -1 ? str.substring(0, commaIndex) : str;
         String fractionalPart = commaIndex != -1 ? str.substring(commaIndex) : "";
 
-        int digits = (int) Math.log10(this.maxValue) + 1;
+        // TODO deal with this, basically cases like minValue > maxValue or if
+        // TODO minValue is a longer digit but in the negative which causes stuff like "00-number"
+        int biggestVal = (int) Math.max(Math.abs(this.minValue), Math.abs(this.maxValue));
+        int digits = (int) Math.log10(biggestVal) + 1;
         if (integerPart.length() < digits) {
             integerPart = "0".repeat(digits - integerPart.length()) + integerPart;
         }

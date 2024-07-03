@@ -29,6 +29,13 @@ public class ResourceDispatcher {
         this.applyExecutor = applyExecutor;
     }
 
+    public CompletableFuture<Void> future() {
+        if (dispatches.isEmpty()) return CompletableFuture.completedFuture(null);
+        ArrayList<CompletableFuture<?>> futures = new ArrayList<>();
+        for (CompletedDispatch dispatch : dispatches) futures.add(dispatch.future);
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{}));
+    }
+
     public final class CompletedDispatch<T> {
         CompletableFuture<T> future;
 
@@ -83,7 +90,17 @@ public class ResourceDispatcher {
             );
         }
 
-        public SubDispatch<T> barrier(Consumer<T> r) {
+        public SubDispatch<Void> prepare(String section, Consumer<T> r) {
+            return new SubDispatch<>(
+                    stem.thenAcceptAsync((v) -> {
+                        prepareProfiler.push(section);
+                        r.accept(v);
+                        prepareProfiler.pop();
+                    }, prepareExecutor)
+            );
+        }
+
+        public SubDispatch<T> barrier() {
             stem = stem.thenCompose(barrier::wait);
             return this;
         }
@@ -103,6 +120,14 @@ public class ResourceDispatcher {
             T t = r.get();
             prepareProfiler.pop();
             return t;
+        }, prepareExecutor));
+    }
+
+    public SubDispatch<Void> prepare(String section, Runnable r) {
+        return new SubDispatch<>(CompletableFuture.runAsync(() -> {
+            prepareProfiler.push(section);
+            r.run();
+            prepareProfiler.pop();
         }, prepareExecutor));
     }
 }

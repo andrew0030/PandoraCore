@@ -3,61 +3,43 @@ package com.github.andrew0030.pandora_core.client.shader.templating.loader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformationParser;
+import com.github.andrew0030.pandora_core.utils.resource.PacoResourceManager;
+import com.github.andrew0030.pandora_core.utils.resource.ResourceDispatcher;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-
-public class TemplateShaderResourceLoader implements ResourceManagerReloadListener {
+public class TemplateShaderResourceLoader implements PacoResourceManager {
     public TemplateShaderResourceLoader() {
     }
 
-    @Override
-    public void onResourceManagerReload(ResourceManager resourceManager) {
-
-    }
-
     private static final TemplateManager templateManager = new TemplateManager();
+    private static final TemplateTransformationParser parser = new TemplateTransformationParser();
 
     @Override
-    public CompletableFuture<Void> reload(
-            PreparationBarrier barrier,
-            ResourceManager manager,
-            ProfilerFiller prepareProfiler,
-            ProfilerFiller applyProfiler,
-            Executor prepareExecutor,
-            Executor applyExecutor
-    ) {
-        final TemplateTransformationParser parser = new TemplateTransformationParser();
-        CompletableFuture<Void> prepDataOne = CompletableFuture.runAsync(() -> {
-            prepareProfiler.push("paco_parse_template_shaders");
-            templateManager.beginReload();
+    public void run(ResourceManager manager, ResourceDispatcher dispatcher) {
+        dispatcher
+                .prepare("paco_parse_template_shaders", () -> {
+                    templateManager.beginReload();
 
-            manager.listResources(
-                    "shaders/paco/templated",
-                    (location) -> location.getPath().endsWith(".glsl")
-            ).forEach((location, resource) -> {
-                StringBuilder builder = new StringBuilder();
-                try {
-                    resource.openAsReader().lines().forEach(line -> {
-                        builder.append(line).append("\n");
+                    manager.listResources(
+                            "shaders/paco/templated",
+                            (location) -> location.getPath().endsWith(".glsl")
+                    ).forEach((location, resource) -> {
+                        StringBuilder builder = new StringBuilder();
+                        try {
+                            resource.openAsReader().lines().forEach(line -> {
+                                builder.append(line).append("\n");
+                            });
+                        } catch (Throwable err) {
+                            throw new RuntimeException(err);
+                        }
+                        TemplateTransformation transformation = parser.parse(builder.toString());
+
+                        templateManager.register(transformation);
                     });
-                } catch (Throwable err) {
-                    throw new RuntimeException(err);
-                }
-                TemplateTransformation transformation = parser.parse(builder.toString());
-
-                templateManager.register(transformation);
-            });
-            prepareProfiler.pop();
-        }, prepareExecutor);
-
-        return prepDataOne.thenCompose(barrier::wait).thenRun(() -> {
-            prepareProfiler.push("paco_load_template_shaders");
-            templateManager.reload();
-            prepareProfiler.pop();
-        });
+                })
+                .barrier()
+                .apply("paco_load_template_shaders", (result) -> {
+                    templateManager.reload();
+                });
     }
 }

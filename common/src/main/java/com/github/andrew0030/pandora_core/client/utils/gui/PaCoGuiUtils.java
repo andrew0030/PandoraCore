@@ -1,5 +1,6 @@
-package com.github.andrew0030.pandora_core.client.gui.screen.utils;
+package com.github.andrew0030.pandora_core.client.utils.gui;
 
+import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -9,7 +10,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO maybe/probably move to client.utils
+// TODO write javadoc for some of these methods that still need it.
 public class PaCoGuiUtils {
 
     private static final ArrayList<PaCoBorderSide> borderList = new ArrayList<>();

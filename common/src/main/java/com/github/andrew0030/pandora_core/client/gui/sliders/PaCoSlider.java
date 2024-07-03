@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.client.gui.sliders;
 
-import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoGuiUtils;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -12,6 +12,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.text.DecimalFormat;
@@ -20,13 +21,12 @@ import java.text.DecimalFormat;
 public class PaCoSlider extends AbstractSliderButton {
     public static final ResourceLocation SLIDER_LOCATION = new ResourceLocation("textures/gui/slider.png");
     // Slider Stuff
-    protected boolean isTextHidden;
     protected double minValue;
     protected double maxValue;
     protected double stepSize;
     protected Component prefix;
     protected Component suffix;
-    protected boolean isSilent;
+    protected boolean isSilent = false;
     protected Integer sliderColor;
     protected Integer sliderRimColor;
     // Slider Handle Stuff
@@ -36,6 +36,7 @@ public class PaCoSlider extends AbstractSliderButton {
     protected Integer handleRimColor;
     protected Integer handleHighlightedRimColor;
     // Slider Text Stuff
+    protected boolean isTextHidden = false;
     private final DecimalFormat format;
     protected Integer textColor;
     protected Integer textColorInactive;
@@ -76,8 +77,8 @@ public class PaCoSlider extends AbstractSliderButton {
         return this;
     }
 
-    public PaCoSlider setSilent() {
-        this.isSilent = true;
+    public PaCoSlider setSilent(boolean isSilent) {
+        this.isSilent = isSilent;
         return this;
     }
 
@@ -254,7 +255,7 @@ public class PaCoSlider extends AbstractSliderButton {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float pPartialTick) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float pPartialTick) {
         if (this.visible) {
             this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
             if (this.handleWidth > this.width || this.handleHeight > this.height) {
@@ -263,7 +264,7 @@ public class PaCoSlider extends AbstractSliderButton {
                 this.isHovered = this.isHovered || mouseX >= posX && mouseY >= posY && mouseX < posX + this.handleWidth && mouseY < posY + this.handleHeight;
             }
             this.renderWidget(graphics, mouseX, mouseY, pPartialTick);
-//            this.updateTooltip(); // TODO: fix this
+            this.updateTooltip();
         }
     }
 

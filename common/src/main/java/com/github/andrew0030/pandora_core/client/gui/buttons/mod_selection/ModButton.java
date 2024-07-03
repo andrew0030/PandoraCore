@@ -2,8 +2,8 @@ package com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
-import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoBorderSide;
-import com.github.andrew0030.pandora_core.client.gui.screen.utils.PaCoGuiUtils;
+import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;

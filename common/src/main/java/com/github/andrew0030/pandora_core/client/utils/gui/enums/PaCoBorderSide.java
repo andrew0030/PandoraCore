@@ -1,8 +1,8 @@
-package com.github.andrew0030.pandora_core.client.gui.screen.utils;
+package com.github.andrew0030.pandora_core.client.utils.gui.enums;
 
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
-import net.minecraft.util.FastColor;
 
+// TODO write javadoc for this
 public enum PaCoBorderSide {
     TOP,
     RIGHT,

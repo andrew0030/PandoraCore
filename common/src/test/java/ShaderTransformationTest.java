@@ -1,6 +1,6 @@
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformationParser;
-import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VanillaTransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
 import com.github.andrew0030.pandora_core.client.utils.shader.ShaderFile;
 import com.github.andrew0030.pandora_core.client.utils.shader.ShaderParser;
 
@@ -12,8 +12,8 @@ public class ShaderTransformationTest {
         ShaderFile file = ShaderParser.parse(load(ldr.getResourceAsStream("rendertype_entity_solid.vsh")));
 
         TemplateTransformationParser parser = new TemplateTransformationParser();
-        VanillaTransformationProcessor processor = new VanillaTransformationProcessor();
-        TemplateTransformation transformation = parser.parse(load(ldr.getResourceAsStream("transformation.glsl")));
+        DefaultTransformationProcessor processor = new DefaultTransformationProcessor();
+        TemplateTransformation transformation = parser.parse(null, load(ldr.getResourceAsStream("transformation.glsl")));
 
         ShaderFile result = processor.process(file, transformation);
         System.out.println(result);

@@ -3,7 +3,7 @@ package com.github.andrew0030.pandora_core.client.shader.templating.transformer;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.utils.shader.ShaderFile;
 
-public abstract class AbstractTransformationProcessor {
+public abstract class TransformationProcessor {
     public static final String TRANSFORM_INJECT = """
             \n%type% PACO_INJECT_TMP_%snowflake% = %transform%;
             #undef %variable%

@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.action;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
-import com.github.andrew0030.pandora_core.client.shader.templating.transformer.AbstractTransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.mojang.datafixers.util.Pair;
 
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class TransformVar extends InsertionAction {
                     .replace("%rh%", rightHand);
         }
 
-        return AbstractTransformationProcessor.TRANSFORM_INJECT
+        return TransformationProcessor.TRANSFORM_INJECT
                 .replace("%snowflake%", transformation.generateSnowflake())
                 .replace("%type%", type)
                 .replace("%variable%", var)

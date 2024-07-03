@@ -4,10 +4,12 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 
 import java.util.Map;
 
+/**
+ * A helper class containing mappings of vanilla variable names to iris/of variable names
+ */
 public class NameMapper {
     private static final Map<String, String> SHADER_MAPPING = new Object2ObjectRBTreeMap<>();
     private static final Map<String, String> IRIS_MAPPING = new Object2ObjectRBTreeMap<>();
-    // TODO: iris specific map
     // TODO: proper optifine map, as most of these variables are illegal, and thus need to be switched out before loading the shader
 
     static {
@@ -16,7 +18,7 @@ public class NameMapper {
         SHADER_MAPPING.put("UV2", "gl_MultiTexCoord1"); // lightmap coords
 
         SHADER_MAPPING.put("Position", "gl_Vertex"); // position
-        SHADER_MAPPING.put("Color",   "gl_Color"); // color
+        SHADER_MAPPING.put("Color",    "gl_Color"); // color
         SHADER_MAPPING.put("Normal",   "gl_Normal"); // normal
 
         IRIS_MAPPING.put("UV0", "iris_UV0");
@@ -24,8 +26,8 @@ public class NameMapper {
         IRIS_MAPPING.put("UV2", "iris_UV2");
 
         IRIS_MAPPING.put("Position", "iris_Position");
-        IRIS_MAPPING.put("Color", "iris_Color");
-        IRIS_MAPPING.put("Normal", "iris_Normal");
+        IRIS_MAPPING.put("Color",    "iris_Color");
+        IRIS_MAPPING.put("Normal",   "iris_Normal");
     }
 
     public static String assumeType(String type, String name) {

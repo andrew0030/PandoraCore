@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.compat.shader.vanilla;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.loader.VanillaTemplateLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.VanillaTemplateLoader;
 import com.mojang.blaze3d.platform.GlStateManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

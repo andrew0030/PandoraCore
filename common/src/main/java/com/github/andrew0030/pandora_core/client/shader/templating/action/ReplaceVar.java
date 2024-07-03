@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.action;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
-import com.github.andrew0030.pandora_core.client.shader.templating.transformer.AbstractTransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 
 public class ReplaceVar extends InsertionAction {
     String from, to;
@@ -37,7 +37,7 @@ public class ReplaceVar extends InsertionAction {
         else if (typeDst.equals("ivec2") && type.equals("vec2"))
             value = "vec2(intBitsToFloat(" + value + ".x),intBitsToFloat(" + value + ".y))";
 
-        return AbstractTransformationProcessor.TRANSFORM_INJECT
+        return TransformationProcessor.TRANSFORM_INJECT
                 .replace("%snowflake%", transformation.generateSnowflake())
                 .replace("%type%", type)
                 .replace("%variable%", var)

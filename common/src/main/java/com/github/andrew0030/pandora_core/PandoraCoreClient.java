@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateShaderResourceLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.LogicalSide;
 

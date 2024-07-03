@@ -1,11 +1,14 @@
-package com.github.andrew0030.pandora_core.client.shader.templating.loader;
+package com.github.andrew0030.pandora_core.client.shader.templating;
 
+import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformationParser;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.resource.PacoResourceManager;
 import com.github.andrew0030.pandora_core.utils.resource.ResourceDispatcher;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.slf4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.Reader;
@@ -16,6 +19,8 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
 
     private static final TemplateManager templateManager = new TemplateManager();
     private static final TemplateTransformationParser parser = new TemplateTransformationParser();
+
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Loader");
 
     @Override
     public void run(ResourceManager manager, ResourceDispatcher dispatcher) {
@@ -30,10 +35,10 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
                         StringBuilder builder = new StringBuilder();
                         try (BufferedReader reader = resource.openAsReader()) {
                             reader.lines().forEach(line -> builder.append(line).append("\n"));
-                            TemplateTransformation transformation = parser.parse(builder.toString());
+                            TemplateTransformation transformation = parser.parse(location, builder.toString());
                             templateManager.register(transformation);
                         } catch (Throwable err) {
-                            throw new RuntimeException(err);
+                            LOGGER.warn("Failed to parse shader template " + location.toString(), err);
                         }
                     });
                 })
@@ -47,10 +52,10 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
                             reader.lines().forEach(line -> builder.append(line).append("\n"));
                             templateManager.addJson(builder.toString());
                         } catch (Throwable err) {
-                            throw new RuntimeException(err);
+                            LOGGER.warn("Failed to parse vanilla json " + location.toString(), err);
                         }
                     });
-                })
+                 })
                 .barrier()
                 .apply("paco_load_template_shaders", (result) -> {
                     templateManager.reload();

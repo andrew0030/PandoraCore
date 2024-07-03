@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.action.Inject
 import com.github.andrew0030.pandora_core.client.shader.templating.action.InsertionAction;
 import com.github.andrew0030.pandora_core.client.shader.templating.action.TransformVar;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,12 +15,15 @@ public class TemplateTransformation {
     protected HashMap<String, String> templates = new HashMap<>();
     protected HashMap<String, String> varTypes = new HashMap<>();
     protected HashMap<String, String> funcCache = new HashMap<>();
+    public final ResourceLocation location;
 
-    public TemplateTransformation() {
+    public TemplateTransformation(ResourceLocation location) {
+        this.location = location;
     }
 
     public void lock() {
         boolean hasQuatTransform = false;
+        // resolve required information from the transformation definition
         for (InsertionAction action : actions) {
             if (action instanceof Injection inject) {
                 inject.resolveTypes(varTypes);
@@ -29,6 +33,7 @@ public class TemplateTransformation {
                 funcCache.put("rotateQuat", "paco_rotateQuat_" + generateSnowflake());
             }
         }
+        // if a mutation involving quaternion rotations is present, a method for rotating quats has to be injected
         if (hasQuatTransform) {
             String qName = funcCache.get("rotateQuat");
             String qFunc = """
@@ -81,6 +86,7 @@ public class TemplateTransformation {
                 }
             });
         }
+        // immutable
         actions = new ReadOnlyList<>(actions);
     }
 
@@ -94,6 +100,11 @@ public class TemplateTransformation {
 
     int sid = 0;
 
+    /**
+     * Generates the next "snowflake" (function/variable name uniquer to help prevent unexpected shader load failures)
+     *
+     * @return a snowflake to use
+     */
     public String generateSnowflake() {
         return "paco_" + hashCode() + "_" + (sid++);
     }
@@ -107,6 +118,7 @@ public class TemplateTransformation {
                 #define paco_per_instance %paco_per_instance%
                 """.replace("%paco_per_instance%", "in");
     }
+
     public String afterHInject() {
         return """
                 #undef paco_per_instance

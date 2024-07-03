@@ -1,13 +1,16 @@
 package com.github.andrew0030.pandora_core.client.shader.templating;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.action.*;
+import net.minecraft.resources.ResourceLocation;
 
 public class TemplateTransformationParser {
     public TemplateTransformationParser() {
     }
 
-    public TemplateTransformation parse(String text) {
-        TemplateTransformation transformation = new TemplateTransformation();
+    // is there anything for me to even say about this method?
+    // seems pretty straightforward to me
+    public TemplateTransformation parse(ResourceLocation location, String text) {
+        TemplateTransformation transformation = new TemplateTransformation(location);
 
         String blockType = null;
         String block = "";

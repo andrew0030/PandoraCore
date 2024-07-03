@@ -1,18 +1,20 @@
 package com.github.andrew0030.pandora_core.utils.resource;
 
-import io.netty.util.concurrent.CompleteFuture;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * A utility class abstracting away CompletableFutures for resource management
+ */
 public class ResourceDispatcher {
     final PreparableReloadListener.PreparationBarrier barrier;
     final ProfilerFiller prepareProfiler;
@@ -29,6 +31,12 @@ public class ResourceDispatcher {
         this.applyExecutor = applyExecutor;
     }
 
+    /**
+     * Unifies the dispatches into a single future
+     *
+     * @return A single completable future representing all dispatches
+     */
+    @ApiStatus.Internal
     public CompletableFuture<Void> future() {
         if (dispatches.isEmpty()) return CompletableFuture.completedFuture(null);
         ArrayList<CompletableFuture<?>> futures = new ArrayList<>();
@@ -36,6 +44,9 @@ public class ResourceDispatcher {
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{}));
     }
 
+    /**
+     * An object representing a completed dispatch
+     */
     public final class CompletedDispatch<T> {
         CompletableFuture<T> future;
 
@@ -43,11 +54,14 @@ public class ResourceDispatcher {
             this.future = future;
         }
 
-        public T get() throws InterruptedException, ExecutionException {
-            return future.join();
-        }
+//        public T get() throws InterruptedException, ExecutionException {
+//            return future.join();
+//        }
     }
 
+    /**
+     * An intermediate object for constructing chains of preparation actions
+     */
     public final class SubDispatch<T> {
         CompletableFuture<T> stem;
 
@@ -55,6 +69,13 @@ public class ResourceDispatcher {
             this.stem = stem;
         }
 
+        /**
+         * Runs the provided runnable on thread after resource loading
+         * GL resources can be managed in this
+         *
+         * @param section a name for a profiler section to create
+         * @param r       the action to run to apply resources
+         */
         public void apply(String section, Consumer<T> r) {
             dispatches.add(new CompletedDispatch<>(
                     stem.thenComposeAsync((v) -> {
@@ -66,19 +87,39 @@ public class ResourceDispatcher {
             ));
         }
 
-        public <V> CompletedDispatch<V> apply(String section, Function<T, V> r) {
+        /**
+         * Runs the provided runnable on thread after resource loading
+         * GL resources can be managed in this
+         *
+         * @param section a name for a profiler section to create
+         * @param r       a function mapping the result to another object
+         *                this is currently pointless
+         *                <p>
+         *                intellij formats this dumbly, so adding the letter "a" to prevent that
+         *                a TODO: figure out a way to make a completed dispatch's result acquirable
+         *                another TODO: test that, because I changed this last second
+         */
+        public <V> CompletedDispatch<V> complete(String section, Function<T, V> r) {
             CompletedDispatch<V> dispatch = new CompletedDispatch<>(
                     stem.thenComposeAsync((v) -> {
-                        applyProfiler.push(section);
+                        prepareProfiler.push(section);
                         V a = r.apply(v);
-                        applyProfiler.pop();
+                        prepareProfiler.pop();
                         return CompletableFuture.completedStage(a);
-                    }, applyExecutor)
+                    }, prepareExecutor)
             );
             dispatches.add(dispatch);
             return dispatch;
         }
 
+        /**
+         * Computes the provided function off-thread
+         * GL resource management must be done on thread, in an apply
+         *
+         * @param section a name for a profiler section to create
+         * @param r       a function mapping the result of the previous preparation action to a new object
+         * @return a SubDispatch to chain more preparation and application actions off of
+         */
         public <V> SubDispatch<V> prepare(String section, Function<T, V> r) {
             return new SubDispatch<>(
                     stem.thenComposeAsync((v) -> {
@@ -90,6 +131,14 @@ public class ResourceDispatcher {
             );
         }
 
+        /**
+         * Computes the provided consumer off-thread
+         * GL resource management must be done on thread, in an apply
+         *
+         * @param section a name for a profiler section to create
+         * @param r       a consumer taking the result of the previous preparation action and performing more actions
+         * @return a SubDispatch to chain more preparation and application actions off of
+         */
         public SubDispatch<Void> prepare(String section, Consumer<T> r) {
             return new SubDispatch<>(
                     stem.thenAcceptAsync((v) -> {
@@ -106,6 +155,13 @@ public class ResourceDispatcher {
         }
     }
 
+    /**
+     * Runs the provided runnable on thread after resource loading
+     * GL resources can be managed in this
+     *
+     * @param section a name for a profiler section to create
+     * @param r       the action to run to apply resources
+     */
     public void apply(String section, Runnable r) {
         dispatches.add(new CompletedDispatch<>(CompletableFuture.runAsync(() -> {
             applyProfiler.push(section);
@@ -114,6 +170,14 @@ public class ResourceDispatcher {
         }, applyExecutor)));
     }
 
+    /**
+     * Computes the provided supplier off-thread
+     * GL resource management must be done on thread, in an apply
+     *
+     * @param section a name for a profiler section to create
+     * @param r       a supplier providing an object to pass to the next element in the chain
+     * @return a SubDispatch to chain more preparation and application actions off of
+     */
     public <T> SubDispatch<T> prepare(String section, Supplier<T> r) {
         return new SubDispatch<>(CompletableFuture.supplyAsync(() -> {
             prepareProfiler.push(section);
@@ -123,6 +187,14 @@ public class ResourceDispatcher {
         }, prepareExecutor));
     }
 
+    /**
+     * Runs the provided runnable off-thread
+     * GL resource management must be done on thread, in an apply
+     *
+     * @param section a name for a profiler section to create
+     * @param r       the runnable to run for resource preparation
+     * @return a SubDispatch to chain more preparation and application actions off of
+     */
     public SubDispatch<Void> prepare(String section, Runnable r) {
         return new SubDispatch<>(CompletableFuture.runAsync(() -> {
             prepareProfiler.push(section);

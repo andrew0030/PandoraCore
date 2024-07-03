@@ -1,15 +1,16 @@
-package com.github.andrew0030.pandora_core.client.shader.templating.transformer;
+package com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.NameMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.action.InsertionAction;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.utils.shader.ShaderFile;
 import com.github.andrew0030.pandora_core.client.utils.shader.ln.Line;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VanillaTransformationProcessor extends AbstractTransformationProcessor {
+public class DefaultTransformationProcessor extends TransformationProcessor {
     @Override
     public ShaderFile process(ShaderFile source, TemplateTransformation transformation) {
         ArrayList<Line> result = new ArrayList<>();

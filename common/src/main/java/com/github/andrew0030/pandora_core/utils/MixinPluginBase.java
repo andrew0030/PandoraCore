@@ -7,6 +7,10 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import java.io.InputStream;
 import java.util.*;
 
+/**
+ * A base class for mixin plugins
+ * This offers useful lookup systems for compatibility mixins
+ */
 public abstract class MixinPluginBase implements IMixinConfigPlugin
 {
     private final ArrayList<String> classLookup = new ArrayList<>();

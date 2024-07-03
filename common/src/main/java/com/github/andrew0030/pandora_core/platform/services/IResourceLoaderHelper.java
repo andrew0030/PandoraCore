@@ -7,6 +7,9 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Utilities for registering resource managers
+ */
 public interface IResourceLoaderHelper {
     void registerVanillaResourceLoader(Function<LogicalSide, List<ResourceManagerReloadListener>> function);
     void registerResourceLoader(Function<LogicalSide, List<PacoResourceManager>> function);

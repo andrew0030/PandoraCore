@@ -149,7 +149,7 @@ public class PaCoSlider extends AbstractSliderButton {
      * Note: This replaces the slider rendering from using a texture to creating a color based blit,
      * meaning that it makes it impossible for resource packs to modify the slider, so use it responsibly.<br/>
      * Additionally, {@link PaCoColor} can be used to easily create a color.<br/>
-     * If null is given the element won't be rendered.
+     * If null is given the element won't be rendered, however at least one has to be not null, to fully hide use alpha 0.
      * @param sliderColor The main color the slider will have
      * @param sliderRimColor The rim color the slider will have
      */
@@ -164,7 +164,7 @@ public class PaCoSlider extends AbstractSliderButton {
      * Note: This replaces the slider handle rendering from using a texture to creating a color based blit,
      * meaning that it makes it impossible for resource packs to modify the slider handle, so use it responsibly.<br/>
      * Additionally, {@link PaCoColor} can be used to easily create a color.<br/>
-     * If null is given the element won't be rendered.
+     * If null is given the element won't be rendered, however at least one has to be not null, to fully hide use alpha 0.
      * @param handleColor The main color the slider handle will have
      * @param handleRimColor The rim color the slider handle will have
      * @param handleHighlightedRimColor The highlighted rim color the slider handle will have
@@ -416,20 +416,9 @@ public class PaCoSlider extends AbstractSliderButton {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
         // Slider
-        if (this.sliderColor != null || this.sliderRimColor != null) {
-            PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.sliderColor, this.sliderRimColor, 1);
-        } else {
-            graphics.blitNineSliced(SLIDER_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, 0);
-        }
+        this.renderSlider(graphics);
         // Slider Handle
-        int posX = this.getX() + (int)(this.value * (double)(this.width - this.handleWidth));
-        int posY = this.getY() + (this.height - this.handleHeight) / 2;
-        if (this.handleColor != null || this.handleRimColor != null) {
-            int rimColor = this.shouldHighlight() ? this.handleHighlightedRimColor : this.handleRimColor;
-            PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, this.handleWidth, this.handleHeight, this.handleColor, rimColor, 1);
-        } else {
-            graphics.blitNineSliced(SLIDER_LOCATION, posX, posY, this.handleWidth, this.handleHeight, 20, 4, 200, 20, 0, this.getSliderHandleTextureY());
-        }
+        this.renderSliderhandle(graphics);
 
         int color = this.active ?
                 (this.textColor != null ? this.textColor : 16777215) :
@@ -460,11 +449,32 @@ public class PaCoSlider extends AbstractSliderButton {
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    private int getSliderHandleTextureY() {
+    /** Helper method to render the slider, mostly exists to allow for easy modification in children */
+    protected void renderSlider(GuiGraphics graphics) {
+        if (this.sliderColor != null || this.sliderRimColor != null) {
+            PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.sliderColor, this.sliderRimColor, 1);
+        } else {
+            graphics.blitNineSliced(SLIDER_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, 0);
+        }
+    }
+
+    /** Helper method to render the slider handle, mostly exists to allow for easy modification in children */
+    protected void renderSliderhandle(GuiGraphics graphics) {
+        int posX = this.getX() + (int)(this.value * (double)(this.width - this.handleWidth));
+        int posY = this.getY() + (this.height - this.handleHeight) / 2;
+        if (this.handleColor != null || this.handleRimColor != null) {
+            int rimColor = this.shouldHighlight() ? this.handleHighlightedRimColor : this.handleRimColor;
+            PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, this.handleWidth, this.handleHeight, this.handleColor, rimColor, 1);
+        } else {
+            graphics.blitNineSliced(SLIDER_LOCATION, posX, posY, this.handleWidth, this.handleHeight, 20, 4, 200, 20, 0, this.getSliderHandleTextureY());
+        }
+    }
+
+    protected int getSliderHandleTextureY() {
         return this.shouldHighlight() ? 60 : 40;
     }
 
-    private boolean shouldHighlight() {
+    protected boolean shouldHighlight() {
         return this.isHovered;
     }
 }

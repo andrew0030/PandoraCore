@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModBu
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIconManager;
 import com.github.andrew0030.pandora_core.client.gui.sliders.HorizontalTextSnap;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
+import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.VerticalTextSnap;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
@@ -99,6 +100,11 @@ public class PaCoScreen extends Screen {
                 .setHandleColor(PaCoColor.color(100, 20, 20), PaCoColor.color(20, 20, 20), PaCoColor.color(255, 255, 255))
                 .setHandleSize(5, 25)
                 .setTextColor(PaCoColor.color(200, 60, 60))
+        );
+
+        this.addRenderableWidget(new PaCoVerticalSlider(this.width / 3, this.height / 6, 12, 160, 150, 0, 50, 1)
+                .setSilent(true)
+                .setHandleWidth(16)
         );
     }
 

@@ -84,17 +84,17 @@ public class PaCoScreen extends Screen {
         }
 
 
-        this.addRenderableWidget(new PaCoSlider(this.width / 3, this.height / 2, 300, 12, 0, 60, 0, 1)
+        this.addRenderableWidget(new PaCoSlider(this.width / 3 + 30, this.height / 2, 270, 12, 0, 60, 0, 1)
                 .setSilent(true)
                 .setHandleWidth(150)
                 .setZeroPadding(true)
+                .setVerticalTextSnap(VerticalTextSnap.TOP_OUTSIDE)
                 .setSliderColor(PaCoColor.color(100, 0, 0, 0), PaCoColor.color(0, 0, 0))
         );
-        this.addRenderableWidget(new PaCoSlider(this.width / 3, this.height / 3, 300, 19, -100, 30, 0, 0.5)
+        this.addRenderableWidget(new PaCoSlider(this.width / 3 + 30, this.height / 3, 270, 19, -10, 300, 0, 0.5)
                 .setPrefix(Component.literal("gval: "))
                 .setDropShadow(false)
                 .setSilent(true)
-                .setZeroPadding(true)
                 .setTextSnap(HorizontalTextSnap.CENTER, VerticalTextSnap.CENTER)
                 .setHandleColor(PaCoColor.color(100, 20, 20), PaCoColor.color(20, 20, 20), PaCoColor.color(255, 255, 255))
                 .setHandleSize(5, 25)

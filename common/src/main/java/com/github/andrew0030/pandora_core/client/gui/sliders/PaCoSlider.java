@@ -252,7 +252,14 @@ public class PaCoSlider extends AbstractSliderButton {
         return this;
     }
 
-    // TODO write zero padding javadoc once its fully working...
+    /**
+     * Used to pad the sliders text with zeros.<br/>
+     * Basically what this does is, it gets the {@link PaCoSlider#minValue} and {@link PaCoSlider#maxValue} and checks
+     * which of the two has more digits and stores the result, it then uses that value to determine how many zeros to
+     * place before the current value to make it match the digit count.<br/>
+     * So for example, on a slider of range 0-1000 if the current value is "32", it would instead display "0032".
+     * @param zeroPad Whether to pad the sliders text with zeros
+     */
     public PaCoSlider setZeroPadding(boolean zeroPad) {
         this.zeroPad = zeroPad;
         this.updateMessage();
@@ -268,7 +275,7 @@ public class PaCoSlider extends AbstractSliderButton {
      * Used to set the value of the slider.
      * @param value The value the slider should be set to
      */
-    public void setValue(double value) { //TODO: maybe look into what happens if the given value is out of bounds?
+    public void setValue(double value) {
         this.value = this.snapToNearest((value - this.minValue) / (this.maxValue - this.minValue));
         this.updateMessage();
     }
@@ -355,14 +362,19 @@ public class PaCoSlider extends AbstractSliderButton {
         int commaIndex = str.indexOf(',');
         String integerPart = commaIndex != -1 ? str.substring(0, commaIndex) : str;
         String fractionalPart = commaIndex != -1 ? str.substring(commaIndex) : "";
+        int maxDigits = (int) Math.log10(Math.max(Math.abs(this.minValue), Math.abs(this.maxValue))) + 1;
+        boolean isNegative = this.getValue() < 0;
 
-        // TODO deal with this, basically cases like minValue > maxValue or if
-        // TODO minValue is a longer digit but in the negative which causes stuff like "00-number"
-        int biggestVal = (int) Math.max(Math.abs(this.minValue), Math.abs(this.maxValue));
-        int digits = (int) Math.log10(biggestVal) + 1;
-        if (integerPart.length() < digits) {
-            integerPart = "0".repeat(digits - integerPart.length()) + integerPart;
-        }
+        // Remove the '-' to prepare for padding if needed.
+        if (isNegative)
+            integerPart = integerPart.substring(1);
+        // Zero pads the integer part if needed.
+        if (integerPart.length() < maxDigits)
+            integerPart = "0".repeat(maxDigits - integerPart.length()) + integerPart;
+        // Reattaches the negative sign if the value is negative
+        if (isNegative)
+            integerPart = "-" + integerPart;
+
         return integerPart + fractionalPart;
     }
 

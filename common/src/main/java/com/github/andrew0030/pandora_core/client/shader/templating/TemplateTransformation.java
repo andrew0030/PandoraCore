@@ -127,4 +127,8 @@ public class TemplateTransformation {
                 #undef paco_per_instance
                 """;
     }
+
+    public String getTemplate(String type) {
+        return templates.get(type);
+    }
 }

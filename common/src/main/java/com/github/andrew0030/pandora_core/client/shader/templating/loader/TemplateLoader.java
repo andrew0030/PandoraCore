@@ -13,7 +13,7 @@ public abstract class TemplateLoader {
      * @return whether the loader was able to successfully load the shader
      *         ideally, this never returns false, but that's probably not going to happen
      */
-    public abstract boolean attempt(TemplateTransformation transformation);
+    public abstract boolean attempt(TemplateManager.LoadManager manager, TemplateTransformation transformation);
 
     public abstract TransformationProcessor processor();
 

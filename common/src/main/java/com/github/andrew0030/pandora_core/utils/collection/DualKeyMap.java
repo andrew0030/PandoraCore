@@ -16,6 +16,14 @@ public final class DualKeyMap<T, U, V> implements Map<Pair<T, U>, V> {
         int hash;
         final Class<?> clz = Key.class;
 
+        @Override
+        public String toString() {
+            return "Key{" +
+                    "l=" + l +
+                    ", r=" + r +
+                    '}';
+        }
+
         public Key(T l, U r) {
             this.l = l;
             this.r = r;

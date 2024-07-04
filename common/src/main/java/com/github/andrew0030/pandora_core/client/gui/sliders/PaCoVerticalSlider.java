@@ -1,8 +1,6 @@
 package com.github.andrew0030.pandora_core.client.gui.sliders;
 
-import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
-import net.minecraft.client.gui.GuiGraphics;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import org.lwjgl.glfw.GLFW;
 
 public class PaCoVerticalSlider extends PaCoSlider {
@@ -34,16 +32,24 @@ public class PaCoVerticalSlider extends PaCoSlider {
         this.setValueFromMouse(mouseY);
     }
 
-    //TODO there is a bit of jank if more than 1 slider is in the UI, need to make sure only focused moves with key input
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        boolean flag = keyCode == GLFW.GLFW_KEY_UP;
-        if (flag || keyCode == GLFW.GLFW_KEY_DOWN) {
-            if (this.minValue > this.maxValue)
-                flag = !flag;
-            this.setValue(this.getValue() + (this.stepSize * (flag ? -1F : 1F)));
+        // Checks if the pressed key was Enter/Space
+        if (CommonInputs.selected(keyCode)) {
+            this.canChangeValue = !this.canChangeValue;
             return true;
         }
+        // If the slider was "selected" we check the input and modify the value accordingly
+        if (this.canChangeValue) {
+            boolean isUpKey = keyCode == GLFW.GLFW_KEY_UP;
+            boolean isDownKey = keyCode == GLFW.GLFW_KEY_DOWN;
+            if (isUpKey || isDownKey) {
+                int direction = (isUpKey ? -1 : 1) * (this.minValue > this.maxValue ? -1 : 1);
+                this.setValue(this.getValue() + (this.stepSize * direction));
+                return true;
+            }
+        }
+        // If the slider wasn't "selected" we just return as we don't want to modify its value.
         return false;
     }
 
@@ -53,41 +59,12 @@ public class PaCoVerticalSlider extends PaCoSlider {
     }
 
     @Override
-    protected boolean clicked(double mouseX, double mouseY) {
-        boolean mouseOverSlider = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
-        boolean mouseOverHandle = false;
-        // Only check if the handle is bigger than the slider
-        if (this.handleWidth > this.width || this.handleHeight > this.height) {
-            int posX = this.getX() + (this.width - this.handleWidth) / 2;
-            int posY = this.getY() + (int)(this.value * (double)(this.height - this.handleHeight));
-            mouseOverHandle = mouseX >= posX && mouseY >= posY && mouseX < posX + this.handleWidth && mouseY < posY + this.handleHeight;
-        }
-        return this.active && this.visible && (mouseOverSlider || mouseOverHandle);
+    public int getHandleX() {
+        return this.getX() + (this.width - this.handleWidth) / 2;
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float pPartialTick) {
-        if (this.visible) {
-            this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
-            if (this.handleWidth > this.width || this.handleHeight > this.height) {
-                int posX = this.getX() + (this.width - this.handleWidth) / 2;
-                int posY = this.getY() + (int)(this.value * (double)(this.height - this.handleHeight));
-                this.isHovered = this.isHovered || mouseX >= posX && mouseY >= posY && mouseX < posX + this.handleWidth && mouseY < posY + this.handleHeight;
-            }
-            this.renderWidget(graphics, mouseX, mouseY, pPartialTick);
-            this.updateTooltip();
-        }
-    }
-
-    @Override
-    protected void renderSliderhandle(GuiGraphics graphics) {
-        int posX = this.getX() + (this.width - this.handleWidth) / 2;
-        int posY = this.getY() + (int)(this.value * (double)(this.height - this.handleHeight));
-        if (this.handleColor != null || this.handleRimColor != null) {
-            int rimColor = this.shouldHighlight() ? this.handleHighlightedRimColor : this.handleRimColor;
-            PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, this.handleWidth, this.handleHeight, this.handleColor, rimColor, 1);
-        } else {
-            graphics.blitNineSliced(SLIDER_LOCATION, posX, posY, this.handleWidth, this.handleHeight, 20, 4, 200, 20, 0, this.getSliderHandleTextureY());
-        }
+    public int getHandleY() {
+        return this.getY() + (int)(this.value * (double)(this.height - this.handleHeight));
     }
 }

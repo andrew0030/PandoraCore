@@ -84,27 +84,33 @@ public class PaCoScreen extends Screen {
             idx++;
         }
 
+        this.addRenderableWidget(new PaCoVerticalSlider(this.width / 3, this.height / 6, 12, 160, 0, 150, 50, 1)
+                .setSilent(true)
+                .setHandleSize(16, 20)
+                .setPrefix(Component.literal("deg: "))
+                .setSuffix(Component.literal("°"))
+                .setTextColor(PaCoColor.color(50, 200, 80))
+                .setHasDropShadow(false)
+                .setZeroPadding(true)
+                .setTextSnap(HorizontalTextSnap.RIGHT_OUTSIDE, VerticalTextSnap.TOP_INSIDE)
+                .setTextOffset(3, 1)
+        );
 
         this.addRenderableWidget(new PaCoSlider(this.width / 3 + 30, this.height / 2, 270, 12, 0, 60, 0, 1)
                 .setSilent(true)
                 .setHandleWidth(150)
                 .setZeroPadding(true)
                 .setVerticalTextSnap(VerticalTextSnap.TOP_OUTSIDE)
-                .setSliderColor(PaCoColor.color(100, 0, 0, 0), PaCoColor.color(0, 0, 0))
+                .setSliderColor(PaCoColor.color(100, 0, 0, 0), PaCoColor.color(0, 0, 0), PaCoColor.color(255, 255, 255))
         );
         this.addRenderableWidget(new PaCoSlider(this.width / 3 + 30, this.height / 3, 270, 19, -10, 300, 0, 0.5)
                 .setPrefix(Component.literal("gval: "))
-                .setDropShadow(false)
+                .setHasDropShadow(false)
                 .setSilent(true)
                 .setTextSnap(HorizontalTextSnap.CENTER, VerticalTextSnap.CENTER)
                 .setHandleColor(PaCoColor.color(100, 20, 20), PaCoColor.color(20, 20, 20), PaCoColor.color(255, 255, 255))
                 .setHandleSize(5, 25)
                 .setTextColor(PaCoColor.color(200, 60, 60))
-        );
-
-        this.addRenderableWidget(new PaCoVerticalSlider(this.width / 3, this.height / 6, 12, 160, 150, 0, 50, 1)
-                .setSilent(true)
-                .setHandleWidth(16)
         );
     }
 

@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -29,6 +30,7 @@ public class PaCoSlider extends AbstractSliderButton {
     protected boolean isSilent = false;
     protected Integer sliderColor;
     protected Integer sliderRimColor;
+    protected Integer sliderHighlightedRimColor;
     // Slider Handle Stuff
     protected int handleWidth;
     protected int handleHeight;
@@ -152,10 +154,12 @@ public class PaCoSlider extends AbstractSliderButton {
      * If null is given the element won't be rendered, however at least one has to be not null, to fully hide use alpha 0.
      * @param sliderColor The main color the slider will have
      * @param sliderRimColor The rim color the slider will have
+     * @param sliderHighlightedRimColor The highlighted rim color the slider will have
      */
-    public PaCoSlider setSliderColor(@Nullable Integer sliderColor, @Nullable Integer sliderRimColor) {
+    public PaCoSlider setSliderColor(@Nullable Integer sliderColor, @Nullable Integer sliderRimColor, @Nullable Integer sliderHighlightedRimColor) {
         this.sliderColor = sliderColor;
         this.sliderRimColor = sliderRimColor;
+        this.sliderHighlightedRimColor = sliderHighlightedRimColor;
         return this;
     }
 
@@ -247,7 +251,7 @@ public class PaCoSlider extends AbstractSliderButton {
      * Used to specify whether the slider text should render with a drop shadow.
      * @param dropShadow Renders with drop shadow
      */
-    public PaCoSlider setDropShadow(boolean dropShadow) {
+    public PaCoSlider setHasDropShadow(boolean dropShadow) {
         this.dropShadow = dropShadow;
         return this;
     }
@@ -304,13 +308,22 @@ public class PaCoSlider extends AbstractSliderButton {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        boolean flag = keyCode == GLFW.GLFW_KEY_LEFT;
-        if (flag || keyCode == GLFW.GLFW_KEY_RIGHT) {
-            if (this.minValue > this.maxValue)
-                flag = !flag;
-            this.setValue(this.getValue() + (this.stepSize * (flag ? -1F : 1F)));
+        // Checks if the pressed key was Enter/Space
+        if (CommonInputs.selected(keyCode)) {
+            this.canChangeValue = !this.canChangeValue;
             return true;
         }
+        // If the slider was "selected" we check the input and modify the value accordingly
+        if (this.canChangeValue) {
+            boolean isLeftKey = keyCode == GLFW.GLFW_KEY_LEFT;
+            boolean isRightKey = keyCode == GLFW.GLFW_KEY_RIGHT;
+            if (isLeftKey || isRightKey) {
+                int direction = (isLeftKey ? -1 : 1) * (this.minValue > this.maxValue ? -1 : 1);
+                this.setValue(this.getValue() + (this.stepSize * direction));
+                return true;
+            }
+        }
+        // If the slider wasn't "selected" we just return as we don't want to modify its value.
         return false;
     }
 
@@ -387,8 +400,8 @@ public class PaCoSlider extends AbstractSliderButton {
         boolean mouseOverHandle = false;
         // Only check if the handle is bigger than the slider
         if (this.handleWidth > this.width || this.handleHeight > this.height) {
-            int posX = this.getX() + (int)(this.value * (double)(this.width - this.handleWidth));
-            int posY = this.getY() + (this.height - this.handleHeight) / 2;
+            int posX = this.getHandleX();
+            int posY = this.getHandleY();
             mouseOverHandle = mouseX >= posX && mouseY >= posY && mouseX < posX + this.handleWidth && mouseY < posY + this.handleHeight;
         }
         return this.active && this.visible && (mouseOverSlider || mouseOverHandle);
@@ -399,8 +412,8 @@ public class PaCoSlider extends AbstractSliderButton {
         if (this.visible) {
             this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
             if (this.handleWidth > this.width || this.handleHeight > this.height) {
-                int posX = this.getX() + (int)(this.value * (double)(this.width - this.handleWidth));
-                int posY = this.getY() + (this.height - this.handleHeight) / 2;
+                int posX = this.getHandleX();
+                int posY = this.getHandleY();
                 this.isHovered = this.isHovered || mouseX >= posX && mouseY >= posY && mouseX < posX + this.handleWidth && mouseY < posY + this.handleHeight;
             }
             this.renderWidget(graphics, mouseX, mouseY, pPartialTick);
@@ -451,30 +464,51 @@ public class PaCoSlider extends AbstractSliderButton {
 
     /** Helper method to render the slider, mostly exists to allow for easy modification in children */
     protected void renderSlider(GuiGraphics graphics) {
-        if (this.sliderColor != null || this.sliderRimColor != null) {
-            PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.sliderColor, this.sliderRimColor, 1);
+        if (this.sliderColor != null || this.sliderRimColor != null || this.sliderHighlightedRimColor != null) {
+            Integer rimColor = this.shouldHighlight() ? this.sliderHighlightedRimColor : this.sliderRimColor;
+            PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.sliderColor, rimColor, 1);
         } else {
-            graphics.blitNineSliced(SLIDER_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, 0);
+            graphics.blitNineSliced(SLIDER_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getSliderTextureY());
         }
     }
 
     /** Helper method to render the slider handle, mostly exists to allow for easy modification in children */
     protected void renderSliderhandle(GuiGraphics graphics) {
-        int posX = this.getX() + (int)(this.value * (double)(this.width - this.handleWidth));
-        int posY = this.getY() + (this.height - this.handleHeight) / 2;
-        if (this.handleColor != null || this.handleRimColor != null) {
-            int rimColor = this.shouldHighlight() ? this.handleHighlightedRimColor : this.handleRimColor;
+        int posX = this.getHandleX();
+        int posY = this.getHandleY();
+        if (this.handleColor != null || this.handleRimColor != null || this.handleHighlightedRimColor != null) {
+            Integer rimColor = this.shouldHighlightHandle() ? this.handleHighlightedRimColor : this.handleRimColor;
             PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, this.handleWidth, this.handleHeight, this.handleColor, rimColor, 1);
         } else {
             graphics.blitNineSliced(SLIDER_LOCATION, posX, posY, this.handleWidth, this.handleHeight, 20, 4, 200, 20, 0, this.getSliderHandleTextureY());
         }
     }
 
-    protected int getSliderHandleTextureY() {
-        return this.shouldHighlight() ? 60 : 40;
+    /** @return The x position of the handles upper left corner. */
+    public int getHandleX() {
+        return this.getX() + (int)(this.value * (double)(this.width - this.handleWidth));
     }
 
+    /** @return The y position of the handles upper left corner. */
+    public int getHandleY() {
+        return this.getY() + (this.height - this.handleHeight) / 2;
+    }
+
+    protected int getSliderTextureY() {
+        return this.shouldHighlight() ? 20 : 0;
+    }
+
+    protected int getSliderHandleTextureY() {
+        return this.shouldHighlightHandle() ? 60 : 40;
+    }
+
+    /** @return Whether the slider should be highlighted. */
     protected boolean shouldHighlight() {
-        return this.isHovered;
+        return this.isFocused() && !this.canChangeValue;
+    }
+
+    /** @return Whether the slider handle should be highlighted. */
+    protected boolean shouldHighlightHandle() {
+        return this.isHovered || this.canChangeValue;
     }
 }

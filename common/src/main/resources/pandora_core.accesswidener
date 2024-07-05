@@ -11,9 +11,6 @@ accessible field net/minecraft/client/gui/screens/TitleScreen panorama Lnet/mine
 accessible field net/minecraft/client/gui/screens/TitleScreen fading Z # fading
 accessible field net/minecraft/client/gui/screens/TitleScreen fadeInStart J # fadeInStart
 
-# Used to call the "updateTooltip" method in classes that extend it, to allow for modifying the render method more flexibly
-accessible method net/minecraft/client/gui/components/AbstractWidget updateTooltip ()V # updateTooltip
-
 # Used to make canChangeValue public, so we can access it from PaCo sliders
 accessible field net/minecraft/client/gui/components/AbstractSliderButton canChangeValue Z # canChangeValue
 

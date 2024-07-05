@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+/** Catalogue Mods Screen Mixin */
 @Mixin(value = CatalogueModListScreen.class, remap = false)
 public class CatalogueModListScreenMixin implements IPaCoParentScreenGetter {
     @Shadow @Final private Screen parentScreen;

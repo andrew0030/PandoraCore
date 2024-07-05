@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.gui.sliders;
 
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoUpdateTooltip;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -417,7 +418,7 @@ public class PaCoSlider extends AbstractSliderButton {
                 this.isHovered = this.isHovered || mouseX >= posX && mouseY >= posY && mouseX < posX + this.handleWidth && mouseY < posY + this.handleHeight;
             }
             this.renderWidget(graphics, mouseX, mouseY, pPartialTick);
-            this.updateTooltip();
+            ((IPaCoUpdateTooltip) this).pandoraCore$updateTooltip();
         }
     }
 

@@ -1,8 +1,8 @@
 package com.github.andrew0030.pandora_core.mixin.post_shader;
 
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoPostChainAccess;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoPostChainAccess;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoTagged;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoUniformAccess;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoUniformAccess;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

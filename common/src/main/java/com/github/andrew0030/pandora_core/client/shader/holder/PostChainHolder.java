@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.client.shader.holder;
 
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoUniformAccess;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoUniformAccess;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
@@ -9,7 +9,6 @@ import net.minecraft.server.packs.resources.ResourceProvider;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import java.util.Map;
 
 /**

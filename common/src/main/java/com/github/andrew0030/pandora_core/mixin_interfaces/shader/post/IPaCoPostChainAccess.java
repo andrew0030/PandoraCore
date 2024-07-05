@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.mixin_interfaces;
+package com.github.andrew0030.pandora_core.mixin_interfaces.shader.post;
 
 import net.minecraft.client.renderer.PostPass;
 

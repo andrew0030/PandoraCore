@@ -5,7 +5,7 @@ import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.shader.holder.IPaCoPostChainProcessor;
 import com.github.andrew0030.pandora_core.client.shader.holder.PaCoUniformHolder;
 import com.github.andrew0030.pandora_core.client.shader.holder.PostChainHolder;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoUniformAccess;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoUniformAccess;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;

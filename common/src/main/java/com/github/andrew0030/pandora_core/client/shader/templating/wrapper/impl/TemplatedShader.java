@@ -23,4 +23,16 @@ public abstract class TemplatedShader {
     public abstract void apply();
     public abstract void upload();
     public abstract void destroy();
+
+    public ResourceLocation location() {
+        return transformation.location;
+    }
+
+    public TemplateTransformation transformation() {
+        return transformation;
+    }
+
+    public void clear() {
+        GL20.glUseProgram(0);
+    }
 }

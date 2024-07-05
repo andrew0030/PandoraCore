@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class ShaderParser {
     public static ShaderFile parse(String text) {
         int lineNo = 0;
-        boolean c0 = false;
+        boolean c0 = true;
         char[] chr = text.toCharArray();
         int len = chr.length;
         StringBuilder builder = new StringBuilder();
@@ -49,6 +49,7 @@ public class ShaderParser {
                     builder.append(c);
                     c = chr[i];
                     if (c == '*' && chr[i + 1] == '/') {
+                        builder.append("*");
                         break;
                     }
                 }

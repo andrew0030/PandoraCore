@@ -40,6 +40,12 @@ public class TemplateTransformation {
         if (hasQuatTransform) {
             String qName = funcCache.get("rotateQuat");
             String qFunc = """
+                    #extension GL_ARB_shader_bit_encoding : enable
+                    float fma(float f,float m,float a) {return f*m+a;}
+                    vec2 fma(vec2 f,vec2 m,vec2 a) {return f*m+a;}
+                    vec3 fma(vec3 f,vec3 m,vec3 a) {return f*m+a;}
+                    vec3 fma(vec3 f,vec3 m,float a) {return f*m+a;}
+                    vec4 fma(vec4 f,vec4 m,vec4 a) {return f*m+a;}
                     vec4 %func%(const vec4 point, const vec4 quat) {
                         const float
                         // === squares ===

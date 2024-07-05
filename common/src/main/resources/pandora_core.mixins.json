@@ -21,7 +21,9 @@
     "camera.GameRenderer_CameraMixin",
     "compat.shader.vanilla.GlStateManagerMixin",
     "compat.shader.vanilla.ProgramMixin",
-    "compat.shader.vanilla.ShaderInstanceMixin"
+    "compat.shader.vanilla.ShaderInstanceMixin_CacheSrc_CondBindableMixin",
+    "compat.shader.vanilla.ShaderInstance_CacheShadersMixin",
+    "test.ShaderTemplateTest"
   ],
   "server": [],
   "injectors": {

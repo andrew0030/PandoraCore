@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.client.shader.templating;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.VanillaTemplateLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.OnDemandTemplateShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
@@ -28,12 +29,12 @@ public class TemplateManager {
      * @return the corresponding template shader instance
      */
     public static TemplatedShaderInstance getTemplated(ResourceLocation resource) {
-        throw new RuntimeException("TODO");
+        return TEMPLATED.get(resource);
     }
 
     @ApiStatus.Experimental
     public static void reloadTemplate(
-            String modRef,
+            TemplateLoader loader,
             String mod,
             String active
     ) {
@@ -61,7 +62,7 @@ public class TemplateManager {
     @ApiStatus.Internal
     private static final Map<ResourceLocation, JsonObject> JSONS = new HashMap<>();
     @ApiStatus.Internal
-    private static final HashMap<String, TemplatedShader> TEMPLATED = new HashMap<>();
+    private static final HashMap<ResourceLocation, TemplatedShaderInstance> TEMPLATED = new HashMap<>();
 
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders");
 
@@ -84,10 +85,21 @@ public class TemplateManager {
     }
 
     @ApiStatus.Internal
-    protected static boolean loadTemplate(TemplateTransformation transformation) {
-        for (TemplateLoader loader : LOADERS)
-            if (loader.attempt(templateLoadManager, transformation))
+    protected static boolean loadTemplate(TemplateTransformation transformation, boolean complete) {
+        for (TemplateLoader loader : LOADERS) {
+            TemplateLoader.LoadResult result = complete ?
+                    (loader.attemptComplete(templateLoadManager, transformation) ? TemplateLoader.LoadResult.LOADED : TemplateLoader.LoadResult.FAILED) :
+                    loader.attempt(templateLoadManager, transformation);
+            if (result == TemplateLoader.LoadResult.LOADED)
                 return true;
+            if (result == TemplateLoader.LoadResult.UNCACHED) {
+                templateLoadManager.load(new OnDemandTemplateShader(
+                        loader, transformation,
+                        null, templateLoadManager
+                ));
+                return true;
+            }
+        }
 
         LOGGER.warn("Failed to load template shader " + transformation.location.toString());
         return false;
@@ -105,9 +117,13 @@ public class TemplateManager {
 
         // reload shaders
         for (TemplateTransformation transformation : TRANSFORMATIONS) {
-            boolean result = loadTemplate(transformation);
-            if (result) continue;
-            failedAny = true;
+            try {
+                boolean result = loadTemplate(transformation, false);
+                if (result) continue;
+                failedAny = true;
+            } catch (Throwable err) {
+                LOGGER.error("An expected error occured while loading template shader: " + transformation.location, err);
+            }
         }
 
         // dump info about active template shader loaders
@@ -128,7 +144,27 @@ public class TemplateManager {
          * @param shader the shader to load
          */
         public void load(TemplatedShader shader) {
+            TemplatedShaderInstance instance = TEMPLATED.get(shader.location());
+            if (instance == null) {
+                TEMPLATED.put(shader.location(), new TemplatedShaderInstance(shader, shader.transformation()));
+            } else {
+                instance.getDirect().destroy();
+                instance.updateDirect(shader);
+            }
+        }
 
+        public TemplatedShader reload(TemplateTransformation transformation) {
+            if (loadTemplate(transformation, true)) {
+                return getTemplated(transformation.location).getDirect();
+            } else {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Failed to load template shader " + transformation.location + "\n");
+                builder.append("Current template shader loaders:\n");
+                for (TemplateLoader loader : LOADERS)
+                    builder.append("- ").append(loader.name()).append("\n");
+                LOGGER.info(builder.toString().trim());
+            }
+            return null;
         }
     }
 

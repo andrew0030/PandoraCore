@@ -1,9 +1,9 @@
 package com.github.andrew0030.pandora_core.client.shader.holder;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoPostChainAccess;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoPostChainAccess;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoTagged;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoUniformAccess;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoUniformAccess;
 import com.github.andrew0030.pandora_core.utils.TagFilter;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.mojang.blaze3d.shaders.AbstractUniform;

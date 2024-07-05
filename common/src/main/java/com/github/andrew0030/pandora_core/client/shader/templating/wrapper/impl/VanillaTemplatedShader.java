@@ -2,10 +2,11 @@ package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoAccessibleProgram;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoAccessibleProgram;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL20;
 
@@ -53,17 +54,24 @@ public class VanillaTemplatedShader extends TemplatedShader {
 
     @Override
     public void apply() {
+        RenderSystem.setShader(() -> vanilla);
+        ((IPaCoConditionallyBindable) vanilla).pandoraCore$disableBind();
         GL20.glUseProgram(id);
     }
 
     @Override
     public void upload() {
-        // TODO: setup a mixin to allow disabling the line that enables the program
         vanilla.apply();
     }
 
     @Override
     public void destroy() {
         GL20.glDeleteProgram(id);
+    }
+
+    @Override
+    public void clear() {
+        ((IPaCoConditionallyBindable) vanilla).pandoraCore$enableBind();
+        super.clear();
     }
 }

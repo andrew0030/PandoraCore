@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.loader.impl;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.shader.templating.NameMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
@@ -13,11 +14,6 @@ import com.github.andrew0030.pandora_core.client.utils.shader.ShaderParser;
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
-import com.google.gson.JsonObject;
-import com.mojang.blaze3d.shaders.Program;
-import com.mojang.blaze3d.shaders.Shader;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
@@ -29,22 +25,20 @@ import java.util.List;
 import java.util.Map;
 
 @ApiStatus.Internal
-public class VanillaTemplateLoader extends TemplateLoader implements VariableMapper {
+public class IrisTemplateLoader extends TemplateLoader implements VariableMapper {
     private static String MOD = null;
     private static String ACTIVE = null;
     private static List<String> SOURCE = new ArrayList<>();
 
     private static DualKeyMap<String, String, List<String>> sources = new DualKeyMap<>(new HashMap<>());
 
-    private final Map<ResourceLocation, JsonObject> shaderJsons;
     private final TransformationProcessor processor = new DefaultTransformationProcessor();
 
-    private static VanillaTemplateLoader INSTANCE;
+    private static IrisTemplateLoader INSTANCE;
 
-    public VanillaTemplateLoader(Map<ResourceLocation, JsonObject> shaderJsons) {
+    public IrisTemplateLoader() {
         if (INSTANCE != null)
             throw new RuntimeException("Cannot create two vanilla template loaders.");
-        this.shaderJsons = shaderJsons;
         INSTANCE = this;
     }
 
@@ -73,7 +67,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
         ACTIVE = null;
     }
 
-    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Vanilla");
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Iris");
 
     private static final Map<String, ShaderInstance> instances = new HashMap<>();
 
@@ -85,81 +79,38 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
         instances.remove(pandoraCore$cacheName, instance);
     }
 
-    private String getVertex(ResourceLocation template, boolean complete, String[] names) {
-        JsonObject obj = shaderJsons.get(template);
-        String fName = obj.getAsJsonPrimitive("vertex").getAsString();
-        ResourceLocation loc = new ResourceLocation(fName);
-        List<String> res = sources.get(loc.getNamespace(), loc.getPath() + ".vsh");
-        names[0] = loc.toString();
-        if (complete && res == null) {
-            forceLoad = true;
-            try {
-                // TODO: check
-//                ShaderInstance.getOrCreate(
-//                        Minecraft.getInstance().getResourceManager(),
-//                        Program.Type.VERTEX,
-//                        loc.toString()
-//                );
-            } catch (Throwable err) {
-                forceLoad = false;
-                throw new RuntimeException(err);
-            }
-            forceLoad = false;
-
-            res = sources.get(loc.getNamespace(), loc.getPath() + ".vsh");
-        }
+    private String getVertex(String template, boolean complete, String[] names) {
+        List<String> res = sources.get("minecraft", template + ".vsh");
+        names[0] = template + ".vsh";
         StringBuilder out = new StringBuilder();
         for (String re : res) out.append(re).append("\n");
         return out.toString();
     }
 
-    private String getFragment(ResourceLocation template, boolean complete, String[] names) {
-        JsonObject obj = shaderJsons.get(template);
-        String fName = obj.getAsJsonPrimitive("fragment").getAsString();
-        ResourceLocation loc = new ResourceLocation(fName);
-        List<String> res = sources.get(loc.getNamespace(), loc.getPath() + ".fsh");
-        names[1] = loc.toString();
-        if (complete && res == null) {
-            forceLoad = true;
-            try {
-                // TODO: ShaderInstance#getOrCreate
-            } catch (Throwable err) {
-                forceLoad = false;
-                throw new RuntimeException(err);
-            }
-            forceLoad = false;
-
-            res = sources.get(loc.getNamespace(), loc.getPath() + ".fsh");
-        }
+    private String getFragment(String template, boolean complete, String[] names) {
+        List<String> res = sources.get("minecraft", template + ".fsh");
+        names[0] = template + ".fsh";
         StringBuilder out = new StringBuilder();
         for (String re : res) out.append(re).append("\n");
         return out.toString();
     }
 
     public LoadResult attempt(TemplateManager.LoadManager manager, TemplateTransformation transformation, boolean complete) {
-        String template = transformation.getTemplate("vanilla");
+        String template = transformation.getTemplate("iris");
         if (template == null)
             return LoadResult.FAILED;
-        String templateJson = template + ".json";
 
         try {
-            ResourceLocation loc = new ResourceLocation(template);
-            ResourceLocation locJson = new ResourceLocation(templateJson);
             String[] names = new String[2];
             String vsh;
             String fsh;
             try {
-                vsh = getVertex(locJson, complete, names);
-                fsh = getFragment(locJson, complete, names);
+                vsh = getVertex(template, complete, names);
+                fsh = getFragment(template, complete, names);
             } catch (Throwable err) {
                 return LoadResult.UNCACHED;
             }
 
-            if (loc.getNamespace().equals("minecraft")) {
-                template = loc.getPath().substring("shaders/core/".length());
-            } else {
-                template = loc.getNamespace() + ":" + loc.getPath().substring("shaders/core/".length());
-            }
             ShaderInstance instance = instances.get(template);
             if (vsh == null || fsh == null || instance == null)
                 return LoadResult.UNCACHED;
@@ -192,7 +143,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 
     @Override
     public String name() {
-        return "vanilla";
+        return "iris";
     }
 
     @Override
@@ -203,6 +154,10 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     @Override
     public void beginReload() {
         sources.clear();
-        shaderJsons.clear();
+    }
+
+    @Override
+    public String remap(String proposedType, String srcName) {
+        return NameMapper.getIris(proposedType, srcName);
     }
 }

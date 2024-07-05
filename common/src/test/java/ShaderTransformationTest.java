@@ -1,5 +1,6 @@
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformationParser;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
 import com.github.andrew0030.pandora_core.client.utils.shader.ShaderFile;
 import com.github.andrew0030.pandora_core.client.utils.shader.ShaderParser;
@@ -15,7 +16,8 @@ public class ShaderTransformationTest {
         DefaultTransformationProcessor processor = new DefaultTransformationProcessor();
         TemplateTransformation transformation = parser.parse(null, load(ldr.getResourceAsStream("transformation.glsl")));
 
-        ShaderFile result = processor.process(file, transformation);
+        ShaderFile result = processor.process(new VariableMapper() {
+        }, file, transformation);
         System.out.println(result);
     }
 

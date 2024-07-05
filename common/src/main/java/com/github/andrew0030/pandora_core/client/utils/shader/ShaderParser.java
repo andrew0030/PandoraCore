@@ -37,6 +37,7 @@ public class ShaderParser {
                     builder.append(c);
                     c = chr[i];
                 }
+                builder.append("\n");
                 lines.add(new CommentLine(lineNo, builder.toString()));
                 builder = new StringBuilder();
                 lineNo++;

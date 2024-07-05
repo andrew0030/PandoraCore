@@ -1,7 +1,11 @@
 package com.github.andrew0030.pandora_core.test;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.utils.shader.PaCoShaderStateShard;
+import com.mojang.blaze3d.shaders.AbstractUniform;
+import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Camera;
@@ -12,9 +16,9 @@ import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 
 public class TemplateShaderTest {
-    public static final PaCoShaderStateShard shaderStateShard = new PaCoShaderStateShard(
-            TemplateManager.getTemplated(new ResourceLocation("pandora_core:shaders/paco/templated/entity_instanced.glsl"))
-    );
+    private static final TemplatedShaderInstance shader = TemplateManager.getTemplated(new ResourceLocation("pandora_core:shaders/paco/templated/entity_instanced.glsl"));
+
+    public static final PaCoShaderStateShard shaderStateShard = new PaCoShaderStateShard(shader);
 
     public static final RenderType type = RenderType.create(
             "pandora_core:test",
@@ -62,8 +66,12 @@ public class TemplateShaderTest {
                         .createCompositeState(true)
         );
 
-        MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
-        VertexConsumer consumer = source.getBuffer(type);
+        AbstractUniform uniform = shader.getUniform("paco_Inject_Translation", Uniform.UT_FLOAT3, 3);
+        uniform.set(0, 1f, 0);
+
+        Tesselator t = Tesselator.getInstance();
+        t.getBuilder().begin(type.mode(), type.format());
+        VertexConsumer consumer = t.getBuilder();
 
         RenderSystem.setShaderTexture(0, new ResourceLocation(
                 "minecraft:dynamic/light_map_1"
@@ -190,6 +198,7 @@ public class TemplateShaderTest {
                     0, -1, 0);
         }
         stack.popPose();
-        source.endBatch(type);
+        type.setupRenderState();
+        t.end();
     }
 }

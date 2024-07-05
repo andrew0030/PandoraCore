@@ -60,7 +60,6 @@ repositories {
 }
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    compileOnly project(":common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
     // MrCrayfish Config Mods
     compileOnly fg.deobf("curse.maven:catalogue-459701:4766090") // Catalogue
@@ -71,8 +70,10 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:table-top-craft-467136:5318681") // Table Top Craft
     runtimeOnly fg.deobf("curse.maven:online-detector-454487:4574905") // Online Detector
 
-//    implementation fg.deobf("curse.maven:embeddium-908741:5456704")
-//    implementation fg.deobf("curse.maven:oculus-581495:5299671")
+    implementation fg.deobf("curse.maven:embeddium-908741:5456704")
+    implementation fg.deobf("curse.maven:oculus-581495:5299671")
+
+    compileOnly project(":common")
 }
 
 tasks.withType(JavaCompile).configureEach {

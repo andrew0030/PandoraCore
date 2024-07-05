@@ -5,12 +5,17 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.Templa
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoAccessibleProgram;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.shaders.AbstractUniform;
+import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
+import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL20;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class VanillaTemplatedShader extends TemplatedShader {
     ShaderInstance vanilla;
@@ -59,18 +64,27 @@ public class VanillaTemplatedShader extends TemplatedShader {
 
     @Override
     public void apply() {
-        RenderSystem.setShader(() -> vanilla);
-        ((IPaCoConditionallyBindable) vanilla).pandoraCore$disableBind();
-        GL20.glUseProgram(id);
+        try {
+            RenderSystem.setShader(() -> vanilla);
+            ((IPaCoConditionallyBindable) vanilla).pandoraCore$disableBind();
+            GL20.glUseProgram(id);
+        } catch (Throwable err) {
+        }
     }
 
     @Override
     public void upload() {
-        vanilla.apply();
+        try {
+            vanilla.apply();
+        } catch (Throwable err) {
+        }
     }
 
     @Override
     public void destroy() {
+        for (Uniform pacoUform : pacoUforms) {
+            pacoUform.close();
+        }
         GL20.glDeleteProgram(id);
     }
 
@@ -85,5 +99,31 @@ public class VanillaTemplatedShader extends TemplatedShader {
         return vshName.equals(mod + ":" + active) || fshName.equals(mod + ":" + active);
     }
 
+    Map<String, AbstractUniform> uniforms = new Object2ObjectRBTreeMap<>();
+    ArrayList<Uniform> pacoUforms = new ArrayList<>();
 
+    @Override
+    public AbstractUniform getUniform(String name, int type, int count) {
+        AbstractUniform paco = uniforms.get(name);
+        if (paco != null) {
+            return paco;
+        }
+
+        Uniform uForm = vanilla.getUniform(name);
+        if (uForm != null) uniforms.put(name, uForm);
+        else {
+            int loc = GL20.glGetUniformLocation(id, name);
+            if (loc != -1) {
+                uForm = new Uniform(name, type, count, vanilla);
+                uForm.setLocation(loc);
+                pacoUforms.add(uForm);
+                uniforms.put(name, uForm);
+            } else {
+                uniforms.put(name, ABSTRACT_INST);
+                return ABSTRACT_INST;
+            }
+        }
+
+        return uForm;
+    }
 }

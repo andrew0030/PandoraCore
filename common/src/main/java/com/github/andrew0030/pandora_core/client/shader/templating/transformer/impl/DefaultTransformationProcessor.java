@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.NameMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.action.InsertionAction;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.utils.shader.ShaderFile;
 import com.github.andrew0030.pandora_core.client.utils.shader.ln.Line;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class DefaultTransformationProcessor extends TransformationProcessor {
     @Override
-    public ShaderFile process(ShaderFile source, TemplateTransformation transformation) {
+    public ShaderFile process(VariableMapper mapper, ShaderFile source, TemplateTransformation transformation) {
         ArrayList<Line> result = new ArrayList<>();
 
         boolean hitNonComment = false;
@@ -42,7 +43,7 @@ public class DefaultTransformationProcessor extends TransformationProcessor {
                         // TODO: track defines to make this a little more bullet proof
                         type = NameMapper.assumeType(type, name);
 
-                        String inject = action.afterInputVar(transformation, type, name);
+                        String inject = action.afterInputVar(mapper, transformation, type, name);
                         if (inject != null) {
                             result.add(new Line(-1, inject));
                         }

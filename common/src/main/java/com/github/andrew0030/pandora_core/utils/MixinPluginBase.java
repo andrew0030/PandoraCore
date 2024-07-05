@@ -16,6 +16,7 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
     private final ArrayList<String> classLookup = new ArrayList<>();
     private final ArrayList<String> pkgLookup = new ArrayList<>();
     private final HashMap<String, ArrayList<String>> incompatibilityMap = new HashMap<>();
+    private final HashMap<String, ArrayList<String>> dependenciesMap = new HashMap<>();
 
     /** Only applies the given Mixin, if the Class it targets exists. */
     protected void addClassLookup(String mixin) {
@@ -34,6 +35,12 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
     protected void addIncompat(String mixin, String... things) {
         ArrayList<String> incompat = new ArrayList<>(Arrays.asList(things));
         incompatibilityMap.put(mixin, incompat);
+    }
+
+    /** Loads the given Mixin, if all the given classes exists. */
+    protected void addDependency(String mixin, String... things) {
+        ArrayList<String> dependency = new ArrayList<>(Arrays.asList(things));
+        incompatibilityMap.put(mixin, dependency);
     }
 
     public MixinPluginBase() {
@@ -89,6 +96,24 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
             }
             return false;
         }
+
+        if (dependenciesMap.containsKey(mixinClassName)) {
+            ClassLoader loader = MixinPluginBase.class.getClassLoader();
+            // tests if the classloader contains a .class file for the target
+            for (String name : dependenciesMap.get(mixinClassName)) {
+                InputStream stream = loader.getResourceAsStream(name.replace('.', '/') + ".class");
+                if (stream == null) {
+                    return false;
+                } else {
+                    try {
+                        stream.close();
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+            return true;
+        }
+
         return true;
     }
 

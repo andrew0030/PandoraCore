@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.client.shader.templating.action;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 
 public class ReplaceVar extends InsertionAction {
     String from, to;
@@ -12,8 +13,9 @@ public class ReplaceVar extends InsertionAction {
     }
 
     @Override
-    public String afterInputVar(TemplateTransformation transformation, String type, String var) {
-        if (!var.equals(from))
+    public String afterInputVar(VariableMapper mapper, TemplateTransformation transformation, String type, String var) {
+        String varMap = mapper.remap(type, var);
+        if (!varMap.equals(from))
             return null;
 
         String typeDst = transformation.getVarType(to);

@@ -2,11 +2,13 @@ package com.github.andrew0030.pandora_core.client.shader.templating;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.IrisTemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.VanillaTemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.OnDemandTemplateShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
+import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,6 +34,8 @@ public class TemplateManager {
         return TEMPLATED.get(resource);
     }
 
+    // TODO: this is stupidly programmed and should be redone later
+    //       for now it works
     @ApiStatus.Experimental
     public static void reloadTemplate(
             TemplateLoader loader,
@@ -191,6 +195,11 @@ public class TemplateManager {
      * Because javadocs don't work on static init.
      */
     public static void init() {
+        if (
+                Services.PLATFORM.isModLoaded("iris") ||
+                Services.PLATFORM.isModLoaded("oculus")
+        )
+            LOADERS.add(new IrisTemplateLoader());
         LOADERS.add(new VanillaTemplateLoader(JSONS));
     }
 

@@ -13,15 +13,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(LevelRenderer.class)
+@Mixin(value = LevelRenderer.class, priority = 10001)
 public class ShaderTemplateTest {
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0, shift = At.Shift.BEFORE), method = "renderLevel")
-    public void preDrawEnts(PoseStack $$0, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
-        TemplateShaderTest.draw(
-                $$0,
-                $$4.getPosition().x,
-                $$4.getPosition().y,
-                $$4.getPosition().z
-        );
+    @Inject(at = @At(value = "TAIL"), method = "renderChunkLayer")
+    public void preDrawEnts(RenderType $$0, PoseStack $$1, double $$2, double $$3, double $$4, Matrix4f $$5, CallbackInfo ci) {
+        if ($$0 == RenderType.solid()) {
+            TemplateShaderTest.draw(
+                    $$1,
+                    $$2,
+                    $$3,
+                    $$4
+            );
+            $$0.setupRenderState();
+        }
     }
 }

@@ -15,6 +15,7 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
         super();
         setup = () -> {
             shaderInstance.getDirect().apply();
+            shaderInstance.getDirect().upload();
         };
         clear = shaderInstance::clear;
     }

@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.client.shader.templating.wrapper;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
+import com.mojang.blaze3d.shaders.AbstractUniform;
 import net.minecraft.client.renderer.RenderStateShard;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -41,5 +42,9 @@ public class TemplatedShaderInstance {
 
     public void clear() {
         shader.clear();
+    }
+
+    public AbstractUniform getUniform(String name, int type, int count) {
+        return shader.getUniform(name, type, count);
     }
 }

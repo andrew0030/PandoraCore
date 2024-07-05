@@ -10,5 +10,5 @@ public abstract class TransformationProcessor {
             #define %variable% PACO_INJECT_TMP_%snowflake%
             #undef PACO_INJECT_TMP_%snowflake%""";
 
-    public abstract ShaderFile process(ShaderFile source, TemplateTransformation transformation);
+    public abstract ShaderFile process(VariableMapper mapper, ShaderFile source, TemplateTransformation transformation);
 }

@@ -13,7 +13,9 @@ import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.shaders.Program;
 import com.mojang.blaze3d.shaders.Shader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -71,19 +73,25 @@ public class VanillaTemplateLoader extends TemplateLoader {
         instances.put($$1, shaderInstance);
     }
 
-    public static void unbindShader(String pandoraCore$cacheName) {
-        instances.remove(pandoraCore$cacheName);
+    public static void unbindShader(String pandoraCore$cacheName, ShaderInstance instance) {
+        instances.remove(pandoraCore$cacheName, instance);
     }
 
-    private String getVertex(ResourceLocation template, boolean complete) {
+    private String getVertex(ResourceLocation template, boolean complete, String[] names) {
         JsonObject obj = shaderJsons.get(template);
         String fName = obj.getAsJsonPrimitive("vertex").getAsString();
         ResourceLocation loc = new ResourceLocation(fName);
         List<String> res = sources.get(loc.getNamespace(), loc.getPath() + ".vsh");
+        names[0] = loc.toString();
         if (complete && res == null) {
             forceLoad = true;
             try {
-                // TODO: ShaderInstance#getOrCreate
+                // TODO: check
+//                ShaderInstance.getOrCreate(
+//                        Minecraft.getInstance().getResourceManager(),
+//                        Program.Type.VERTEX,
+//                        loc.toString()
+//                );
             } catch (Throwable err) {
                 forceLoad = false;
                 throw new RuntimeException(err);
@@ -97,11 +105,12 @@ public class VanillaTemplateLoader extends TemplateLoader {
         return out.toString();
     }
 
-    private String getFragment(ResourceLocation template, boolean complete) {
+    private String getFragment(ResourceLocation template, boolean complete, String[] names) {
         JsonObject obj = shaderJsons.get(template);
         String fName = obj.getAsJsonPrimitive("fragment").getAsString();
         ResourceLocation loc = new ResourceLocation(fName);
         List<String> res = sources.get(loc.getNamespace(), loc.getPath() + ".fsh");
+        names[1] = loc.toString();
         if (complete && res == null) {
             forceLoad = true;
             try {
@@ -128,11 +137,12 @@ public class VanillaTemplateLoader extends TemplateLoader {
         try {
             ResourceLocation loc = new ResourceLocation(template);
             ResourceLocation locJson = new ResourceLocation(templateJson);
+            String[] names = new String[2];
             String vsh;
             String fsh;
             try {
-                vsh = getVertex(locJson, complete);
-                fsh = getFragment(locJson, complete);
+                vsh = getVertex(locJson, complete, names);
+                fsh = getFragment(locJson, complete, names);
             } catch (Throwable err) {
                 return LoadResult.UNCACHED;
             }
@@ -151,7 +161,8 @@ public class VanillaTemplateLoader extends TemplateLoader {
             manager.load(new VanillaTemplatedShader(
                     this, transformation,
                     template, instance,
-                    vsh, fsh
+                    vsh, fsh,
+                    names[0], names[1]
             ));
 
             return LoadResult.LOADED;
@@ -179,5 +190,11 @@ public class VanillaTemplateLoader extends TemplateLoader {
     @Override
     public TransformationProcessor processor() {
         return processor;
+    }
+
+    @Override
+    public void beginReload() {
+        sources.clear();
+        shaderJsons.clear();
     }
 }

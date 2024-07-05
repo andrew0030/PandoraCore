@@ -15,15 +15,20 @@ import java.io.IOException;
 public class VanillaTemplatedShader extends TemplatedShader {
     ShaderInstance vanilla;
     int id;
+    String vshName, fshName;
 
     public VanillaTemplatedShader(
             TemplateLoader loader, TemplateTransformation transformation,
             String template,
             ShaderInstance vanilla,
-            String vsh, String fsh
+            String vsh, String fsh,
+            String vshName, String fshName
     ) {
         super(loader, transformation, template);
         this.vanilla = vanilla;
+
+        this.vshName = vshName + ".vsh";
+        this.fshName = fshName + ".fsh";
 
         id = GL20.glCreateProgram();
         // load transformed vertex shader
@@ -74,4 +79,11 @@ public class VanillaTemplatedShader extends TemplatedShader {
         ((IPaCoConditionallyBindable) vanilla).pandoraCore$enableBind();
         super.clear();
     }
+
+    @Override
+    public boolean matches(String mod, String active) {
+        return vshName.equals(mod + ":" + active) || fshName.equals(mod + ":" + active);
+    }
+
+
 }

@@ -29,4 +29,11 @@ public class OnDemandTemplateShader extends TemplatedShader {
         // why would I load something only to destroy it?
         // that's counterproductive, lol
     }
+
+    @Override
+    public boolean matches(String mod, String active) {
+        // only used for reloading because a higher up loader loaded the shader
+        // in the event this happens with an OnDemand shader, it's better to just wait it out
+        return false;
+    }
 }

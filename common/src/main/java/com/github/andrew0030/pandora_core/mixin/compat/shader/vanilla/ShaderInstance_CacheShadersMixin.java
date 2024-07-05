@@ -25,6 +25,6 @@ public class ShaderInstance_CacheShadersMixin {
 
     @Inject(at = @At("TAIL"), method = "close")
     public void preClose(CallbackInfo ci) {
-        VanillaTemplateLoader.unbindShader(pandoraCore$cacheName);
+        VanillaTemplateLoader.unbindShader(pandoraCore$cacheName, (ShaderInstance) (Object) this);
     }
 }

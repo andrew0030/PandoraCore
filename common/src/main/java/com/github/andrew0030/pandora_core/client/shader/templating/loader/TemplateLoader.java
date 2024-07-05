@@ -34,6 +34,8 @@ public abstract class TemplateLoader {
 
     public abstract String name();
 
+    public abstract void beginReload();
+
     public enum LoadResult {
         UNCACHED,
         LOADED,

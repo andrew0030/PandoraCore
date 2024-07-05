@@ -38,6 +38,19 @@ public class TemplateManager {
             String mod,
             String active
     ) {
+        int index = LOADERS.indexOf(loader);
+        for (TemplatedShaderInstance value : TEMPLATED.values()) {
+            TemplatedShader direct = value.getDirect();
+            if (direct.matches(mod, active)) {
+                TemplateLoader loadedBy = direct.getLoader();
+                int idex = LOADERS.indexOf(loadedBy);
+                if (index >= idex) {
+                    if (loadTemplate(direct.transformation(), true)) {
+                        direct.destroy();
+                    }
+                }
+            }
+        }
     }
 
     @ApiStatus.Internal
@@ -71,7 +84,9 @@ public class TemplateManager {
     @ApiStatus.Internal
     public void beginReload() {
         TRANSFORMATIONS.clear();
-        JSONS.clear();
+        for (TemplateLoader loader : LOADERS) {
+            loader.beginReload();
+        }
     }
 
     @ApiStatus.Internal

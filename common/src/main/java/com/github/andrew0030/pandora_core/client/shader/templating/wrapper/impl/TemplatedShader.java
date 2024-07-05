@@ -35,4 +35,10 @@ public abstract class TemplatedShader {
     public void clear() {
         GL20.glUseProgram(0);
     }
+
+    public TemplateLoader getLoader() {
+        return loader;
+    }
+
+    public abstract boolean matches(String mod, String active);
 }

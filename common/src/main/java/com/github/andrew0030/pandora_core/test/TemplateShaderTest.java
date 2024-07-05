@@ -21,7 +21,7 @@ public class TemplateShaderTest {
             DefaultVertexFormat.NEW_ENTITY,
             VertexFormat.Mode.QUADS,
             DefaultVertexFormat.NEW_ENTITY.getVertexSize() * 64,
-            false, false,
+            true, false,
             RenderType.CompositeState.builder()
                     .setTextureState(RenderStateShard.NO_TEXTURE)
                     .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
@@ -47,18 +47,33 @@ public class TemplateShaderTest {
                 .endVertex();
     }
 
-    public static void draw(PoseStack stack, Camera camera, Matrix4f projection) {
+    public static void draw(PoseStack stack, double x, double y, double z) {
+        RenderType type = RenderType.create(
+                "pandora_core:test",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                DefaultVertexFormat.NEW_ENTITY.getVertexSize() * 64,
+                true, false,
+                RenderType.CompositeState.builder()
+                        .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
+                        .setLightmapState(RenderStateShard.LIGHTMAP)
+                        .setOverlayState(RenderStateShard.OVERLAY)
+                        .setShaderState(shaderStateShard)
+                        .createCompositeState(true)
+        );
+
         MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
         VertexConsumer consumer = source.getBuffer(type);
 
         RenderSystem.setShaderTexture(0, new ResourceLocation(
                 "minecraft:dynamic/light_map_1"
         ));
+        type.setupRenderState();
         stack.pushPose();
         stack.translate(
-                -camera.getPosition().x,
-                -camera.getPosition().y,
-                -camera.getPosition().z
+                -x,
+                -y,
+                -z
         );
         // +x
         {
@@ -175,5 +190,6 @@ public class TemplateShaderTest {
                     0, -1, 0);
         }
         stack.popPose();
+        source.endBatch(type);
     }
 }

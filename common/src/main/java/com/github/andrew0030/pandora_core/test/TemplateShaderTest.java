@@ -42,16 +42,18 @@ public class TemplateShaderTest {
             double u, double v,
             double nx, double ny, double nz
     ) {
-        consumer.vertex(stk.last().pose(), (float) x, (float) y, (float) z)
+        consumer.vertex((float) x, (float) y, (float) z)
                 .color(255, 255, 255, 255)
                 .uv((float) u, (float) v)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(LightTexture.FULL_SKY)
-                .normal(stk.last().normal(), (float) nx, (float) ny, (float) nz)
+                .normal((float) nx, (float) ny, (float) nz)
                 .endVertex();
     }
 
     public static void draw(PoseStack stack, double x, double y, double z) {
+//        if (true) return;
+
         RenderType type = RenderType.create(
                 "pandora_core:test",
                 DefaultVertexFormat.NEW_ENTITY,
@@ -66,9 +68,6 @@ public class TemplateShaderTest {
                         .createCompositeState(true)
         );
 
-        AbstractUniform uniform = shader.getUniform("paco_Inject_Translation", Uniform.UT_FLOAT3, 3);
-        uniform.set(0, 1f, 0);
-
         Tesselator t = Tesselator.getInstance();
         t.getBuilder().begin(type.mode(), type.format());
         VertexConsumer consumer = t.getBuilder();
@@ -76,13 +75,17 @@ public class TemplateShaderTest {
         RenderSystem.setShaderTexture(0, new ResourceLocation(
                 "minecraft:dynamic/light_map_1"
         ));
-        type.setupRenderState();
         stack.pushPose();
         stack.translate(
                 -x,
                 -y,
                 -z
         );
+        RenderSystem.getModelViewStack().pushPose();
+        RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.getModelViewStack().popPose();
+        stack.popPose();
         // +x
         {
             vert(stack, consumer,
@@ -197,8 +200,13 @@ public class TemplateShaderTest {
                     1, 1,
                     0, -1, 0);
         }
-        stack.popPose();
         type.setupRenderState();
-        t.end();
+        try {
+            // TODO: figure out how to not crash with iris
+            t.end();
+        } catch (Throwable err) {
+        }
+        type.clearRenderState();
+        RenderSystem.applyModelViewMatrix();
     }
 }

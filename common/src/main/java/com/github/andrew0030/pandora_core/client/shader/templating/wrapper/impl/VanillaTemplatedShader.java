@@ -76,6 +76,9 @@ public class VanillaTemplatedShader extends TemplatedShader {
     public void upload() {
         try {
             vanilla.apply();
+            for (Uniform pacoUform : pacoUforms) {
+                pacoUform.upload();
+            }
         } catch (Throwable err) {
         }
     }

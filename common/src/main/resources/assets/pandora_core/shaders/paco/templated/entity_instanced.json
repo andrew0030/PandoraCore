@@ -1,0 +1,15 @@
+{
+  "template": {
+    "vanilla": "minecraft:shaders/core/rendertype_entity_solid",
+    "iris": "entities_solid"
+  },
+  "transformer": {
+    "vsh": "entity_instanced.vsh"
+  },
+  "instance_data": [
+    "paco_Inject_Lightmap",
+    "paco_Inject_Overlay",
+    "paco_Inject_Translation",
+    "paco_Inject_Orientation"
+  ]
+}

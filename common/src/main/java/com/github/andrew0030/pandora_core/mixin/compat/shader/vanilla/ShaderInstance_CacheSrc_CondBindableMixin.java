@@ -56,4 +56,9 @@ public class ShaderInstance_CacheSrc_CondBindableMixin implements IPaCoCondition
         lastProgramId = 0;
         lastAppliedShader = null;
     }
+
+    @Override
+    public boolean isDisableBind() {
+        return pandoraCore$disableBind;
+    }
 }

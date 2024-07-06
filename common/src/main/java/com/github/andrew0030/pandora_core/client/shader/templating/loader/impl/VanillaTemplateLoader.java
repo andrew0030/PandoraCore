@@ -167,7 +167,8 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
             ShaderFile file = processor.process(this, ShaderParser.parse(vsh), transformation);
             vsh = file.toString();
             manager.load(new VanillaTemplatedShader(
-                    this, transformation,
+                    this, this,
+                    transformation,
                     template, instance,
                     vsh, fsh,
                     names[0], names[1]

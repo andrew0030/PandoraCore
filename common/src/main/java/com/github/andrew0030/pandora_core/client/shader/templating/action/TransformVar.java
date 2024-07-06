@@ -32,7 +32,7 @@ public class TransformVar extends InsertionAction {
 
     @Override
     public String afterInputVar(VariableMapper mapper, TemplateTransformation transformation, String type, String var) {
-        String varMap = mapper.remap(type, var);
+        String varMap = mapper.mapFrom(type, var);
         if (!varMap.equals(from))
             return null;
 

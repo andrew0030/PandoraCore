@@ -1,9 +1,13 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl;
 
+import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoAccessibleProgram;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import com.google.common.collect.UnmodifiableIterator;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.Uniform;
@@ -12,6 +16,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL20;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,8 +27,12 @@ public class VanillaTemplatedShader extends TemplatedShader {
     int id;
     String vshName, fshName;
 
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Templated Vanilla/Iris");
+
     public VanillaTemplatedShader(
-            TemplateLoader loader, TemplateTransformation transformation,
+            TemplateLoader loader,
+            VariableMapper mapper,
+            TemplateTransformation transformation,
             String template,
             ShaderInstance vanilla,
             String vsh, String fsh,
@@ -53,13 +62,25 @@ public class VanillaTemplatedShader extends TemplatedShader {
             }
         }
 
+        int index = 0;
+        for (String elementAttributeName : vanilla.getVertexFormat().getElementAttributeNames()) {
+            Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
+        }
+
         int fragId = ((IPaCoAccessibleProgram) vanilla.getFragmentProgram()).pandoraCore$getId();
         // bind shaders
         GL20.glAttachShader(id, vertId);
         GL20.glAttachShader(id, fragId);
         GL20.glLinkProgram(id);
         // delete vertex shader as it is now bound and not necessary
+
+        // log error
         GL20.glDeleteShader(vertId);
+        int i = GlStateManager.glGetProgrami(id, 35714);
+        if (i == 0) {
+            LOGGER.warn("Error encountered when linking program containing VS {} and FS {}. Log output:", vshName, fshName);
+            LOGGER.warn(GlStateManager.glGetProgramInfoLog(id, 32768));
+        }
     }
 
     @Override
@@ -75,7 +96,6 @@ public class VanillaTemplatedShader extends TemplatedShader {
     @Override
     public void upload() {
         try {
-            vanilla.apply();
             for (Uniform pacoUform : pacoUforms) {
                 pacoUform.upload();
             }
@@ -94,6 +114,7 @@ public class VanillaTemplatedShader extends TemplatedShader {
     @Override
     public void clear() {
         ((IPaCoConditionallyBindable) vanilla).pandoraCore$enableBind();
+        vanilla.clear();
         super.clear();
     }
 

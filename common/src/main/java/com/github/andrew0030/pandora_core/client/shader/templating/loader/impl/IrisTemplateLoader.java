@@ -15,7 +15,6 @@ import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
@@ -118,7 +117,8 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
             ShaderFile file = processor.process(this, ShaderParser.parse(vsh), transformation);
             vsh = file.toString();
             manager.load(new VanillaTemplatedShader(
-                    this, transformation,
+                    this, this,
+                    transformation,
                     template, instance,
                     vsh, fsh,
                     names[0], names[1]
@@ -157,7 +157,12 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     }
 
     @Override
-    public String remap(String proposedType, String srcName) {
-        return NameMapper.getIris(proposedType, srcName);
+    public String mapFrom(String proposedType, String srcName) {
+        return NameMapper.fromIris(proposedType, srcName);
+    }
+
+    @Override
+    public String mapTo(String proposedType, String name) {
+        return NameMapper.toIris(proposedType, name);
     }
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 public class NameMapper {
     private static final Map<String, String> SHADER_MAPPING = new Object2ObjectRBTreeMap<>();
     private static final Map<String, String> IRIS_MAPPING = new Object2ObjectRBTreeMap<>();
+    private static final Map<String, String> IRIS_MAPPING_REVERSE = new Object2ObjectRBTreeMap<>();
     // TODO: proper optifine map, as most of these variables are illegal, and thus need to be switched out before loading the shader
 
     static {
@@ -30,6 +31,8 @@ public class NameMapper {
         IRIS_MAPPING.put("iris_Position", "Position");
         IRIS_MAPPING.put("iris_Color",    "Color");
         IRIS_MAPPING.put("iris_Normal",   "Normal");
+
+        IRIS_MAPPING.forEach((k, v) -> IRIS_MAPPING_REVERSE.put(v, k));
     }
 
     public static String assumeType(String type, String name) {
@@ -64,7 +67,11 @@ public class NameMapper {
         return type;
     }
 
-    public static String getIris(String proposedType, String srcName) {
-        return IRIS_MAPPING.getOrDefault(srcName, srcName);
+    public static String fromIris(String proposedType, String name) {
+        return IRIS_MAPPING.getOrDefault(name, name);
+    }
+
+    public static String toIris(String proposedType, String name) {
+        return IRIS_MAPPING_REVERSE.getOrDefault(name, name);
     }
 }

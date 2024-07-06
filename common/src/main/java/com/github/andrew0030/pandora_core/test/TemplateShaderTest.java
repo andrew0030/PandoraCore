@@ -13,7 +13,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 public class TemplateShaderTest {
     private static final TemplatedShaderInstance shader = TemplateManager.getTemplated(new ResourceLocation("pandora_core:shaders/paco/templated/entity_instanced.glsl"));
@@ -83,6 +85,7 @@ public class TemplateShaderTest {
         );
         RenderSystem.getModelViewStack().pushPose();
         RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
+        RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
         RenderSystem.applyModelViewMatrix();
         RenderSystem.getModelViewStack().popPose();
         stack.popPose();
@@ -91,76 +94,76 @@ public class TemplateShaderTest {
             vert(stack, consumer,
                     1, 0, 0,
                     0, 1,
-                    1, 0, 0);
+                    0, 0, -1);
             vert(stack, consumer,
                     1, 1, 0,
                     1, 1,
-                    1, 0, 0);
+                    0, 0, -1);
             vert(stack, consumer,
                     1, 1, 1,
                     1, 0,
-                    1, 0, 0);
+                    0, 0, -1);
             vert(stack, consumer,
                     1, 0, 1,
                     0, 0,
-                    1, 0, 0);
+                    0, 0, -1);
         }
         // -x
         {
             vert(stack, consumer,
                     0, 0, 1,
                     1, 1,
-                    -1, 0, 0);
+                    0, 0, -1);
             vert(stack, consumer,
                     0, 1, 1,
                     0, 1,
-                    -1, 0, 0);
+                    0, 0, -1);
             vert(stack, consumer,
                     0, 1, 0,
                     0, 0,
-                    -1, 0, 0);
+                    0, 0, -1);
             vert(stack, consumer,
                     0, 0, 0,
                     1, 0,
-                    -1, 0, 0);
+                    0, 0, -1);
         }
         // -z
         {
             vert(stack, consumer,
                     0, 0, 0,
                     1, 0,
-                    0, 0, 1);
+                    -1, 0, 0);
             vert(stack, consumer,
                     0, 1, 0,
                     0, 0,
-                    0, 0, 1);
+                    -1, 0, 0);
             vert(stack, consumer,
                     1, 1, 0,
                     0, 1,
-                    0, 0, 1);
+                    -1, 0, 0);
             vert(stack, consumer,
                     1, 0, 0,
                     1, 1,
-                    0, 0, 1);
+                    -1, 0, 0);
         }
         // +z
         {
             vert(stack, consumer,
                     1, 0, 1,
                     0, 0,
-                    0, 0, 1);
+                    -1, 0, 0);
             vert(stack, consumer,
                     1, 1, 1,
                     1, 0,
-                    0, 0, 1);
+                    -1, 0, 0);
             vert(stack, consumer,
                     0, 1, 1,
                     1, 1,
-                    0, 0, 1);
+                    -1, 0, 0);
             vert(stack, consumer,
                     0, 0, 1,
                     0, 1,
-                    0, 0, 1);
+                    -1, 0, 0);
         }
         // +y
         {

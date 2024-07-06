@@ -21,12 +21,14 @@ public class OnDemandTemplateShader extends TemplatedShader {
 
     @Override
     public void apply() {
-        getDirect().apply();
+        TemplatedShader sdr = getDirect();
+        if (sdr != null) sdr.apply();
     }
 
     @Override
     public void upload() {
-        getDirect().upload();
+        TemplatedShader sdr = getDirect();
+        if (sdr != null) sdr.upload();
     }
 
     @Override
@@ -37,13 +39,15 @@ public class OnDemandTemplateShader extends TemplatedShader {
 
     @Override
     public boolean matches(String mod, String active) {
-        if (direct !=  null)
+        if (direct != null)
             return direct.matches(mod, active);
         return false;
     }
 
     @Override
     public AbstractUniform getUniform(String name, int type, int count) {
-        return getDirect().getUniform(name, type, count);
+        TemplatedShader sdr = getDirect();
+        if (sdr != null) return sdr.getUniform(name, type, count);
+        return ABSTRACT_INST;
     }
 }

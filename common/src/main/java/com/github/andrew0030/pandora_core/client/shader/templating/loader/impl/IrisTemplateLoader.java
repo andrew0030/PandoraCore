@@ -81,7 +81,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
 
     private String getVertex(String template, boolean complete, String[] names) {
         List<String> res = sources.get("minecraft", template + ".vsh");
-        names[0] = template + ".vsh";
+        names[0] = template;
         StringBuilder out = new StringBuilder();
         for (String re : res) out.append(re).append("\n");
         return out.toString();
@@ -89,7 +89,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
 
     private String getFragment(String template, boolean complete, String[] names) {
         List<String> res = sources.get("minecraft", template + ".fsh");
-        names[0] = template + ".fsh";
+        names[1] = template;
         StringBuilder out = new StringBuilder();
         for (String re : res) out.append(re).append("\n");
         return out.toString();

@@ -15,7 +15,7 @@ public class TranslationHelper {
 
     static {
         StringBuilder patternBuilder = new StringBuilder();
-        patternBuilder.append("(§[");
+        patternBuilder.append("(\u00a7[");// Escape sequence because compiler cries!
         for (ChatFormatting formatting : ChatFormatting.values())
             patternBuilder.append(formatting.getChar());
         patternBuilder.append("])");
@@ -51,8 +51,8 @@ public class TranslationHelper {
 
                         // Handles Styling Codes after a new line
                         lastIndex = newIndex + 2;
-                        if (lastIndex < pairText.length() && pairText.charAt(lastIndex) == '§')
-                            lastIndex += 2; // Skips over the '§' and the following style code character
+                        if (lastIndex < pairText.length() && pairText.charAt(lastIndex) == '\u00a7')// Escape sequence because compiler cries!
+                            lastIndex += 2; // Skips over the '\u00a7' (escape sequence because compiler cries) and the following style code character
                     }
                 }
             }

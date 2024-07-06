@@ -7,6 +7,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.Templa
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
 import com.github.andrew0030.pandora_core.client.utils.shader.ShaderFile;
 import com.github.andrew0030.pandora_core.client.utils.shader.ShaderParser;
@@ -61,11 +62,8 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     static boolean forceLoad = false;
 
     public static void link() {
-        if (MOD != null) {
+        if (MOD != null)
             sources.put(MOD, ACTIVE, new ReadOnlyList<>(SOURCE));
-            if (!forceLoad)
-                TemplateManager.reloadTemplate(INSTANCE, MOD, ACTIVE);
-        }
     }
 
     public static void cancel() {
@@ -79,10 +77,40 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 
     public static void bindShader(String $$1, ShaderInstance shaderInstance) {
         instances.put($$1, shaderInstance);
+        if (!forceLoad)
+            TemplateManager.reloadTemplate(INSTANCE, $$1);
     }
 
     public static void unbindShader(String pandoraCore$cacheName, ShaderInstance instance) {
         instances.remove(pandoraCore$cacheName, instance);
+    }
+
+    @Override
+    public boolean matches(TemplatedShader direct, String shader) {
+        TemplateTransformation transformation = direct.transformation();
+        String plate = transformation.getTemplate("vanilla");
+        if (plate == null)
+            return false;
+
+        ResourceLocation loc = new ResourceLocation(shader);
+        String mod = loc.getNamespace();
+        String active = loc.getPath();
+
+        if (!plate.equals(mod + ":" + active))
+            return false;
+
+        if (direct instanceof VanillaTemplatedShader vts) {
+            JsonObject obj = shaderJsons.get(new ResourceLocation(plate + ".json"));
+            if (obj == null)
+                return false;
+
+            String vsh = obj.getAsJsonPrimitive("vertex").getAsString();
+            String fsh = obj.getAsJsonPrimitive("fragment").getAsString();
+
+            return vts.matches(mod, vsh) ||
+                    vts.matches(mod, fsh);
+        }
+        return false;
     }
 
     private String getVertex(ResourceLocation template, boolean complete, String[] names) {
@@ -179,6 +207,11 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
             LOGGER.error("Failed loading template template " + transformation.location + " for shader " + template, err);
             return LoadResult.FAILED;
         }
+    }
+
+    @Override
+    public String mapFrom(String proposedType, String name) {
+        return VariableMapper.super.mapFrom(proposedType, name);
     }
 
     @Override

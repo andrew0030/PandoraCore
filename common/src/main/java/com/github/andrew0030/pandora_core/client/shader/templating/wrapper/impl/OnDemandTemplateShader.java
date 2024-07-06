@@ -38,13 +38,6 @@ public class OnDemandTemplateShader extends TemplatedShader {
     }
 
     @Override
-    public boolean matches(String mod, String active) {
-        if (direct != null)
-            return direct.matches(mod, active);
-        return false;
-    }
-
-    @Override
     public AbstractUniform getUniform(String name, int type, int count) {
         TemplatedShader sdr = getDirect();
         if (sdr != null) return sdr.getUniform(name, type, count);

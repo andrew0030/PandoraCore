@@ -39,16 +39,24 @@ public class TemplateManager {
     @ApiStatus.Experimental
     public static void reloadTemplate(
             TemplateLoader loader,
-            String mod,
-            String active
+            String shader
     ) {
         int index = LOADERS.indexOf(loader);
         for (TemplatedShaderInstance value : TEMPLATED.values()) {
             TemplatedShader direct = value.getDirect();
-            if (direct.matches(mod, active)) {
+            boolean match = false;
+            for (TemplateLoader templateLoader : LOADERS) {
+                if (templateLoader.matches(
+                        value.getDirect(), shader
+                )) {
+                    match = true;
+                    break;
+                }
+            }
+            if (match) {
                 TemplateLoader loadedBy = direct.getLoader();
                 int idex = LOADERS.indexOf(loadedBy);
-                if (index >= idex) {
+                if (index <= idex) {
                     if (loadTemplate(direct.transformation(), true)) {
                         direct.destroy();
                     }

@@ -43,8 +43,6 @@ public abstract class TemplatedShader {
         return loader;
     }
 
-    public abstract boolean matches(String mod, String active);
-
     public abstract AbstractUniform getUniform(String name, int type, int count);
 
     protected static final AbstractUniform ABSTRACT_INST = new AbstractUniform();

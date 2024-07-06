@@ -40,6 +40,7 @@ public class InstanceFormat {
 
     public void setupState(VertexFormat format) {
         int attribute = format.getElements().size();
+        attribute = 11;
         int offset = 0;
         for (InstanceDataElement element : elements) {
             GlStateManager._enableVertexAttribArray(attribute);

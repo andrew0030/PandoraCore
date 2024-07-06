@@ -233,6 +233,8 @@ public class TemplateShaderTest {
             type.setupRenderState();
             // TODO: figure out how to not crash with iris
             instancedVBO.bind();
+            data.writeInstance(1000);
+            instancedVBO.uploadInstanceData(data);
             instancedVBO.drawWithShader(
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),

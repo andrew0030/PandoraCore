@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.InputStream;
 
-@Mixin(value = Program.class, priority = 1001)
+@Mixin(value = Program.class, priority = 999)
 public abstract class ProgramMixin implements IPaCoAccessibleProgram {
     @Shadow private int id;
 

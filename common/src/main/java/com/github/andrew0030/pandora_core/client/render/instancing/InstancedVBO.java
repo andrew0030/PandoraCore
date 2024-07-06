@@ -27,8 +27,9 @@ public class InstancedVBO extends VertexBuffer {
         IPaCoAccessibleVBO accessibleVBO = (IPaCoAccessibleVBO) this;
         count = data.drawCount();
         data.buffer.position(0).limit(count * format.stride);
-        RenderSystem.glBufferData(34962, data.buffer, ((IPaCoAccessibleUsage) (Object) accessibleVBO.pandoraCore$usage()).pandoraCore$id());
+        RenderSystem.glBufferData(GL20.GL_ARRAY_BUFFER, data.buffer, ((IPaCoAccessibleUsage) (Object) accessibleVBO.pandoraCore$usage()).pandoraCore$id());
         data.buffer.position(0).limit(data.buffer.capacity());
+        format.setupState(this.getFormat());
     }
 
     @Override

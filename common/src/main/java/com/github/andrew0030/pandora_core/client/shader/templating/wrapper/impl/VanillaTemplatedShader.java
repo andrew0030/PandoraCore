@@ -7,7 +7,6 @@ import com.github.andrew0030.pandora_core.client.shader.templating.transformer.V
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoAccessibleProgram;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
-import com.google.common.collect.UnmodifiableIterator;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.Uniform;
@@ -26,6 +25,7 @@ public class VanillaTemplatedShader extends TemplatedShader {
     ShaderInstance vanilla;
     int id;
     String vshName, fshName;
+
 
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Templated Vanilla/Iris");
 
@@ -66,6 +66,7 @@ public class VanillaTemplatedShader extends TemplatedShader {
         for (String elementAttributeName : vanilla.getVertexFormat().getElementAttributeNames()) {
             Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
         }
+        Uniform.glBindAttribLocation(id, 11, "paco_Inject_Translation");
 
         int fragId = ((IPaCoAccessibleProgram) vanilla.getFragmentProgram()).pandoraCore$getId();
         // bind shaders
@@ -118,7 +119,6 @@ public class VanillaTemplatedShader extends TemplatedShader {
         super.clear();
     }
 
-    @Override
     public boolean matches(String mod, String active) {
         return vshName.equals(mod + ":" + active) || fshName.equals(mod + ":" + active);
     }

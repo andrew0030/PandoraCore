@@ -11,7 +11,7 @@
 //#extension GL_ARB_gpu_shader5 : enable
 //    paco_per_instance vec2 paco_Inject_Lightmap;
 //    paco_per_instance vec2 paco_Inject_Overlay;
-    layout(location = 11) paco_per_instance vec3 paco_Inject_Translation; // translation
+    paco_per_instance vec3 paco_Inject_Translation; // translation
 //    paco_per_instance vec4 paco_Inject_Orientation; // quat4f
 #paco_end
 

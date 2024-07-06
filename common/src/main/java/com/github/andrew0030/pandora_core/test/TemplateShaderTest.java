@@ -193,8 +193,8 @@ public class TemplateShaderTest {
             }
         }
 
-        instancedVBO.uploadInstanceData(data);
         instancedVBO.upload(builder.end());
+        instancedVBO.uploadInstanceData(data);
         builder.clear();
         VertexBuffer.unbind();
     }

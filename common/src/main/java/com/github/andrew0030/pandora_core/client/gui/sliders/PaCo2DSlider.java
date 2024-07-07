@@ -35,6 +35,9 @@ public class PaCo2DSlider extends AbstractSliderButton
     protected ResourceLocation sliderTexture;
     protected int sliderU;
     protected int sliderV;
+    protected ResourceLocation sliderHighlightedTexture;
+    protected int sliderHighlightedU;
+    protected int sliderHighlightedV;
     protected Integer sliderColor;
     protected Integer sliderRimColor;
     protected Integer sliderHighlightedRimColor;
@@ -45,8 +48,11 @@ public class PaCo2DSlider extends AbstractSliderButton
     protected int handleWidth;
     protected int handleHeight;
     protected ResourceLocation handleTexture;
-    protected int handleU;// TODO: I am unhappy with this, I think what I will end up doing is storing 2 uv coordinates,
-    protected int handleV;// TODO: so the highlighted texture can still be part of the png, and thus modifiable by resource packs (also move to normal sliders)
+    protected int handleU;
+    protected int handleV;
+    protected ResourceLocation handleHighlightedTexture;
+    protected int handleHighlightedU;
+    protected int handleHighlightedV;
     protected Integer handleColor;
     protected Integer handleRimColor;
     protected Integer handleHighlightedRimColor;
@@ -186,22 +192,23 @@ public class PaCo2DSlider extends AbstractSliderButton
     }
 
     /**
-     * Used to specify a texture and rim colors, that should be used to render the slider and its rim.<br/>
-     * Note: The rim renders over the texture. And the slider looks for a texture of {@link PaCo2DSlider#width} x {@link PaCo2DSlider#height}.<br/>
-     * Additionally, the texture has to be 256x256 and {@link PaCoColor} can be used to easily create a color.<br/>
-     * If null is given the element won't be rendered.
-     * @param texture The {@link ResourceLocation} pointing to the texture
-     * @param sliderRimColor The rim color the slider will have
-     * @param sliderHighlightedRimColor The highlighted rim color the slider will have
+     * Used to specify textures, that should be used to render the slider.<br/>
+     * Note: The slider looks for a texture of {@link PaCo2DSlider#width} x {@link PaCo2DSlider#height}.<br/>
+     * Additionally, the image has to be 256x256.<br/>
+     * @param texture The {@link ResourceLocation} pointing to the image the slider is on
      * @param u The u coordinate the texture of the slider starts at, on the given texture
      * @param v The v coordinate the texture of the slider starts at, on the given texture
+     * @param highlightedTexture The {@link ResourceLocation} pointing to the image the highlighted slider is on
+     * @param highlightedU The u coordinate the highlighted texture of the slider starts at, on the given image
+     * @param highlightedV The v coordinate the highlighted texture of the slider starts at, on the given image
      */
-    public PaCo2DSlider setSliderTexture(@NotNull ResourceLocation texture, @Nullable Integer sliderRimColor, @Nullable Integer sliderHighlightedRimColor, int u, int v) {
+    public PaCo2DSlider setSliderTexture(@NotNull ResourceLocation texture, int u, int v, @NotNull ResourceLocation highlightedTexture, int highlightedU, int highlightedV) {
         this.sliderTexture = texture;
-        this.sliderRimColor = sliderRimColor;
-        this.sliderHighlightedRimColor = sliderHighlightedRimColor;
         this.sliderU = u;
         this.sliderV = v;
+        this.sliderHighlightedTexture = highlightedTexture;
+        this.sliderHighlightedU = highlightedU;
+        this.sliderHighlightedV = highlightedV;
         return this;
     }
 
@@ -223,22 +230,23 @@ public class PaCo2DSlider extends AbstractSliderButton
     }
 
     /**
-     * Used to specify a texture and rim colors, that should be used to render the slider handle and its rim.<br/>
-     * Note: The rim renders over the texture. And the slider handle looks for a texture of {@link PaCo2DSlider#handleWidth} x {@link PaCo2DSlider#handleHeight}.<br/>
-     * Additionally, the texture has to be 256x256 and {@link PaCoColor} can be used to easily create a color.<br/>
-     * If null is given the element won't be rendered.
-     * @param texture The {@link ResourceLocation} pointing to the texture
-     * @param handleRimColor The rim color the slider handle will have
-     * @param handleHighlightedRimColor The highlighted rim color the slider handle will have
+     * Used to specify textures, that should be used to render the slider handle.<br/>
+     * Note: The slider handle looks for a texture of {@link PaCo2DSlider#handleWidth} x {@link PaCo2DSlider#handleHeight}.<br/>
+     * Additionally, the image has to be 256x256.<br/>
+     * @param texture The {@link ResourceLocation} pointing to the image the slider is on
      * @param u The u coordinate the texture of the slider handle starts at, on the given texture
      * @param v The v coordinate the texture of the slider handle starts at, on the given texture
+     * @param highlightedTexture The {@link ResourceLocation} pointing to the image the highlighted slider handle is on
+     * @param highlightedU The u coordinate the highlighted texture of the slider handle starts at, on the given image
+     * @param highlightedV The v coordinate the highlighted texture of the slider handle starts at, on the given image
      */
-    public PaCo2DSlider setHandleTexture(@NotNull ResourceLocation texture, @Nullable Integer handleRimColor, @Nullable Integer handleHighlightedRimColor, int u, int v) {
+    public PaCo2DSlider setHandleTexture(@NotNull ResourceLocation texture, int u, int v, @NotNull ResourceLocation highlightedTexture, int highlightedU, int highlightedV) {
         this.handleTexture = texture;
-        this.handleRimColor = handleRimColor;
-        this.handleHighlightedRimColor = handleHighlightedRimColor;
         this.handleU = u;
         this.handleV = v;
+        this.handleHighlightedTexture = highlightedTexture;
+        this.handleHighlightedU = highlightedU;
+        this.handleHighlightedV = highlightedV;
         return this;
     }
 
@@ -594,10 +602,12 @@ public class PaCo2DSlider extends AbstractSliderButton
 
     /** Helper method to render the slider, mostly exists to allow for easy modification in children */
     protected void renderSlider(GuiGraphics graphics) {
-        if (this.sliderTexture != null) {
-            Integer rimColor = this.shouldHighlight() ? this.sliderHighlightedRimColor : this.sliderRimColor;
-            graphics.blit(this.sliderTexture, this.getX(), this.getY(), this.sliderU, this.sliderV, this.getWidth(), this.getHeight());
-            PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), null, rimColor, 1);
+        if (this.sliderTexture != null && this.sliderHighlightedTexture != null) {
+            if (this.shouldHighlight()) {
+                graphics.blit(this.sliderHighlightedTexture, this.getX(), this.getY(), this.sliderHighlightedU, this.sliderHighlightedV, this.getWidth(), this.getHeight());
+            } else {
+                graphics.blit(this.sliderTexture, this.getX(), this.getY(), this.sliderU, this.sliderV, this.getWidth(), this.getHeight());
+            }
         } else if (this.sliderColor != null || this.sliderRimColor != null || this.sliderHighlightedRimColor != null) {
             Integer rimColor = this.shouldHighlight() ? this.sliderHighlightedRimColor : this.sliderRimColor;
             PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.sliderColor, rimColor, 1);
@@ -610,10 +620,12 @@ public class PaCo2DSlider extends AbstractSliderButton
     protected void renderSliderhandle(GuiGraphics graphics) {
         int posX = this.getHandleX();
         int posY = this.getHandleY();
-        if (this.handleTexture != null) {
-            Integer rimColor = this.shouldHighlightHandle() ? this.handleHighlightedRimColor : this.handleRimColor;
-            graphics.blit(this.handleTexture, posX, posY, this.handleU, this.handleV, this.handleWidth, this.handleHeight);
-            PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, this.handleWidth, this.handleHeight, null, rimColor, 1);
+        if (this.handleTexture != null && this.handleHighlightedTexture != null) {
+            if (this.shouldHighlightHandle()) {
+                graphics.blit(this.handleHighlightedTexture, posX, posY, this.handleHighlightedU, this.handleHighlightedV, this.handleWidth, this.handleHeight);
+            } else {
+                graphics.blit(this.handleTexture, posX, posY, this.handleU, this.handleV, this.handleWidth, this.handleHeight);
+            }
         } else if (this.handleColor != null || this.handleRimColor != null || this.handleHighlightedRimColor != null) {
             Integer rimColor = this.shouldHighlightHandle() ? this.handleHighlightedRimColor : this.handleRimColor;
             PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, this.handleWidth, this.handleHeight, this.handleColor, rimColor, 1);

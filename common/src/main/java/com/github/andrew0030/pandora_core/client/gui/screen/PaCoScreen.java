@@ -83,21 +83,6 @@ public class PaCoScreen extends Screen {
             idx++;
         }
 
-        this.addRenderableWidget(new PaCo2DSlider((int)(this.width / 2), (int)(this.height / 1.8), 100, 100, 0, 60, 20, 1, 0, 100, 20, 1)
-                .setSilent(true)
-                .setPrefix(Component.literal("["))
-                .setInterfix(Component.literal("-"))
-                .setSuffix(Component.literal("]"))
-                .setTextColor(PaCoColor.color(100, 244, 27))
-                .setHandleSize(5, 5)
-                .setHasDropShadow(false)
-                .setHorizontalTextSnap(HorizontalTextSnap.RIGHT_INSIDE)
-                .setVerticalTextSnap(VerticalTextSnap.BOTTOM_OUTSIDE)
-                .setTextOffset(-3, 2)
-                .setSliderTexture(SLIDER_TESTING, PaCoColor.BLACK, PaCoColor.WHITE, 0, 0)
-                .setHandleTexture(SLIDER_TESTING, PaCoColor.BLACK, PaCoColor.WHITE, 0, 100)
-        );
-
         this.addRenderableWidget(new PaCoVerticalSlider(this.width / 3, this.height / 6, 12, 160, 0, 150, 50, 1)
                 .setSilent(true)
                 .setHandleSize(16, 20)
@@ -108,6 +93,8 @@ public class PaCoScreen extends Screen {
                 .setZeroPadding(true)
                 .setTextSnap(HorizontalTextSnap.RIGHT_OUTSIDE, VerticalTextSnap.TOP_INSIDE)
                 .setTextOffset(3, 1)
+                .setSliderTexture(SLIDER_TESTING, 200, 0, SLIDER_TESTING, 212, 0)
+                .setHandleTexture(SLIDER_TESTING, 224, 0, SLIDER_TESTING, 240, 0)
         );
 
         this.addRenderableWidget(new PaCoSlider(this.width / 3 + 30, this.height / 2, 270, 12, 0, 60, 0, 1)
@@ -125,6 +112,21 @@ public class PaCoScreen extends Screen {
                 .setHandleColor(PaCoColor.color(100, 20, 20), PaCoColor.color(20, 20, 20), PaCoColor.color(255, 255, 255))
                 .setHandleSize(5, 25)
                 .setTextColor(PaCoColor.color(200, 60, 60))
+        );
+
+        this.addRenderableWidget(new PaCo2DSlider((int)(this.width / 2), (int)(this.height / 1.8), 100, 100, 0, 60, 20, 1, 0, 100, 20, 1)
+                .setSilent(true)
+                .setPrefix(Component.literal("["))
+                .setInterfix(Component.literal("-"))
+                .setSuffix(Component.literal("]"))
+                .setTextColor(PaCoColor.color(100, 244, 27))
+                .setHandleSize(5, 5)
+                .setHasDropShadow(false)
+                .setHorizontalTextSnap(HorizontalTextSnap.RIGHT_INSIDE)
+                .setVerticalTextSnap(VerticalTextSnap.BOTTOM_OUTSIDE)
+                .setTextOffset(-3, 2)
+                .setSliderTexture(SLIDER_TESTING, 0, 0, SLIDER_TESTING, 100, 0)
+                .setHandleTexture(SLIDER_TESTING, 0, 100, SLIDER_TESTING, 5, 100)
         );
     }
 

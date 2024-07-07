@@ -61,7 +61,7 @@ public class TemplateShaderTest {
     public static final InstanceFormat FORMAT = new InstanceFormat(
             POSITION
     );
-    private static final int CUBE_COUNT = 1_000_000;
+    private static final int CUBE_COUNT = 100_000;
     protected static final InstanceData data = new InstanceData(FORMAT, CUBE_COUNT);
     protected static final InstancedVBO instancedVBO = new InstancedVBO(VertexBuffer.Usage.STATIC, FORMAT);
     protected static final BufferBuilder builder = new BufferBuilder(3497);
@@ -188,17 +188,20 @@ public class TemplateShaderTest {
         {
             data.writeInstance(0);
             int rem = CUBE_COUNT;
-            for (int x = 0; x < Math.sqrt(CUBE_COUNT); x++) {
-                for (int z = 0; z < Math.sqrt(CUBE_COUNT); z++) {
-                    data.writeFloat(x);
-                    data.writeFloat(0);
-                    data.writeFloat(z);
-                    rem--;
+            int cbrt = (int) Math.pow(CUBE_COUNT, 1 / 3d) - 1;
+            for (int x = 0; x < cbrt; x++) {
+                for (int y = 0; y < cbrt; y++) {
+                    for (int z = 0; z < cbrt; z++) {
+                        data.writeFloat(x * 2);
+                        data.writeFloat(y * 2);
+                        data.writeFloat(z * 2);
+                        rem--;
+                    }
                 }
             }
             for (int i = 0; i < rem; i++) {
                 data.writeFloat(0);
-                data.writeFloat(rem + 1);
+                data.writeFloat((rem + cbrt + 1) * 2);
                 data.writeFloat(0);
                 rem--;
             }

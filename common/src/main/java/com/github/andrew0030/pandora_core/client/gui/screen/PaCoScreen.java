@@ -3,10 +3,7 @@ package com.github.andrew0030.pandora_core.client.gui.screen;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIconManager;
-import com.github.andrew0030.pandora_core.client.gui.sliders.HorizontalTextSnap;
-import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
-import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
-import com.github.andrew0030.pandora_core.client.gui.sliders.VerticalTextSnap;
+import com.github.andrew0030.pandora_core.client.gui.sliders.*;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
@@ -22,6 +19,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +31,7 @@ import java.util.Map;
 import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry.BlurVariables.*;
 
 public class PaCoScreen extends Screen {
+    public static final ResourceLocation SLIDER_TESTING = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/slider_testing.png");
     public int menuHeight;
     public int modsPanelWidth;
     public int modContentWidth;
@@ -83,6 +82,21 @@ public class PaCoScreen extends Screen {
             this.addWidget(button);
             idx++;
         }
+
+        this.addRenderableWidget(new PaCo2DSlider((int)(this.width / 2), (int)(this.height / 1.8), 100, 100, 0, 60, 20, 1, 0, 100, 20, 1)
+                .setSilent(true)
+                .setPrefix(Component.literal("["))
+                .setInterfix(Component.literal("-"))
+                .setSuffix(Component.literal("]"))
+                .setTextColor(PaCoColor.color(100, 244, 27))
+                .setHandleSize(5, 5)
+                .setHasDropShadow(false)
+                .setHorizontalTextSnap(HorizontalTextSnap.RIGHT_INSIDE)
+                .setVerticalTextSnap(VerticalTextSnap.BOTTOM_OUTSIDE)
+                .setTextOffset(-3, 2)
+                .setSliderTexture(SLIDER_TESTING, PaCoColor.BLACK, PaCoColor.WHITE, 0, 0)
+                .setHandleTexture(SLIDER_TESTING, PaCoColor.BLACK, PaCoColor.WHITE, 0, 100)
+        );
 
         this.addRenderableWidget(new PaCoVerticalSlider(this.width / 3, this.height / 6, 12, 160, 0, 150, 50, 1)
                 .setSilent(true)

@@ -8,6 +8,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -127,7 +128,7 @@ public record ObjModel(Vector3f[] v, Vec2[] vt, Vector3f[] vn, Face[] faces) {
     }
 
     private void pos(VertexConsumer buffer, Matrix4f matrix4f, float x, float y, float z) {
-        // Calling 'buffer.pos(matrix4f, x, y, z)' allocates a Vector4f
+        // Calling 'buffer.vertex(matrix4f, x, y, z)' allocates a Vector4f
         // To avoid allocating so many short-lived vectors we do the transform ourselves instead
         float w = 1.0F;
         float tx = Math.fma(matrix4f.m00(), x, Math.fma(matrix4f.m10(), y, Math.fma(matrix4f.m20(), z, matrix4f.m30() * w)));

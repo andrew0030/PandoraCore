@@ -93,11 +93,6 @@ public class TemplateManager {
 
     private static final Gson GSON = new GsonBuilder().setLenient().create();
 
-    public static String getTemplateCount() {
-        // TODO: left hand should be the number that have actually loaded fully
-        return "???" + " / " + TEMPLATED.size();
-    }
-
     @ApiStatus.Internal
     public void beginReload() {
         TRANSFORMATIONS.clear();
@@ -210,7 +205,7 @@ public class TemplateManager {
     public static void init() {
         if (
                 Services.PLATFORM.isModLoaded("iris") ||
-                Services.PLATFORM.isModLoaded("oculus")
+                        Services.PLATFORM.isModLoaded("oculus")
         )
             LOADERS.add(new IrisTemplateLoader());
         LOADERS.add(new VanillaTemplateLoader(JSONS));
@@ -221,11 +216,24 @@ public class TemplateManager {
     }
 
     public static void writeF3(List<String> list) {
-        list.add("Loaded templates: " + TemplateManager.getTemplateCount());
+        int loaded = 0;
+        HashMap<TemplateLoader, Integer> counts = new HashMap<>();
+        for (TemplatedShaderInstance value : TEMPLATED.values()) {
+            TemplatedShader direct = value.getDirect();
+            if (!(direct instanceof OnDemandTemplateShader)) {
+                loaded++;
+
+                int v = counts.getOrDefault(direct.getLoader(), 0);
+                counts.put(direct.getLoader(), v + 1);
+            }
+        }
+
+        list.add("Loaded templates: " + (loaded + " / " + TEMPLATED.size()));
         list.add("Template Loaders:");
         int index = 0;
         for (TemplateLoader loader : LOADERS) {
-            list.add(index++ + " -> " + loader.name() + ": " + "???");
+            list.add(index++ + " -> " + loader.name() + ": " + counts.getOrDefault(loader, 0));
         }
+        list.add("Unloaded: " + (TEMPLATED.size() - loaded));
     }
 }

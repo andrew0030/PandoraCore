@@ -100,15 +100,16 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
             return false;
 
         if (direct instanceof VanillaTemplatedShader vts) {
-            JsonObject obj = shaderJsons.get(new ResourceLocation(plate + ".json"));
-            if (obj == null)
-                return false;
-
-            String vsh = obj.getAsJsonPrimitive("vertex").getAsString();
-            String fsh = obj.getAsJsonPrimitive("fragment").getAsString();
-
-            return vts.matches(mod, vsh) ||
-                    vts.matches(mod, fsh);
+//            JsonObject obj = shaderJsons.get(new ResourceLocation(plate + ".json"));
+//            if (obj == null)
+//                return false;
+//
+//            String vsh = obj.getAsJsonPrimitive("vertex").getAsString();
+//            String fsh = obj.getAsJsonPrimitive("fragment").getAsString();
+//
+//            return vts.matches(mod, vsh) ||
+//                    vts.matches(mod, fsh);
+            return true;
         }
         return false;
     }

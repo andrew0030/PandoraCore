@@ -107,8 +107,9 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         String active = loc.getPath();
 
         if (mod.equals("minecraft") && active.equals(plate)) {
-            if (direct instanceof VanillaTemplatedShader vts)
-                return vts.matches("minecraft", plate + ".fsh");
+//            if (direct instanceof VanillaTemplatedShader vts)
+//                return vts.matches("minecraft", plate + ".fsh");
+            return true;
         }
         return false;
     }

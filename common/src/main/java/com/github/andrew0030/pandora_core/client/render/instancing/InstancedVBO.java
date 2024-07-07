@@ -21,7 +21,7 @@ public class InstancedVBO extends VertexBuffer {
     InstanceData data;
     int count = 0;
 
-    public void uploadInstanceData(InstanceData data) {
+    public void bindData(InstanceData data) {
         this.data = data;
         GlStateManager._glBindBuffer(GL20.GL_ARRAY_BUFFER, this.instanceBufferId);
         IPaCoAccessibleVBO accessibleVBO = (IPaCoAccessibleVBO) this;

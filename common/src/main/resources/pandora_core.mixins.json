@@ -22,7 +22,6 @@
     "compat.shader.iris.ProgramMixin",
     "compat.shader.iris.ExtendedShader_CacheShaders_CondBindMixin",
     "compat.shader.iris.ShaderInstance_CacheSrcMixin",
-    "compat.shader.iris.ProgramUniformsMixin",
     "render.WindowMixin",
     "render.UsageAccessorMixin",
     "render.VBOAccessorMixin",

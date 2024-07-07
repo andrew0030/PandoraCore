@@ -61,7 +61,8 @@ public class TemplateShaderTest {
     public static final InstanceFormat FORMAT = new InstanceFormat(
             POSITION
     );
-    protected static final InstanceData data = new InstanceData(FORMAT, 10000);
+    private static final int CUBE_COUNT = 1_000_000;
+    protected static final InstanceData data = new InstanceData(FORMAT, CUBE_COUNT);
     protected static final InstancedVBO instancedVBO = new InstancedVBO(VertexBuffer.Usage.STATIC, FORMAT);
     protected static final BufferBuilder builder = new BufferBuilder(3497);
 
@@ -186,15 +187,26 @@ public class TemplateShaderTest {
         instancedVBO.bind();
         {
             data.writeInstance(0);
-            for (int i = 0; i < 10000; i++) {
-                data.writeFloat(0);
-                data.writeFloat(i);
-                data.writeFloat(0);
+            int rem = CUBE_COUNT;
+            for (int x = 0; x < Math.sqrt(CUBE_COUNT); x++) {
+                for (int z = 0; z < Math.sqrt(CUBE_COUNT); z++) {
+                    data.writeFloat(x);
+                    data.writeFloat(0);
+                    data.writeFloat(z);
+                    rem--;
+                }
             }
+            for (int i = 0; i < rem; i++) {
+                data.writeFloat(0);
+                data.writeFloat(rem + 1);
+                data.writeFloat(0);
+                rem--;
+            }
+//            data.upload();
         }
 
         instancedVBO.upload(builder.end());
-        instancedVBO.uploadInstanceData(data);
+        instancedVBO.bindData(data);
         builder.clear();
         VertexBuffer.unbind();
     }
@@ -233,8 +245,8 @@ public class TemplateShaderTest {
             type.setupRenderState();
             // TODO: figure out how to not crash with iris
             instancedVBO.bind();
-            data.writeInstance(1000);
-            instancedVBO.uploadInstanceData(data);
+            data.writeInstance(CUBE_COUNT);
+//            instancedVBO.bindData(data);
             instancedVBO.drawWithShader(
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),

@@ -13,6 +13,7 @@ import java.util.*;
  */
 public abstract class MixinPluginBase implements IMixinConfigPlugin
 {
+    protected String base = "";
     private final ArrayList<String> classLookup = new ArrayList<>();
     private final ArrayList<String> pkgLookup = new ArrayList<>();
     private final HashMap<String, ArrayList<String>> incompatibilityMap = new HashMap<>();
@@ -27,20 +28,23 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
      * Only applies Mixins in the given Package, if the Class they target exists.<br/>
      * Essentially the Package based bulk operation of using {@link MixinPluginBase#addClassLookup(String)}
      */
-    protected void addPkgLookup(String mixin) {
-        pkgLookup.add(mixin);
+    protected void addPkgLookup(String packageName) {
+        if (!base.isEmpty()) packageName = base + "." + packageName;
+        pkgLookup.add(packageName);
     }
 
     /** Doesn't load the given Mixin, if one of the given classes exists. */
     protected void addIncompat(String mixin, String... things) {
+        if (!base.isEmpty()) mixin = base + "." + mixin;
         ArrayList<String> incompat = new ArrayList<>(Arrays.asList(things));
         incompatibilityMap.put(mixin, incompat);
     }
 
     /** Loads the given Mixin, if all the given classes exists. */
     protected void addDependency(String mixin, String... things) {
+        if (!base.isEmpty()) mixin = base + "." + mixin;
         ArrayList<String> dependency = new ArrayList<>(Arrays.asList(things));
-        incompatibilityMap.put(mixin, dependency);
+        dependenciesMap.put(mixin, dependency);
     }
 
     public MixinPluginBase() {

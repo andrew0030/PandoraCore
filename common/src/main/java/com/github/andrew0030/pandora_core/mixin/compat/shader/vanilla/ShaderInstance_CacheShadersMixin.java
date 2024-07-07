@@ -18,9 +18,9 @@ public class ShaderInstance_CacheShadersMixin {
     String pandoraCore$cacheName;
 
     @Inject(at = @At("TAIL"), method = "<init>")
-    public void postInit(ResourceProvider $$0, String $$1, VertexFormat $$2, CallbackInfo ci) {
-        VanillaTemplateLoader.bindShader($$1, (ShaderInstance) (Object) this);
-        pandoraCore$cacheName = $$1;
+    public void postInit(ResourceProvider resourceProvider, String name, VertexFormat vertexFormat, CallbackInfo ci) {
+        VanillaTemplateLoader.bindShader(name, (ShaderInstance) (Object) this);
+        pandoraCore$cacheName = name;
     }
 
     @Inject(at = @At("TAIL"), method = "close")

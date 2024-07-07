@@ -26,8 +26,8 @@ public class ShaderInstance_CacheSrcMixin {
     String pandoraCore$cacheName;
 
     @Inject(at = @At("TAIL"), method = "<init>")
-    public void postInit(ResourceProvider $$0, String $$1, VertexFormat $$2, CallbackInfo ci) {
-        pandoraCore$cacheName = $$1;
+    public void postInit(ResourceProvider resourceProvider, String name, VertexFormat vertexFormat, CallbackInfo ci) {
+        pandoraCore$cacheName = name;
     }
 
     @Inject(at = @At("HEAD"), method = "getOrCreate")

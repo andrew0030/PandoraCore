@@ -33,8 +33,8 @@ public class InstancedVBO extends VertexBuffer {
     }
 
     @Override
-    public void upload(BufferBuilder.RenderedBuffer $$0) {
-        super.upload($$0);
+    public void upload(BufferBuilder.RenderedBuffer buffer) {
+        super.upload(buffer);
         getFormat().setupBufferState();
         GlStateManager._glBindBuffer(GL20.GL_ARRAY_BUFFER, this.instanceBufferId);
         format.setupState(this.getFormat());

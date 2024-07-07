@@ -13,7 +13,7 @@ import java.util.List;
 @Mixin(value = GlStateManager.class, remap = false)
 public class GlStateManagerMixin {
     @Inject(at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL20C;nglShaderSource(IIJJ)V"), method = "glShaderSource")
-    private static void preShaderSource(int $$0, List<String> $$1, CallbackInfo ci) {
-        IrisTemplateLoader.shaderSource($$1);
+    private static void preShaderSource(int shader, List<String> shaderData, CallbackInfo ci) {
+        IrisTemplateLoader.shaderSource(shaderData);
     }
 }

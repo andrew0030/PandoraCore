@@ -8,7 +8,6 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import java.io.InputStream;
 import java.util.ArrayList;

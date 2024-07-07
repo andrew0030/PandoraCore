@@ -93,6 +93,11 @@ public class TemplateManager {
 
     private static final Gson GSON = new GsonBuilder().setLenient().create();
 
+    public static String getTemplateCount() {
+        // TODO: left hand should be the number that have actually loaded fully
+        return "???" + " / " + TEMPLATED.size();
+    }
+
     @ApiStatus.Internal
     public void beginReload() {
         TRANSFORMATIONS.clear();
@@ -213,5 +218,14 @@ public class TemplateManager {
 
     static {
         init();
+    }
+
+    public static void writeF3(List<String> list) {
+        list.add("Loaded templates: " + TemplateManager.getTemplateCount());
+        list.add("Template Loaders:");
+        int index = 0;
+        for (TemplateLoader loader : LOADERS) {
+            list.add(index++ + " -> " + loader.name() + ": " + "???");
+        }
     }
 }

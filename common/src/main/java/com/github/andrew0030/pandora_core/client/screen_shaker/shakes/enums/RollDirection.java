@@ -1,8 +1,8 @@
-package com.github.andrew0030.pandora_core.client.screen_shaker.curve_shake;
+package com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums;
 
 import net.minecraft.util.RandomSource;
 
-public enum YawDirection {
+public enum RollDirection {
     RIGHT,
     LEFT,
     RANDOM;

@@ -4,6 +4,8 @@ import com.github.andrew0030.pandora_core.client.render.instancing.InstanceData;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceDataElement;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstancedVBO;
+import com.github.andrew0030.pandora_core.client.render.multidraw.CollectiveVBO;
+import com.github.andrew0030.pandora_core.client.render.multidraw.MultidrawBufferBuilder;
 import com.github.andrew0030.pandora_core.client.render.obj.ObjModel;
 import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -13,44 +15,37 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class TemplateShaderTest {
-    protected static void vert(
-            VertexConsumer consumer,
-            double x, double y, double z,
-            double u, double v,
-            double nx, double ny, double nz
-    ) {
-        consumer.vertex((float) x, (float) y, (float) z)
-                .color(255, 255, 255, 255)
-                .uv((float) u, (float) v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(LightTexture.FULL_SKY)
-                .normal((float) nx, (float) ny, (float) nz)
-                .endVertex();
-    }
-
     public static final InstanceDataElement POSITION = new InstanceDataElement("paco_Inject_Translation", NumericPrimitive.FLOAT, 3);
     public static final InstanceFormat FORMAT = new InstanceFormat(
             POSITION
     );
     private static final int CUBE_COUNT = 1_000_000;
     protected static final InstanceData data = new InstanceData(FORMAT, CUBE_COUNT, VertexBuffer.Usage.STATIC);
-    protected static final InstancedVBO instancedVBO = new InstancedVBO(VertexBuffer.Usage.STATIC, FORMAT);
+    protected static final CollectiveVBO instancedVBO = new CollectiveVBO(VertexBuffer.Usage.STATIC, FORMAT);
     protected static final BufferBuilder builder = new BufferBuilder(3497);
 
-    public static void uploadVBO(ObjModel objModel) {
+    public static void uploadVBO(ObjModel queenObj, ObjModel cubeObj) {
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
-        VertexConsumer consumer = builder;
-        objModel.render(
+        MultidrawBufferBuilder multidrawBuffer = new MultidrawBufferBuilder(builder);
+//        queenObj.render(
+//                new PoseStack(),
+//                multidrawBuffer, LightTexture.FULL_SKY
+//        );
+//        MultidrawBufferBuilder.MeshRange queenRange = multidrawBuffer.endMesh("queen");
+        cubeObj.render(
                 new PoseStack(),
-                consumer, LightTexture.FULL_SKY
+                multidrawBuffer, LightTexture.FULL_SKY
         );
+        MultidrawBufferBuilder.MeshRange cubeRange = multidrawBuffer.endMesh("cube");
 
         instancedVBO.bind();
+        MultidrawBufferBuilder.MeshRange[] ranges = new MultidrawBufferBuilder.MeshRange[CUBE_COUNT];
         {
             data.writeInstance(0);
             int rem = CUBE_COUNT;
             boolean cube = false;
             int cbrt = (int) Math.pow(CUBE_COUNT, 1 / (cube ? 3d : 2d)) - 1;
+            int idx = 0;
             for (int x = 0; x < cbrt; x++) {
                 for (int z = 0; z < cbrt; z++) {
                     if (cube) {
@@ -59,27 +54,33 @@ public class TemplateShaderTest {
                             data.writeFloat(y);
                             data.writeFloat(z);
                             data.finishInstance();
-                            rem--;
                         }
                     } else {
                         data.writeFloat(x * 4);
                         data.writeFloat(0);
                         data.writeFloat(z * 4);
                         data.finishInstance();
-                        rem--;
                     }
+                    ranges[idx] = Math.random() > 0.5 ? cubeRange : cubeRange;
+                    idx++;
+                    rem--;
                 }
             }
-            for (int i = 0; i < rem; i++) {
+            int i = 0;
+            while (idx != CUBE_COUNT) {
                 data.writeFloat(0);
                 if (cube) data.writeFloat((rem + cbrt + 1) * 4);
                 else data.writeFloat((i + 1) * 4);
                 data.writeFloat(0);
                 data.finishInstance();
                 rem--;
+                ranges[idx] = Math.random() > 0.5 ? cubeRange : cubeRange;
+                idx++;
+                i++;
             }
         }
 
+        instancedVBO.defineRanges(ranges);
         instancedVBO.setDrawCount(data.drawCount());
         data.upload();
         instancedVBO.upload(builder.end());
@@ -111,7 +112,6 @@ public class TemplateShaderTest {
             type.setupRenderState();
             // TODO: figure out how to not crash with iris
             instancedVBO.bind();
-            data.writeInstance(CUBE_COUNT);
             instancedVBO.drawWithShader(
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),

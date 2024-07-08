@@ -13,7 +13,10 @@ public class ModelLoaderTest {
     private static final ObjLoader loader = new ObjLoader(
             List.of("test/obj"),
             (pth) -> pth.getNamespace().equals("pandora_core") && pth.getPath().endsWith(".obj"),
-            (loader) -> TemplateShaderTest.uploadVBO(loader.models.get(new ResourceLocation("pandora_core:test/obj/queen.obj")))
+            (loader) -> TemplateShaderTest.uploadVBO(
+                    loader.models.get(new ResourceLocation("pandora_core:test/obj/queen.obj")),
+                    loader.models.get(new ResourceLocation("pandora_core:test/obj/cube.obj"))
+            )
     );
 
     public static void init() {

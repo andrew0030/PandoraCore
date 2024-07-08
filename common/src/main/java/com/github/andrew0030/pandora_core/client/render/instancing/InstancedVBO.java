@@ -1,14 +1,11 @@
 package com.github.andrew0030.pandora_core.client.render.instancing;
 
-import com.github.andrew0030.pandora_core.mixin_interfaces.render.IPaCoAccessibleUsage;
+import com.github.andrew0030.pandora_core.client.render.AcceleratedVBO;
 import com.github.andrew0030.pandora_core.mixin_interfaces.render.IPaCoAccessibleVBO;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import org.lwjgl.opengl.*;
 
-public class InstancedVBO extends VertexBuffer {
+public class InstancedVBO extends AcceleratedVBO {
     InstanceFormat format;
 
     public InstancedVBO(Usage usage, InstanceFormat format) {
@@ -27,15 +24,6 @@ public class InstancedVBO extends VertexBuffer {
 
     public void setDrawCount(int count) {
         this.count = count;
-    }
-
-    @Override
-    public void upload(BufferBuilder.RenderedBuffer buffer) {
-        IPaCoAccessibleVBO accessibleVBO = (IPaCoAccessibleVBO) this;
-        int verts = buffer.drawState().vertexCount();
-        if (accessibleVBO.pandoraCore$usage() == Usage.STATIC) EXTCompiledVertexArray.glUnlockArraysEXT();
-        super.upload(buffer);
-        if (accessibleVBO.pandoraCore$usage() == Usage.STATIC) EXTCompiledVertexArray.glLockArraysEXT(0, verts);
     }
 
     @Override

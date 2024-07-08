@@ -189,11 +189,11 @@ public record ObjModel(Vector3f[] v, Vec2[] vt, Vector3f[] vn, Face[] faces) {
 
     private record Face(
             // coords
-            int v1, int v2, int v3,
+            int v1, int vt1, int vn1,
             // uvs
-            int vt1, int vt2, int vt3,
+            int v2, int vt2, int vn2,
             // normals
-            int vn1, int vn2, int vn3
+            int v3, int vt3, int vn3
     ) {
         // f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
         public static Face construct(String v1, String v2, String v3) {

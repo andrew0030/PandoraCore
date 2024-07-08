@@ -4,44 +4,15 @@ import com.github.andrew0030.pandora_core.client.render.instancing.InstanceData;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceDataElement;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstancedVBO;
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
-import com.github.andrew0030.pandora_core.client.utils.shader.PaCoShaderStateShard;
+import com.github.andrew0030.pandora_core.client.render.obj.ObjModel;
 import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
-import com.mojang.blaze3d.shaders.AbstractUniform;
-import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 
 public class TemplateShaderTest {
-    private static final TemplatedShaderInstance shader = TemplateManager.getTemplated(new ResourceLocation("pandora_core:shaders/paco/templated/entity_instanced.glsl"));
-
-    public static final PaCoShaderStateShard shaderStateShard = new PaCoShaderStateShard(shader);
-
-    public static final RenderType type = RenderType.create(
-            "pandora_core:test",
-            DefaultVertexFormat.NEW_ENTITY,
-            VertexFormat.Mode.QUADS,
-            DefaultVertexFormat.NEW_ENTITY.getVertexSize() * 64,
-            true, false,
-            RenderType.CompositeState.builder()
-                    .setTextureState(RenderStateShard.NO_TEXTURE)
-                    .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
-                    .setLightmapState(RenderStateShard.LIGHTMAP)
-                    .setOverlayState(RenderStateShard.OVERLAY)
-                    .setShaderState(shaderStateShard)
-                    .createCompositeState(true)
-    );
-
     protected static void vert(
             VertexConsumer consumer,
             double x, double y, double z,
@@ -61,153 +32,56 @@ public class TemplateShaderTest {
     public static final InstanceFormat FORMAT = new InstanceFormat(
             POSITION
     );
-    private static final int CUBE_COUNT = 100_000;
-    protected static final InstanceData data = new InstanceData(FORMAT, CUBE_COUNT);
+    private static final int CUBE_COUNT = 1_000_000;
+    protected static final InstanceData data = new InstanceData(FORMAT, CUBE_COUNT, VertexBuffer.Usage.STATIC);
     protected static final InstancedVBO instancedVBO = new InstancedVBO(VertexBuffer.Usage.STATIC, FORMAT);
     protected static final BufferBuilder builder = new BufferBuilder(3497);
 
-    static {
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
+    public static void uploadVBO(ObjModel objModel) {
+        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
         VertexConsumer consumer = builder;
-        // +x
-        {
-            vert(consumer,
-                    1, 0, 0,
-                    0, 1,
-                    0, 0, -1);
-            vert(consumer,
-                    1, 1, 0,
-                    1, 1,
-                    0, 0, -1);
-            vert(consumer,
-                    1, 1, 1,
-                    1, 0,
-                    0, 0, -1);
-            vert(consumer,
-                    1, 0, 1,
-                    0, 0,
-                    0, 0, -1);
-        }
-        // -x
-        {
-            vert(consumer,
-                    0, 0, 1,
-                    1, 1,
-                    0, 0, -1);
-            vert(consumer,
-                    0, 1, 1,
-                    0, 1,
-                    0, 0, -1);
-            vert(consumer,
-                    0, 1, 0,
-                    0, 0,
-                    0, 0, -1);
-            vert(consumer,
-                    0, 0, 0,
-                    1, 0,
-                    0, 0, -1);
-        }
-        // -z
-        {
-            vert(consumer,
-                    0, 0, 0,
-                    1, 0,
-                    -1, 0, 0);
-            vert(consumer,
-                    0, 1, 0,
-                    0, 0,
-                    -1, 0, 0);
-            vert(consumer,
-                    1, 1, 0,
-                    0, 1,
-                    -1, 0, 0);
-            vert(consumer,
-                    1, 0, 0,
-                    1, 1,
-                    -1, 0, 0);
-        }
-        // +z
-        {
-            vert(consumer,
-                    1, 0, 1,
-                    0, 0,
-                    -1, 0, 0);
-            vert(consumer,
-                    1, 1, 1,
-                    1, 0,
-                    -1, 0, 0);
-            vert(consumer,
-                    0, 1, 1,
-                    1, 1,
-                    -1, 0, 0);
-            vert(consumer,
-                    0, 0, 1,
-                    0, 1,
-                    -1, 0, 0);
-        }
-        // +y
-        {
-            vert(consumer,
-                    0, 1, 0,
-                    0, 0,
-                    0, 1, 0);
-            vert(consumer,
-                    0, 1, 1,
-                    1, 0,
-                    0, 1, 0);
-            vert(consumer,
-                    1, 1, 1,
-                    1, 1,
-                    0, 1, 0);
-            vert(consumer,
-                    1, 1, 0,
-                    0, 1,
-                    0, 1, 0);
-        }
-        // -y
-        {
-            vert(consumer,
-                    1, 0, 0,
-                    1, 0,
-                    0, -1, 0);
-            vert(consumer,
-                    1, 0, 1,
-                    0, 0,
-                    0, -1, 0);
-            vert(consumer,
-                    0, 0, 1,
-                    0, 1,
-                    0, -1, 0);
-            vert(consumer,
-                    0, 0, 0,
-                    1, 1,
-                    0, -1, 0);
-        }
+        objModel.render(
+                new PoseStack(),
+                consumer, LightTexture.FULL_SKY
+        );
 
         instancedVBO.bind();
         {
             data.writeInstance(0);
             int rem = CUBE_COUNT;
-            int cbrt = (int) Math.pow(CUBE_COUNT, 1 / 3d) - 1;
+            boolean cube = false;
+            int cbrt = (int) Math.pow(CUBE_COUNT, 1 / (cube ? 3d : 2d)) - 1;
             for (int x = 0; x < cbrt; x++) {
-                for (int y = 0; y < cbrt; y++) {
-                    for (int z = 0; z < cbrt; z++) {
-                        data.writeFloat(x * 2);
-                        data.writeFloat(y * 2);
-                        data.writeFloat(z * 2);
+                for (int z = 0; z < cbrt; z++) {
+                    if (cube) {
+                        for (int y = 0; y < cbrt; y++) {
+                            data.writeFloat(x);
+                            data.writeFloat(y);
+                            data.writeFloat(z);
+                            data.finishInstance();
+                            rem--;
+                        }
+                    } else {
+                        data.writeFloat(x * 4);
+                        data.writeFloat(0);
+                        data.writeFloat(z * 4);
+                        data.finishInstance();
                         rem--;
                     }
                 }
             }
             for (int i = 0; i < rem; i++) {
                 data.writeFloat(0);
-                data.writeFloat((rem + cbrt + 1) * 2);
+                if (cube) data.writeFloat((rem + cbrt + 1) * 4);
+                else data.writeFloat((i + 1) * 4);
                 data.writeFloat(0);
+                data.finishInstance();
                 rem--;
             }
-//            data.upload();
         }
 
+        instancedVBO.setDrawCount(data.drawCount());
+        data.upload();
         instancedVBO.upload(builder.end());
         instancedVBO.bindData(data);
         builder.clear();
@@ -215,21 +89,7 @@ public class TemplateShaderTest {
     }
 
     public static void draw(PoseStack stack, double x, double y, double z) {
-//        if (true) return;
-
-        RenderType type = RenderType.create(
-                "pandora_core:test",
-                DefaultVertexFormat.NEW_ENTITY,
-                VertexFormat.Mode.QUADS,
-                DefaultVertexFormat.NEW_ENTITY.getVertexSize() * 64,
-                true, false,
-                RenderType.CompositeState.builder()
-                        .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
-                        .setLightmapState(RenderStateShard.LIGHTMAP)
-                        .setOverlayState(RenderStateShard.OVERLAY)
-                        .setShaderState(shaderStateShard)
-                        .createCompositeState(true)
-        );
+        RenderType type = PaCoRenderTypes.type;
 
         RenderSystem.setShaderTexture(0, new ResourceLocation(
                 "minecraft:dynamic/light_map_1"
@@ -242,6 +102,9 @@ public class TemplateShaderTest {
                 -y,
                 -z
         );
+        RenderSystem.getModelViewStack().scale(0.125f, 0.125f, 0.125f);
+        RenderSystem.getModelViewStack().scale(0.125f, 0.125f, 0.125f);
+        RenderSystem.getModelViewStack().translate(1f, 1f, 1f);
         RenderSystem.applyModelViewMatrix();
 
         try {
@@ -249,7 +112,6 @@ public class TemplateShaderTest {
             // TODO: figure out how to not crash with iris
             instancedVBO.bind();
             data.writeInstance(CUBE_COUNT);
-//            instancedVBO.bindData(data);
             instancedVBO.drawWithShader(
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),

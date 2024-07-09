@@ -29,6 +29,9 @@ public class PaCoSlider extends AbstractSliderButton {
     protected Component prefix;
     protected Component suffix;
     protected boolean isSilent = false;
+    protected int sliderTextureWidth;
+    protected int sliderTextureHeight;
+    protected int sliderSliceSize;
     protected ResourceLocation sliderTexture;
     protected int sliderU;
     protected int sliderV;
@@ -41,6 +44,9 @@ public class PaCoSlider extends AbstractSliderButton {
     // Slider Handle Stuff
     protected int handleWidth;
     protected int handleHeight;
+    protected int handleTextureWidth;
+    protected int handleTextureHeight;
+    protected int handleSliceSize;
     protected ResourceLocation handleTexture;
     protected int handleU;
     protected int handleV;
@@ -159,24 +165,23 @@ public class PaCoSlider extends AbstractSliderButton {
         return this.setHandleWidth(width).setHandleHeight(height);
     }
 
-    /**
-     * Used to specify textures, that should be used to render the slider.<br/>
-     * Note: The slider looks for a texture of {@link PaCoSlider#width} x {@link PaCoSlider#height}.<br/>
-     * Additionally, the image has to be 256x256.<br/>
-     * @param texture The {@link ResourceLocation} pointing to the image the slider is on
-     * @param u The u coordinate the texture of the slider starts at, on the given texture
-     * @param v The v coordinate the texture of the slider starts at, on the given texture
-     * @param highlightedTexture The {@link ResourceLocation} pointing to the image the highlighted slider is on
-     * @param highlightedU The u coordinate the highlighted texture of the slider starts at, on the given image
-     * @param highlightedV The v coordinate the highlighted texture of the slider starts at, on the given image
-     */
-    public PaCoSlider setSliderTexture(@NotNull ResourceLocation texture, int u, int v, @NotNull ResourceLocation highlightedTexture, int highlightedU, int highlightedV) {
+
+    //TODO redo javadoc
+    public PaCoSlider setSliderTexture(@NotNull ResourceLocation texture, int u, int v, int highlightedU, int highlightedV, int textureWidth, int textureHeight, int sliceSize) {
+        return this.setSliderTexture(texture, u, v, texture, highlightedU, highlightedV, textureWidth, textureHeight, sliceSize);
+    }
+
+    //TODO redo javadoc
+    public PaCoSlider setSliderTexture(@NotNull ResourceLocation texture, int u, int v, @NotNull ResourceLocation highlightedTexture, int highlightedU, int highlightedV, int textureWidth, int textureHeight, int sliceSize) {
         this.sliderTexture = texture;
         this.sliderU = u;
         this.sliderV = v;
         this.sliderHighlightedTexture = highlightedTexture;
         this.sliderHighlightedU = highlightedU;
         this.sliderHighlightedV = highlightedV;
+        this.sliderTextureWidth = textureWidth;
+        this.sliderTextureHeight = textureHeight;
+        this.sliderSliceSize = sliceSize;
         return this;
     }
 
@@ -197,24 +202,22 @@ public class PaCoSlider extends AbstractSliderButton {
         return this;
     }
 
-    /**
-     * Used to specify textures, that should be used to render the slider handle.<br/>
-     * Note: The slider handle looks for a texture of {@link PaCoSlider#handleWidth} x {@link PaCoSlider#handleHeight}.<br/>
-     * Additionally, the image has to be 256x256.<br/>
-     * @param texture The {@link ResourceLocation} pointing to the image the slider is on
-     * @param u The u coordinate the texture of the slider handle starts at, on the given texture
-     * @param v The v coordinate the texture of the slider handle starts at, on the given texture
-     * @param highlightedTexture The {@link ResourceLocation} pointing to the image the highlighted slider handle is on
-     * @param highlightedU The u coordinate the highlighted texture of the slider handle starts at, on the given image
-     * @param highlightedV The v coordinate the highlighted texture of the slider handle starts at, on the given image
-     */
-    public PaCoSlider setHandleTexture(@NotNull ResourceLocation texture, int u, int v, @NotNull ResourceLocation highlightedTexture, int highlightedU, int highlightedV) {
+    //TODO redo javadoc
+    public PaCoSlider setHandleTexture(@NotNull ResourceLocation texture, int u, int v, int highlightedU, int highlightedV, int textureWidth, int textureHeight, int sliceSize) {
+        return this.setHandleTexture(texture, u, v, texture, highlightedU, highlightedV, textureWidth, textureHeight, sliceSize);
+    }
+
+    //TODO redo javadoc
+    public PaCoSlider setHandleTexture(@NotNull ResourceLocation texture, int u, int v, @NotNull ResourceLocation highlightedTexture, int highlightedU, int highlightedV, int textureWidth, int textureHeight, int sliceSize) {
         this.handleTexture = texture;
         this.handleU = u;
         this.handleV = v;
         this.handleHighlightedTexture = highlightedTexture;
         this.handleHighlightedU = highlightedU;
         this.handleHighlightedV = highlightedV;
+        this.handleTextureWidth = textureWidth;
+        this.handleTextureHeight = textureHeight;
+        this.handleSliceSize = sliceSize;
         return this;
     }
 
@@ -519,15 +522,22 @@ public class PaCoSlider extends AbstractSliderButton {
 
     /** Helper method to render the slider, mostly exists to allow for easy modification in children */
     protected void renderSlider(GuiGraphics graphics) {
+        // Texture Based Slider
         if (this.sliderTexture != null && this.sliderHighlightedTexture != null) {
-            if (this.shouldHighlight()) {
-                graphics.blit(this.sliderHighlightedTexture, this.getX(), this.getY(), this.sliderHighlightedU, this.sliderHighlightedV, this.getWidth(), this.getHeight());
-            } else {
-                graphics.blit(this.sliderTexture, this.getX(), this.getY(), this.sliderU, this.sliderV, this.getWidth(), this.getHeight());
+            boolean highlight = this.shouldHighlight();
+            ResourceLocation texture = highlight ? this.sliderHighlightedTexture : this.sliderTexture;
+            int u = highlight ? this.sliderHighlightedU : this.sliderU;
+            int v = highlight ? this.sliderHighlightedV : this.sliderV;
+            if (this.sliderSliceSize != 0) {
+                graphics.blitNineSliced(texture, this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.sliderSliceSize, this.sliderTextureWidth, this.sliderTextureHeight, u, v);
+            } else { // If slice size is 0 we render the texture as is.
+                graphics.blit(texture, this.getX(), this.getY(), u, v, this.getWidth(), this.getHeight());
             }
+        // Color Based Slider
         } else if (this.sliderColor != null || this.sliderRimColor != null || this.sliderHighlightedRimColor != null) {
             Integer rimColor = this.shouldHighlight() ? this.sliderHighlightedRimColor : this.sliderRimColor;
             PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.sliderColor, rimColor, 1);
+        // Vanilla Textures Slider
         } else {
             graphics.blitNineSliced(SLIDER_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getSliderTextureY());
         }
@@ -537,15 +547,22 @@ public class PaCoSlider extends AbstractSliderButton {
     protected void renderSliderhandle(GuiGraphics graphics) {
         int posX = this.getHandleX();
         int posY = this.getHandleY();
+        // Texture Based Slider Handle
         if (this.handleTexture != null && this.handleHighlightedTexture != null) {
-            if (this.shouldHighlightHandle()) {
-                graphics.blit(this.handleHighlightedTexture, posX, posY, this.handleHighlightedU, this.handleHighlightedV, this.handleWidth, this.handleHeight);
-            } else {
-                graphics.blit(this.handleTexture, posX, posY, this.handleU, this.handleV, this.handleWidth, this.handleHeight);
+            boolean highlight = this.shouldHighlightHandle();
+            ResourceLocation texture = highlight ? this.handleHighlightedTexture : this.handleTexture;
+            int u = highlight ? this.handleHighlightedU : this.handleU;
+            int v = highlight ? this.handleHighlightedV : this.handleV;
+            if (this.handleSliceSize != 0) {
+                graphics.blitNineSliced(texture, posX, posY, this.handleWidth, this.handleHeight, this.handleSliceSize, this.handleTextureWidth, this.handleTextureHeight, u, v);
+            } else { // If slice size is 0 we render the texture as is.
+                graphics.blit(texture, posX, posY, u, v, this.handleWidth, this.handleHeight);
             }
+        // Color Based Slider Handle
         } else if (this.handleColor != null || this.handleRimColor != null || this.handleHighlightedRimColor != null) {
             Integer rimColor = this.shouldHighlightHandle() ? this.handleHighlightedRimColor : this.handleRimColor;
             PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, this.handleWidth, this.handleHeight, this.handleColor, rimColor, 1);
+        // Vanilla Textures Slider Handle
         } else {
             graphics.blitNineSliced(SLIDER_LOCATION, posX, posY, this.handleWidth, this.handleHeight, 20, 4, 200, 20, 0, this.getSliderHandleTextureY());
         }

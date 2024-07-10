@@ -190,19 +190,54 @@ public class PaCo2DSlider extends AbstractSliderButton
     /**
      * Used to alter the sliders handle size.<br/>
      * Note: the minimum width and height is 2.
-     * @param width The width the slider handle should have, in pixels
+     * @param width  The width the slider handle should have, in pixels
      * @param height The height the slider handle should have, in pixels
      */
     public PaCo2DSlider setHandleSize(int width, int height) {
         return this.setHandleWidth(width).setHandleHeight(height);
     }
 
-    //TODO redo javadoc
+    /**
+     * Used to specify textures, that will be utilized to render this slider. This approach supports two options:<br/>
+     * - Render a nine sliced blit (great for reusing a generic slider texture).<br/>
+     * - Rendering a blit as is (good for unique textures that shouldn't change).<br/>
+     * Essentially the "as is" blit approach will take the given texture, which in both cases <strong>needs to be 256x256</strong>,
+     * and then renders a rectangle that is the size of the slider. With the "as is" approach the last 3 parameters don't matter
+     * and 0 should be passed.<br/>
+     * If a nine sliced blit is desired, the last 3 parameters are needed.<br/>
+     * Note: This method is intended for a single texture approach, if the highlighted texture is on a different image use {@link PaCo2DSlider#setSliderTexture(ResourceLocation, int, int, ResourceLocation, int, int, int, int, int)}.
+     * @param texture       A {@link ResourceLocation} pointing to the image with the slider texture and highlighted slider texture
+     * @param u             The x-coordinate of the top-left corner of the slider texture
+     * @param v             The y-coordinate of the top-left corner of the slider texture
+     * @param highlightedU  The x-coordinate of the top-left corner of the highlighted slider texture
+     * @param highlightedV  The y-coordinate of the top-left corner of the highlighted slider texture
+     * @param textureWidth  The width of the source texture
+     * @param textureHeight The height of the source texture
+     * @param sliceSize     How many pixels of the source texture are part of the rim
+     */
     public PaCo2DSlider setSliderTexture(@NotNull ResourceLocation texture, int u, int v, int highlightedU, int highlightedV, int textureWidth, int textureHeight, int sliceSize) {
         return this.setSliderTexture(texture, u, v, texture, highlightedU, highlightedV, textureWidth, textureHeight, sliceSize);
     }
 
-    //TODO redo javadoc
+    /**
+     * Used to specify textures, that will be utilized to render this slider. This approach supports two options:<br/>
+     * - Render a nine sliced blit (great for reusing a generic slider texture).<br/>
+     * - Rendering a blit as is (good for unique textures that shouldn't change).<br/>
+     * Essentially the "as is" blit approach will take the given texture, which in both cases <strong>needs to be 256x256</strong>,
+     * and then renders a rectangle that is the size of the slider. With the "as is" approach the last 3 parameters don't matter
+     * and 0 should be passed.<br/>
+     * If a nine sliced blit is desired, the last 3 parameters are needed.<br/>
+     * Note: This method is intended for a two texture approach, if the highlighted texture is on the same image use {@link PaCo2DSlider#setSliderTexture(ResourceLocation, int, int, int, int, int, int, int)}.
+     * @param texture            A {@link ResourceLocation} pointing to the image with the slider texture
+     * @param u                  The x-coordinate of the top-left corner of the slider texture
+     * @param v                  The y-coordinate of the top-left corner of the slider texture
+     * @param highlightedTexture A {@link ResourceLocation} pointing to the image with the highlighted slider texture
+     * @param highlightedU       The x-coordinate of the top-left corner of the highlighted slider texture
+     * @param highlightedV       The y-coordinate of the top-left corner of the highlighted slider texture
+     * @param textureWidth       The width of the source texture
+     * @param textureHeight      The height of the source texture
+     * @param sliceSize          How many pixels of the source texture are part of the rim
+     */
     public PaCo2DSlider setSliderTexture(@NotNull ResourceLocation texture, int u, int v, @NotNull ResourceLocation highlightedTexture, int highlightedU, int highlightedV, int textureWidth, int textureHeight, int sliceSize) {
         this.sliderTexture = texture;
         this.sliderU = u;
@@ -222,8 +257,8 @@ public class PaCo2DSlider extends AbstractSliderButton
      * meaning that it makes it impossible for resource packs to modify the slider, so use it responsibly.<br/>
      * Additionally, {@link PaCoColor} can be used to easily create a color.<br/>
      * If null is given the element won't be rendered, however at least one has to be not null, to fully hide use alpha 0.
-     * @param sliderColor The main color the slider will have
-     * @param sliderRimColor The rim color the slider will have
+     * @param sliderColor               The main color the slider will have
+     * @param sliderRimColor            The rim color the slider will have
      * @param sliderHighlightedRimColor The highlighted rim color the slider will have
      */
     public PaCo2DSlider setSliderColor(@Nullable Integer sliderColor, @Nullable Integer sliderRimColor, @Nullable Integer sliderHighlightedRimColor) {
@@ -233,12 +268,47 @@ public class PaCo2DSlider extends AbstractSliderButton
         return this;
     }
 
-    //TODO redo javadoc
+    /**
+     * Used to specify textures, that will be utilized to render this slider handle. This approach supports two options:<br/>
+     * - Render a nine sliced blit (great for reusing a generic slider handle texture).<br/>
+     * - Rendering a blit as is (good for unique textures that shouldn't change).<br/>
+     * Essentially the "as is" blit approach will take the given texture, which in both cases <strong>needs to be 256x256</strong>,
+     * and then renders a rectangle that is the size of the slider handle. With the "as is" approach the last 3 parameters don't matter
+     * and 0 should be passed.<br/>
+     * If a nine sliced blit is desired, the last 3 parameters are needed.<br/>
+     * Note: This method is intended for a single texture approach, if the highlighted texture is on a different image use {@link PaCo2DSlider#setHandleTexture(ResourceLocation, int, int, ResourceLocation, int, int, int, int, int)}.
+     * @param texture       A {@link ResourceLocation} pointing to the image with the slider handle texture and highlighted slider handle texture
+     * @param u             The x-coordinate of the top-left corner of the slider handle texture
+     * @param v             The y-coordinate of the top-left corner of the slider handle texture
+     * @param highlightedU  The x-coordinate of the top-left corner of the highlighted slider handle texture
+     * @param highlightedV  The y-coordinate of the top-left corner of the highlighted slider handle texture
+     * @param textureWidth  The width of the source texture
+     * @param textureHeight The height of the source texture
+     * @param sliceSize     How many pixels of the source texture are part of the rim
+     */
     public PaCo2DSlider setHandleTexture(@NotNull ResourceLocation texture, int u, int v, int highlightedU, int highlightedV, int textureWidth, int textureHeight, int sliceSize) {
         return this.setHandleTexture(texture, u, v, texture, highlightedU, highlightedV, textureWidth, textureHeight, sliceSize);
     }
 
-    //TODO redo javadoc
+    /**
+     * Used to specify textures, that will be utilized to render this slider handle. This approach supports two options:<br/>
+     * - Render a nine sliced blit (great for reusing a generic slider handle texture).<br/>
+     * - Rendering a blit as is (good for unique textures that shouldn't change).<br/>
+     * Essentially the "as is" blit approach will take the given texture, which in both cases <strong>needs to be 256x256</strong>,
+     * and then renders a rectangle that is the size of the slider handle. With the "as is" approach the last 3 parameters don't matter
+     * and 0 should be passed.<br/>
+     * If a nine sliced blit is desired, the last 3 parameters are needed.<br/>
+     * Note: This method is intended for a two texture approach, if the highlighted texture is on the same image use {@link PaCo2DSlider#setHandleTexture(ResourceLocation, int, int, int, int, int, int, int)}.
+     * @param texture            A {@link ResourceLocation} pointing to the image with the slider handle texture
+     * @param u                  The x-coordinate of the top-left corner of the slider handle texture
+     * @param v                  The y-coordinate of the top-left corner of the slider handle texture
+     * @param highlightedTexture A {@link ResourceLocation} pointing to the image with the highlighted slider handle texture
+     * @param highlightedU       The x-coordinate of the top-left corner of the highlighted slider handle texture
+     * @param highlightedV       The y-coordinate of the top-left corner of the highlighted slider handle texture
+     * @param textureWidth       The width of the source texture
+     * @param textureHeight      The height of the source texture
+     * @param sliceSize          How many pixels of the source texture are part of the rim
+     */
     public PaCo2DSlider setHandleTexture(@NotNull ResourceLocation texture, int u, int v, @NotNull ResourceLocation highlightedTexture, int highlightedU, int highlightedV, int textureWidth, int textureHeight, int sliceSize) {
         this.handleTexture = texture;
         this.handleU = u;
@@ -258,8 +328,8 @@ public class PaCo2DSlider extends AbstractSliderButton
      * meaning that it makes it impossible for resource packs to modify the slider handle, so use it responsibly.<br/>
      * Additionally, {@link PaCoColor} can be used to easily create a color.<br/>
      * If null is given the element won't be rendered, however at least one has to be not null, to fully hide use alpha 0.
-     * @param handleColor The main color the slider handle will have
-     * @param handleRimColor The rim color the slider handle will have
+     * @param handleColor               The main color the slider handle will have
+     * @param handleRimColor            The rim color the slider handle will have
      * @param handleHighlightedRimColor The highlighted rim color the slider handle will have
      */
     public PaCo2DSlider setHandleColor(@Nullable Integer handleColor, @Nullable Integer handleRimColor, @Nullable Integer handleHighlightedRimColor) {
@@ -284,7 +354,7 @@ public class PaCo2DSlider extends AbstractSliderButton
      * Used to set the text color, this slider should have.<br/>
      * If the slider is not "{@link PaCo2DSlider#active}" the second given color will be used.<br/>
      * This ignores the alpha value of the given color, as the text is only affected by the {@link PaCo2DSlider#alpha} value of the slider.
-     * @param textColor The color the text will have, {@link PaCoColor} can be used.
+     * @param textColor         The color the text will have, {@link PaCoColor} can be used.
      * @param textColorInactive The color the text will have if the slider is not "{@link PaCo2DSlider#active}", {@link PaCoColor} can be used.
      */
     public PaCo2DSlider setTextColor(int textColor, int textColorInactive) {
@@ -330,7 +400,7 @@ public class PaCo2DSlider extends AbstractSliderButton
      * Used to specify the horizontal and vertical positions the text will snap too.<br/>
      * Note: this can be combined with {@link PaCo2DSlider#setTextOffset(int, int)}.
      * @param horizontalTextSnap The {@link HorizontalTextSnap} position the text will snap to
-     * @param verticalTextSnap The {@link VerticalTextSnap} position the text will snap to
+     * @param verticalTextSnap   The {@link VerticalTextSnap} position the text will snap to
      */
     public PaCo2DSlider setTextSnap(HorizontalTextSnap horizontalTextSnap, VerticalTextSnap verticalTextSnap) {
         return this.setHorizontalTextSnap(horizontalTextSnap).setVerticalTextSnap(verticalTextSnap);

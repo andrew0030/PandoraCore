@@ -93,8 +93,8 @@ public class PaCoScreen extends Screen {
                 .setZeroPadding(true)
                 .setTextSnap(HorizontalTextSnap.RIGHT_OUTSIDE, VerticalTextSnap.TOP_INSIDE)
                 .setTextOffset(3, 1)
-                .setSliderTexture(SLIDER_TESTING, 200, 0, SLIDER_TESTING, 212, 0)
-                .setHandleTexture(SLIDER_TESTING, 224, 0, SLIDER_TESTING, 240, 0)
+                .setSliderTexture(SLIDER_TESTING, 0, 0, 30, 0, 30, 30, 3)
+                .setHandleTexture(SLIDER_TESTING, 0, 30, 5, 30, 5, 5, 2)
         );
 
         this.addRenderableWidget(new PaCoSlider(this.width / 3 + 30, this.height / 2, 270, 12, 0, 60, 0, 1)
@@ -120,13 +120,13 @@ public class PaCoScreen extends Screen {
                 .setInterfix(Component.literal("-"))
                 .setSuffix(Component.literal("]"))
                 .setTextColor(PaCoColor.color(100, 244, 27))
-                .setHandleSize(5, 5)
+                .setHandleSize(9, 9)
                 .setHasDropShadow(false)
                 .setHorizontalTextSnap(HorizontalTextSnap.RIGHT_INSIDE)
                 .setVerticalTextSnap(VerticalTextSnap.BOTTOM_OUTSIDE)
                 .setTextOffset(-3, 2)
-                .setSliderTexture(SLIDER_TESTING, 0, 0, SLIDER_TESTING, 100, 0)
-                .setHandleTexture(SLIDER_TESTING, 0, 100, SLIDER_TESTING, 5, 100)
+                .setSliderTexture(SLIDER_TESTING, 0, 0, 30, 0, 30, 30, 3)
+                .setHandleTexture(SLIDER_TESTING, 0, 30, 5, 30, 5, 5, 2)
         );
     }
 

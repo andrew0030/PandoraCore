@@ -48,16 +48,16 @@ public class CollectiveVBO extends InstancedVBO {
         IPaCoAccessibleVBO accessibleVBO = (IPaCoAccessibleVBO) this;
         int mode = accessibleVBO.pandoraCore$mode().asGLMode;
         int type = accessibleVBO.pandoraCore$indexType().asGLType;
-//        for (Map.Entry<CollectiveBufferBuilder.MeshRange, Pair<InstanceData, Integer>> value : datas.entrySet()) {
-//            bindData(value.getValue().getFirst());
-//            GL33C.glDrawElementsInstancedBaseVertex(
-//                    mode,
-//                    value.getKey().end - value.getKey().start,
-//                    type,
-//                    0L,
-//                    value.getValue().getSecond(),
-//                    value.getKey().start
-//            );
-//        }
+        for (Map.Entry<CollectiveBufferBuilder.MeshRange, Pair<InstanceData, Integer>> value : datas.entrySet()) {
+            bindData(value.getValue().getFirst());
+            GL33C.glDrawElementsInstancedBaseVertex(
+                    mode,
+                    value.getKey().end - value.getKey().start,
+                    type,
+                    0L,
+                    value.getValue().getSecond(),
+                    value.getKey().start
+            );
+        }
     }
 }

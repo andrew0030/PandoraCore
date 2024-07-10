@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.client.render.multidraw;
+package com.github.andrew0030.pandora_core.client.render.collective;
 
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -11,7 +11,7 @@ import org.joml.Matrix4f;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class MultidrawBufferBuilder implements VertexConsumer {
+public class CollectiveBufferBuilder implements VertexConsumer {
     BufferBuilder direct;
     int startRange = 0;
     int vertex = 0;
@@ -26,7 +26,7 @@ public class MultidrawBufferBuilder implements VertexConsumer {
         return readOnlyList;
     }
 
-    public MultidrawBufferBuilder(BufferBuilder direct) {
+    public CollectiveBufferBuilder(BufferBuilder direct) {
         this.direct = direct;
     }
 
@@ -135,7 +135,7 @@ public class MultidrawBufferBuilder implements VertexConsumer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MultidrawBufferBuilder that = (MultidrawBufferBuilder) o;
+        CollectiveBufferBuilder that = (CollectiveBufferBuilder) o;
         return vertex == that.vertex && Objects.equals(direct, that.direct);
     }
 

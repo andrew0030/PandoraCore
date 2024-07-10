@@ -17,9 +17,11 @@ public class InstancedVBO extends AcceleratedVBO {
     int count = 0;
 
     public void bindData(InstanceData data) {
+        boolean wasData = data == this.data;
         this.data = data;
         GlStateManager._glBindBuffer(GL30.GL_ARRAY_BUFFER, data.glBuffer);
-        format.setupState(this.getFormat());
+        // TODO: I'm pretty sure this is how this works, but I'm not actually sure
+        if (!wasData) format.setupState(this.getFormat());
     }
 
     public void setDrawCount(int count) {

@@ -1,17 +1,15 @@
 package com.github.andrew0030.pandora_core.test;
 
-import com.github.andrew0030.pandora_core.client.render.instancing.InstanceData;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceDataElement;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
-import com.github.andrew0030.pandora_core.client.render.instancing.InstancedVBO;
-import com.github.andrew0030.pandora_core.client.render.multidraw.CollectiveVBO;
-import com.github.andrew0030.pandora_core.client.render.multidraw.MultidrawBufferBuilder;
+import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
+import com.github.andrew0030.pandora_core.client.render.collective.CollectiveBufferBuilder;
+import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.client.render.obj.ObjModel;
 import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class TemplateShaderTest {
@@ -19,72 +17,74 @@ public class TemplateShaderTest {
     public static final InstanceFormat FORMAT = new InstanceFormat(
             POSITION
     );
-    private static final int CUBE_COUNT = 1_000_000;
-    protected static final InstanceData data = new InstanceData(FORMAT, CUBE_COUNT, VertexBuffer.Usage.STATIC);
-    protected static final CollectiveVBO instancedVBO = new CollectiveVBO(VertexBuffer.Usage.STATIC, FORMAT);
+    private static final int CUBE_COUNT = 100_000;
+    protected static final CollectiveDrawData data = new CollectiveDrawData(FORMAT, CUBE_COUNT, VertexBuffer.Usage.STATIC);
+    protected static final CollectiveVBO collectiveVBO = new CollectiveVBO(VertexBuffer.Usage.STATIC, FORMAT);
     protected static final BufferBuilder builder = new BufferBuilder(3497);
 
     public static void uploadVBO(ObjModel queenObj, ObjModel cubeObj) {
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
-        MultidrawBufferBuilder multidrawBuffer = new MultidrawBufferBuilder(builder);
-//        queenObj.render(
-//                new PoseStack(),
-//                multidrawBuffer, LightTexture.FULL_SKY
-//        );
-//        MultidrawBufferBuilder.MeshRange queenRange = multidrawBuffer.endMesh("queen");
+        CollectiveBufferBuilder multidrawBuffer = new CollectiveBufferBuilder(builder);
+        queenObj.render(
+                new PoseStack(),
+                multidrawBuffer, LightTexture.FULL_SKY
+        );
+        CollectiveBufferBuilder.MeshRange queenRange = multidrawBuffer.endMesh("queen");
         cubeObj.render(
                 new PoseStack(),
                 multidrawBuffer, LightTexture.FULL_SKY
         );
-        MultidrawBufferBuilder.MeshRange cubeRange = multidrawBuffer.endMesh("cube");
+        CollectiveBufferBuilder.MeshRange cubeRange = multidrawBuffer.endMesh("cube");
 
-        instancedVBO.bind();
-        MultidrawBufferBuilder.MeshRange[] ranges = new MultidrawBufferBuilder.MeshRange[CUBE_COUNT];
+        collectiveVBO.bind();
         {
-            data.writeInstance(0);
             int rem = CUBE_COUNT;
             boolean cube = false;
             int cbrt = (int) Math.pow(CUBE_COUNT, 1 / (cube ? 3d : 2d)) - 1;
             int idx = 0;
+
+            data.writeMesh(queenRange);
+            data.writeInstance(0);
+            data.activateData();
+            data.writeMesh(cubeRange);
+            data.writeInstance(0);
+            data.activateData();
+
             for (int x = 0; x < cbrt; x++) {
                 for (int z = 0; z < cbrt; z++) {
+                    data.writeMesh(Math.random() > 0.5 ? queenRange : cubeRange);
                     if (cube) {
                         for (int y = 0; y < cbrt; y++) {
-                            data.writeFloat(x);
-                            data.writeFloat(y);
-                            data.writeFloat(z);
-                            data.finishInstance();
+                            data
+                                    .writeFloat(x, y, z)
+                                    .finishInstance();
                         }
                     } else {
-                        data.writeFloat(x * 4);
-                        data.writeFloat(0);
-                        data.writeFloat(z * 4);
-                        data.finishInstance();
+                        data
+                                .writeFloat(x * 4, 0, z * 4)
+                                .finishInstance();
                     }
-                    ranges[idx] = Math.random() > 0.5 ? cubeRange : cubeRange;
                     idx++;
                     rem--;
                 }
             }
             int i = 0;
             while (idx != CUBE_COUNT) {
+                data.writeMesh(Math.random() > 0.5 ? queenRange : cubeRange);
                 data.writeFloat(0);
                 if (cube) data.writeFloat((rem + cbrt + 1) * 4);
                 else data.writeFloat((i + 1) * 4);
                 data.writeFloat(0);
                 data.finishInstance();
                 rem--;
-                ranges[idx] = Math.random() > 0.5 ? cubeRange : cubeRange;
                 idx++;
                 i++;
             }
         }
 
-        instancedVBO.defineRanges(ranges);
-        instancedVBO.setDrawCount(data.drawCount());
+        collectiveVBO.setupData(data);
         data.upload();
-        instancedVBO.upload(builder.end());
-        instancedVBO.bindData(data);
+        collectiveVBO.upload(builder.end());
         builder.clear();
         VertexBuffer.unbind();
     }
@@ -111,8 +111,8 @@ public class TemplateShaderTest {
         try {
             type.setupRenderState();
             // TODO: figure out how to not crash with iris
-            instancedVBO.bind();
-            instancedVBO.drawWithShader(
+            collectiveVBO.bind();
+            collectiveVBO.drawWithShader(
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),
                     RenderSystem.getShader()

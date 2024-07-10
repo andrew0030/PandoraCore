@@ -41,68 +41,81 @@ public class InstanceData {
         return this;
     }
 
-    public void write(byte b) {
+    public InstanceData write(byte b) {
         buffer.put(b);
+        return this;
     }
 
-    public void writeShort(short b) {
+    public InstanceData writeShort(short b) {
         buffer.putShort(b);
+        return this;
     }
 
-    public void writeInt(int b) {
+    public InstanceData writeInt(int b) {
         buffer.putInt(b);
+        return this;
     }
 
-    public void writeUV(int uv) {
+    public InstanceData writeUV(int uv) {
         buffer.putInt(uv);
 //        buffer.putShort((short) (uv & '\uffff'));
 //        buffer.putShort((short) (uv >> 16 & '\uffff'));
+        return this;
     }
 
-    public void writeUV(int u, int v) {
+    public InstanceData writeUV(int u, int v) {
         buffer.putShort((short) u);
         buffer.putShort((short) v);
+        return this;
     }
 
-    public void writeUV(short u, short v) {
+    public InstanceData writeUV(short u, short v) {
         buffer.putShort(u);
         buffer.putShort(v);
+        return this;
     }
 
-    public void writeFloat(float b) {
+    public InstanceData writeFloat(float b) {
         buffer.putFloat(b);
+        return this;
     }
 
-    public void writeFloat(float x, float y) {
+    public InstanceData writeFloat(float x, float y) {
         buffer.putFloat(x);
         buffer.putFloat(y);
+        return this;
     }
 
-    public void writeFloat(float x, float y, float z) {
+    public InstanceData writeFloat(float x, float y, float z) {
         buffer.putFloat(x);
         buffer.putFloat(y);
         buffer.putFloat(z);
+        return this;
     }
 
-    public void writeFloat(float x, float y, float z, float w) {
+    public InstanceData writeFloat(float x, float y, float z, float w) {
         buffer.putFloat(x);
         buffer.putFloat(y);
         buffer.putFloat(z);
         buffer.putFloat(w);
+        return this;
     }
 
-    public void writeDouble(double b) {
+    public InstanceData writeDouble(double b) {
         buffer.putDouble(b);
+        return this;
     }
 
-    public void writeLong(long b) {
+    public InstanceData writeLong(long b) {
         buffer.putLong(b);
+        return this;
     }
 
-    public void finishInstance() {
+    public InstanceData finishInstance() {
         if (buffer.position() != (endWrite + 1) * format.stride)
             throw new RuntimeException("Instance not filled.");
         endWrite++;
+        return this;
     }
 
     public void close() {

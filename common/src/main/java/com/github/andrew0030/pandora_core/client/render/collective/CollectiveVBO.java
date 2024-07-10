@@ -55,7 +55,7 @@ public class CollectiveVBO extends InstancedVBO {
         int type = accessibleVBO.pandoraCore$indexType().asGLType;
         for (Map.Entry<CollectiveBufferBuilder.MeshRange, Pair<InstanceData, Integer>> value : datas.entrySet()) {
             bindData(value.getValue().getFirst());
-            GL33C.glDrawElementsInstancedBaseVertex(
+            GL33C.nglDrawElementsInstancedBaseVertex(
                     mode,
                     value.getKey().end - value.getKey().start,
                     type,

@@ -13,6 +13,11 @@ public class InstancedVBO extends AcceleratedVBO {
         this.format = format;
     }
 
+    public InstancedVBO(AccelerationUsage pUsage, InstanceFormat format) {
+        super(pUsage);
+        this.format = format;
+    }
+
     InstanceData data;
     int count = 0;
 

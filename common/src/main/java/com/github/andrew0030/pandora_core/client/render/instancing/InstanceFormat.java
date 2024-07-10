@@ -3,9 +3,7 @@ package com.github.andrew0030.pandora_core.client.render.instancing;
 import com.github.andrew0030.pandora_core.utils.collection.CyclicStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import org.lwjgl.opengl.GL31;
-import org.lwjgl.opengl.GL33;
-import org.lwjgl.opengl.GL46;
+import org.lwjgl.opengl.*;
 
 public class InstanceFormat {
     public final CyclicStack<InstanceDataElement> elements;

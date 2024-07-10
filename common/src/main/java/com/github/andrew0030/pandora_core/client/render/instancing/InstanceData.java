@@ -128,10 +128,14 @@ public class InstanceData {
     }
 
     public void upload() {
-        GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, glBuffer);
+        GlStateManager._glBindBuffer(GL30.GL_ARRAY_BUFFER, glBuffer);
         if (!uploaded || (startWrite == 0 && endWrite == instances)) {
             buffer.position(0).limit(buffer.capacity());
-            GL30.glBufferData(GL30.GL_ARRAY_BUFFER, buffer, usage);
+            GlStateManager._glBufferData(
+                    GL30.GL_ARRAY_BUFFER,
+                    buffer,
+                    usage
+            );
             uploaded = true;
         } else {
             buffer.position(startWrite * format.stride);
@@ -142,7 +146,7 @@ public class InstanceData {
                     buffer
             );
         }
-        GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, 0);
+        GlStateManager._glBindBuffer(GL30.GL_ARRAY_BUFFER, 0);
         startWrite = -1;
         endWrite = -1;
         buffer.position(0).limit(buffer.capacity());

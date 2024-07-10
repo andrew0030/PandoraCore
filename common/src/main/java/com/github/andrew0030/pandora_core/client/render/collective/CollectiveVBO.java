@@ -20,6 +20,11 @@ public class CollectiveVBO extends InstancedVBO {
         this.format = format;
     }
 
+    public CollectiveVBO(AccelerationUsage pUsage, InstanceFormat format) {
+        super(pUsage, format);
+        this.format = format;
+    }
+
     private final Map<String, CollectiveBufferBuilder.MeshRange> ranges = new Object2ObjectRBTreeMap<>();
 
     public void upload(CollectiveBufferBuilder builder) {

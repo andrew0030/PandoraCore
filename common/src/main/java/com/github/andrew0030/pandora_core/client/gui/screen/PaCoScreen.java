@@ -3,7 +3,7 @@ package com.github.andrew0030.pandora_core.client.gui.screen;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIconManager;
-import com.github.andrew0030.pandora_core.client.gui.sliders.*;
+import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
@@ -15,6 +15,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -37,6 +38,8 @@ public class PaCoScreen extends Screen {
     public int modContentWidth;
     public int menuHeightStart;
     public int menuHeightStop;
+    public int modsButtonsStart;
+    public int modButtonWidth;
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
     public final ModIconManager iconManager = new ModIconManager();
     private final List<Renderable> modsPanelButtons = new ArrayList<>();
@@ -45,6 +48,8 @@ public class PaCoScreen extends Screen {
     private final long openTime;
     private TitleScreen titleScreen = null;
     private Screen previousScreen = null;
+    // Widgets
+    private EditBox searchBox;
 
     public PaCoScreen() {
         super(TITLE);
@@ -70,64 +75,37 @@ public class PaCoScreen extends Screen {
         this.modContentWidth = this.width - this.modsPanelWidth - 2;
         this.menuHeightStart = (this.height - this.menuHeight) / 2;
         this.menuHeightStop = this.menuHeightStart + this.menuHeight;
-        // Adding Widgets
-        int modsPanelWidth = Mth.floor(this.width * 0.32F);
-        int modButtonWidth = modsPanelWidth - 4;
+        this.modsButtonsStart = this.menuHeightStart + 1 + 16 + 4;// 1 for menu rim, 12 for search bar, 2+2 for padding
+        this.modButtonWidth = this.modsPanelWidth - 4;
         int modsButtonHeight = 25;
+        // Adding Widgets
         int idx = 0;
         this.modsPanelButtons.clear();
+        this.searchBox = new EditBox(this.font, 3, this.menuHeightStart + 4, modButtonWidth - 2 - 17, 14, Component.translatable("itemGroup.search"));
+        this.searchBox.setMaxLength(50);
+//        this.searchBox.setBordered(false);
+//        this.searchBox.setVisible(false);
+//        this.searchBox.setTextColor(16777215);
+        this.addRenderableWidget(this.searchBox);
         for (String modId : PandoraCore.getPaCoManagedMods()) {
-            AbstractButton button = new ModButton(2, 23 + (idx * (modsButtonHeight + 1)), modButtonWidth, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this);
+            AbstractButton button = new ModButton(2, this.modsButtonsStart + (idx * (modsButtonHeight + 1)), modButtonWidth - 10, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this);
             this.modsPanelButtons.add(button);
             this.addWidget(button);
             idx++;
         }
 
-        this.addRenderableWidget(new PaCoVerticalSlider(this.width / 3, this.height / 6, 12, 160, 0, 150, 50, 1)
+        this.addRenderableWidget(new PaCoVerticalSlider(this.modsPanelWidth - 9, this.modsButtonsStart, 6, (this.menuHeightStop - this.modsButtonsStart) - 2, 0, 100, 0, 1)
                 .setSilent(true)
-                .setHandleSize(16, 20)
-                .setPrefix(Component.literal("deg: "))
-                .setSuffix(Component.literal("°"))
-                .setTextColor(PaCoColor.color(50, 200, 80))
-                .setHasDropShadow(false)
-                .setZeroPadding(true)
-                .setTextSnap(HorizontalTextSnap.RIGHT_OUTSIDE, VerticalTextSnap.TOP_INSIDE)
-                .setTextOffset(3, 1)
-                .setSliderTexture(SLIDER_TESTING, 0, 0, 30, 0, 30, 30, 3)
-                .setHandleTexture(SLIDER_TESTING, 0, 30, 5, 30, 5, 5, 2)
+                .setTextHidden(true)
+                .setHandleSize(8, 20)
+                .setSliderColor(PaCoColor.color(100, 0, 0, 0), null, PaCoColor.WHITE)
+                .setHandleColor(PaCoColor.color(200, 200, 200), PaCoColor.color(100, 0, 0, 0), PaCoColor.WHITE)
         );
+    }
 
-        this.addRenderableWidget(new PaCoSlider(this.width / 3 + 30, this.height / 2, 270, 12, 0, 60, 0, 1)
-                .setSilent(true)
-                .setHandleWidth(150)
-                .setZeroPadding(true)
-                .setVerticalTextSnap(VerticalTextSnap.TOP_OUTSIDE)
-                .setSliderColor(PaCoColor.color(100, 0, 0, 0), PaCoColor.color(0, 0, 0), PaCoColor.color(255, 255, 255))
-        );
-        this.addRenderableWidget(new PaCoSlider(this.width / 3 + 30, this.height / 3, 270, 19, -10, 300, 0, 0.5)
-                .setPrefix(Component.literal("gval: "))
-                .setHasDropShadow(false)
-                .setSilent(true)
-                .setTextSnap(HorizontalTextSnap.CENTER, VerticalTextSnap.CENTER)
-                .setHandleColor(PaCoColor.color(100, 20, 20), PaCoColor.color(20, 20, 20), PaCoColor.color(255, 255, 255))
-                .setHandleSize(5, 25)
-                .setTextColor(PaCoColor.color(200, 60, 60))
-        );
-
-        this.addRenderableWidget(new PaCo2DSlider((int)(this.width / 2), (int)(this.height / 1.8), 100, 100, 0, 60, 20, 1, 0, 100, 20, 1)
-                .setSilent(true)
-                .setPrefix(Component.literal("["))
-                .setInterfix(Component.literal("-"))
-                .setSuffix(Component.literal("]"))
-                .setTextColor(PaCoColor.color(100, 244, 27))
-                .setHandleSize(9, 9)
-                .setHasDropShadow(false)
-                .setHorizontalTextSnap(HorizontalTextSnap.RIGHT_INSIDE)
-                .setVerticalTextSnap(VerticalTextSnap.BOTTOM_OUTSIDE)
-                .setTextOffset(-3, 2)
-                .setSliderTexture(SLIDER_TESTING, 0, 0, 30, 0, 30, 30, 3)
-                .setHandleTexture(SLIDER_TESTING, 0, 30, 5, 30, 5, 5, 2)
-        );
+    @Override
+    public void tick() {
+        this.searchBox.tick();
     }
 
     @Override
@@ -163,8 +141,12 @@ public class PaCoScreen extends Screen {
                 PaCoBorderSide.TOP.setColor(rimColor).setSize(1),
                 PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(1)
         ));
+
+        // TODO remove later
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth - 18, this.menuHeightStart + 3, 16, 16, PaCoColor.color(150, 150, 150), PaCoColor.WHITE, 1);
+
         // Renders Mod Buttons
-        graphics.enableScissor(2, this.menuHeightStart + 1, this.modsPanelWidth - 2, this.menuHeightStop - 1);
+        graphics.enableScissor(2, this.modsButtonsStart - 2, this.modsPanelWidth - 2, this.menuHeightStop - 1);
         graphics.pose().pushPose();
         for (Renderable renderable : this.modsPanelButtons)
             renderable.render(graphics, mouseX, mouseY, partialTick);

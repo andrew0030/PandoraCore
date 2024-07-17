@@ -3,3 +3,9 @@ Iris compat:
 
 Jank:
 - starting a game of chess creates triangles
+
+Systems TODO:
+- Config System
+- NetworkSystem
+- Animation System
+- Click Location System (Abstract TTCs System)

@@ -1,20 +1,20 @@
 package com.github.andrew0030.pandora_core.client.gui.screen;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
+import com.github.andrew0030.pandora_core.client.gui.buttons.ModsFilterButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIconManager;
+import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
+import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
-import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
@@ -32,24 +32,28 @@ import java.util.Map;
 import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry.BlurVariables.*;
 
 public class PaCoScreen extends Screen {
-    public static final ResourceLocation SLIDER_TESTING = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/slider_testing.png");
-    public int menuHeight;
-    public int modsPanelWidth;
-    public int modContentWidth;
-    public int menuHeightStart;
-    public int menuHeightStop;
-    public int modsButtonsStart;
-    public int modButtonWidth;
+    public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
+    public static final Component SEARCH = Component.translatable("gui.pandora_core.paco.search");
     public final ModIconManager iconManager = new ModIconManager();
-    private final List<Renderable> modsPanelButtons = new ArrayList<>();
     private final Map<String, Object> parameters;
+    // Transition Stuff
     private float fadeInProgress = 0.0F;
     private final long openTime;
+    // Previous Screen Stuff
     private TitleScreen titleScreen = null;
     private Screen previousScreen = null;
     // Widgets
-    private EditBox searchBox;
+    private final List<Renderable> modsPanelWidgets = new ArrayList<>();
+    private PaCoEditBox searchBox;
+    // Misc
+    private static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
+    private static final int PADDING = 2;
+    private int menuHeight;
+    private int menuHeightStart;
+    private int menuHeightStop;
+    private int modsPanelWidth;
+    private int contentPanelWidth;
 
     public PaCoScreen() {
         super(TITLE);
@@ -71,36 +75,40 @@ public class PaCoScreen extends Screen {
     protected void init() {
         // Field Init
         this.menuHeight = this.height - 40;
-        this.modsPanelWidth = Mth.floor(this.width * 0.32F);
-        this.modContentWidth = this.width - this.modsPanelWidth - 2;
         this.menuHeightStart = (this.height - this.menuHeight) / 2;
         this.menuHeightStop = this.menuHeightStart + this.menuHeight;
-        this.modsButtonsStart = this.menuHeightStart + 1 + 16 + 4;// 1 for menu rim, 12 for search bar, 2+2 for padding
-        this.modButtonWidth = this.modsPanelWidth - 4;
-        int modsButtonHeight = 25;
-        // Adding Widgets
-        int idx = 0;
-        this.modsPanelButtons.clear();
-        this.searchBox = new EditBox(this.font, 3, this.menuHeightStart + 4, modButtonWidth - 2 - 17, 14, Component.translatable("itemGroup.search"));
+        this.modsPanelWidth = Mth.floor(this.width * 0.32F);
+        this.contentPanelWidth = this.width - this.modsPanelWidth - PADDING;
+//          // Adding Widgets
+//        int idx = 0;
+        this.modsPanelWidgets.clear();
+        // Search Box
+        this.searchBox = new PaCoEditBox(this.font, 7, this.menuHeightStart + 2, this.modsPanelWidth - 27, 14, SEARCH);
         this.searchBox.setMaxLength(50);
 //        this.searchBox.setBordered(false);
-//        this.searchBox.setVisible(false);
-//        this.searchBox.setTextColor(16777215);
-        this.addRenderableWidget(this.searchBox);
-        for (String modId : PandoraCore.getPaCoManagedMods()) {
-            AbstractButton button = new ModButton(2, this.modsButtonsStart + (idx * (modsButtonHeight + 1)), modButtonWidth - 10, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this);
-            this.modsPanelButtons.add(button);
-            this.addWidget(button);
-            idx++;
-        }
+        this.searchBox.setHint(SEARCH);
+        this.searchBox.setTextColor(DARK_GRAY_TEXT_COLOR);
+        this.modsPanelWidgets.add(this.searchBox);
+        this.addWidget(this.searchBox);
+        // Filter Button
+        ModsFilterButton filterButton = new ModsFilterButton(this.modsPanelWidth - 18, this.menuHeightStart, Component.literal(""));//TODO add message
+        this.modsPanelWidgets.add(filterButton);
+        this.addWidget(filterButton);
+//        for (String modId : PandoraCore.getPaCoManagedMods()) {
+//            AbstractButton button = new ModButton(2, this.modsButtonsStart + (idx * (modsButtonHeight + 1)), modButtonWidth - 10, modsButtonHeight, Services.PLATFORM.getModDataHolder(modId), this);
+//            this.modsPanelButtons.add(button);
+//            this.addWidget(button);
+//            idx++;
+//        }
 
-        this.addRenderableWidget(new PaCoVerticalSlider(this.modsPanelWidth - 9, this.modsButtonsStart, 6, (this.menuHeightStop - this.modsButtonsStart) - 2, 0, 100, 0, 1)
+        PaCoSlider modsSlider = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.menuHeightStart + 21, 6, (this.menuHeightStop - this.menuHeightStart - 21), 0, 100, 0, 1)
                 .setSilent(true)
                 .setTextHidden(true)
                 .setHandleSize(8, 20)
-                .setSliderColor(PaCoColor.color(100, 0, 0, 0), null, PaCoColor.WHITE)
-                .setHandleColor(PaCoColor.color(200, 200, 200), PaCoColor.color(100, 0, 0, 0), PaCoColor.WHITE)
-        );
+                .setSliderTexture(TEXTURE, 186, 176, 186, 176, 18, 18, 1)
+                .setHandleColor(PaCoColor.color(200, 200, 200), PaCoColor.BLACK, PaCoColor.WHITE);
+        this.modsPanelWidgets.add(modsSlider);
+        this.addWidget(modsSlider);
     }
 
     @Override
@@ -123,55 +131,52 @@ public class PaCoScreen extends Screen {
             this.titleScreen.panorama.render(partialTick, Mth.clamp(f, 0.0F, 1.0F));
         }
 
+        // Background Blur and Gradient
         RenderSystem.disableDepthTest(); // Needed so it works if chat is rendering.
         // TODO: if PaCo menu behaviour is weird, for example elements disappear, maybe look into re-enabling depth test.
         this.renderBlurredBackground(partialTick);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.2F * fadeInProgress);//TODO: look into this darkness fade, once fading has a config
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.2F * this.fadeInProgress);//TODO: look into this darkness fade, once fading has a config
         graphics.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-
         int slideInTime = 600; //TODO add config options for slide in time
         float slideInProgress = (elapsed + partialTick) < slideInTime ? (elapsed + partialTick) / slideInTime : 1.0F;
+        // Mods Panel
         graphics.pose().pushPose();
         graphics.pose().translate(-width * (1 - Easing.CUBIC_OUT.apply(slideInProgress)), 0.0F, 0.0F);
-        // Mods Panel Background
-        int rimColor = PaCoColor.color(207, 207, 196);
-        PaCoGuiUtils.renderBoxWithRim(graphics, 0, this.menuHeightStart,  this.modsPanelWidth, this.menuHeight, PaCoColor.color(100, 0, 0, 0), List.of(
-                PaCoBorderSide.TOP.setColor(rimColor).setSize(1),
-                PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(1)
-        ));
-
-        // TODO remove later
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth - 18, this.menuHeightStart + 3, 16, 16, PaCoColor.color(150, 150, 150), PaCoColor.WHITE, 1);
-
-        // Renders Mod Buttons
-        graphics.enableScissor(2, this.modsButtonsStart - 2, this.modsPanelWidth - 2, this.menuHeightStop - 1);
-        graphics.pose().pushPose();
-        for (Renderable renderable : this.modsPanelButtons)
-            renderable.render(graphics, mouseX, mouseY, partialTick);
+        this.renderModsPanel(graphics, mouseX, mouseY, partialTick);
         graphics.pose().popPose();
-        graphics.disableScissor();
-        graphics.pose().popPose();
-
-        // Mod Content Panel
+        // Content Panel
         graphics.pose().pushPose();
         graphics.pose().translate(width * (1 - Easing.CUBIC_OUT.apply(slideInProgress)), 0.0F, 0.0F);
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + 2, this.menuHeightStart,  this.modContentWidth, this.menuHeight, PaCoColor.color(100, 0, 0, 0), List.of(
+        this.renderContentPanel(graphics, mouseX, mouseY, partialTick);
+        graphics.pose().popPose();
+    }
+
+    protected void renderModsPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // Mods Panel Background
+        PaCoGuiUtils.renderBoxWithRim(graphics, 0, this.menuHeightStart, this.modsPanelWidth, this.menuHeight, null, PaCoColor.color(255, 40, 40), 1);
+        // Search Bar
+        graphics.blit(TEXTURE, 0, this.menuHeightStart, 1, 36, 5, 18);
+        graphics.blit(TEXTURE, 5, this.menuHeightStart, 18, 36, 9, 18);
+        graphics.blitRepeating(TEXTURE, 14, this.menuHeightStart, this.modsPanelWidth - 41, 18, 27, 36, 18, 18);
+        graphics.blit(TEXTURE, this.modsPanelWidth - 27, this.menuHeightStart, 45, 36, 9, 18);
+
+        // Renders Mod Buttons
+//        graphics.enableScissor(2, this.modsButtonsStart - 2, this.modsPanelWidth - 2, this.menuHeightStop - 1);
+        graphics.pose().pushPose();
+        for (Renderable renderable : this.modsPanelWidgets)
+            renderable.render(graphics, mouseX, mouseY, partialTick);
+        graphics.pose().popPose();
+//        graphics.disableScissor();
+    }
+
+    protected void renderContentPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        int rimColor = PaCoColor.color(207, 207, 196);
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + 2, this.menuHeightStart,  this.contentPanelWidth, this.menuHeight, PaCoColor.color(100, 0, 0, 0), List.of(
                 PaCoBorderSide.TOP.setColor(rimColor).setSize(1),
                 PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(1)
         ));
-        graphics.pose().popPose();
-
-        super.render(graphics, mouseX, mouseY, partialTick);
-    }
-
-    @Override
-    public void renderBackground(@NotNull GuiGraphics graphics) {}
-
-    @Override
-    public boolean isPauseScreen() {
-        return false;
     }
 
     @Override
@@ -187,6 +192,14 @@ public class PaCoScreen extends Screen {
             super.onClose();
         }
     }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
+    @Override
+    public void renderBackground(@NotNull GuiGraphics graphics) {}
 
     private void renderBlurredBackground(float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();

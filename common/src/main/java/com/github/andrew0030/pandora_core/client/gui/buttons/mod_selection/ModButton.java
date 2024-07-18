@@ -35,9 +35,9 @@ public class ModButton extends AbstractButton {
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // TODO: tweak this a bit if needed, so its pixel perfect both on the top and the bottom.
-        boolean inMenuBounds = mouseY < this.screen.menuHeight + this.screen.menuHeightStart && mouseY > this.screen.menuHeightStart;
-        this.isHovered = inMenuBounds && this.isHovered;
-        this.active = inMenuBounds;
+//        boolean inMenuBounds = mouseY < this.screen.menuHeight + this.screen.menuHeightStart && mouseY > this.screen.menuHeightStart;
+//        this.isHovered = inMenuBounds && this.isHovered;
+//        this.active = inMenuBounds;
 
         // Button Background
         int boxColor = PaCoColor.color(100, 0, 0, 0);

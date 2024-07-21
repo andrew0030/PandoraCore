@@ -105,8 +105,8 @@ public class PaCoScreen extends Screen {
                 .setSilent(true)
                 .setTextHidden(true)
                 .setHandleSize(8, 20)
-                .setSliderTexture(TEXTURE, 186, 176, 186, 176, 18, 18, 1)
-                .setHandleColor(PaCoColor.color(200, 200, 200), PaCoColor.BLACK, PaCoColor.WHITE);
+                .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
         this.modsPanelWidgets.add(modsSlider);
         this.addWidget(modsSlider);
     }

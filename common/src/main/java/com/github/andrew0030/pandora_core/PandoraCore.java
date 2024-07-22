@@ -25,6 +25,9 @@ public class PandoraCore {
             addPaCoManagedMod("this_does_not_exist");
             addPaCoManagedMod("place_holder");
             addPaCoManagedMod("kinda_far_down");
+//            for (int i = 0; i < 100; i++) {
+//                addPaCoManagedMod("bulk_entry_" + i);
+//            }
         }
     }
 

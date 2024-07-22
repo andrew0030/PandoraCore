@@ -25,8 +25,6 @@ public class ModsFilterButton extends AbstractButton {
         }
 
         graphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
         graphics.blit(PaCoScreen.TEXTURE, this.getX(), this.getY(), u, v, this.getWidth(), this.getHeight());
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }

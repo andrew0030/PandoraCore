@@ -2,12 +2,11 @@ package com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
-import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
-import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,8 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
 
 public class ModButton extends AbstractButton {
     public static final ResourceLocation MISSING_MOD_ICON = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/missing_mod_icon.png");
@@ -34,30 +31,33 @@ public class ModButton extends AbstractButton {
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        RenderSystem.enableBlend();
         // TODO: tweak this a bit if needed, so its pixel perfect both on the top and the bottom.
 //        boolean inMenuBounds = mouseY < this.screen.menuHeight + this.screen.menuHeightStart && mouseY > this.screen.menuHeightStart;
 //        this.isHovered = inMenuBounds && this.isHovered;
 //        this.active = inMenuBounds;
 
-        // Button Background
-        int boxColor = PaCoColor.color(100, 0, 0, 0);
-        ArrayList<PaCoBorderSide> buttonRims = null;
-        if (this.isHovered()) {
-            boxColor = PaCoColor.color(100, 90, 90, 90);
-            buttonRims = PaCoGuiUtils.getBorderList();
-            buttonRims.add(PaCoBorderSide.TOP.setSize(1).setColor(PaCoColor.color(157, 157, 146)));
-            buttonRims.add(PaCoBorderSide.RIGHT.setSize(1).setColor(PaCoColor.color(157, 157, 146)));
-            buttonRims.add(PaCoBorderSide.BOTTOM.setSize(1).setColor(PaCoColor.color(157, 157, 146)));
-            buttonRims.add(PaCoBorderSide.LEFT.setSize(1).setColor(PaCoColor.color(157, 157, 146)));
-        }
-        // Mod Button Background
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), boxColor, buttonRims);
+        // Mod Button
+        boolean highlight = this.isHoveredOrFocused();
+        int x = highlight ? this.getX() - 1 : this.getX();
+        int y = highlight ? this.getY() - 1 : this.getY();
+        graphics.blit(PaCoScreen.TEXTURE, x, y, 0, highlight ? 97 : 72, highlight ? 26 : 25, highlight ? 27 : 25); // Mod Icon Background Blit
+        graphics.blitRepeating(PaCoScreen.TEXTURE, this.getX() + 25, y, this.getWidth() - 50, highlight ? 27 : 25, highlight ? 26 : 25, highlight ? 97 : 72, 25, highlight ? 27 : 25); // Button Center
+        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getWidth() - 25, y, highlight ? 51 : 50, highlight ? 97 : 72, highlight ? 26 : 25, highlight ? 27 : 25); // Button Right Side End
         // Mod Icon
         this.renderModIcon(this.modDataHolder.getModId(), graphics, this.getX() + 1, this.getY() + 1, this.getHeight() - 2);
         // Mod Name
         graphics.drawString(Minecraft.getInstance().font, this.modDataHolder.getModNameOrId(), this.getX() + this.getHeight() + 2, this.getY() + 3, PaCoColor.color(255, 255, 255), false);
         // Mod Version
         graphics.drawString(Minecraft.getInstance().font, (modDataHolder.getModVersion() == null ? "unknown" : "v" + modDataHolder.getModVersion()), this.getX() + this.getHeight() + 2, this.getY() + 14, PaCoColor.color(130, 130, 130), false);
+    }
+
+    @Override
+    public int getY() {
+        int y = super.getY();
+        if (this.screen.modsScrollBar != null)
+            return (int) (y - this.screen.modsScrollBar.getValue());
+        return y;
     }
 
     @Override

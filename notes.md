@@ -3,6 +3,7 @@ Iris compat:
 
 Jank:
 - starting a game of chess creates triangles
+- Investigate if spectator mode is broken (found on fabric). Basically looking diagonally and holding 'W' resulted in sideways movement instead of diagonal (maybe not a bug and just vanilla jank?).
 
 Systems TODO:
 - Config System

@@ -107,9 +107,23 @@ public class PaCoGuiUtils {
      * @param x the x-coordinate of the center of the string.
      * @param y the y-coordinate of the string.
      * @param color the color of the string.
-     * @param dropShadow – whether to apply a drop shadow to the string.
+     * @param dropShadow whether to apply a drop shadow to the string.
      */
     public static void drawCenteredString(GuiGraphics graphics, Font font, FormattedCharSequence text, int x, int y, int color, boolean dropShadow) {
         graphics.drawString(font, text, x - font.width(text) / 2, y, color, dropShadow);
+    }
+
+    /**
+     * Checks if the mouse is within the bounds of the given rectangle.
+     * @param mouseX The current x-coordinate of the mouse
+     * @param mouseY The current y-coordinate of the mouse
+     * @param x      The x-coordinate of the top left corner
+     * @param y      The y-coordinate of the top left corner
+     * @param width  The width of the rectangle
+     * @param height The height of the rectangle
+     * @return Whether the mouse is within the specified rectangle.
+     */
+    public static boolean isMouseWithin(double mouseX, double mouseY, int x, int y, int width, int height) {
+        return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
     }
 }

@@ -3,5 +3,10 @@
   "category.pandora_core.pandora_core": "Pandora Core",
 
   "gui.pandora_core.paco.title": "Pandora Core",
-  "gui.pandora_core.paco.search": "Search Mods"
+  "gui.pandora_core.paco.search": "Search Mods",
+
+  "gui.pandora_core.paco.filter.tooltip": "Filter: %s",
+  "gui.pandora_core.paco.filter.tooltip.none": "None",
+  "gui.pandora_core.paco.filter.tooltip.warnings": "Warnings",
+  "gui.pandora_core.paco.filter.tooltip.updates": "Updates"
 }

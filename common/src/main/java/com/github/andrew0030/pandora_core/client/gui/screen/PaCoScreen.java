@@ -5,13 +5,10 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.ModsFilterButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIconManager;
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
-import com.github.andrew0030.pandora_core.client.gui.sliders.HorizontalTextSnap;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
-import com.github.andrew0030.pandora_core.client.gui.sliders.VerticalTextSnap;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
-import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
@@ -57,17 +54,21 @@ public class PaCoScreen extends Screen {
     private static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
     private static final int PADDING_ONE = 1;
     private static final int PADDING_TWO = 2;
+    private static final int PADDING_FOUR = 4;
     private static final int MOD_BUTTON_HEIGHT = 25;
-    private int menuHeight;
-    private int menuHeightStart;
-    private int menuHeightStop;
-    private int modsPanelWidth;
-    private int contentPanelWidth;
-    private int modButtonsStart;
-    private int modButtonsLength;
-    private int modButtonsPanelLength;
-    private int modButtonWidth;
-    private int modsHandleHeight;
+    public int menuHeight;
+    public int contentMenuHeight;
+    public int menuHeightStart;
+    public int menuHeightStop;
+    public int contentMenuHeightStart;
+    public int contentMenuHeightStop;
+    public int modsPanelWidth;
+    public int contentPanelWidth;
+    public int modButtonsStart;
+    public int modButtonsLength;
+    public int modButtonsPanelLength;
+    public int modButtonWidth;
+    public int modsHandleHeight;
 
 
     public PaCoScreen() {
@@ -90,8 +91,11 @@ public class PaCoScreen extends Screen {
     protected void init() {
         /* Field Init */
         this.menuHeight = this.height - 40;
+        this.contentMenuHeight = this.height - 20;
         this.menuHeightStart = (this.height - this.menuHeight) / 2;
         this.menuHeightStop = this.menuHeightStart + this.menuHeight;
+        this.contentMenuHeightStart = (this.height - this.contentMenuHeight) / 2;
+        this.contentMenuHeightStop = this.contentMenuHeightStart + this.contentMenuHeight;
         this.modsPanelWidth = Mth.floor(this.width * 0.32F);
         this.contentPanelWidth = this.width - this.modsPanelWidth - PADDING_TWO;
         this.modButtonsStart = 41;
@@ -112,7 +116,7 @@ public class PaCoScreen extends Screen {
         this.searchBox.setTextColor(DARK_GRAY_TEXT_COLOR);
         this.addWidget(this.searchBox);
         // Filter Button
-        this.filterButton = new ModsFilterButton(this.modsPanelWidth - 18, this.menuHeightStart, Component.literal(""));//TODO add message
+        this.filterButton = new ModsFilterButton(this.modsPanelWidth - 18, this.menuHeightStart);
         this.addWidget(this.filterButton);
         // Mod Buttons
         int idx = 0;
@@ -124,10 +128,7 @@ public class PaCoScreen extends Screen {
         if (this.modButtonsLength > this.modButtonsPanelLength) { // We only add it if its needed
             this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart, 6, this.modButtonsPanelLength, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
                     .setSilent(true)
-//                    .setTextHidden(true)
-                    .setTextSnap(HorizontalTextSnap.RIGHT_OUTSIDE, VerticalTextSnap.TOP_INSIDE)
-                    .setTextOffset(5, 3)
-                    .setTextColor(PaCoColor.color(100, 200, 100)) //TODO remove debug text later
+                    .setTextHidden(true)
                     .setHandleSize(8, this.modsHandleHeight)
                     .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                     .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
@@ -178,15 +179,15 @@ public class PaCoScreen extends Screen {
     }
 
     protected void renderModsPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // Mods Panel Background
-        PaCoGuiUtils.renderBoxWithRim(graphics, 0, this.menuHeightStart, this.modsPanelWidth, this.menuHeight, null, PaCoColor.color(255, 40, 40), 1);
+        // Debug Outline
+//        PaCoGuiUtils.renderBoxWithRim(graphics, 0, this.menuHeightStart, this.modsPanelWidth, this.menuHeight, null, PaCoColor.color(255, 40, 40), 1);
         // Search Bar
         graphics.blit(TEXTURE, 0, this.menuHeightStart, 1, 36, 5, 18);
         graphics.blit(TEXTURE, 5, this.menuHeightStart, 18, 36, 9, 18);
         graphics.blitRepeating(TEXTURE, 14, this.menuHeightStart, this.modsPanelWidth - 41, 18, 27, 36, 18, 18);
         graphics.blit(TEXTURE, this.modsPanelWidth - 27, this.menuHeightStart, 45, 36, 9, 18);
         // Renders Mod Buttons
-        PaCoGuiUtils.enableScissor(graphics, 4, this.modButtonsStart, this.modButtonWidth + 2, this.modButtonsPanelLength);
+        PaCoGuiUtils.enableScissor(graphics, 5, this.modButtonsStart, this.modButtonWidth, this.modButtonsPanelLength);
         graphics.pose().pushPose();
         for (Renderable renderable : this.modsPanelWidgets)
             renderable.render(graphics, mouseX, mouseY, partialTick);
@@ -199,13 +200,13 @@ public class PaCoScreen extends Screen {
             // Top Gradient
             if (this.modsScrollBar.getValue() > 0) {
                 int gradientHeight = (int) Math.min(25, this.modsScrollBar.getValue());
-                graphics.blitRepeating(TEXTURE, 4, this.modButtonsStart, this.modButtonWidth + 2, gradientHeight, 25, 149 - gradientHeight, 25, gradientHeight);
+                graphics.blitRepeating(TEXTURE, 5, this.modButtonsStart, this.modButtonWidth, gradientHeight, 25, 122 - gradientHeight, 25, gradientHeight);
             }
             // Bottom Gradient
             int maxVal = this.modButtonsLength - this.modButtonsPanelLength;
             if (this.modsScrollBar.getValue() < maxVal) {
                 int gradientHeight = (int) Math.min(25, maxVal - this.modsScrollBar.getValue());
-                graphics.blitRepeating(TEXTURE, 4, this.menuHeightStop - gradientHeight, this.modButtonWidth + 2, gradientHeight, 0, 124, 25, gradientHeight);
+                graphics.blitRepeating(TEXTURE, 5, this.menuHeightStop - gradientHeight, this.modButtonWidth, gradientHeight, 0, 97, 25, gradientHeight);
             }
         }
 
@@ -218,11 +219,13 @@ public class PaCoScreen extends Screen {
     }
 
     protected void renderContentPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        int rimColor = PaCoColor.color(207, 207, 196);
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + 2, this.menuHeightStart,  this.contentPanelWidth, this.menuHeight, PaCoColor.color(100, 0, 0, 0), List.of(
-                PaCoBorderSide.TOP.setColor(rimColor).setSize(1),
-                PaCoBorderSide.BOTTOM.setColor(rimColor).setSize(1)
-        ));
+
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart,  this.contentPanelWidth - PADDING_TWO, this.contentMenuHeight, PaCoColor.color(100, 0, 0, 0), null);
+
+        // Top Bar
+        graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PADDING_TWO, this.contentMenuHeightStart - 4, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);
+        // Bottom Bar
+        graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PADDING_TWO, this.contentMenuHeightStop, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);
     }
 
     @Override

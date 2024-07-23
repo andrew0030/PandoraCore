@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PandoraCore {
@@ -29,6 +30,7 @@ public class PandoraCore {
 //                addPaCoManagedMod("bulk_entry_" + i);
 //            }
         }
+        Collections.sort(MODS);
     }
 
     /** Thread Safe Common Init */

@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
@@ -31,19 +32,19 @@ public class ModButton extends AbstractButton {
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        RenderSystem.enableBlend();
-        // TODO: tweak this a bit if needed, so its pixel perfect both on the top and the bottom.
-//        boolean inMenuBounds = mouseY < this.screen.menuHeight + this.screen.menuHeightStart && mouseY > this.screen.menuHeightStart;
-//        this.isHovered = inMenuBounds && this.isHovered;
-//        this.active = inMenuBounds;
 
+//        boolean isTopInBounds = PaCoGuiUtils.isMouseWithin(mouseX, mouseY, 5, this.screen.modButtonsStart, this.screen.modButtonWidth, this.screen.modButtonsPanelLength);
+
+        boolean inBounds = PaCoGuiUtils.isMouseWithin(mouseX, mouseY, 5, this.screen.modButtonsStart, this.screen.modButtonWidth, this.screen.modButtonsPanelLength);
+        this.isHovered = inBounds && this.isHovered;
+//        this.active = inBounds;
+
+        RenderSystem.enableBlend();
         // Mod Button
         boolean highlight = this.isHoveredOrFocused();
-        int x = highlight ? this.getX() - 1 : this.getX();
-        int y = highlight ? this.getY() - 1 : this.getY();
-        graphics.blit(PaCoScreen.TEXTURE, x, y, 0, highlight ? 97 : 72, highlight ? 26 : 25, highlight ? 27 : 25); // Mod Icon Background Blit
-        graphics.blitRepeating(PaCoScreen.TEXTURE, this.getX() + 25, y, this.getWidth() - 50, highlight ? 27 : 25, highlight ? 26 : 25, highlight ? 97 : 72, 25, highlight ? 27 : 25); // Button Center
-        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getWidth() - 25, y, highlight ? 51 : 50, highlight ? 97 : 72, highlight ? 26 : 25, highlight ? 27 : 25); // Button Right Side End
+        graphics.blit(PaCoScreen.TEXTURE, this.getX(), this.getY(), highlight ? 75 : 0, 72, 25, 25); // Mod Icon Background Blit
+        graphics.blitRepeating(PaCoScreen.TEXTURE, this.getX() + 25, this.getY(), this.getWidth() - 50, 25, highlight ? 100 : 25, 72, 25, 25); // Button Center
+        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getWidth() - 25, this.getY(), highlight ? 125 : 50, 72, 25, 25); // Button Right Side End
         // Mod Icon
         this.renderModIcon(this.modDataHolder.getModId(), graphics, this.getX() + 1, this.getY() + 1, this.getHeight() - 2);
         // Mod Name
@@ -61,8 +62,31 @@ public class ModButton extends AbstractButton {
     }
 
     @Override
+    public void setFocused(boolean focused) {
+        super.setFocused(focused);
+        if (focused) {
+            // Moves Button into bounds if it's partially cut of.
+            if (this.getY() < this.screen.modButtonsStart) {
+                int pixels = this.screen.modButtonsStart - this.getY();
+                this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() - pixels);
+            } else if (this.getY() + this.getHeight() > this.screen.menuHeightStop) {
+                int pixels = this.getY() + this.getHeight() - this.screen.menuHeightStop;
+                this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() + pixels);
+            }
+        }
+    }
+
+    @Override
     public void onPress() {
 
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (PaCoGuiUtils.isMouseWithin(mouseX, mouseY, 5, this.screen.modButtonsStart, this.screen.modButtonWidth, this.screen.modButtonsPanelLength)) {
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+        return false;
     }
 
     @Override

@@ -66,12 +66,13 @@ public class ModButton extends AbstractButton {
         super.setFocused(focused);
         if (focused) {
             // Moves Button into bounds if it's partially cut of.
-            if (this.getY() < this.screen.modButtonsStart) {
+            int padding = 16; // We use padding so because the gradient would interfere with the buttons otherwise.
+            if (this.getY() < this.screen.modButtonsStart + padding) { // Top Area
                 int pixels = this.screen.modButtonsStart - this.getY();
-                this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() - pixels);
-            } else if (this.getY() + this.getHeight() > this.screen.menuHeightStop) {
+                this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() - (pixels + padding));
+            } else if (this.getY() + this.getHeight() > this.screen.menuHeightStop - padding) { // Bottom Area
                 int pixels = this.getY() + this.getHeight() - this.screen.menuHeightStop;
-                this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() + pixels);
+                this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() + (pixels + padding));
             }
         }
     }

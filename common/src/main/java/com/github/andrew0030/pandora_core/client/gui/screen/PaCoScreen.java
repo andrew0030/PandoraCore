@@ -26,10 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry.BlurVariables.*;
 
@@ -50,12 +47,14 @@ public class PaCoScreen extends Screen {
     private PaCoEditBox searchBox;
     private ModsFilterButton filterButton;
     public PaCoSlider modsScrollBar;
+    public ModButton selectedModButton;
     // Misc
     private static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
     private static final int PADDING_ONE = 1;
     private static final int PADDING_TWO = 2;
     private static final int PADDING_FOUR = 4;
     private static final int MOD_BUTTON_HEIGHT = 25;
+    public final List<String> filteredMods = new ArrayList<>(PandoraCore.getPaCoManagedMods());
     public int menuHeight;
     public int contentMenuHeight;
     public int menuHeightStart;
@@ -110,7 +109,7 @@ public class PaCoScreen extends Screen {
         this.modsPanelWidgets.clear(); // We clear the list (needed because resize would cause duplicates otherwise)
         this.modsScrollBar = null;
         // Search Box
-        this.searchBox = new PaCoEditBox(this.font, 7, this.menuHeightStart + 2, this.modsPanelWidth - 27, 14, SEARCH);
+        this.searchBox = new PaCoEditBox(this.font, 7, this.menuHeightStart + 2, this.modsPanelWidth - 27, 14, SEARCH, this);
         this.searchBox.setMaxLength(50);
         this.searchBox.setHint(SEARCH);
         this.searchBox.setTextColor(DARK_GRAY_TEXT_COLOR);
@@ -139,11 +138,12 @@ public class PaCoScreen extends Screen {
     @Override
     public void tick() {
         this.searchBox.tick();
+
+//        System.out.println(this.filteredMods);
     }
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-
         long elapsed = System.currentTimeMillis() - this.openTime;
         int fadeInTime = 160; //TODO add config options for fade in time and blurriness
         this.fadeInProgress = (elapsed + partialTick) < fadeInTime ? (elapsed + partialTick) / fadeInTime : 1.0F;

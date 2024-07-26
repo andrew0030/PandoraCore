@@ -23,6 +23,7 @@ public class ModButton extends AbstractButton {
     public static final ResourceLocation MISSING_MOD_ICON = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/missing_mod_icon.png");
     private final ModDataHolder modDataHolder;
     private final PaCoScreen screen;
+    private boolean selected;
 
     public ModButton(int x, int y, int width, int height, ModDataHolder modDataHolder, PaCoScreen screen) {
         super(x, y, width, height, Component.literal(modDataHolder.getModNameOrId()));
@@ -34,17 +35,21 @@ public class ModButton extends AbstractButton {
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 
 //        boolean isTopInBounds = PaCoGuiUtils.isMouseWithin(mouseX, mouseY, 5, this.screen.modButtonsStart, this.screen.modButtonWidth, this.screen.modButtonsPanelLength);
-
+        //TODO: clean this up
         boolean inBounds = PaCoGuiUtils.isMouseWithin(mouseX, mouseY, 5, this.screen.modButtonsStart, this.screen.modButtonWidth, this.screen.modButtonsPanelLength);
         this.isHovered = inBounds && this.isHovered;
 //        this.active = inBounds;
 
         RenderSystem.enableBlend();
         // Mod Button
-        boolean highlight = this.isHoveredOrFocused();
-        graphics.blit(PaCoScreen.TEXTURE, this.getX(), this.getY(), highlight ? 75 : 0, 72, 25, 25); // Mod Icon Background Blit
-        graphics.blitRepeating(PaCoScreen.TEXTURE, this.getX() + 25, this.getY(), this.getWidth() - 50, 25, highlight ? 100 : 25, 72, 25, 25); // Button Center
-        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getWidth() - 25, this.getY(), highlight ? 125 : 50, 72, 25, 25); // Button Right Side End
+        int offsetU = 0;
+        if (this.isHoveredOrFocused())
+            offsetU = 75;
+        if (this.isSelected())
+            offsetU = 150;
+        graphics.blit(PaCoScreen.TEXTURE, this.getX(), this.getY(), offsetU, 72, 25, 25); // Mod Icon Background Blit
+        graphics.blitRepeating(PaCoScreen.TEXTURE, this.getX() + 25, this.getY(), this.getWidth() - 50, 25, 25 + offsetU, 72, 25, 25); // Button Center
+        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getWidth() - 25, this.getY(), 50 + offsetU, 72, 25, 25); // Button Right Side End
         // Mod Icon
         this.renderModIcon(this.modDataHolder.getModId(), graphics, this.getX() + 1, this.getY() + 1, this.getHeight() - 2);
         // Mod Name
@@ -79,7 +84,10 @@ public class ModButton extends AbstractButton {
 
     @Override
     public void onPress() {
-
+        if (this.screen.selectedModButton != null)
+            this.screen.selectedModButton.setSelected(false);
+        this.setSelected(true);
+        this.screen.selectedModButton = this;
     }
 
     @Override
@@ -171,5 +179,13 @@ public class ModButton extends AbstractButton {
                 return null;
             }
         });
+    }
+
+    public boolean isSelected() {
+        return this.selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }

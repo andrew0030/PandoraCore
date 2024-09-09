@@ -1,10 +1,10 @@
 package com.github.andrew0030.pandora_core;
 
+import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.LogicalSide;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PandoraCoreClient {
@@ -23,6 +23,7 @@ public class PandoraCoreClient {
 
     /** Client Init */
     public static void init() {
+        PaCoPostShaders.init();
     }
 
     /** Thread Safe Client Init */

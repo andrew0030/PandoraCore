@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.mixin.gui;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
-import com.github.andrew0030.pandora_core.client.key.PaCoKeyMappings;
+import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoCheckTitleScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;

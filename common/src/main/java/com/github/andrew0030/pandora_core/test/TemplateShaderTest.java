@@ -1,15 +1,16 @@
 package com.github.andrew0030.pandora_core.test;
 
-import com.github.andrew0030.pandora_core.client.render.instancing.InstanceDataElement;
-import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
-import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveBufferBuilder;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
+import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
+import com.github.andrew0030.pandora_core.client.render.instancing.InstanceDataElement;
+import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.client.render.obj.ObjModel;
 import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 public class TemplateShaderTest {
@@ -90,6 +91,10 @@ public class TemplateShaderTest {
     }
 
     public static void draw(PoseStack stack, double x, double y, double z) {
+
+        // Disables the debug rendering, because my PC sounds like a plane engine every time ~ andrew
+        if(true) return;
+
         RenderType type = PaCoRenderTypes.type;
 
         RenderSystem.setShaderTexture(0, new ResourceLocation(

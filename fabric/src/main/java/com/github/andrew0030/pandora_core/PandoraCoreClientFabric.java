@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core;
 
-import com.github.andrew0030.pandora_core.client.key.PaCoKeyMappings;
+import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.events.FabricClientTickEvent;
 import net.fabricmc.api.ClientModInitializer;
 

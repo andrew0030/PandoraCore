@@ -7,7 +7,7 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIc
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
-import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
+import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
@@ -26,9 +26,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry.BlurVariables.*;
+import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders.BlurVariables.*;
 
 public class PaCoScreen extends Screen {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
@@ -275,7 +278,7 @@ public class PaCoScreen extends Screen {
         PASS1_MUL.get().set(fadeInProgress * 0.5f);
         PASS2_MUL.get().set(fadeInProgress * 0.25f);
 
-        PaCoPostShaderRegistry.PACO_BLUR.processPostChain(partialTick, this.parameters);
+        PaCoPostShaders.PACO_BLUR.processPostChain(partialTick, this.parameters);
         minecraft.getMainRenderTarget().bindWrite(false);
     }
 

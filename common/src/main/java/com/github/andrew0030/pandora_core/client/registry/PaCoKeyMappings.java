@@ -1,6 +1,7 @@
-package com.github.andrew0030.pandora_core.client.key;
+package com.github.andrew0030.pandora_core.client.registry;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.key.PaCoKeyMappingRegistry;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;

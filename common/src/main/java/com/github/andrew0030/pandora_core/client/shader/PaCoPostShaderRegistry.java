@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Helper Class that allows registering PostChains. */
+/** Helper Class that allows registering PostChains. */ //TODO: split and create "PaCoPostShaders"
 public class PaCoPostShaderRegistry {
     public static final List<PostChainHolder> POST_SHADERS = new ArrayList<>();
 

@@ -20,13 +20,14 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    implementation project(":common")
     // Mod Menu
     modImplementation  "maven.modrinth:modmenu:${modmenu_version}"
     // MrCrayfish Config Mods
     modCompileOnly "curse.maven:catalogue-fabric-667377:4766089" // Catalogue
 
-    modCompileOnly "curse.maven:irisshaders-455508:5485649"
+    modCompileOnly "curse.maven:irisshaders-455508:5485649" // Iris
+
+    implementation project(":common")
 }
 
 loom {

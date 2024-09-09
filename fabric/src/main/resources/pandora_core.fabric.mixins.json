@@ -9,7 +9,8 @@
   "client": [
     "compat.gui.CatalogueModListScreenMixin",
     "compat.gui.ModsScreenMixin",
-    "fixes.EffectInstanceMixin"
+    "fixes.EffectInstanceMixin",
+    "fixes.ShaderInstanceMixin"
   ],
   "server": [],
   "injectors": {

@@ -1,49 +1,31 @@
 package com.github.andrew0030.pandora_core;
 
+import com.github.andrew0030.pandora_core.platform.Services;
+import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class PandoraCore {
     public static final String MOD_ID = "pandora_core";
     public static final String MOD_NAME = "Pandora Core";
     private static final Logger LOGGER = PaCoLogger.create(MOD_NAME);
-    private static final List<String> MODS = new ArrayList<>();
+    private static final List<ModDataHolder> MOD_HOLDERS = new ArrayList<>();
 
     /** Common Init */
     public static void init() {
-        addPaCoManagedMod(MOD_ID);
-        if (PaCoTesting.TEST_MODE) {
-            addPaCoManagedMod("swampier_swamps");
-            addPaCoManagedMod("table_top_craft");
-            addPaCoManagedMod("online_detector");
-            addPaCoManagedMod("test_mod_1");
-            addPaCoManagedMod("tacos_mc");
-            addPaCoManagedMod("some_mod");
-            addPaCoManagedMod("this_does_not_exist");
-            addPaCoManagedMod("place_holder");
-            addPaCoManagedMod("kinda_far_down");
-//            for (int i = 0; i < 100; i++) {
-//                addPaCoManagedMod("bulk_entry_" + i);
-//            }
-        }
-        Collections.sort(MODS);
+        PandoraCore.MOD_HOLDERS.addAll(Services.PLATFORM.getModDataHolders());
     }
 
     /** Thread Safe Common Init */
     public static void initThreadSafe() {
+
     }
 
-    public static List<String> getPaCoManagedMods() {
-        return MODS;
-    }
-
-    public static void addPaCoManagedMod(String modId) {
-        if (MODS.contains(modId))
-            throw new RuntimeException("Attempted to add already existing PaCo managed Mod: " + modId);
-        MODS.add(modId);
+    /** A {@link List} containing a {@link ModDataHolder} for each loaded mod. */
+    public static List<ModDataHolder> getModHolders() {
+        return PandoraCore.MOD_HOLDERS;
     }
 }

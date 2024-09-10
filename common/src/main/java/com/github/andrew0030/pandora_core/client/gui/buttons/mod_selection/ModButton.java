@@ -71,14 +71,20 @@ public class ModButton extends AbstractButton {
         super.setFocused(focused);
         if (focused) {
             // Moves Button into bounds if it's partially cut of.
-            int padding = 16; // We use padding so because the gradient would interfere with the buttons otherwise.
-            if (this.getY() < this.screen.modButtonsStart + padding) { // Top Area
-                int pixels = this.screen.modButtonsStart - this.getY();
-                this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() - (pixels + padding));
-            } else if (this.getY() + this.getHeight() > this.screen.menuHeightStop - padding) { // Bottom Area
-                int pixels = this.getY() + this.getHeight() - this.screen.menuHeightStop;
-                this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() + (pixels + padding));
-            }
+            this.moveButtonIntoFocus();
+        }
+    }
+
+    /** Moves the {@link ModButton} up/down and adds padding if needed to avoid the gradient, or being hidden post resizing the {@link PaCoScreen}. */
+    public void moveButtonIntoFocus() {
+        if (this.screen.modsScrollBar == null) return;
+        int padding = 16; // We use padding so because the gradient would interfere with the buttons otherwise.
+        if (this.getY() < this.screen.modButtonsStart + padding) { // Top Area
+            int pixels = this.screen.modButtonsStart - this.getY();
+            this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() - (pixels + padding));
+        } else if (this.getY() + this.getHeight() > this.screen.menuHeightStop - padding) { // Bottom Area
+            int pixels = this.getY() + this.getHeight() - this.screen.menuHeightStop;
+            this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() + (pixels + padding));
         }
     }
 
@@ -112,7 +118,7 @@ public class ModButton extends AbstractButton {
             graphics.blit(resourceLocation, posX, posY, size, size, 0, 0, dimensions.getFirst(), dimensions.getSecond(), dimensions.getFirst(), dimensions.getSecond());
         } else {
             // Otherwise we render the missing icon texture.
-            graphics.blit(MISSING_MOD_ICON, posX, posY, size, size, 0, 0, 64, 64, 64, 64);
+            graphics.blit(MISSING_MOD_ICON, posX, posY, size, size, 0, 0, 25, 25, 25, 25);
         }
     }
 
@@ -153,6 +159,13 @@ public class ModButton extends AbstractButton {
                 return null;
             }
 
+            if (nativeImage.getWidth() != nativeImage.getHeight()) {
+                // If the icon aspect ratio isn't 1:1, null is provided
+                // So cache null,null to indicate that
+                this.screen.iconManager.cacheModIcon(modId, null, null);
+                return null;
+            }
+
             DynamicTexture dynamicTexture = null;
             try {
                 dynamicTexture = new DynamicTexture(nativeImage) {
@@ -160,7 +173,7 @@ public class ModButton extends AbstractButton {
                     public void upload() {
                         this.bind();
                         NativeImage image = this.getPixels();
-                        this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), true, false, false, false);
+                        this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false, false);
                     }
                 };
                 // Register and cache the texture, and return it
@@ -179,6 +192,10 @@ public class ModButton extends AbstractButton {
                 return null;
             }
         });
+    }
+
+    public ModDataHolder getModDataHolder() {
+        return this.modDataHolder;
     }
 
     public boolean isSelected() {

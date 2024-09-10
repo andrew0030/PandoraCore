@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.platform.services;
 import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.mojang.blaze3d.platform.NativeImage;
 
+import java.util.List;
 import java.util.function.Function;
 
 public interface IPlatformHelper {
@@ -36,9 +37,6 @@ public interface IPlatformHelper {
 
     <T> T loadNativeImage(String modId, String resource, Function<NativeImage, T> consumer);
 
-    /**
-     * Creates a {@link ModDataHolder} for the Mod with the given ID.
-     * @param modId The ID of the Mod that will be looked for.
-     */
-    ModDataHolder getModDataHolder(String modId);
+    /** Creates a {@link List} with a {@link ModDataHolder} for each loaded mod. */
+    List<ModDataHolder> getModDataHolders();
 }

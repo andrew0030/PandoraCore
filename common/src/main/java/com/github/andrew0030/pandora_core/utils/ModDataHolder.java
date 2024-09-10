@@ -17,19 +17,16 @@ public class ModDataHolder {
         return new ModDataHolder(modId);
     }
 
-    public ModDataHolder setModName(String modName) {
+    public void setModName(String modName) {
         this.modName = modName;
-        return this;
     }
 
-    public ModDataHolder setModVersion(String modVersion) {
+    public void setModVersion(String modVersion) {
         this.modVersion = modVersion;
-        return this;
     }
 
-    public ModDataHolder setModIconFile(String modIconFile) {
+    public void setModIconFile(String modIconFile) {
         this.modIconFile = modIconFile;
-        return this;
     }
 
     public String getModId() {

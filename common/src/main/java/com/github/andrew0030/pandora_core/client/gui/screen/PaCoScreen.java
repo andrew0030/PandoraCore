@@ -9,7 +9,7 @@ import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
-import com.github.andrew0030.pandora_core.platform.Services;
+import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -57,7 +57,7 @@ public class PaCoScreen extends Screen {
     private static final int PADDING_TWO = 2;
     private static final int PADDING_FOUR = 4;
     private static final int MOD_BUTTON_HEIGHT = 25;
-    public final List<String> filteredMods = new ArrayList<>(PandoraCore.getPaCoManagedMods());
+//    public final List<ModDataHolder> filteredMods = new ArrayList<>(PandoraCore.getModHolders()); //TODO add filter system...
     public int menuHeight;
     public int contentMenuHeight;
     public int menuHeightStart;
@@ -101,7 +101,7 @@ public class PaCoScreen extends Screen {
         this.modsPanelWidth = Mth.floor(this.width * 0.32F);
         this.contentPanelWidth = this.width - this.modsPanelWidth - PADDING_TWO;
         this.modButtonsStart = 41;
-        this.modButtonsLength = (PandoraCore.getPaCoManagedMods().size() * (MOD_BUTTON_HEIGHT + PADDING_ONE)) - 1;
+        this.modButtonsLength = (PandoraCore.getModHolders().size() * (MOD_BUTTON_HEIGHT + PADDING_ONE)) - 1;
         this.modButtonsPanelLength = this.menuHeightStop - this.modButtonsStart;
         this.modButtonWidth = this.modsPanelWidth - (this.modButtonsLength > this.modButtonsPanelLength ? 15 : 10);
         this.modsHandleHeight = Math.max(8, this.modButtonsPanelLength - (this.modButtonsLength - this.modButtonsPanelLength));
@@ -122,8 +122,13 @@ public class PaCoScreen extends Screen {
         this.addWidget(this.filterButton);
         // Mod Buttons
         int idx = 0;
-        for (String modId : PandoraCore.getPaCoManagedMods()) {
-            this.addToModsPanel(new ModButton(5, this.modButtonsStart + (idx * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, Services.PLATFORM.getModDataHolder(modId), this));
+        for (ModDataHolder dataHolder : PandoraCore.getModHolders()) {
+            ModButton modButton = new ModButton(5, this.modButtonsStart + (idx * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, dataHolder, this);
+            if (this.selectedModButton != null && this.selectedModButton.getModDataHolder().getModId().equals(dataHolder.getModId())) {
+                modButton.setSelected(true);
+                this.selectedModButton = modButton;
+            }
+            this.addToModsPanel(modButton);
             idx++;
         }
         // Scroll Bar (Slider)
@@ -136,6 +141,11 @@ public class PaCoScreen extends Screen {
                     .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
             this.addWidget(this.modsScrollBar);
         }
+
+        // Handles updating the scroll bar on window resizing.
+        // Needs to be called after a scroll bar was added.
+        if (this.selectedModButton != null)
+            this.selectedModButton.moveButtonIntoFocus();
     }
 
     @Override

@@ -6,14 +6,15 @@ import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 public class FabricPlatformHelper implements IPlatformHelper {
@@ -49,18 +50,27 @@ public class FabricPlatformHelper implements IPlatformHelper {
     }
 
     @Override
-    public ModDataHolder getModDataHolder(String modId) {
-        Optional<ModContainer> modContainer = FabricLoader.getInstance().getModContainer(modId);
-        if (modContainer.isPresent()) {
-            ModMetadata metadata = modContainer.get().getMetadata();
+    public List<ModDataHolder> getModDataHolders() {
+        List<ModDataHolder> holders = new ArrayList<>();
+        FabricLoader.getInstance().getAllMods().forEach(modContainer -> {
+            ModMetadata metadata = modContainer.getMetadata();
+            String modId = metadata.getId();
+
+            // Prevents libraries from being added to the list.
+            if(metadata.getCustomValue("fabric-api:module-lifecycle") != null)
+                return;
+            if(modId.startsWith("fabric-") || modId.equals("minecraft") || modId.equals("java") || modId.equals("fabricloader") || modId.equals("mixinextras"))
+                return;
+            CustomValue generated = metadata.getCustomValue("fabric-loom:generated");
+            if(generated != null && generated.getType() == CustomValue.CvType.BOOLEAN && generated.getAsBoolean())
+                return;
+
             ModDataHolder holder = ModDataHolder.forMod(modId);
             holder.setModName(metadata.getName());
             holder.setModVersion(metadata.getVersion().getFriendlyString());
             holder.setModIconFile(metadata.getIconPath(0).orElse(null));
-
-            return holder;
-        }
-        LOGGER.warn("Couldn't get ModContainer for: '{}', returning empty ModDataHolder!", modId);
-        return ModDataHolder.forMod(modId);
+            holders.add(holder);
+        });
+        return holders;
     }
 }

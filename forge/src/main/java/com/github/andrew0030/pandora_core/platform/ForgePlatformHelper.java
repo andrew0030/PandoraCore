@@ -6,16 +6,17 @@ import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.server.packs.resources.IoSupplier;
-import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.forgespi.language.IModInfo;
+import net.minecraftforge.forgespi.locating.IModFile;
 import net.minecraftforge.resource.ResourcePackLoader;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 public class ForgePlatformHelper implements IPlatformHelper {
@@ -54,18 +55,22 @@ public class ForgePlatformHelper implements IPlatformHelper {
     }
 
     @Override
-    public ModDataHolder getModDataHolder(String modId) {
-        Optional<? extends ModContainer> modContainer = ModList.get().getModContainerById(modId);
-        if (modContainer.isPresent()) {
-            IModInfo modInfo = modContainer.get().getModInfo();
+    public List<ModDataHolder> getModDataHolders() {
+        List<ModDataHolder> holders = new ArrayList<>();
+        ModList.get().forEachModContainer((s, modContainer) -> {
+            IModInfo modInfo = modContainer.getModInfo();
+            String modId = modInfo.getModId();
+
+            // Prevents libraries from being added to the list.
+            if(modInfo.getOwningFile().getFile().getType() != IModFile.Type.MOD)
+                return;
+
             ModDataHolder holder = ModDataHolder.forMod(modId);
             holder.setModName(modInfo.getDisplayName());
             holder.setModVersion(modInfo.getVersion().toString());
             holder.setModIconFile(modInfo.getLogoFile().orElse(null));
-
-            return holder;
-        }
-        LOGGER.warn("Couldn't get ModContainer for: '{}', returning empty ModDataHolder!", modId);
-        return ModDataHolder.forMod(modId);
+            holders.add(holder);
+        });
+        return holders;
     }
 }

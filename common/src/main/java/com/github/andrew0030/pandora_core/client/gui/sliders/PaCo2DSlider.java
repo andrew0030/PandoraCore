@@ -62,6 +62,9 @@ public class PaCo2DSlider extends AbstractSliderButton
     protected Integer handleColor;
     protected Integer handleRimColor;
     protected Integer handleHighlightedRimColor;
+    protected boolean centerHandle;
+    protected double clickOffsetX;
+    protected double clickOffsetY;
     // Slider Text Stuff
     private final DecimalFormat formatX;
     private final DecimalFormat formatY;
@@ -429,6 +432,15 @@ public class PaCo2DSlider extends AbstractSliderButton
         return this;
     }
 
+    /**
+     * Used to make the handle position itself centered on the cursor when clicked.
+     * @param centerHandle Whether to snap the handle's center to the cursor
+     */
+    public PaCo2DSlider setCenterHandle(boolean centerHandle) {
+        this.centerHandle = centerHandle;
+        return this;
+    }
+
     /** @return The current x-axis value of the slider. */
     public double getValueX() {
         return this.value * (this.maxValueX - this.minValueX) + this.minValueX;
@@ -469,13 +481,22 @@ public class PaCo2DSlider extends AbstractSliderButton
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        this.setValueFromMouse(mouseX, mouseY);
+        int handleX = this.getHandleX();
+        int handleY = this.getHandleY();
+        boolean mouseOverHandle = mouseX >= handleX && mouseY >= handleY && mouseX < handleX + this.handleWidth && mouseY < handleY + this.handleHeight;
+        this.clickOffsetX = 0;
+        this.clickOffsetY = 0;
+        if(mouseOverHandle && !this.centerHandle) {
+            this.clickOffsetX = (mouseX - handleX) - this.handleWidth / 2D;
+            this.clickOffsetY = (mouseY - handleY) - this.handleHeight / 2D;
+        }
+        this.setValueFromMouse(mouseX - this.clickOffsetX, mouseY - this.clickOffsetY);
     }
 
     @Override
     protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
         super.onDrag(mouseX, mouseY, dragX, dragY);
-        this.setValueFromMouse(mouseX, mouseY);
+        this.setValueFromMouse(mouseX - this.clickOffsetX, mouseY - this.clickOffsetY);
     }
 
     @Override

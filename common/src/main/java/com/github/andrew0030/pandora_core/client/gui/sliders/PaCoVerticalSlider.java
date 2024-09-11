@@ -23,13 +23,18 @@ public class PaCoVerticalSlider extends PaCoSlider {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        this.setValueFromMouse(mouseY);
+        int handleY = this.getHandleY();
+        boolean mouseOverHandle = mouseY >= handleY && mouseY < handleY + this.handleHeight;
+        this.clickOffset = 0;
+        if(mouseOverHandle && !this.centerHandle)
+            this.clickOffset = (mouseY - handleY) - this.handleHeight / 2D;
+        this.setValueFromMouse(mouseY - this.clickOffset);
     }
 
     @Override
     protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
         super.onDrag(mouseX, mouseY, dragX, dragY);
-        this.setValueFromMouse(mouseY);
+        this.setValueFromMouse(mouseY - this.clickOffset);
     }
 
     @Override

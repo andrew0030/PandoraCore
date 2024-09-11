@@ -59,7 +59,7 @@ public class FabricPlatformHelper implements IPlatformHelper {
             // Prevents libraries from being added to the list.
             if(metadata.getCustomValue("fabric-api:module-lifecycle") != null)
                 return;
-            if(modId.startsWith("fabric-") || modId.equals("minecraft") || modId.equals("java") || modId.equals("fabricloader") || modId.equals("mixinextras"))
+            if(modId.startsWith("fabric-") || modId.equals("java") || modId.equals("mixinextras"))
                 return;
             CustomValue generated = metadata.getCustomValue("fabric-loom:generated");
             if(generated != null && generated.getType() == CustomValue.CvType.BOOLEAN && generated.getAsBoolean())

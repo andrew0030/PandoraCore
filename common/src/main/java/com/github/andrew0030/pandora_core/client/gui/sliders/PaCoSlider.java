@@ -56,6 +56,8 @@ public class PaCoSlider extends AbstractSliderButton {
     protected Integer handleColor;
     protected Integer handleRimColor;
     protected Integer handleHighlightedRimColor;
+    protected boolean centerHandle;
+    protected double clickOffset;
     // Slider Text Stuff
     protected boolean isTextHidden = false;
     private final DecimalFormat format;
@@ -398,6 +400,15 @@ public class PaCoSlider extends AbstractSliderButton {
         return this;
     }
 
+    /**
+     * Used to make the handle position itself centered on the cursor when clicked.
+     * @param centerHandle Whether to snap the handle's center to the cursor
+     */
+    public PaCoSlider setCenterHandle(boolean centerHandle) {
+        this.centerHandle = centerHandle;
+        return this;
+    }
+
     /** @return The current value of the slider. */
     public double getValue() {
         return this.value * (this.maxValue - this.minValue) + this.minValue;
@@ -419,13 +430,18 @@ public class PaCoSlider extends AbstractSliderButton {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        this.setValueFromMouse(mouseX);
+        int handleX = this.getHandleX();
+        boolean mouseOverHandle = mouseX >= handleX && mouseX < handleX + this.handleWidth;
+        this.clickOffset = 0;
+        if(mouseOverHandle && !this.centerHandle)
+            this.clickOffset = (mouseX - handleX) - this.handleWidth / 2D;
+        this.setValueFromMouse(mouseX - this.clickOffset);
     }
 
     @Override
     protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
         super.onDrag(mouseX, mouseY, dragX, dragY);
-        this.setValueFromMouse(mouseX);
+        this.setValueFromMouse(mouseX - this.clickOffset);
     }
 
     @Override

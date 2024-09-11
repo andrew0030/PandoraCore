@@ -19,11 +19,19 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+
 public class ModButton extends AbstractButton {
     public static final ResourceLocation MISSING_MOD_ICON = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/missing_mod_icon.png");
+    public static final HashMap<String, ResourceLocation> MOD_ICONS = new HashMap<>();
     private final ModDataHolder modDataHolder;
     private final PaCoScreen screen;
     private boolean selected;
+
+    static {
+        MOD_ICONS.put("minecraft", new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/mc_mod_icon.png"));
+        MOD_ICONS.put("forge", new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/forge_mod_icon.png"));
+    }
 
     public ModButton(int x, int y, int width, int height, ModDataHolder modDataHolder, PaCoScreen screen) {
         super(x, y, width, height, Component.literal(modDataHolder.getModNameOrId()));
@@ -118,7 +126,7 @@ public class ModButton extends AbstractButton {
             graphics.blit(resourceLocation, posX, posY, size, size, 0, 0, dimensions.getFirst(), dimensions.getSecond(), dimensions.getFirst(), dimensions.getSecond());
         } else {
             // Otherwise we render the missing icon texture.
-            graphics.blit(MISSING_MOD_ICON, posX, posY, size, size, 0, 0, 25, 25, 25, 25);
+            graphics.blit(MOD_ICONS.getOrDefault(modId, MISSING_MOD_ICON), posX, posY, size, size, 0, 0, 23, 23, 23, 23);
         }
     }
 

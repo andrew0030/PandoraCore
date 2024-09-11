@@ -20,7 +20,9 @@ public class ModIconManager implements Closeable {
     @Override
     public void close() {
         for (Map.Entry<String, Pair<ResourceLocation, DynamicTexture>> entry : this.modIconCache.entrySet()) {
-            entry.getValue().getSecond().close();
+            // If a mod failed loading, or its logo isn't 1:1 there is no DynamicTexture that needs closing.
+            if (entry.getValue().getSecond() != null)
+                entry.getValue().getSecond().close();
             PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "Removing mod icon cache entry for '{}'", entry.getKey());
         }
     }

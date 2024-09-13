@@ -61,9 +61,23 @@ public class ModButton extends AbstractButton {
         // Mod Icon
         this.renderModIcon(this.modDataHolder.getModId(), graphics, this.getX() + 1, this.getY() + 1, this.getHeight() - 2);
         // Mod Name
-        graphics.drawString(Minecraft.getInstance().font, this.modDataHolder.getModNameOrId(), this.getX() + this.getHeight() + 2, this.getY() + 3, PaCoColor.color(255, 255, 255), false);
+        String name = this.modDataHolder.getModNameOrId();
+        int availableWidth = this.getWidth() - 27; // Total width minus icon width and padding.
+        int nameWidth = Minecraft.getInstance().font.width(name);
+        if (nameWidth > availableWidth) {
+            name = Minecraft.getInstance().font.plainSubstrByWidth(name, availableWidth - Minecraft.getInstance().font.width("...")).trim().concat("...");
+        }
+        graphics.drawString(Minecraft.getInstance().font, name, this.getX() + this.getHeight() + 2, this.getY() + 3, PaCoColor.color(255, 255, 255), false);
         // Mod Version
-        graphics.drawString(Minecraft.getInstance().font, (modDataHolder.getModVersion() == null ? "unknown" : "v" + modDataHolder.getModVersion()), this.getX() + this.getHeight() + 2, this.getY() + 14, PaCoColor.color(130, 130, 130), false);
+        boolean hasVersion = this.modDataHolder.getModVersion() != null;
+        String version = hasVersion ? "v" + this.modDataHolder.getModVersion() : "unknown";
+        if (hasVersion) {
+            int versionWidth = Minecraft.getInstance().font.width(version);
+            if (versionWidth > availableWidth) {
+                version = Minecraft.getInstance().font.plainSubstrByWidth(version, availableWidth - Minecraft.getInstance().font.width("...")).concat("...");
+            }
+        }
+        graphics.drawString(Minecraft.getInstance().font, version, this.getX() + this.getHeight() + 2, this.getY() + 14, PaCoColor.color(130, 130, 130), false);
     }
 
     @Override

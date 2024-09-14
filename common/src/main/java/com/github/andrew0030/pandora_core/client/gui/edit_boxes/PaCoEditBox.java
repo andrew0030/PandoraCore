@@ -2,10 +2,13 @@ package com.github.andrew0030.pandora_core.client.gui.edit_boxes;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoEditBox;
+import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.util.StringUtil;
+
+import java.util.List;
 
 public class PaCoEditBox extends EditBox implements IPaCoEditBox {
     private final PaCoScreen screen;
@@ -26,21 +29,17 @@ public class PaCoEditBox extends EditBox implements IPaCoEditBox {
     }
 
     @Override
-    public void insertText(@NotNull String textToWrite) {
-        super.insertText(textToWrite);
-//        List<String> mods = List.copyOf(PandoraCore.getPaCoManagedMods()); //TODO fix mod filtering...
-//        this.screen.filteredMods.clear();
-//
-//        if (StringUtil.isNullOrEmpty(this.getValue())) {
-//            this.screen.filteredMods.addAll(mods);
-//
-//            System.out.println("All mods added: " + this.screen.filteredMods);
-//        } else {
-//            for (String mod : mods)
-//                if (mod.contains(this.getValue()))
-//                    this.screen.filteredMods.add(mod);
-//
-//            System.out.println("Filtered: " + this.screen.filteredMods);
-//        }
+    public void pandoraCore$onValueChange(String newText) {
+        List<ModDataHolder> holders = this.screen.createOrderedModsList();
+        this.screen.filteredMods.clear(); // We clear the current mods list.
+
+        if (StringUtil.isNullOrEmpty(newText)) {//TODO do we need to trim?
+            this.screen.filteredMods.addAll(holders);
+        } else {
+            for (ModDataHolder holder : holders)
+                if (holder.getModNameOrId().toLowerCase().contains(newText.toLowerCase()))
+                    this.screen.filteredMods.add(holder);
+        }
+        this.screen.refresh();
     }
 }

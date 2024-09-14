@@ -9,6 +9,7 @@ import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
+import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
@@ -26,10 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders.BlurVariables.*;
 
@@ -57,7 +56,7 @@ public class PaCoScreen extends Screen {
     private static final int PADDING_TWO = 2;
     private static final int PADDING_FOUR = 4;
     private static final int MOD_BUTTON_HEIGHT = 25;
-//    public final List<ModDataHolder> filteredMods = new ArrayList<>(PandoraCore.getModHolders()); //TODO add filter system...
+    public final List<ModDataHolder> filteredMods = this.createOrderedModsList();
     public int menuHeight;
     public int contentMenuHeight;
     public int menuHeightStart;
@@ -89,9 +88,7 @@ public class PaCoScreen extends Screen {
         this.previousScreen = previousScreen;
     }
 
-    @Override
-    protected void init() {
-        /* Field Init */
+    private void fieldInit() {
         this.menuHeight = this.height - 40;
         this.contentMenuHeight = this.height - 20;
         this.menuHeightStart = (this.height - this.menuHeight) / 2;
@@ -101,10 +98,16 @@ public class PaCoScreen extends Screen {
         this.modsPanelWidth = Mth.floor(this.width * 0.32F);
         this.contentPanelWidth = this.width - this.modsPanelWidth - PADDING_TWO;
         this.modButtonsStart = 41;
-        this.modButtonsLength = (PandoraCore.getModHolders().size() * (MOD_BUTTON_HEIGHT + PADDING_ONE)) - 1;
+        this.modButtonsLength = (this.filteredMods.size() * (MOD_BUTTON_HEIGHT + PADDING_ONE)) - 1;
         this.modButtonsPanelLength = this.menuHeightStop - this.modButtonsStart;
         this.modButtonWidth = this.modsPanelWidth - (this.modButtonsLength > this.modButtonsPanelLength ? 15 : 10);
         this.modsHandleHeight = Math.max(8, this.modButtonsPanelLength - (this.modButtonsLength - this.modButtonsPanelLength));
+    }
+
+    @Override
+    protected void init() {
+        /* Field Init */
+        this.fieldInit();
 
         /* Adding Widgets */
         this.searchBox = null;
@@ -122,7 +125,7 @@ public class PaCoScreen extends Screen {
         this.addWidget(this.filterButton);
         // Mod Buttons
         int idx = 0;
-        for (ModDataHolder dataHolder : PandoraCore.getModHolders()) {
+        for (ModDataHolder dataHolder : this.filteredMods) {
             ModButton modButton = new ModButton(5, this.modButtonsStart + (idx * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, dataHolder, this);
             if (this.selectedModButton != null && this.selectedModButton.getModDataHolder().getModId().equals(dataHolder.getModId())) {
                 modButton.setSelected(true);
@@ -299,5 +302,80 @@ public class PaCoScreen extends Screen {
     private void addToModsPanel(AbstractWidget widget) {
         this.modsPanelWidgets.add(widget);
         this.addWidget(widget);
+    }
+
+    public void refresh() { //TODO clean/optimize this method and fix resizing clearing the edit box.
+        this.fieldInit();
+        this.modsScrollBar = null;
+
+        List<AbstractWidget> newModButtons = new ArrayList<>();
+        int idx = 0;
+        for (ModDataHolder dataHolder : this.filteredMods) {
+            ModButton modButton = new ModButton(5, this.modButtonsStart + (idx * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, dataHolder, this);
+            if (this.selectedModButton != null && this.selectedModButton.getModDataHolder().getModId().equals(dataHolder.getModId())) {
+                modButton.setSelected(true);
+                this.selectedModButton = modButton;
+            }
+            newModButtons.add(modButton);
+            idx++;
+        }
+        // We remove all the mod buttons from "modsPanelWidgets" and repopulate it
+        this.modsPanelWidgets.removeIf(element -> element instanceof ModButton);
+        this.modsPanelWidgets.addAll(0, newModButtons);
+
+        // We create a scroll bar if needed
+        if (this.modButtonsLength > this.modButtonsPanelLength) { // We only add it if its needed
+            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart, 6, this.modButtonsPanelLength, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
+                    .setSilent(true)
+                    .setTextHidden(true)
+                    .setHandleSize(8, this.modsHandleHeight)
+                    .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                    .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
+            newModButtons.add(this.modsScrollBar);
+            // Handles updating the scroll bar on window resizing.
+            // Needs to be called after a scroll bar was added.
+            if (this.selectedModButton != null)
+                this.selectedModButton.moveButtonIntoFocus();
+        }
+
+        List<GuiEventListener> children = this.children;
+        int filterIdx = children.indexOf(filterButton);
+        children.removeIf(element -> element instanceof ModButton || element instanceof PaCoVerticalSlider);//TODO make the scroll bar removal less generic so it doesnt kill all vertical sliders
+        children.addAll(filterIdx + 1, newModButtons);
+
+        List<NarratableEntry> narratables = this.narratables;
+        filterIdx = narratables.indexOf(filterButton);
+        narratables.removeIf(element -> element instanceof ModButton || element instanceof PaCoVerticalSlider);
+        narratables.addAll(filterIdx + 1, newModButtons);
+    }
+
+    /**
+     * Creates an ordered list containing a {@link ModDataHolder} for each loaded mod.
+     * Additionally, it pins a few mods (minecraft, loader, paco) at the top for easy access.
+     * @return An ordered list containing {@link ModDataHolder}.
+     */
+    public ArrayList<ModDataHolder> createOrderedModsList() {
+        boolean isForge = Services.PLATFORM.getPlatformName().equals("Forge");
+        // We use a map to store "x" mods, (which may load out of order), with a given index
+        Map<Integer, ModDataHolder> pinnedMods = new HashMap<>();
+        List<ModDataHolder> mods = new ArrayList<>(); // A simple list that will hold all non pinned mods
+        // We loop through all the loaded mods and put them in the appropriate "lists".
+        for (ModDataHolder holder : PandoraCore.getModHolders()) {
+            switch (holder.getModId()) {
+                case "minecraft" -> pinnedMods.put(0, holder);
+                case "forge", "fabricloader" -> pinnedMods.put(1, holder);
+                case "fabric-api" -> pinnedMods.put(2, holder);
+                case "pandora_core" -> pinnedMods.put(isForge ? 2 : 3, holder);
+                default -> mods.add(holder);
+            }
+        }
+        // After we populated the "lists", we go through them and return the values in order
+        ArrayList<ModDataHolder> finalList = new ArrayList<>();
+        pinnedMods.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEachOrdered(entry -> finalList.add(entry.getValue()));
+        mods.sort(Comparator.comparing(ModDataHolder::getModNameOrId));
+        finalList.addAll(mods);
+        return finalList;
     }
 }

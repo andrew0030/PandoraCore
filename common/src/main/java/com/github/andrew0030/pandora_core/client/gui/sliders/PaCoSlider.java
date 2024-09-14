@@ -433,9 +433,11 @@ public class PaCoSlider extends AbstractSliderButton {
         int handleX = this.getHandleX();
         boolean mouseOverHandle = mouseX >= handleX && mouseX < handleX + this.handleWidth;
         this.clickOffset = 0;
-        if(mouseOverHandle && !this.centerHandle)
+        if(mouseOverHandle && !this.centerHandle) {
             this.clickOffset = (mouseX - handleX) - this.handleWidth / 2D;
-        this.setValueFromMouse(mouseX - this.clickOffset);
+        } else {
+            this.setValueFromMouse(mouseX);
+        }
     }
 
     @Override

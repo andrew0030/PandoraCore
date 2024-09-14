@@ -489,8 +489,9 @@ public class PaCo2DSlider extends AbstractSliderButton
         if(mouseOverHandle && !this.centerHandle) {
             this.clickOffsetX = (mouseX - handleX) - this.handleWidth / 2D;
             this.clickOffsetY = (mouseY - handleY) - this.handleHeight / 2D;
+        } else {
+            this.setValueFromMouse(mouseX, mouseY);
         }
-        this.setValueFromMouse(mouseX - this.clickOffsetX, mouseY - this.clickOffsetY);
     }
 
     @Override

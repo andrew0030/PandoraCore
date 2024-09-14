@@ -14,6 +14,15 @@ accessible field net/minecraft/client/gui/screens/TitleScreen fadeInStart J # fa
 # Used to make canChangeValue public, so we can access it from PaCo sliders
 accessible field net/minecraft/client/gui/components/AbstractSliderButton canChangeValue Z # canChangeValue
 
+# Used to make children & narratables public, so we can "refresh" the mods list
+accessible field net/minecraft/client/gui/screens/Screen children Ljava/util/List; # children
+accessible field net/minecraft/client/gui/screens/Screen narratables Ljava/util/List; # narratables
+
+
+
+#=================================================================================================================
+# Shader Patcher Stuff, this is all dark magic to me so I moved it down for now to keep a clear seperation ~andrew
+#=================================================================================================================
 accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard # ShaderStateShard
 extendable class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard # ShaderStateShard
 

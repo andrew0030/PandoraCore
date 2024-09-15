@@ -6,7 +6,6 @@ import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.StringUtil;
 
 import java.util.List;
 
@@ -31,15 +30,14 @@ public class PaCoEditBox extends EditBox implements IPaCoEditBox {
     @Override
     public void pandoraCore$onValueChange(String newText) {
         List<ModDataHolder> holders = this.screen.createOrderedModsList();
-        this.screen.filteredMods.clear(); // We clear the current mods list.
-
-        if (StringUtil.isNullOrEmpty(newText)) {//TODO do we need to trim?
-            this.screen.filteredMods.addAll(holders);
-        } else {
-            for (ModDataHolder holder : holders)
-                if (holder.getModNameOrId().toLowerCase().contains(newText.toLowerCase()))
-                    this.screen.filteredMods.add(holder);
-        }
+        this.screen.filteredMods.clear();
+        String lowerCaseText = newText == null ? "" : newText.toLowerCase();
+        // We filter the mods based on the newText
+        List<ModDataHolder> filteredHolders = holders.stream()
+                .filter(holder -> lowerCaseText.isEmpty() || holder.getModNameOrId().toLowerCase().contains(lowerCaseText))
+                .toList();
+        // After we filtered the mods we add them to the list and refresh
+        this.screen.filteredMods.addAll(filteredHolders);
         this.screen.refresh();
     }
 }

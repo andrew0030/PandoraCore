@@ -20,7 +20,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
@@ -45,7 +44,7 @@ public class PaCoScreen extends Screen {
     private TitleScreen titleScreen = null;
     private Screen previousScreen = null;
     // Widgets
-    private final List<Renderable> modsPanelWidgets = new ArrayList<>();
+    private final List<Renderable> panelModButtons = new ArrayList<>();
     private PaCoEditBox searchBox;
     private ModsFilterButton filterButton;
     public PaCoSlider modsScrollBar;
@@ -88,6 +87,10 @@ public class PaCoScreen extends Screen {
         this.previousScreen = previousScreen;
     }
 
+    /**
+     * Used to initialize the fields in this class.<br/>
+     * This is mainly a method because some of the fields need to be refreshed, and calling this method does that.
+     */
     private void fieldInit() {
         this.menuHeight = this.height - 40;
         this.contentMenuHeight = this.height - 20;
@@ -110,9 +113,10 @@ public class PaCoScreen extends Screen {
         this.fieldInit();
 
         /* Adding Widgets */
+        String activeSearchText = this.searchBox != null ? this.searchBox.getValue() : null; // If there is text we grab it before the EditBox is discarded.
         this.searchBox = null;
         this.filterButton = null;
-        this.modsPanelWidgets.clear(); // We clear the list (needed because resize would cause duplicates otherwise)
+        this.panelModButtons.clear(); // We clear the list (needed because resize would cause duplicates otherwise)
         this.modsScrollBar = null;
         // Search Box
         this.searchBox = new PaCoEditBox(this.font, 7, this.menuHeightStart + 2, this.modsPanelWidth - 27, 14, SEARCH, this);
@@ -124,15 +128,13 @@ public class PaCoScreen extends Screen {
         this.filterButton = new ModsFilterButton(this.modsPanelWidth - 18, this.menuHeightStart);
         this.addWidget(this.filterButton);
         // Mod Buttons
-        int idx = 0;
-        for (ModDataHolder dataHolder : this.filteredMods) {
-            ModButton modButton = new ModButton(5, this.modButtonsStart + (idx * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, dataHolder, this);
-            if (this.selectedModButton != null && this.selectedModButton.getModDataHolder().getModId().equals(dataHolder.getModId())) {
+        for (int i = 0; i < this.filteredMods.size(); i++) {
+            ModButton modButton = new ModButton(5, this.modButtonsStart + (i * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, this.filteredMods.get(i), this);
+            if (this.selectedModButton != null && this.selectedModButton.getModDataHolder().getModId().equals(this.filteredMods.get(i).getModId())) {
                 modButton.setSelected(true);
                 this.selectedModButton = modButton;
             }
-            this.addToModsPanel(modButton);
-            idx++;
+            this.addModToPanel(modButton);
         }
         // Scroll Bar (Slider)
         if (this.modButtonsLength > this.modButtonsPanelLength) { // We only add it if its needed
@@ -144,18 +146,14 @@ public class PaCoScreen extends Screen {
                     .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
             this.addWidget(this.modsScrollBar);
         }
-
-        // Handles updating the scroll bar on window resizing.
-        // Needs to be called after a scroll bar was added.
-        if (this.selectedModButton != null)
-            this.selectedModButton.moveButtonIntoFocus();
+        // On resize if there was text in the search bar we apply it to the new one, which will update everything
+        if (activeSearchText != null)
+            this.searchBox.setValue(activeSearchText);
     }
 
     @Override
     public void tick() {
         this.searchBox.tick();
-
-//        System.out.println(this.filteredMods);
     }
 
     @Override
@@ -205,14 +203,15 @@ public class PaCoScreen extends Screen {
         // Renders Mod Buttons
         PaCoGuiUtils.enableScissor(graphics, 5, this.modButtonsStart, this.modButtonWidth, this.modButtonsPanelLength);
         graphics.pose().pushPose();
-        for (Renderable renderable : this.modsPanelWidgets)
+        for (Renderable renderable : this.panelModButtons)
             renderable.render(graphics, mouseX, mouseY, partialTick);
         graphics.pose().popPose();
         graphics.disableScissor();
 
-        RenderSystem.enableBlend();
         // Mod Buttons Gradients
+        RenderSystem.enableBlend();
         if (this.modsScrollBar != null) {
+            RenderSystem.disableDepthTest();
             // Top Gradient
             if (this.modsScrollBar.getValue() > 0) {
                 int gradientHeight = (int) Math.min(25, this.modsScrollBar.getValue());
@@ -224,6 +223,7 @@ public class PaCoScreen extends Screen {
                 int gradientHeight = (int) Math.min(25, maxVal - this.modsScrollBar.getValue());
                 graphics.blitRepeating(TEXTURE, 5, this.menuHeightStop - gradientHeight, this.modButtonWidth, gradientHeight, 0, 97, 25, gradientHeight);
             }
+            RenderSystem.enableDepthTest();
         }
 
         // Note: Widgets "should" be rendered after scissors, because certain things like tooltips are weird if rendered before.
@@ -296,57 +296,12 @@ public class PaCoScreen extends Screen {
     }
 
     /**
-     * Adds the given widget to {@link PaCoScreen#modsPanelWidgets} and calls {@link Screen#addWidget(GuiEventListener)}.
+     * Adds the given widget to {@link PaCoScreen#panelModButtons} and calls {@link Screen#addWidget(GuiEventListener)}.
      * @param widget The widget that will be added to the Mods Panel.
      */
-    private void addToModsPanel(AbstractWidget widget) {
-        this.modsPanelWidgets.add(widget);
+    private void addModToPanel(AbstractWidget widget) {
+        this.panelModButtons.add(widget);
         this.addWidget(widget);
-    }
-
-    public void refresh() { //TODO clean/optimize this method and fix resizing clearing the edit box.
-        this.fieldInit();
-        this.modsScrollBar = null;
-
-        List<AbstractWidget> newModButtons = new ArrayList<>();
-        int idx = 0;
-        for (ModDataHolder dataHolder : this.filteredMods) {
-            ModButton modButton = new ModButton(5, this.modButtonsStart + (idx * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, dataHolder, this);
-            if (this.selectedModButton != null && this.selectedModButton.getModDataHolder().getModId().equals(dataHolder.getModId())) {
-                modButton.setSelected(true);
-                this.selectedModButton = modButton;
-            }
-            newModButtons.add(modButton);
-            idx++;
-        }
-        // We remove all the mod buttons from "modsPanelWidgets" and repopulate it
-        this.modsPanelWidgets.removeIf(element -> element instanceof ModButton);
-        this.modsPanelWidgets.addAll(0, newModButtons);
-
-        // We create a scroll bar if needed
-        if (this.modButtonsLength > this.modButtonsPanelLength) { // We only add it if its needed
-            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart, 6, this.modButtonsPanelLength, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
-                    .setSilent(true)
-                    .setTextHidden(true)
-                    .setHandleSize(8, this.modsHandleHeight)
-                    .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
-                    .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
-            newModButtons.add(this.modsScrollBar);
-            // Handles updating the scroll bar on window resizing.
-            // Needs to be called after a scroll bar was added.
-            if (this.selectedModButton != null)
-                this.selectedModButton.moveButtonIntoFocus();
-        }
-
-        List<GuiEventListener> children = this.children;
-        int filterIdx = children.indexOf(filterButton);
-        children.removeIf(element -> element instanceof ModButton || element instanceof PaCoVerticalSlider);//TODO make the scroll bar removal less generic so it doesnt kill all vertical sliders
-        children.addAll(filterIdx + 1, newModButtons);
-
-        List<NarratableEntry> narratables = this.narratables;
-        filterIdx = narratables.indexOf(filterButton);
-        narratables.removeIf(element -> element instanceof ModButton || element instanceof PaCoVerticalSlider);
-        narratables.addAll(filterIdx + 1, newModButtons);
     }
 
     /**
@@ -377,5 +332,46 @@ public class PaCoScreen extends Screen {
         mods.sort(Comparator.comparing(ModDataHolder::getModNameOrId));
         finalList.addAll(mods);
         return finalList;
+    }
+
+    /** Called after the filtered mods list has been created, to update the elements in the UI. */
+    public void refresh() {
+        this.fieldInit(); // Since there is (probably) a new number of mods we need to refresh all the fields
+        this.modsScrollBar = null; // We reset the scroll bar as we need to replace it any ways
+        List<AbstractWidget> newModButtons = new ArrayList<>();
+        for (int i = 0; i < this.filteredMods.size(); i++) {
+            ModButton modButton = new ModButton(5, this.modButtonsStart + (i * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, this.filteredMods.get(i), this);
+            if (this.selectedModButton != null && this.selectedModButton.getModDataHolder().getModId().equals(this.filteredMods.get(i).getModId())) {
+                modButton.setSelected(true);
+                this.selectedModButton = modButton;
+            }
+            newModButtons.add(modButton);
+        }
+        // We refresh the "panelModButtons" list, this is used as a "renderable" alternative
+        this.panelModButtons.clear();
+        this.panelModButtons.addAll(newModButtons);
+        // We remove all the ModButtons and the scrollbar from "children" and "narratables"
+        // This happens up here, so we can remove the scroll bar before creating the new one#
+        this.children.removeIf(element -> element instanceof ModButton || element == this.modsScrollBar);
+        this.narratables.removeIf(element -> element instanceof ModButton || element == this.modsScrollBar);
+        // We create a scroll bar if needed
+        if (this.modButtonsLength > this.modButtonsPanelLength) {
+            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart, 6, this.modButtonsPanelLength, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
+                    .setSilent(true)
+                    .setTextHidden(true)
+                    .setHandleSize(8, this.modsHandleHeight)
+                    .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                    .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
+            newModButtons.add(this.modsScrollBar); // We add the scroll bar to the end of the list, as we will require that structure bellow any ways
+            // Handles updating the scroll bar on window resizing.
+            if (this.selectedModButton != null && this.filteredMods.contains(this.selectedModButton.getModDataHolder()))
+                this.selectedModButton.moveButtonIntoFocus(true);
+        }
+        // We get the index of "filterButton" since it's in the list right before the ModButtons
+        // and use it to insert the new ModButtons and scroll bar (if there is one) right after.
+        int filterIdx = this.children.indexOf(this.filterButton);
+        this.children.addAll(filterIdx + 1, newModButtons);
+        filterIdx = this.narratables.indexOf(this.filterButton);
+        this.narratables.addAll(filterIdx + 1, newModButtons);
     }
 }

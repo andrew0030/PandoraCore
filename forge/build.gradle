@@ -68,7 +68,12 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:swampier-swamps-632591:4578599") // Swampier Swamps
     runtimeOnly fg.deobf("curse.maven:table-top-craft-467136:5318681") // Table Top Craft
     runtimeOnly fg.deobf("curse.maven:online-detector-454487:4574905") // Online Detector
+    // Yung Mods (PaCo Screen Tests)
+    runtimeOnly fg.deobf("curse.maven:yungs-api-421850:5331703") // YUNG's API
+    runtimeOnly fg.deobf("curse.maven:yungs-better-witch-huts-631401:4769489") // YUNG's Better Witch Huts
+    runtimeOnly fg.deobf("curse.maven:yungs-better-end-island-901344:5193815") // YUNG's Better End Island
 
+    // Render Mods To Test Shader Patcher
     implementation fg.deobf("curse.maven:embeddium-908741:5456704") // Embeddium
     implementation fg.deobf("curse.maven:oculus-581495:5299671") // Oculus
 

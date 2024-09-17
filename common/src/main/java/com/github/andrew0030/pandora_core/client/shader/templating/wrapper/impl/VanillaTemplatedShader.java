@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
@@ -32,7 +33,7 @@ public class VanillaTemplatedShader extends TemplatedShader {
     public VanillaTemplatedShader(
             TemplateLoader loader,
             VariableMapper mapper,
-            TemplateTransformation transformation,
+            TemplateShaderResourceLoader.TemplateStruct transformation,
             String template,
             ShaderInstance vanilla,
             String vsh, String fsh,

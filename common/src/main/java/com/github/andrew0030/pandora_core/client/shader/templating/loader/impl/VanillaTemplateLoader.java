@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.client.shader.templating.loader.impl;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
+import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @ApiStatus.Internal
 public class VanillaTemplateLoader extends TemplateLoader implements VariableMapper {
@@ -86,8 +88,8 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     }
 
     @Override
-    public boolean matches(TemplatedShader direct, String shader) {
-        TemplateTransformation transformation = direct.transformation();
+    public boolean matches(TemplatedShader direct, String shader, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+        TemplateShaderResourceLoader.TemplateStruct transformation = direct.transformation();
         String plate = transformation.getTemplate("vanilla");
         if (plate == null)
             return false;
@@ -165,11 +167,13 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
         return out.toString();
     }
 
-    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateTransformation transformation, boolean complete) {
-        String template = transformation.getTemplate("vanilla");
+    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+        String template = struct.getTemplate("vanilla");
         if (template == null)
             return LoadResult.FAILED;
         String templateJson = template + ".json";
+
+        TemplateTransformation transformation = struct.getTransformation("vsh", transformers, transformations);
 
         try {
             ResourceLocation loc = new ResourceLocation(template);
@@ -197,7 +201,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
             vsh = file.toString();
             manager.load(new VanillaTemplatedShader(
                     this, this,
-                    transformation,
+                    struct,
                     template, instance,
                     vsh, fsh,
                     names[0], names[1]
@@ -205,7 +209,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 
             return LoadResult.LOADED;
         } catch (Throwable err) {
-            LOGGER.error("Failed loading template template " + transformation.location + " for shader " + template, err);
+            LOGGER.error("Failed loading template template " + struct.location + " for shader " + template, err);
             return LoadResult.FAILED;
         }
     }
@@ -216,13 +220,13 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     }
 
     @Override
-    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateTransformation transformation) {
-        return attempt(manager, transformation, false);
+    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+        return attempt(manager, transformation, false, transformers, transformations);
     }
 
     @Override
-    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateTransformation transformation) {
-        return attempt(manager, transformation, true) == LoadResult.LOADED;
+    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+        return attempt(manager, transformation, true, transformers, transformations) == LoadResult.LOADED;
     }
 
     @Override

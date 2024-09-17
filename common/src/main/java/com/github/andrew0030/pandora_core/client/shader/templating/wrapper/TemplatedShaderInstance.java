@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper;
 
+import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.mojang.blaze3d.shaders.AbstractUniform;
@@ -8,9 +9,9 @@ import org.jetbrains.annotations.ApiStatus;
 
 public class TemplatedShaderInstance {
     TemplatedShader shader;
-    TemplateTransformation transformation;
+    TemplateShaderResourceLoader.TemplateStruct transformation;
 
-    public TemplatedShaderInstance(TemplatedShader shader, TemplateTransformation transformation) {
+    public TemplatedShaderInstance(TemplatedShader shader, TemplateShaderResourceLoader.TemplateStruct transformation) {
         this.shader = shader;
         this.transformation = transformation;
     }

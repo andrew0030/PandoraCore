@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl;
 
+import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.mojang.blaze3d.shaders.AbstractUniform;
@@ -8,12 +9,12 @@ import org.lwjgl.opengl.GL20;
 
 public abstract class TemplatedShader {
     protected final TemplateLoader loader;
-    protected final TemplateTransformation transformation;
+    protected final TemplateShaderResourceLoader.TemplateStruct transformation;
     protected final String template;
 
     public TemplatedShader(
             TemplateLoader loader,
-            TemplateTransformation transformation,
+            TemplateShaderResourceLoader.TemplateStruct transformation,
             String template
     ) {
         this.loader = loader;
@@ -31,7 +32,7 @@ public abstract class TemplatedShader {
         return transformation.location;
     }
 
-    public TemplateTransformation transformation() {
+    public TemplateShaderResourceLoader.TemplateStruct transformation() {
         return transformation;
     }
 

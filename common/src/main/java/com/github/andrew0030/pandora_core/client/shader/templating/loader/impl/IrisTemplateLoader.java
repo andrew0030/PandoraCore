@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.client.shader.templating.loader.impl;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.NameMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
+import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @ApiStatus.Internal
 public class IrisTemplateLoader extends TemplateLoader implements VariableMapper {
@@ -96,8 +98,8 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     }
 
     @Override
-    public boolean matches(TemplatedShader direct, String shader) {
-        TemplateTransformation transformation = direct.transformation();
+    public boolean matches(TemplatedShader direct, String shader, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+        TemplateShaderResourceLoader.TemplateStruct transformation = direct.transformation();
         String plate = transformation.getTemplate("iris");
         if (plate == null)
             return false;
@@ -114,10 +116,12 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         return false;
     }
 
-    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateTransformation transformation, boolean complete) {
-        String template = transformation.getTemplate("iris");
+    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+        String template = struct.getTemplate("iris");
         if (template == null)
             return LoadResult.FAILED;
+
+        TemplateTransformation transformation = struct.getTransformation("vsh", transformers, transformations);
 
         try {
             String[] names = new String[2];
@@ -138,7 +142,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
             vsh = file.toString();
             manager.load(new VanillaTemplatedShader(
                     this, this,
-                    transformation,
+                    struct,
                     template, instance,
                     vsh, fsh,
                     "minecraft:" + names[0], "minecraft:" + names[1]
@@ -152,13 +156,13 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     }
 
     @Override
-    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateTransformation transformation) {
-        return attempt(manager, transformation, false);
+    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+        return attempt(manager, transformation, false, transformers, transformations);
     }
 
     @Override
-    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateTransformation transformation) {
-        return attempt(manager, transformation, true) == LoadResult.LOADED;
+    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+        return attempt(manager, transformation, true, transformers, transformations) == LoadResult.LOADED;
     }
 
     @Override

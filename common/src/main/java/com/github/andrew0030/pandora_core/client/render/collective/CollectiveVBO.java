@@ -31,7 +31,7 @@ public class CollectiveVBO extends InstancedVBO {
         BufferBuilder.RenderedBuffer buffer = builder.direct.end();
         ranges.clear();
         for (CollectiveBufferBuilder.MeshRange range : builder.ranges)
-            ranges.put(range.name, range);
+            ranges.put(range.name(), range);
         super.upload(buffer);
     }
 
@@ -57,11 +57,11 @@ public class CollectiveVBO extends InstancedVBO {
             bindData(value.getValue().getFirst());
             GL33C.nglDrawElementsInstancedBaseVertex(
                     mode,
-                    value.getKey().end - value.getKey().start,
+                    value.getKey().end() - value.getKey().start(),
                     type,
                     0L,
                     value.getValue().getSecond(),
-                    value.getKey().start
+                    value.getKey().start()
             );
         }
     }

@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
+import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.mojang.blaze3d.shaders.AbstractUniform;
@@ -14,7 +15,7 @@ public class OnDemandTemplateShader extends TemplatedShader {
         return direct;
     }
 
-    public OnDemandTemplateShader(TemplateLoader loader, TemplateTransformation transformation, String template, TemplateManager.LoadManager manager) {
+    public OnDemandTemplateShader(TemplateLoader loader, TemplateShaderResourceLoader.TemplateStruct transformation, String template, TemplateManager.LoadManager manager) {
         super(loader, transformation, template);
         this.manager = manager;
     }

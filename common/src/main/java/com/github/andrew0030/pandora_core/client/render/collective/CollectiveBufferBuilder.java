@@ -144,14 +144,6 @@ public class CollectiveBufferBuilder implements VertexConsumer {
         return Objects.hash(direct, vertex);
     }
 
-    public static final class MeshRange {
-        String name;
-        int start, end;
-
-        public MeshRange(String name, int start, int end) {
-            this.name = name;
-            this.start = start;
-            this.end = end;
-        }
+    public record MeshRange(String name, int start, int end) {
     }
 }

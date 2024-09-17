@@ -128,6 +128,10 @@ public class InstanceData {
     }
 
     public void upload() {
+        // don't upload anything if there is nothing to upload
+        // if it attempts to upload while there is nothing to upload, the game crashes
+        if (startWrite == -1) return;
+
         GlStateManager._glBindBuffer(GL30.GL_ARRAY_BUFFER, glBuffer);
         if (!uploaded || (startWrite == 0 && endWrite == instances)) {
             buffer.position(0).limit(buffer.capacity());

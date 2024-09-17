@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class TemplateManager {
     /**
@@ -31,7 +32,10 @@ public class TemplateManager {
      * @return the corresponding template shader instance
      */
     public static TemplatedShaderInstance getTemplated(ResourceLocation resource) {
-        return TEMPLATED.get(resource);
+        return TEMPLATED.get(new ResourceLocation(
+                resource.getNamespace(),
+                resource.getPath() + ".json"
+        ));
     }
 
     // TODO: this is stupidly programmed and should be redone later
@@ -47,7 +51,8 @@ public class TemplateManager {
             boolean match = false;
             for (TemplateLoader templateLoader : LOADERS) {
                 if (templateLoader.matches(
-                        value.getDirect(), shader
+                        value.getDirect(), shader,
+                        direct.transformation().getTemplates(), transformations
                 )) {
                     match = true;
                     break;
@@ -84,6 +89,19 @@ public class TemplateManager {
 
     @ApiStatus.Internal
     private static final ArrayList<TemplateTransformation> TRANSFORMATIONS = new ArrayList<>();
+
+    /**
+     * NOTE TO SELF: TRANSFORMATIONS FUNCTION IS HERE
+     */
+    private static final Function<String, TemplateTransformation> transformations = (str) -> {
+        for (TemplateTransformation transformation : TRANSFORMATIONS) {
+            if (transformation.location.toString().equals(str)) {
+                return transformation;
+            }
+        }
+        throw new RuntimeException("TODO");
+    };
+
     @ApiStatus.Internal
     private static final Map<ResourceLocation, JsonObject> JSONS = new HashMap<>();
     @ApiStatus.Internal
@@ -91,7 +109,7 @@ public class TemplateManager {
 
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders");
 
-    private static final Gson GSON = new GsonBuilder().setLenient().create();
+    protected static final Gson GSON = new GsonBuilder().setLenient().create();
 
     @ApiStatus.Internal
     public void beginReload() {
@@ -112,23 +130,24 @@ public class TemplateManager {
     }
 
     @ApiStatus.Internal
-    protected static boolean loadTemplate(TemplateTransformation transformation, boolean complete) {
+    protected static boolean loadTemplate(TemplateShaderResourceLoader.TemplateStruct struct, boolean complete) {
+        Map<String, String> transformers = struct.getTransformers();
         for (TemplateLoader loader : LOADERS) {
             TemplateLoader.LoadResult result = complete ?
-                    (loader.attemptComplete(templateLoadManager, transformation) ? TemplateLoader.LoadResult.LOADED : TemplateLoader.LoadResult.FAILED) :
-                    loader.attempt(templateLoadManager, transformation);
+                    (loader.attemptComplete(templateLoadManager, struct, transformers, transformations) ? TemplateLoader.LoadResult.LOADED : TemplateLoader.LoadResult.FAILED) :
+                    loader.attempt(templateLoadManager, struct, transformers, transformations);
             if (result == TemplateLoader.LoadResult.LOADED)
                 return true;
             if (result == TemplateLoader.LoadResult.UNCACHED) {
                 templateLoadManager.load(new OnDemandTemplateShader(
-                        loader, transformation,
+                        loader, struct,
                         null, templateLoadManager
                 ));
                 return true;
             }
         }
 
-        LOGGER.warn("Failed to load template shader " + transformation.location.toString());
+        LOGGER.warn("Failed to load template shader " + struct.location.toString());
         return false;
     }
 
@@ -139,17 +158,17 @@ public class TemplateManager {
      * Template shaders may also be reloaded on the fly as necessary
      */
     @ApiStatus.Internal
-    public void reload() {
+    public void reload(List<TemplateShaderResourceLoader.TemplateStruct> structs) {
         boolean failedAny = false;
 
         // reload shaders
-        for (TemplateTransformation transformation : TRANSFORMATIONS) {
+        for (TemplateShaderResourceLoader.TemplateStruct struct : structs) {
             try {
-                boolean result = loadTemplate(transformation, false);
+                boolean result = loadTemplate(struct, false);
                 if (result) continue;
                 failedAny = true;
             } catch (Throwable err) {
-                LOGGER.error("An expected error occured while loading template shader: " + transformation.location, err);
+                LOGGER.error("An expected error occured while loading template shader: " + struct.location, err);
             }
         }
 
@@ -180,7 +199,7 @@ public class TemplateManager {
             }
         }
 
-        public TemplatedShader reload(TemplateTransformation transformation) {
+        public TemplatedShader reload(TemplateShaderResourceLoader.TemplateStruct transformation) {
             if (loadTemplate(transformation, true)) {
                 return getTemplated(transformation.location).getDirect();
             } else {

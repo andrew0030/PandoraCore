@@ -4,7 +4,7 @@
     "iris": "entities_solid"
   },
   "transformer": {
-    "vsh": "entity_instanced.vsh"
+    "vsh": "pandora_core:shaders/paco/templated/entity_instanced.vsh"
   },
   "instance_data": [
     "paco_Inject_Lightmap",

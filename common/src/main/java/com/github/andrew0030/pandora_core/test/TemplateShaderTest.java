@@ -7,6 +7,7 @@ import com.github.andrew0030.pandora_core.client.render.instancing.InstanceDataE
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.client.render.obj.ObjModel;
 import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
+import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.LightTexture;
@@ -93,10 +94,11 @@ public class TemplateShaderTest {
     public static void draw(PoseStack stack, double x, double y, double z) {
 
         // Disables the debug rendering, because my PC sounds like a plane engine every time ~ andrew
-        if(true) return;
+//        if(true) return;
 
         RenderType type = PaCoRenderTypes.type;
 
+        RenderSystem.setShaderFogShape(FogShape.SPHERE);
         RenderSystem.setShaderTexture(0, new ResourceLocation(
                 "minecraft:dynamic/light_map_1"
         ));
@@ -128,5 +130,6 @@ public class TemplateShaderTest {
         }
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();
+        RenderSystem.setShaderFogShape(FogShape.CYLINDER);
     }
 }

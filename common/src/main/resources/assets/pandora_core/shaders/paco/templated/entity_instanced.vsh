@@ -1,8 +1,5 @@
 // TODO: remove this eventually
 
-#paco_templated vanilla minecraft:shaders/core/rendertype_entity_solid
-#paco_templated iris entities_solid
-
 // when a variable is missmatched between vec2 and ivec2, paco assumes the data is meant to be interpreted bitwise
 // the reason for this, is because lightmap coords in vanilla are written bitwise and used as an ivec2 in some shaders, but a vec2 in others
 

@@ -94,7 +94,7 @@ public class TemplateShaderTest {
     public static void draw(PoseStack stack, double x, double y, double z) {
 
         // Disables the debug rendering, because my PC sounds like a plane engine every time ~ andrew
-//        if(true) return;
+        if(true) return;
 
         RenderType type = PaCoRenderTypes.type;
 

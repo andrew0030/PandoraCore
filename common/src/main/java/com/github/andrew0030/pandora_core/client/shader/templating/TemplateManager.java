@@ -88,18 +88,18 @@ public class TemplateManager {
     public static List<TemplateLoader> LOADERS = new ArrayList<>();
 
     @ApiStatus.Internal
-    private static final ArrayList<TemplateTransformation> TRANSFORMATIONS = new ArrayList<>();
+    private static final Map<String, TemplateTransformation> TRANSFORMATION_MAP = new HashMap<>();
 
+    @ApiStatus.Internal
     /**
-     * NOTE TO SELF: TRANSFORMATIONS FUNCTION IS HERE
+     * lambda statement for getting shader transformation objects from the map
+     * provided as a lambda to help ensure immutability
      */
     private static final Function<String, TemplateTransformation> transformations = (str) -> {
-        for (TemplateTransformation transformation : TRANSFORMATIONS) {
-            if (transformation.location.toString().equals(str)) {
-                return transformation;
-            }
-        }
-        throw new RuntimeException("TODO");
+        TemplateTransformation trf = TRANSFORMATION_MAP.get(str);
+        if (trf == null)
+            throw new RuntimeException("Shader transformation " + str + " not found.");
+        return trf;
     };
 
     @ApiStatus.Internal
@@ -113,7 +113,7 @@ public class TemplateManager {
 
     @ApiStatus.Internal
     public void beginReload() {
-        TRANSFORMATIONS.clear();
+        TRANSFORMATION_MAP.clear();
         for (TemplateLoader loader : LOADERS) {
             loader.beginReload();
         }
@@ -121,7 +121,7 @@ public class TemplateManager {
 
     @ApiStatus.Internal
     public void register(TemplateTransformation transformation) {
-        TRANSFORMATIONS.add(transformation);
+        TRANSFORMATION_MAP.put(transformation.location.toString(), transformation);
     }
 
     @ApiStatus.Internal

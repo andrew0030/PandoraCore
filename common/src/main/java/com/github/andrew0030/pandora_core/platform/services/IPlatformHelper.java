@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.platform.services;
 
-import com.github.andrew0030.pandora_core.utils.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.mojang.blaze3d.platform.NativeImage;
 
 import java.util.List;

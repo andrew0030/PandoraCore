@@ -2,7 +2,8 @@ package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
-import com.github.andrew0030.pandora_core.utils.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.data_holders.FabricModDataHolder;
+import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
@@ -54,22 +55,15 @@ public class FabricPlatformHelper implements IPlatformHelper {
         List<ModDataHolder> holders = new ArrayList<>();
         FabricLoader.getInstance().getAllMods().forEach(modContainer -> {
             ModMetadata metadata = modContainer.getMetadata();
-            String modId = metadata.getId();
-
             // Prevents libraries from being added to the list.
             if(metadata.getCustomValue("fabric-api:module-lifecycle") != null)
                 return;
-            if(modId.equals("java") || modId.equals("mixinextras"))
+            if(metadata.getId().equals("java") || metadata.getId().equals("mixinextras"))
                 return;
             CustomValue generated = metadata.getCustomValue("fabric-loom:generated");
             if(generated != null && generated.getType() == CustomValue.CvType.BOOLEAN && generated.getAsBoolean())
                 return;
-
-            ModDataHolder holder = ModDataHolder.forMod(modId);
-            holder.setModName(metadata.getName());
-            holder.setModVersion(metadata.getVersion().getFriendlyString());
-            holder.setModIconFile(metadata.getIconPath(0).orElse(null));
-            holders.add(holder);
+            holders.add(new FabricModDataHolder(metadata));
         });
         return holders;
     }

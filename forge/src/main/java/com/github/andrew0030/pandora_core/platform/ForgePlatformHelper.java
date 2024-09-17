@@ -2,7 +2,8 @@ package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
-import com.github.andrew0030.pandora_core.utils.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.data_holders.ForgeModDataHolder;
+import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.server.packs.resources.IoSupplier;
@@ -59,17 +60,10 @@ public class ForgePlatformHelper implements IPlatformHelper {
         List<ModDataHolder> holders = new ArrayList<>();
         ModList.get().forEachModContainer((s, modContainer) -> {
             IModInfo modInfo = modContainer.getModInfo();
-            String modId = modInfo.getModId();
-
             // Prevents libraries from being added to the list.
             if(modInfo.getOwningFile().getFile().getType() != IModFile.Type.MOD)
                 return;
-
-            ModDataHolder holder = ModDataHolder.forMod(modId);
-            holder.setModName(modInfo.getDisplayName());
-            holder.setModVersion(modInfo.getVersion().toString());
-            holder.setModIconFile(modInfo.getLogoFile().orElse(null));
-            holders.add(holder);
+            holders.add(new ForgeModDataHolder(modInfo));
         });
         return holders;
     }

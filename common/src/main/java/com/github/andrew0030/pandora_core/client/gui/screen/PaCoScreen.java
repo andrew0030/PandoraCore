@@ -10,8 +10,8 @@ import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
-import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
+import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
@@ -329,7 +329,7 @@ public class PaCoScreen extends Screen {
         pinnedMods.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .forEachOrdered(entry -> finalList.add(entry.getValue()));
-        mods.sort(Comparator.comparing(ModDataHolder::getModNameOrId));
+        mods.sort(Comparator.comparing(ModDataHolder::getModName));
         finalList.addAll(mods);
         return finalList;
     }
@@ -337,7 +337,6 @@ public class PaCoScreen extends Screen {
     /** Called after the filtered mods list has been created, to update the elements in the UI. */
     public void refresh() {
         this.fieldInit(); // Since there is (probably) a new number of mods we need to refresh all the fields
-        this.modsScrollBar = null; // We reset the scroll bar as we need to replace it any ways
         List<AbstractWidget> newModButtons = new ArrayList<>();
         for (int i = 0; i < this.filteredMods.size(); i++) {
             ModButton modButton = new ModButton(5, this.modButtonsStart + (i * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, this.filteredMods.get(i), this);
@@ -354,7 +353,8 @@ public class PaCoScreen extends Screen {
         // This happens up here, so we can remove the scroll bar before creating the new one#
         this.children.removeIf(element -> element instanceof ModButton || element == this.modsScrollBar);
         this.narratables.removeIf(element -> element instanceof ModButton || element == this.modsScrollBar);
-        // We create a scroll bar if needed
+        this.modsScrollBar = null; // We reset the scroll bar to null after we removed it from the lists
+        // We create a new scroll bar if one is needed
         if (this.modButtonsLength > this.modButtonsPanelLength) {
             this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart, 6, this.modButtonsPanelLength, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
                     .setSilent(true)

@@ -25,6 +25,9 @@ dependencies {
     // MrCrayfish Config Mods
     modCompileOnly "curse.maven:catalogue-fabric-667377:4766089" // Catalogue
 
+    // Performance Monitoring
+    modRuntimeOnly "curse.maven:spark-361579:4738953" // Spark
+    // Render Mods To Test Shader Patcher
     modCompileOnly "curse.maven:irisshaders-455508:5485649" // Iris
 
     implementation project(":common")

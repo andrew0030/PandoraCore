@@ -4,8 +4,8 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
-import com.github.andrew0030.pandora_core.utils.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
+import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
@@ -34,7 +34,7 @@ public class ModButton extends AbstractButton {
     }
 
     public ModButton(int x, int y, int width, int height, ModDataHolder modDataHolder, PaCoScreen screen) {
-        super(x, y, width, height, Component.literal(modDataHolder.getModNameOrId()));
+        super(x, y, width, height, Component.literal(modDataHolder.getModName()));
         this.modDataHolder = modDataHolder;
         this.screen = screen;
     }
@@ -55,11 +55,11 @@ public class ModButton extends AbstractButton {
             // Background
             graphics.blit(PaCoScreen.TEXTURE, this.getX(), this.getY(), offsetU, 72, 25, 25); // Mod Icon Background Blit
             graphics.blitRepeating(PaCoScreen.TEXTURE, this.getX() + 25, this.getY(), this.getWidth() - 50, 25, 25 + offsetU, 72, 25, 25); // Button Center
-            graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getWidth() - 25, this.getY(), 50 + offsetU, 72, 25, 25); // Button Right Side End
+            graphics.blit(PaCoScreen.TEXTURE, Math.max((this.getX() + this.getWidth() - 25), (this.getX() + 25)), this.getY(), 50 + offsetU, 72, 25, 25); // Button Right Side End
             // Mod Icon
             this.renderModIcon(this.modDataHolder, graphics, this.getX() + 1, this.getY() + 1, this.getHeight() - 2);
             // Mod Name
-            String name = this.modDataHolder.getModNameOrId();
+            String name = this.modDataHolder.getModName();
             int availableWidth = this.getWidth() - 27; // Total width minus icon width and padding.
             int nameWidth = Minecraft.getInstance().font.width(name);
             if (nameWidth > availableWidth) {
@@ -114,17 +114,23 @@ public class ModButton extends AbstractButton {
 
     @Override
     public void onPress() {
-        if (this.screen.selectedModButton != null)
-            this.screen.selectedModButton.setSelected(false);
-        this.setSelected(true);
-        this.screen.selectedModButton = this;
+        if (this.screen.selectedModButton != this) {
+            // We unselect the currently selected mod button if it's a different one
+            if (this.screen.selectedModButton != null)
+                this.screen.selectedModButton.setSelected(false);
+            this.setSelected(true);
+            this.screen.selectedModButton = this;
+        } else {
+            // We unselect this button if it's already selected
+            this.setSelected(false);
+            this.screen.selectedModButton = null;
+        }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (PaCoGuiUtils.isMouseWithin(mouseX, mouseY, 5, this.screen.modButtonsStart, this.screen.modButtonWidth, this.screen.modButtonsPanelLength)) {
+        if (PaCoGuiUtils.isMouseWithin(mouseX, mouseY, 5, this.screen.modButtonsStart, this.screen.modButtonWidth, this.screen.modButtonsPanelLength))
             return super.mouseClicked(mouseX, mouseY, button);
-        }
         return false;
     }
 
@@ -160,7 +166,7 @@ public class ModButton extends AbstractButton {
                 // The two letters inside the icon
                 graphics.pose().pushPose();
                 graphics.pose().translate(posX + 11.5F, posY + 7.5F, 0F);
-                PaCoGuiUtils.drawCenteredString(graphics, Minecraft.getInstance().font, holder.getModNameOrId().substring(0, 2), 0, 0, 0xa0a0a0, true);
+                PaCoGuiUtils.drawCenteredString(graphics, Minecraft.getInstance().font, holder.getModName().substring(0, 2), 0, 0, 0xa0a0a0, true);
                 graphics.pose().popPose();
             }
         }
@@ -174,12 +180,7 @@ public class ModButton extends AbstractButton {
      */
     @Nullable
     private Pair<ResourceLocation, Pair<Integer, Integer>> getIconData(String modId) {
-        String iconFile = this.modDataHolder.getModIconFile();
-        // If the mod doesn't have an icon file, then there's no point in continuing.
-        if (iconFile == null)
-            return null;
-
-        // Check if the modId is already present in the cache, and grabs the values if so.
+        // Checks if the modId is already present in the cache, and grabs the values if so.
         Pair<ResourceLocation, DynamicTexture> cachedEntry = this.screen.iconManager.getCachedEntry(modId);
         if (cachedEntry != null) {
             // If the cached entry's resource location is null, then null should be returned for consistency reasons
@@ -194,48 +195,46 @@ public class ModButton extends AbstractButton {
             );
         }
 
-        // If the icon is not already cached, then load it
-        return Services.PLATFORM.loadNativeImage(modId, iconFile, nativeImage -> {
-            if (nativeImage == null) {
-                // If the icon fails to load, null is provided
-                // So cache null,null to indicate that
-                this.screen.iconManager.cacheModIcon(modId, null, null);
-                return null;
-            }
+        // If no icon is already cached, we attempt to load one, and stop if a valid one was found
+        // Alternatively if there is no icons (the list is empty) the loop will not get called and null is cached/returned
+        for (String iconFile : this.modDataHolder.getModIconFiles()) {
+            Pair<ResourceLocation, Pair<Integer, Integer>> result = Services.PLATFORM.loadNativeImage(modId, iconFile, nativeImage -> {
+                // If the icon fails to load, or the icon aspect ratio isn't 1:1 null is provided
+                if (nativeImage == null || nativeImage.getWidth() != nativeImage.getHeight())
+                    return null;
 
-            if (nativeImage.getWidth() != nativeImage.getHeight()) {
-                // If the icon aspect ratio isn't 1:1, null is provided
-                // So cache null,null to indicate that
-                this.screen.iconManager.cacheModIcon(modId, null, null);
-                return null;
-            }
-
-            DynamicTexture dynamicTexture = null;
-            try {
-                dynamicTexture = new DynamicTexture(nativeImage) {
-                    @Override
-                    public void upload() {
-                        this.bind();
-                        NativeImage image = this.getPixels();
-                        this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false, false);
-                    }
-                };
-                // Register and cache the texture, and return it
-                ResourceLocation resourceLocation = Minecraft.getInstance().getTextureManager().register("modicon", dynamicTexture);
-                this.screen.iconManager.cacheModIcon(modId, resourceLocation, dynamicTexture);
-                return Pair.of(resourceLocation, Pair.of(nativeImage.getWidth(), nativeImage.getHeight()));
-            } catch (Exception ignored) {
-                // Safety reasons
-                // To my knowledge, the try here should never fail
-                // However, VRAM leaks are particularly annoying in that they're unnoticeable until the device crashes, at which point the screen blacks out until drivers reboot
-                if (dynamicTexture != null)
-                    dynamicTexture.close();
-
-                // Cache null,null so that the icon doesn't load again
-                this.screen.iconManager.cacheModIcon(modId, null, null);
-                return null;
-            }
-        });
+                DynamicTexture dynamicTexture = null;
+                try {
+                    dynamicTexture = new DynamicTexture(nativeImage) {
+                        @Override
+                        public void upload() {
+                            this.bind();
+                            NativeImage image = this.getPixels();
+                            this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false, false);
+                        }
+                    };
+                    // Register and cache the texture, and return it
+                    ResourceLocation resourceLocation = Minecraft.getInstance().getTextureManager().register("modicon", dynamicTexture);
+                    this.screen.iconManager.cacheModIcon(modId, resourceLocation, dynamicTexture);
+                    return Pair.of(resourceLocation, Pair.of(nativeImage.getWidth(), nativeImage.getHeight()));
+                } catch (Exception ignored) {
+                    // Safety reasons
+                    // To my knowledge, the try here should never fail
+                    // However, VRAM leaks are particularly annoying in that they're unnoticeable until the device crashes, at which point the screen blacks out until drivers reboot
+                    if (dynamicTexture != null)
+                        dynamicTexture.close();
+                    return null; // Return null to indicate failure for this icon
+                }
+            });
+            // If we found a valid icon, we return it
+            // This will stop the loop as we don't need to look at other entries
+            if (result != null)
+                return result;
+        }
+        // If we went through all the icons and none succeeded or were valid,
+        // we cache null,null to indicate that and return null
+        this.screen.iconManager.cacheModIcon(modId, null, null);
+        return null;
     }
 
     public ModDataHolder getModDataHolder() {

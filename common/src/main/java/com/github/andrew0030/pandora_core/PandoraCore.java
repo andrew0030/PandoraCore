@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core;
 
 import com.github.andrew0030.pandora_core.platform.Services;
-import com.github.andrew0030.pandora_core.utils.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;

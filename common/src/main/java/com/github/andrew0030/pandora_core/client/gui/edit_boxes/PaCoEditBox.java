@@ -6,14 +6,17 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class PaCoEditBox extends EditBox implements IPaCoEditBox {
+    private final Font font;
     private final PaCoScreen screen;
 
     public PaCoEditBox(Font font, int x, int y, int width, int height, Component message, PaCoScreen screen) {
         super(font, x, y, width, height, message);
+        this.font = font;
         this.screen = screen;
     }
 
@@ -39,5 +42,11 @@ public class PaCoEditBox extends EditBox implements IPaCoEditBox {
         // After we filtered the mods we add them to the list and refresh
         this.screen.filteredMods.addAll(filteredHolders);
         this.screen.refresh();
+    }
+
+    @Override
+    public void setHint(@NotNull Component hint) {
+        String newHint = this.font.plainSubstrByWidth(hint.getString(), this.getWidth() - 4);
+        super.setHint(Component.literal(newHint));
     }
 }

@@ -210,7 +210,7 @@ public class ModButton extends AbstractButton {
                         public void upload() {
                             this.bind();
                             NativeImage image = this.getPixels();
-                            this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false, false);
+                            this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false, false); //TODO add a system to determine whether to blur or not, ~maybe resolution?
                         }
                     };
                     // Register and cache the texture, and return it

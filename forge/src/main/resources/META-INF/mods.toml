@@ -27,4 +27,6 @@ issueTrackerURL="${issue_tracker_url}"
     side = "BOTH"
 
 [modproperties.${mod_id}]
+    pandoracoreIcon="${mod_id}.png"
+    pandoracoreBlurIcon=true
     catalogueImageIcon="${mod_id}.png"

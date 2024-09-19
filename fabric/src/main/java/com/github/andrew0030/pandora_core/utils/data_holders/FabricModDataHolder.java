@@ -9,6 +9,7 @@ import java.util.List;
 public class FabricModDataHolder extends ModDataHolder {
     private final ModMetadata metadata;
     private final List<String> icons = new ArrayList<>();
+    private Boolean blurIcon;
 
     public FabricModDataHolder(ModMetadata metadata) {
         this.metadata = metadata;
@@ -17,10 +18,14 @@ public class FabricModDataHolder extends ModDataHolder {
         CustomValue pandoracoreVal = metadata.getCustomValue("pandoracore");
         if(pandoracoreVal != null && pandoracoreVal.getType() == CustomValue.CvType.OBJECT) {
             CustomValue.CvObject pandoracoreObj = pandoracoreVal.getAsObject();
+            // Icon
             CustomValue iconValue = pandoracoreObj.get("icon");
-            if(iconValue != null && iconValue.getType() == CustomValue.CvType.STRING) {
+            if(iconValue != null && iconValue.getType() == CustomValue.CvType.STRING)
                 this.icons.add(iconValue.getAsString());
-            }
+            // Blur Icon
+            CustomValue blurIconValue = pandoracoreObj.get("blurIcon");
+            if(blurIconValue != null && blurIconValue.getType() == CustomValue.CvType.BOOLEAN)
+                this.blurIcon = blurIconValue.getAsBoolean();
         }
         // Catalogue
         CustomValue catalogueVal = metadata.getCustomValue("catalogue");
@@ -57,5 +62,10 @@ public class FabricModDataHolder extends ModDataHolder {
     @Override
     public List<String> getModIconFiles() {
         return this.icons;
+    }
+
+    @Override
+    public Boolean getBlurModIcon() {
+        return this.blurIcon;
     }
 }

@@ -203,6 +203,10 @@ public class ModButton extends AbstractButton {
                 if (nativeImage == null || nativeImage.getWidth() != nativeImage.getHeight())
                     return null;
 
+                // TODO: Make the logic that determines whether an image is blurred a bit more delicate:
+                //       If a value has been specified by a mod we should use that. Alternatively
+                //       high res images should be blurred, and low res shouldn't be blurred.
+                boolean blurIcon = this.modDataHolder.getBlurModIcon() != null ? this.modDataHolder.getBlurModIcon() : false;
                 DynamicTexture dynamicTexture = null;
                 try {
                     dynamicTexture = new DynamicTexture(nativeImage) {
@@ -210,7 +214,7 @@ public class ModButton extends AbstractButton {
                         public void upload() {
                             this.bind();
                             NativeImage image = this.getPixels();
-                            this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false, false); //TODO add a system to determine whether to blur or not, ~maybe resolution?
+                            this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), blurIcon, false, false, false);
                         }
                     };
                     // Register and cache the texture, and return it

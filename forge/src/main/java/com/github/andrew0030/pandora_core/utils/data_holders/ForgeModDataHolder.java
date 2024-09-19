@@ -9,6 +9,7 @@ import java.util.Optional;
 public class ForgeModDataHolder extends ModDataHolder {
     private final IModInfo modInfo;
     private final List<String> icons = new ArrayList<>();
+    private Boolean blurIcon;
 
     public ForgeModDataHolder(IModInfo modInfo) {
         this.modInfo = modInfo;
@@ -18,6 +19,10 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .ifPresent(this.icons::add);
+        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBlurIcon"))
+                .filter(Boolean.class::isInstance)
+                .map(Boolean.class::cast)
+                .ifPresent(val -> this.blurIcon = val);
         // Catalogue
         Optional.ofNullable(this.modInfo.getModProperties().get("catalogueImageIcon"))
                 .filter(String.class::isInstance)
@@ -45,5 +50,10 @@ public class ForgeModDataHolder extends ModDataHolder {
     @Override
     public List<String> getModIconFiles() {
         return this.icons;
+    }
+
+    @Override
+    public Boolean getBlurModIcon() {
+        return this.blurIcon;
     }
 }

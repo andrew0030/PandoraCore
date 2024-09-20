@@ -1,8 +1,7 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.List;
+import java.util.Optional;
 
 /** Holder class to store mod data. */
 public abstract class ModDataHolder {
@@ -20,6 +19,5 @@ public abstract class ModDataHolder {
     public abstract List<String> getModIconFiles();
 
     /** @return Whether scaling should blur the mod icon. */
-    @Nullable
-    public abstract Boolean getBlurModIcon();
+    public abstract Optional<Boolean> getBlurModIcon();
 }

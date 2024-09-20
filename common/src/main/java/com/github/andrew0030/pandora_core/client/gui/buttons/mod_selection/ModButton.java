@@ -203,10 +203,9 @@ public class ModButton extends AbstractButton {
                 if (nativeImage == null || nativeImage.getWidth() != nativeImage.getHeight())
                     return null;
 
-                // TODO: Make the logic that determines whether an image is blurred a bit more delicate:
-                //       If a value has been specified by a mod we should use that. Alternatively
-                //       high res images should be blurred, and low res shouldn't be blurred.
-                boolean blurIcon = this.modDataHolder.getBlurModIcon() != null ? this.modDataHolder.getBlurModIcon() : false;
+                // We determine whether the image should be blurred, we check if a property has been specified.
+                // If not we manually determine it, 92 Because its 4x the native size of 23x23
+                boolean blurIcon = this.modDataHolder.getBlurModIcon().orElse(nativeImage.getWidth() > 92);
                 DynamicTexture dynamicTexture = null;
                 try {
                     dynamicTexture = new DynamicTexture(nativeImage) {

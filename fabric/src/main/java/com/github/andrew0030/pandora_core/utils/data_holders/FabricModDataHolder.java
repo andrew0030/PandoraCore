@@ -5,41 +5,43 @@ import net.fabricmc.loader.api.metadata.ModMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FabricModDataHolder extends ModDataHolder {
     private final ModMetadata metadata;
     private final List<String> icons = new ArrayList<>();
-    private Boolean blurIcon;
+    private Optional<Boolean> blurIcon = Optional.empty();
 
     public FabricModDataHolder(ModMetadata metadata) {
         this.metadata = metadata;
         /* We check for all valid mod icons and add them to the list */
         // Pandora Core
-        CustomValue pandoracoreVal = metadata.getCustomValue("pandoracore");
-        if(pandoracoreVal != null && pandoracoreVal.getType() == CustomValue.CvType.OBJECT) {
-            CustomValue.CvObject pandoracoreObj = pandoracoreVal.getAsObject();
-            // Icon
-            CustomValue iconValue = pandoracoreObj.get("icon");
-            if(iconValue != null && iconValue.getType() == CustomValue.CvType.STRING)
-                this.icons.add(iconValue.getAsString());
-            // Blur Icon
-            CustomValue blurIconValue = pandoracoreObj.get("blurIcon");
-            if(blurIconValue != null && blurIconValue.getType() == CustomValue.CvType.BOOLEAN)
-                this.blurIcon = blurIconValue.getAsBoolean();
-        }
+        Optional.ofNullable(metadata.getCustomValue("pandoracore"))
+                .filter(val -> val.getType() == CustomValue.CvType.OBJECT)
+                .map(CustomValue::getAsObject)
+                .ifPresent(pandoracoreObj -> {
+                    // Icon
+                    Optional.ofNullable(pandoracoreObj.get("icon"))
+                            .filter(iconVal -> iconVal.getType() == CustomValue.CvType.STRING)
+                            .map(CustomValue::getAsString)
+                            .ifPresent(this.icons::add);
+                    // Blur Icon
+                    Optional.ofNullable(pandoracoreObj.get("blurIcon"))
+                            .filter(blurIconVal -> blurIconVal.getType() == CustomValue.CvType.BOOLEAN)
+                            .map(CustomValue::getAsBoolean)
+                            .ifPresent(val -> this.blurIcon = Optional.of(val));
+                });
         // Catalogue
-        CustomValue catalogueVal = metadata.getCustomValue("catalogue");
-        if(catalogueVal != null && catalogueVal.getType() == CustomValue.CvType.OBJECT) {
-            CustomValue.CvObject catalogueObj = catalogueVal.getAsObject();
-            CustomValue iconValue = catalogueObj.get("icon");
-            if(iconValue != null && iconValue.getType() == CustomValue.CvType.OBJECT) {
-                CustomValue.CvObject iconObj = iconValue.getAsObject();
-                CustomValue imageValue = iconObj.get("image");
-                if(imageValue != null && imageValue.getType() == CustomValue.CvType.STRING) {
-                    this.icons.add(imageValue.getAsString());
-                }
-            }
-        }
+        Optional.ofNullable(metadata.getCustomValue("catalogue"))
+                .filter(val -> val.getType() == CustomValue.CvType.OBJECT)
+                .map(CustomValue::getAsObject)
+                .map(catalogueObj -> catalogueObj.get("icon"))
+                .filter(iconVal -> iconVal.getType() == CustomValue.CvType.OBJECT)
+                .map(CustomValue::getAsObject)
+                .map(iconObj -> iconObj.get("image"))
+                .filter(imageVal -> imageVal.getType() == CustomValue.CvType.STRING)
+                .map(CustomValue::getAsString)
+                .ifPresent(this.icons::add);
         // Fabric
         metadata.getIconPath(0).ifPresent(this.icons::add);
     }
@@ -65,7 +67,7 @@ public class FabricModDataHolder extends ModDataHolder {
     }
 
     @Override
-    public Boolean getBlurModIcon() {
+    public Optional<Boolean> getBlurModIcon() {
         return this.blurIcon;
     }
 }

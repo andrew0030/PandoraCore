@@ -76,7 +76,19 @@ public class ModButton extends AbstractButton {
                 }
             }
             graphics.drawString(Minecraft.getInstance().font, version, this.getX() + this.getHeight() + 2, this.getY() + 14, PaCoColor.color(130, 130, 130), false);
+
+            // Update Icon
+            // TODO: update this once the update checker is in place
+            if (this.modDataHolder.getModId().equals("pandora_core"))
+                this.renderUpdateIcon(graphics);
         }
+    }
+
+    private void renderUpdateIcon(GuiGraphics graphics) {
+        RenderSystem.enableBlend();
+        graphics.blit(PaCoScreen.TEXTURE, this.getX() + 18, this.getY() - 1, 0, 170, 8, 10);
+        //TODO add method for warnings or make a smart pos calculation thingy that determines where to place the icons
+        graphics.blit(PaCoScreen.TEXTURE, this.getX() + 10, this.getY() - 1, 8, 170, 8, 10);
     }
 
     @Override

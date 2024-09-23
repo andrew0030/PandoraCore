@@ -39,7 +39,8 @@
     "custom": {
         "pandoracore": {
             "icon": "${mod_id}.png",
-            "blurIcon": true
+            "blurIcon": true,
+            "updateURL": "https://raw.githubusercontent.com/andrew0030/Pandoras-Creatures/refs/heads/1.16.5/src/main/resources/assets/pandoras_creatures/update.json"
         },
         "catalogue": {
             "configFactory": "com.github.andrew0030.pandora_core.config.catalogue.CatalogueConfig"

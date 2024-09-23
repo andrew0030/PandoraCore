@@ -39,6 +39,11 @@ public class ForgePlatformHelper implements IPlatformHelper {
     }
 
     @Override
+    public String getMinecraftVersion() {
+        return FMLLoader.versionInfo().mcVersion();
+    }
+
+    @Override
     public <T> T loadNativeImage(String modId, String resource, Function<NativeImage, T> consumer) {
         Object[] o = new Object[1];
         ResourcePackLoader.getPackFor(modId).ifPresent(resources -> {

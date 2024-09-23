@@ -35,6 +35,8 @@ public interface IPlatformHelper {
         return isDevelopmentEnvironment() ? "development" : "production";
     }
 
+    String getMinecraftVersion();
+
     <T> T loadNativeImage(String modId, String resource, Function<NativeImage, T> consumer);
 
     /** Creates a {@link List} with a {@link ModDataHolder} for each loaded mod. */

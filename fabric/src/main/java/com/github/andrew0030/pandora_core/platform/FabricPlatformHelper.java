@@ -6,9 +6,11 @@ import com.github.andrew0030.pandora_core.utils.data_holders.FabricModDataHolder
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.terraformersmc.modmenu.util.mod.fabric.FabricMod;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -34,6 +36,13 @@ public class FabricPlatformHelper implements IPlatformHelper {
     @Override
     public boolean isDevelopmentEnvironment() {
         return FabricLoader.getInstance().isDevelopmentEnvironment();
+    }
+
+    @Override
+    public String getMinecraftVersion() {
+        return FabricLoader.getInstance().getModContainer("minecraft")
+                .map(container -> container.getMetadata().getVersion().getFriendlyString())
+                .orElse("Unknown Version");
     }
 
     @Override

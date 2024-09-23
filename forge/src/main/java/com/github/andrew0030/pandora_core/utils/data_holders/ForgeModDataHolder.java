@@ -1,7 +1,10 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
+import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
+import net.minecraftforge.fml.loading.StringUtils;
 import net.minecraftforge.forgespi.language.IModInfo;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +13,7 @@ public class ForgeModDataHolder extends ModDataHolder {
     private final IModInfo modInfo;
     private final List<String> icons = new ArrayList<>();
     private Optional<Boolean> blurIcon = Optional.empty();
+    private Optional<URL> updateURL = Optional.empty();
 
     public ForgeModDataHolder(IModInfo modInfo) {
         this.modInfo = modInfo;
@@ -30,6 +34,18 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .ifPresent(this.icons::add);
         // Forge
         modInfo.getLogoFile().ifPresent(this.icons::add);
+
+        /* We check if there is an update checking URL, and perform a check if needed */
+        // Pandora Core
+        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreUpdateURL"))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .ifPresent(val -> this.updateURL = Optional.ofNullable(StringUtils.toURL(val)));
+        // Forge
+        modInfo.getUpdateURL().ifPresent(url -> this.updateURL = this.updateURL.isPresent() ? this.updateURL : modInfo.getUpdateURL());
+
+        // TODO add config option to disable update checking
+        UpdateChecker.checkForUpdate(this);
     }
 
     @Override
@@ -55,5 +71,10 @@ public class ForgeModDataHolder extends ModDataHolder {
     @Override
     public Optional<Boolean> getBlurModIcon() {
         return this.blurIcon;
+    }
+
+    @Override
+    public Optional<URL> getUpdateURL() {
+        return this.updateURL;
     }
 }

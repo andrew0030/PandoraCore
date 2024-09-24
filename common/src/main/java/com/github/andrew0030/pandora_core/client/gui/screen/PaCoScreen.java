@@ -45,8 +45,8 @@ public class PaCoScreen extends Screen {
     private Screen previousScreen = null;
     // Widgets
     private final List<Renderable> panelModButtons = new ArrayList<>();
-    private PaCoEditBox searchBox;
-    private ModsFilterButton filterButton;
+    public PaCoEditBox searchBox;
+    public ModsFilterButton filterButton;
     public PaCoSlider modsScrollBar;
     public ModButton selectedModButton;
     // Misc
@@ -125,7 +125,7 @@ public class PaCoScreen extends Screen {
         this.searchBox.setTextColor(DARK_GRAY_TEXT_COLOR);
         this.addWidget(this.searchBox);
         // Filter Button
-        this.filterButton = new ModsFilterButton(this.modsPanelWidth - 18, this.menuHeightStart);
+        this.filterButton = new ModsFilterButton(this.modsPanelWidth - 18, this.menuHeightStart, this);
         this.addWidget(this.filterButton);
         // Mod Buttons
         for (int i = 0; i < this.filteredMods.size(); i++) {
@@ -311,25 +311,32 @@ public class PaCoScreen extends Screen {
      */
     public ArrayList<ModDataHolder> createOrderedModsList() {
         boolean isForge = Services.PLATFORM.getPlatformName().equals("Forge");
+        List<ModDataHolder> outdatedMods = new ArrayList<>();
         // We use a map to store "x" mods, (which may load out of order), with a given index
         Map<Integer, ModDataHolder> pinnedMods = new HashMap<>();
         List<ModDataHolder> mods = new ArrayList<>(); // A simple list that will hold all non pinned mods
         // We loop through all the loaded mods and put them in the appropriate "lists".
         for (ModDataHolder holder : PandoraCore.getModHolders()) {
-            switch (holder.getModId()) {
-                case "minecraft" -> pinnedMods.put(0, holder);
-                case "forge", "fabricloader" -> pinnedMods.put(1, holder);
-                case "fabric-api" -> pinnedMods.put(2, holder);
-                case "pandora_core" -> pinnedMods.put(isForge ? 2 : 3, holder);
-                default -> mods.add(holder);
+            if (this.filterButton != null && this.filterButton.getFilterType() == ModsFilterButton.FilterType.UPDATES && holder.isOutdated()) {
+                outdatedMods.add(holder);
+            } else {
+                switch (holder.getModId()) {
+                    case "minecraft" -> pinnedMods.put(0, holder);
+                    case "forge", "fabricloader" -> pinnedMods.put(1, holder);
+                    case "fabric-api" -> pinnedMods.put(2, holder);
+                    case "pandora_core" -> pinnedMods.put(isForge ? 2 : 3, holder);
+                    default -> mods.add(holder);
+                }
             }
         }
         // After we populated the "lists", we go through them and return the values in order
         ArrayList<ModDataHolder> finalList = new ArrayList<>();
+        outdatedMods.sort(Comparator.comparing(mod -> mod.getModName().toLowerCase()));
+        finalList.addAll(outdatedMods);
         pinnedMods.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .forEachOrdered(entry -> finalList.add(entry.getValue()));
-        mods.sort(Comparator.comparing(ModDataHolder::getModName));
+        mods.sort(Comparator.comparing(mod -> mod.getModName().toLowerCase()));
         finalList.addAll(mods);
         return finalList;
     }

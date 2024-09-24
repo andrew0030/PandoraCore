@@ -77,4 +77,9 @@ public class ForgeModDataHolder extends ModDataHolder {
     public Optional<URL> getUpdateURL() {
         return this.updateURL;
     }
+
+    @Override
+    public boolean isOutdated() {
+        return this.getUpdateStatus().map(UpdateChecker.Status::isOutdated).orElse(false);
+    }
 }

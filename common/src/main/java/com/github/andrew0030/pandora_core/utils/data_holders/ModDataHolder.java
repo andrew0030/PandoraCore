@@ -2,7 +2,6 @@ package com.github.andrew0030.pandora_core.utils.data_holders;
 
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
 import java.util.List;
@@ -27,14 +26,23 @@ public abstract class ModDataHolder {
     /** @return Whether scaling should blur the mod icon. */
     public abstract Optional<Boolean> getBlurModIcon();
 
-    //TODO descriptions
+    /** @return An {@link URL} pointing to an update JSON file, used to check for updates. */
     public abstract Optional<URL> getUpdateURL();
+
+    /**
+     * @return An {@link Optional} containing the {@link UpdateChecker.Status} of this mod.
+     * If no update URL is provided this will return an empty {@link Optional}.
+     * */
     public Optional<UpdateChecker.Status> getUpdateStatus() {
         return this.status;
     }
 
+    /** Used internally to update the "update status" of a mod. */
     @ApiStatus.Internal
     public void setUpdateStatus(UpdateChecker.Status status) {
         this.status = Optional.ofNullable(status);
     }
+
+    /** @return Whether this mod is outdated, if no update URL is provided this defaults to false. */
+    public abstract boolean isOutdated();
 }

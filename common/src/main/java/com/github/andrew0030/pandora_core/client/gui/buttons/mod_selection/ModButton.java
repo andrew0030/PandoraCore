@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.PaCoClientTicker;
+import com.github.andrew0030.pandora_core.client.gui.buttons.ModsFilterButton;
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
@@ -29,8 +30,8 @@ public class ModButton extends AbstractButton {
     public static final HashMap<String, ResourceLocation> MOD_ICONS = new HashMap<>();
     private final ModDataHolder modDataHolder;
     private final PaCoScreen screen;
+    private final int versionColor;
     private boolean selected;
-    private int versionColor = PaCoColor.color(130, 130, 130);
 
     static {
         MOD_ICONS.put("minecraft", new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/mc_mod_icon.png"));
@@ -41,7 +42,7 @@ public class ModButton extends AbstractButton {
         super(x, y, width, height, Component.literal(modDataHolder.getModName()));
         this.modDataHolder = modDataHolder;
         this.screen = screen;
-        modDataHolder.getUpdateStatus().ifPresent(status -> this.versionColor = status.isOutdated() ? PaCoColor.color(200, 150, 10) : this.versionColor);
+        this.versionColor = this.modDataHolder.isOutdated() ? PaCoColor.color(200, 150, 10) : PaCoColor.color(130, 130, 130);
     }
 
     @Override
@@ -73,33 +74,32 @@ public class ModButton extends AbstractButton {
             graphics.drawString(Minecraft.getInstance().font, name, this.getX() + this.getHeight() + 2, this.getY() + 3, PaCoColor.color(255, 255, 255), false);
             // Mod Version
             String version = "v" + this.modDataHolder.getModVersion();
+            int iconOffset = this.modDataHolder.isOutdated() ? 9 : 0;
             int versionWidth = Minecraft.getInstance().font.width(version);
-            if (versionWidth > availableWidth) {
-                version = Minecraft.getInstance().font.plainSubstrByWidth(version, availableWidth - Minecraft.getInstance().font.width("...")).concat("...");
+            if (versionWidth > availableWidth - iconOffset) {
+                version = Minecraft.getInstance().font.plainSubstrByWidth(version, availableWidth - iconOffset - Minecraft.getInstance().font.width("...")).concat("...");
             }
-            graphics.drawString(Minecraft.getInstance().font, version, this.getX() + this.getHeight() + 2, this.getY() + 14, this.versionColor, false);
+            graphics.drawString(Minecraft.getInstance().font, version, this.getX() + this.getHeight() + 2 + iconOffset, this.getY() + 14, this.versionColor, false);
 
             // Update/Warning Icons
-            this.modDataHolder.getUpdateStatus().ifPresent(status -> {
-               if (status.isOutdated())
-                   this.renderUpdateIcon(graphics);
-            });
+            if (this.modDataHolder.isOutdated())
+                this.renderUpdateIcon(graphics);
         }
     }
 
     private void renderUpdateIcon(GuiGraphics graphics) {
         RenderSystem.enableBlend();
         graphics.pose().pushPose();
-        float offset = Mth.sin((PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick()) * 0.3F);
+        float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick()) * 0.16F));
         graphics.pose().translate(0F, offset, 0F);
-        graphics.blit(PaCoScreen.TEXTURE, this.getX() + 18, this.getY() - 1, 0, 170, 8, 10);
+        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getHeight() + 2, this.getY() + 13, 0, 170, 8, 10);
         graphics.pose().popPose();
 
 
 
 
         //TODO add method for warnings or make a smart pos calculation thingy that determines where to place the icons
-        graphics.blit(PaCoScreen.TEXTURE, this.getX() + 10, this.getY() - 1, 8, 170, 8, 10);
+//        graphics.blit(PaCoScreen.TEXTURE, this.getX() + 10, this.getY() - 1, 8, 170, 8, 10);
     }
 
     @Override

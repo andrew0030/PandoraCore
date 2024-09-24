@@ -16,7 +16,6 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -34,14 +33,13 @@ public class UpdateChecker {
         // We create a client and a request
         HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(HTTP_TIMEOUT_SECS)).followRedirects(HttpClient.Redirect.NORMAL).build();
         Optional<HttpRequest> request = UpdateChecker.createRequest(holder.getUpdateURL().get());
-        if (request.isEmpty()) {
+        if (request.isEmpty()) { // If an URISyntaxException occurred the Optional will be empty
             holder.setUpdateStatus(Status.FAILED);
             LOGGER.error("Failed to create URI from URL for [{}]", holder.getModId());
             return;
         }
-        CompletableFuture<HttpResponse<String>> responseFuture = client.sendAsync(request.get(), HttpResponse.BodyHandlers.ofString());
-        // Handles the response
-        responseFuture.thenAccept(response -> {
+        // Creates a request and handles the response
+        client.sendAsync(request.get(), HttpResponse.BodyHandlers.ofString()).thenAcceptAsync(response -> {
             try {
                 // Checks if the response is GZIP encoded
                 boolean isGzipEncoded = response.headers().firstValue("Content-Encoding").orElse("").equalsIgnoreCase("gzip");
@@ -96,7 +94,7 @@ public class UpdateChecker {
     private static Status determineStatus(String recommendedStr, String latestStr, ComparableVersion currentVersion, String modId) {
         ComparableVersion recommendedVersion = recommendedStr != null ? new ComparableVersion(recommendedStr) : null;
         ComparableVersion latestVersion = latestStr != null ? new ComparableVersion(latestStr) : null;
-        // Checks if there is a recommended version
+        // Checks if there is a "recommended version"
         if (recommendedVersion != null) {
             int diff = recommendedVersion.compareTo(currentVersion);
             if (diff == 0) {
@@ -111,15 +109,15 @@ public class UpdateChecker {
             LOGGER.info("[{}] Status: OUTDATED | Current Version: {} | Recommended Version: {}", modId, currentVersion, recommendedVersion);
             return Status.OUTDATED;
         }
-        // Checks if there is a latest version
+        // Checks if there is a "latest version"
         if (latestVersion != null) {
             String status = currentVersion.compareTo(latestVersion) < 0 ? "BETA_OUTDATED" : "BETA";
             LOGGER.info("[{}] Status: {} | Current Version: {} | Latest Version: {}", modId, status, currentVersion, latestVersion);
             return status.equals("BETA_OUTDATED") ? Status.BETA_OUTDATED : Status.BETA;
         }
         // The default status if no promos were found
-        LOGGER.warn("[{}] No promos found, defaulting to BETA status.", modId);
-        return Status.BETA;
+        LOGGER.warn("[{}] No promos found, defaulting to NO_PROMOS status.", modId);
+        return Status.NO_PROMOS;
     }
 
     public enum Status {
@@ -129,7 +127,8 @@ public class UpdateChecker {
         OUTDATED(true),
         AHEAD(false),
         BETA(false),
-        BETA_OUTDATED(true);
+        BETA_OUTDATED(true),
+        NO_PROMOS(false);
 
         private final boolean outdated;
 

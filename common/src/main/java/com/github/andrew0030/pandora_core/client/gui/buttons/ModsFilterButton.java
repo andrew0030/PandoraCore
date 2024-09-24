@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.gui.buttons;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
+import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -8,13 +9,17 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class ModsFilterButton extends AbstractButton {
     private static final FilterType[] FILTER_TYPES = FilterType.values();
     private FilterType filterType = FilterType.NONE;
+    private final PaCoScreen screen;
 
-    public ModsFilterButton(int x, int y) {
+    public ModsFilterButton(int x, int y, PaCoScreen screen) {
         super(x, y, 18, 18, Component.empty());
         this.setMessage(Component.translatable("gui.pandora_core.paco.filter.tooltip", this.filterType.getText()));
+        this.screen = screen;
     }
 
     @Override
@@ -36,6 +41,10 @@ public class ModsFilterButton extends AbstractButton {
     public void onPress() {
         this.nextFilterType();
         this.setMessage(Component.translatable("gui.pandora_core.paco.filter.tooltip", this.filterType.getText()));
+        // Updates the Mods list
+        if (this.screen.searchBox != null) {
+            this.screen.searchBox.setValue(this.screen.searchBox.getValue());
+        }
     }
 
     /** Cycles the {@link ModsFilterButton#filterType} */
@@ -43,6 +52,10 @@ public class ModsFilterButton extends AbstractButton {
         int currentIdx = this.filterType.ordinal();
         int nextIdx = (currentIdx + 1) % FILTER_TYPES.length;
         this.filterType = FILTER_TYPES[nextIdx];
+    }
+
+    public FilterType getFilterType() {
+        return this.filterType;
     }
 
     @Override

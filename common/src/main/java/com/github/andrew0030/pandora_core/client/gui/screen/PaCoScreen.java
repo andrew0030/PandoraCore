@@ -14,6 +14,7 @@ import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -35,6 +36,9 @@ public class PaCoScreen extends Screen {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
     public static final Component SEARCH = Component.translatable("gui.pandora_core.paco.search");
+    public static final Component NO_MODS = Component.translatable("gui.pandora_core.paco.no_mods");
+    public static final Component NO_WARNINGS = Component.translatable("gui.pandora_core.paco.no_warnings");
+    public static final Component NO_UPDATES = Component.translatable("gui.pandora_core.paco.no_updates");
     public final ModIconManager iconManager = new ModIconManager();
     private final Map<String, Object> parameters;
     // Transition Stuff
@@ -50,7 +54,9 @@ public class PaCoScreen extends Screen {
     public PaCoSlider modsScrollBar;
     public ModButton selectedModButton;
     // Misc
-    private static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
+    public static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
+    public static final int SOFT_RED_TEXT_COLOR = PaCoColor.color(255, 90, 100);
+    public static final int DARK_RED_TEXT_COLOR = PaCoColor.color(200, 30, 30);
     private static final int PADDING_ONE = 1;
     private static final int PADDING_TWO = 2;
     private static final int PADDING_FOUR = 4;
@@ -195,6 +201,13 @@ public class PaCoScreen extends Screen {
     protected void renderModsPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Debug Outline
 //        PaCoGuiUtils.renderBoxWithRim(graphics, 0, this.menuHeightStart, this.modsPanelWidth, this.menuHeight, null, PaCoColor.color(255, 40, 40), 1);
+        // No Mods Message
+        if (this.filteredMods.isEmpty()) {
+            int yPadding = 4;
+            Pair<Integer, Integer> dimensions = PaCoGuiUtils.drawCenteredWordWrapWithDimensions(graphics, this.font, NO_MODS, 5, this.modButtonsStart + yPadding, this.modButtonWidth, SOFT_RED_TEXT_COLOR, true);
+            RenderSystem.enableBlend();
+            graphics.blitRepeating(TEXTURE, 5, this.modButtonsStart, this.modButtonWidth, dimensions.getSecond() + yPadding * 2, 25, 72, 25, 25);
+        }
         // Search Bar
         graphics.blit(TEXTURE, 0, this.menuHeightStart, 1, 36, 5, 18);
         graphics.blit(TEXTURE, 5, this.menuHeightStart, 18, 36, 9, 18);
@@ -311,28 +324,32 @@ public class PaCoScreen extends Screen {
      */
     public ArrayList<ModDataHolder> createOrderedModsList() {
         boolean isForge = Services.PLATFORM.getPlatformName().equals("Forge");
-        List<ModDataHolder> outdatedMods = new ArrayList<>();
         // We use a map to store "x" mods, (which may load out of order), with a given index
         Map<Integer, ModDataHolder> pinnedMods = new HashMap<>();
         List<ModDataHolder> mods = new ArrayList<>(); // A simple list that will hold all non pinned mods
         // We loop through all the loaded mods and put them in the appropriate "lists".
         for (ModDataHolder holder : PandoraCore.getModHolders()) {
-            if (this.filterButton != null && this.filterButton.getFilterType() == ModsFilterButton.FilterType.UPDATES && holder.isOutdated()) {
-                outdatedMods.add(holder);
-            } else {
-                switch (holder.getModId()) {
-                    case "minecraft" -> pinnedMods.put(0, holder);
-                    case "forge", "fabricloader" -> pinnedMods.put(1, holder);
-                    case "fabric-api" -> pinnedMods.put(2, holder);
-                    case "pandora_core" -> pinnedMods.put(isForge ? 2 : 3, holder);
-                    default -> mods.add(holder);
-                }
+            if (this.filterButton != null && this.filterButton.getFilterType() != ModsFilterButton.FilterType.NONE) {
+                // Updates Only
+                if (this.filterButton.getFilterType() == ModsFilterButton.FilterType.UPDATES && holder.isOutdated())
+                    mods.add(holder);
+                // Warnings Only
+                // TODO: add warnings filtering once the logic has been coded.
+//                if (this.filterButton.getFilterType() == ModsFilterButton.FilterType.WARNINGS)
+//                    mods.add(holder);
+                continue;
+            }
+            // If no filters are present we build the list as we would normally
+            switch (holder.getModId()) {
+                case "minecraft" -> pinnedMods.put(0, holder);
+                case "forge", "fabricloader" -> pinnedMods.put(1, holder);
+                case "fabric-api" -> pinnedMods.put(2, holder);
+                case "pandora_core" -> pinnedMods.put(isForge ? 2 : 3, holder);
+                default -> mods.add(holder);
             }
         }
         // After we populated the "lists", we go through them and return the values in order
         ArrayList<ModDataHolder> finalList = new ArrayList<>();
-        outdatedMods.sort(Comparator.comparing(mod -> mod.getModName().toLowerCase()));
-        finalList.addAll(outdatedMods);
         pinnedMods.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .forEachOrdered(entry -> finalList.add(entry.getValue()));

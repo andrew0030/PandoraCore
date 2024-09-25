@@ -1,9 +1,11 @@
 package com.github.andrew0030.pandora_core.client.utils.gui;
 
 import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
 
 import javax.annotation.Nullable;
@@ -125,5 +127,95 @@ public class PaCoGuiUtils {
      */
     public static boolean isMouseWithin(double mouseX, double mouseY, int x, int y, int width, int height) {
         return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+    }
+
+    /**
+     * Draws a formatted text with word wrapping at the specified coordinates using the given font, text, line width,
+     * color and drop shadow.
+     * @param graphics   The {@link GuiGraphics}.
+     * @param font       The {@link Font} to use for rendering.
+     * @param text       The {@link FormattedCharSequence} to draw.
+     * @param x          The x-coordinate of the starting position.
+     * @param y          The y-coordinate of the starting position.
+     * @param lineWidth  The maximum width of each line before wrapping.
+     * @param color      The color of the text.
+     * @param dropShadow Whether to apply a drop shadow to the text.
+     */
+    public static void drawWordWrap(GuiGraphics graphics, Font font, FormattedText text, int x, int y, int lineWidth, int color, boolean dropShadow) {
+        for(FormattedCharSequence charSequence : font.split(text, lineWidth)) {
+            graphics.drawString(font, charSequence, x, y, color, dropShadow);
+            y += 9;
+        }
+    }
+
+    /**
+     * Draws a formatted text with word wrapping at the specified coordinates using the given font, text, line width,
+     * color and drop shadow.<br/>
+     * This version of the method also returns a new {@link Pair} containing the rendered text's width and height. If the
+     * dimensions are not needed, instead call {@link PaCoGuiUtils#drawWordWrap}.
+     * @param graphics   The {@link GuiGraphics}.
+     * @param font       The {@link Font} to use for rendering.
+     * @param text       The {@link FormattedCharSequence} to draw.
+     * @param x          The x-coordinate of the starting position.
+     * @param y          The y-coordinate of the starting position.
+     * @param lineWidth  The maximum width of each line before wrapping.
+     * @param color      The color of the text.
+     * @param dropShadow Whether to apply a drop shadow to the text.
+     * @return A {@link Pair} containing the width and height of the text.
+     */
+    public static Pair<Integer, Integer> drawWordWrapWithDimensions(GuiGraphics graphics, Font font, FormattedText text, int x, int y, int lineWidth, int color, boolean dropShadow) {
+        int startY = y;
+        int biggestWidth = 0;
+        for(FormattedCharSequence charSequence : font.split(text, lineWidth)) {
+            graphics.drawString(font, charSequence, x, y, color, dropShadow);
+            biggestWidth = Math.max(font.width(charSequence), biggestWidth);
+            y += 9;
+        }
+        return Pair.of(biggestWidth, y - startY);
+    }
+
+    /**
+     * Draws a centered formatted text, with word wrapping of the specified coordinates
+     * using the given font, text, line width, color and drop shadow.
+     * @param graphics   The {@link GuiGraphics}.
+     * @param font       The {@link Font} to use for rendering.
+     * @param text       The {@link FormattedCharSequence} to draw.
+     * @param x          The x-coordinate of the starting position.
+     * @param y          The y-coordinate of the starting position.
+     * @param lineWidth  The maximum width of each line before wrapping.
+     * @param color      The color of the text.
+     * @param dropShadow Whether to apply a drop shadow to the text.
+     */
+    public static void drawCenteredWordWrap(GuiGraphics graphics, Font font, FormattedText text, int x, int y, int lineWidth, int color, boolean dropShadow) {
+        for(FormattedCharSequence charSequence : font.split(text, lineWidth / 2)) {
+            PaCoGuiUtils.drawCenteredString(graphics, font, charSequence, x + lineWidth / 2, y, color, dropShadow);
+            y += 9;
+        }
+    }
+
+    /**
+     * Draws a centered formatted text, with word wrapping of the specified coordinates
+     * using the given font, text, line width, color and drop shadow.<br/>
+     * This version of the method also returns a new {@link Pair} containing the rendered text's width and height. If the
+     * dimensions are not needed, instead call {@link PaCoGuiUtils#drawCenteredWordWrap}.
+     * @param graphics   The {@link GuiGraphics}.
+     * @param font       The {@link Font} to use for rendering.
+     * @param text       The {@link FormattedCharSequence} to draw.
+     * @param x          The x-coordinate of the starting position.
+     * @param y          The y-coordinate of the starting position.
+     * @param lineWidth  The maximum width of each line before wrapping.
+     * @param color      The color of the text.
+     * @param dropShadow Whether to apply a drop shadow to the text.
+     * @return A {@link Pair} containing the width and height of the text.
+     */
+    public static Pair<Integer, Integer> drawCenteredWordWrapWithDimensions(GuiGraphics graphics, Font font, FormattedText text, int x, int y, int lineWidth, int color, boolean dropShadow) {
+        int startY = y;
+        int biggestWidth = 0;
+        for(FormattedCharSequence charSequence : font.split(text, lineWidth / 2)) {
+            PaCoGuiUtils.drawCenteredString(graphics, font, charSequence, x + lineWidth / 2, y, color, dropShadow);
+            biggestWidth = Math.max(font.width(charSequence), biggestWidth);
+            y += 9;
+        }
+        return Pair.of(biggestWidth, y - startY);
     }
 }

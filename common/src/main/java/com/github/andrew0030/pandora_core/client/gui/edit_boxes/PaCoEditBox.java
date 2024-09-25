@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.client.gui.edit_boxes;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoEditBox;
+import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
@@ -42,6 +43,9 @@ public class PaCoEditBox extends EditBox implements IPaCoEditBox {
         // After we filtered the mods we add them to the list and refresh
         this.screen.filteredMods.addAll(filteredHolders);
         this.screen.refresh();
+
+        // If the entered text causes no results to be displayed we make it red.
+        this.setTextColor((!holders.isEmpty() && filteredHolders.isEmpty()) ? PaCoScreen.DARK_RED_TEXT_COLOR : PaCoScreen.DARK_GRAY_TEXT_COLOR);
     }
 
     @Override

@@ -28,8 +28,10 @@ public class ModsFilterButton extends AbstractButton {
         int v = 0;
         if (this.isHoveredOrFocused()) {
             v += 18;
-            Component tooltip = Component.translatable("gui.pandora_core.paco.filter.tooltip", this.filterType.getText());
-            graphics.renderTooltip(Minecraft.getInstance().font, tooltip, this.getX() + 10, this.getY() + 17);
+            if (this.isHovered()) {
+                Component tooltip = Component.translatable("gui.pandora_core.paco.filter.tooltip", this.filterType.getText());
+                graphics.renderTooltip(Minecraft.getInstance().font, tooltip, this.getX() + 10, this.getY() + 17);
+            }
         }
 
         graphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);

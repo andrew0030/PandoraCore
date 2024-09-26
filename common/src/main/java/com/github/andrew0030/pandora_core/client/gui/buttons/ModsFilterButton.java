@@ -1,15 +1,12 @@
 package com.github.andrew0030.pandora_core.client.gui.buttons;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
-import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class ModsFilterButton extends AbstractButton {
     private static final FilterType[] FILTER_TYPES = FilterType.values();
@@ -58,6 +55,10 @@ public class ModsFilterButton extends AbstractButton {
 
     public FilterType getFilterType() {
         return this.filterType;
+    }
+
+    public void setFilterType(FilterType filterType) {
+        this.filterType = filterType;
     }
 
     @Override

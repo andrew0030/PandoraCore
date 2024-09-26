@@ -36,7 +36,7 @@ public class PaCoScreen extends Screen {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
     public static final Component SEARCH = Component.translatable("gui.pandora_core.paco.search");
-    public static final Component NO_MODS = Component.translatable("gui.pandora_core.paco.no_mods");
+    public static final Component NO_MATCHES = Component.translatable("gui.pandora_core.paco.no_matches");
     public static final Component NO_WARNINGS = Component.translatable("gui.pandora_core.paco.no_warnings");
     public static final Component NO_UPDATES = Component.translatable("gui.pandora_core.paco.no_updates");
     public final ModIconManager iconManager = new ModIconManager();
@@ -56,7 +56,7 @@ public class PaCoScreen extends Screen {
     // Misc
     public static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
     public static final int SOFT_RED_TEXT_COLOR = PaCoColor.color(255, 90, 100);
-    public static final int DARK_RED_TEXT_COLOR = PaCoColor.color(200, 30, 30);
+    public static final int DARK_RED_TEXT_COLOR = PaCoColor.color(235, 74, 74);
     private static final int PADDING_ONE = 1;
     private static final int PADDING_TWO = 2;
     private static final int PADDING_FOUR = 4;
@@ -121,6 +121,7 @@ public class PaCoScreen extends Screen {
         /* Adding Widgets */
         String activeSearchText = this.searchBox != null ? this.searchBox.getValue() : null; // If there is text we grab it before the EditBox is discarded.
         this.searchBox = null;
+        ModsFilterButton.FilterType filterType = this.filterButton != null ? this.filterButton.getFilterType() : ModsFilterButton.FilterType.NONE;
         this.filterButton = null;
         this.panelModButtons.clear(); // We clear the list (needed because resize would cause duplicates otherwise)
         this.modsScrollBar = null;
@@ -132,6 +133,7 @@ public class PaCoScreen extends Screen {
         this.addWidget(this.searchBox);
         // Filter Button
         this.filterButton = new ModsFilterButton(this.modsPanelWidth - 18, this.menuHeightStart, this);
+        this.filterButton.setFilterType(filterType);
         this.addWidget(this.filterButton);
         // Mod Buttons
         for (int i = 0; i < this.filteredMods.size(); i++) {
@@ -202,9 +204,16 @@ public class PaCoScreen extends Screen {
         // Debug Outline
 //        PaCoGuiUtils.renderBoxWithRim(graphics, 0, this.menuHeightStart, this.modsPanelWidth, this.menuHeight, null, PaCoColor.color(255, 40, 40), 1);
         // No Mods Message
-        if (this.filteredMods.isEmpty()) {
+        if (this.filteredMods.isEmpty() && this.searchBox != null && this.filterButton != null) {
+            Component message = NO_MATCHES;
+            if (!this.searchBox.isHidingAllMods()) {
+                switch (this.filterButton.getFilterType()) {
+                    case WARNINGS -> message = NO_WARNINGS;
+                    case UPDATES -> message = NO_UPDATES;
+                }
+            }
             int yPadding = 4;
-            Pair<Integer, Integer> dimensions = PaCoGuiUtils.drawCenteredWordWrapWithDimensions(graphics, this.font, NO_MODS, 5, this.modButtonsStart + yPadding, this.modButtonWidth, SOFT_RED_TEXT_COLOR, true);
+            Pair<Integer, Integer> dimensions = PaCoGuiUtils.drawCenteredWordWrapWithDimensions(graphics, this.font, message, 5, this.modButtonsStart + yPadding, this.modButtonWidth, SOFT_RED_TEXT_COLOR, true);
             RenderSystem.enableBlend();
             graphics.blitRepeating(TEXTURE, 5, this.modButtonsStart, this.modButtonWidth, dimensions.getSecond() + yPadding * 2, 25, 72, 25, 25);
         }

@@ -2,7 +2,6 @@ package com.github.andrew0030.pandora_core.client.gui.edit_boxes;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoEditBox;
-import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
@@ -14,6 +13,7 @@ import java.util.List;
 public class PaCoEditBox extends EditBox implements IPaCoEditBox {
     private final Font font;
     private final PaCoScreen screen;
+    private boolean hidingAllMods;
 
     public PaCoEditBox(Font font, int x, int y, int width, int height, Component message, PaCoScreen screen) {
         super(font, x, y, width, height, message);
@@ -45,12 +45,22 @@ public class PaCoEditBox extends EditBox implements IPaCoEditBox {
         this.screen.refresh();
 
         // If the entered text causes no results to be displayed we make it red.
-        this.setTextColor((!holders.isEmpty() && filteredHolders.isEmpty()) ? PaCoScreen.DARK_RED_TEXT_COLOR : PaCoScreen.DARK_GRAY_TEXT_COLOR);
+        this.hidingAllMods = !holders.isEmpty() && filteredHolders.isEmpty();
+        this.setTextColor(this.hidingAllMods ? PaCoScreen.DARK_RED_TEXT_COLOR : PaCoScreen.DARK_GRAY_TEXT_COLOR);
     }
 
     @Override
     public void setHint(@NotNull Component hint) {
         String newHint = this.font.plainSubstrByWidth(hint.getString(), this.getWidth() - 4);
         super.setHint(Component.literal(newHint));
+    }
+
+    /**
+     * Whether the current text value results in all Mods from being hidden.<br/>
+     * Note: if there are no Mods (for example warnings filter without any mods that have warnings
+     * or update filter without any found updates) this will return false.
+     */
+    public boolean isHidingAllMods() {
+        return this.hidingAllMods;
     }
 }

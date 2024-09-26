@@ -4,7 +4,7 @@
 
   "gui.pandora_core.paco.title": "Pandora Core",
   "gui.pandora_core.paco.search": "Search Mods",
-  "gui.pandora_core.paco.no_mods": "No Matching Results...",
+  "gui.pandora_core.paco.no_matches": "No Matching Results...",
   "gui.pandora_core.paco.no_warnings": "No Warnings Found...",
   "gui.pandora_core.paco.no_updates": "No Updates Found...",
 

@@ -3,7 +3,7 @@ package com.github.andrew0030.pandora_core.client.gui.screen;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.buttons.ModsFilterButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
-import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIconManager;
+import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModImageManager;
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
@@ -13,6 +13,7 @@ import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.Util;
@@ -23,10 +24,12 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -39,7 +42,7 @@ public class PaCoScreen extends Screen {
     public static final Component NO_MATCHES = Component.translatable("gui.pandora_core.paco.no_matches");
     public static final Component NO_WARNINGS = Component.translatable("gui.pandora_core.paco.no_warnings");
     public static final Component NO_UPDATES = Component.translatable("gui.pandora_core.paco.no_updates");
-    public final ModIconManager iconManager = new ModIconManager();
+    public final ModImageManager imageManager = new ModImageManager();
     private final Map<String, Object> parameters;
     // Transition Stuff
     private float fadeInProgress = 0.0F;
@@ -259,6 +262,15 @@ public class PaCoScreen extends Screen {
     protected void renderContentPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 
         PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart,  this.contentPanelWidth - PADDING_TWO, this.contentMenuHeight, PaCoColor.color(100, 0, 0, 0), null);
+        int bannerWidth = this.contentPanelWidth - PADDING_TWO;
+        int bannerHeight = this.contentMenuHeight / 4;
+        // Debug Outline For Banner
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, bannerWidth, bannerHeight, null, PaCoColor.color(255, 40, 40), 1);
+        if (this.selectedModButton != null)
+            this.renderModBackground(this.selectedModButton.getModDataHolder(), graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, bannerWidth, bannerHeight);
+
+        // Debug Outline For Banner
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, this.contentPanelWidth - PADDING_TWO, this.contentMenuHeight / 4, null, PaCoColor.color(255, 40, 40), 1);
 
         // Top Bar
         graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PADDING_TWO, this.contentMenuHeightStart - 4, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);
@@ -269,7 +281,7 @@ public class PaCoScreen extends Screen {
     @Override
     public void onClose() {
         // Clears the Icon cache
-        this.iconManager.close();
+        this.imageManager.close();
         // Handles returning to previous Screen if needed
         if (this.previousScreen != null) {
             Minecraft.getInstance().setScreen(this.previousScreen);
@@ -406,5 +418,26 @@ public class PaCoScreen extends Screen {
         this.children.addAll(filterIdx + 1, newModButtons);
         filterIdx = this.narratables.indexOf(this.filterButton);
         this.narratables.addAll(filterIdx + 1, newModButtons);
+    }
+
+    private void renderModBackground(ModDataHolder holder, GuiGraphics graphics, int posX, int posY, int width, int height) {
+        Pair<ResourceLocation, Pair<Integer, Integer>> backgroundData = this.imageManager.getImageData(
+                holder.getModId(),
+                this.imageManager::getCachedBackground,
+                this.imageManager::cacheBackground,
+                holder.getModBackgroundFiles(),
+                2F,
+                (imgWidth, ingHeight) -> true, //TODO add blurring logic
+                "background"
+        );
+        if (backgroundData != null) {
+            // If the ResourceLocation isn't null we render the background.
+            ResourceLocation resourceLocation = backgroundData.getFirst();
+            Pair<Integer, Integer> dimensions = backgroundData.getSecond();
+            graphics.blit(resourceLocation, posX, posY, width, height, 0, 0, dimensions.getFirst(), dimensions.getSecond(), dimensions.getFirst(), dimensions.getSecond());
+        } else {
+            // Otherwise we render a predefined or missing icon texture.
+            //TODO render generic backgrounds...
+        }
     }
 }

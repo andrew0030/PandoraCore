@@ -13,11 +13,11 @@ public class ForgeModDataHolder extends ModDataHolder {
     private final IModInfo modInfo;
     private final List<String> icons = new ArrayList<>();
     private Optional<Boolean> blurIcon = Optional.empty();
+    private final List<String> backgrounds = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
 
     public ForgeModDataHolder(IModInfo modInfo) {
         this.modInfo = modInfo;
-        /* We check for all valid mod icons and add them to the list */
         // Pandora Core
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreIcon"))
                 .filter(String.class::isInstance)
@@ -27,11 +27,19 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .filter(Boolean.class::isInstance)
                 .map(Boolean.class::cast)
                 .ifPresent(val -> this.blurIcon = Optional.of(val));
+        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBackground"))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .ifPresent(this.backgrounds::add);
         // Catalogue
         Optional.ofNullable(this.modInfo.getModProperties().get("catalogueImageIcon"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .ifPresent(this.icons::add);
+        Optional.ofNullable(this.modInfo.getModProperties().get("catalogueBackground"))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .ifPresent(this.backgrounds::add);
         // Forge
         modInfo.getLogoFile().ifPresent(this.icons::add);
 
@@ -71,6 +79,11 @@ public class ForgeModDataHolder extends ModDataHolder {
     @Override
     public Optional<Boolean> getBlurModIcon() {
         return this.blurIcon;
+    }
+
+    @Override
+    public List<String> getModBackgroundFiles() {
+        return this.backgrounds;
     }
 
     @Override

@@ -29,5 +29,6 @@ issueTrackerURL="${issue_tracker_url}"
 [modproperties.${mod_id}]
     pandoracoreIcon="${mod_id}.png"
     pandoracoreBlurIcon=true
+    pandoracoreBackground="background.png"
     pandoracoreUpdateURL="https://raw.githubusercontent.com/andrew0030/Pandoras-Creatures/refs/heads/1.16.5/src/main/resources/assets/pandoras_creatures/update.json"
     catalogueImageIcon="${mod_id}.png"

@@ -2,26 +2,20 @@ package com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.PaCoClientTicker;
-import com.github.andrew0030.pandora_core.client.gui.buttons.ModsFilterButton;
 import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
-import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
-import com.github.andrew0030.pandora_core.utils.easing.Easing;
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
@@ -164,7 +158,15 @@ public class ModButton extends AbstractButton {
 
     private void renderModIcon(ModDataHolder holder, GuiGraphics graphics, int posX, int posY, int size) {
         String modId = holder.getModId();
-        Pair<ResourceLocation, Pair<Integer, Integer>> iconData = this.getIconData(modId);
+        Pair<ResourceLocation, Pair<Integer, Integer>> iconData = this.screen.imageManager.getImageData(
+                modId,
+                this.screen.imageManager::getCachedIcon,
+                this.screen.imageManager::cacheIcon,
+                holder.getModIconFiles(),
+                1.0F,
+                (imgWidth, ingHeight) -> this.modDataHolder.getBlurModIcon().orElse(imgWidth > 92),
+                "icon"
+        );
         if (iconData != null) {
             // If the ResourceLocation isn't null we render the icon.
             ResourceLocation resourceLocation = iconData.getFirst();
@@ -193,74 +195,6 @@ public class ModButton extends AbstractButton {
                 graphics.pose().popPose();
             }
         }
-    }
-
-    /**
-     * Attempts to load the icon of a Mod with the given mod ID.
-     * @param modId the id of the mod to load the icon for
-     * @return If this attempt succeeds iconData is used to get the ResourceLocation and dimensions of the icon.
-     *         If the attempt fails, it returns null and the placeholder image should be rendered.
-     */
-    @Nullable
-    private Pair<ResourceLocation, Pair<Integer, Integer>> getIconData(String modId) {
-        // Checks if the modId is already present in the cache, and grabs the values if so.
-        Pair<ResourceLocation, DynamicTexture> cachedEntry = this.screen.iconManager.getCachedEntry(modId);
-        if (cachedEntry != null) {
-            // If the cached entry's resource location is null, then null should be returned for consistency reasons
-            // The first entry being null indicates that the mod has an icon, but said icon failed to load
-            if (cachedEntry.getFirst() == null)
-                return null;
-
-            // return the entry
-            return Pair.of(
-                    cachedEntry.getFirst(),
-                    Pair.of(cachedEntry.getSecond().getPixels().getWidth(), cachedEntry.getSecond().getPixels().getHeight())
-            );
-        }
-
-        // If no icon is already cached, we attempt to load one, and stop if a valid one was found
-        // Alternatively if there is no icons (the list is empty) the loop will not get called and null is cached/returned
-        for (String iconFile : this.modDataHolder.getModIconFiles()) {
-            Pair<ResourceLocation, Pair<Integer, Integer>> result = Services.PLATFORM.loadNativeImage(modId, iconFile, nativeImage -> {
-                // If the icon fails to load, or the icon aspect ratio isn't 1:1 null is provided
-                if (nativeImage == null || nativeImage.getWidth() != nativeImage.getHeight())
-                    return null;
-
-                // We determine whether the image should be blurred, we check if a property has been specified.
-                // If not we manually determine it, 92 Because its 4x the native size of 23x23
-                boolean blurIcon = this.modDataHolder.getBlurModIcon().orElse(nativeImage.getWidth() > 92);
-                DynamicTexture dynamicTexture = null;
-                try {
-                    dynamicTexture = new DynamicTexture(nativeImage) {
-                        @Override
-                        public void upload() {
-                            this.bind();
-                            NativeImage image = this.getPixels();
-                            this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), blurIcon, false, false, false);
-                        }
-                    };
-                    // Register and cache the texture, and return it
-                    ResourceLocation resourceLocation = Minecraft.getInstance().getTextureManager().register("modicon", dynamicTexture);
-                    this.screen.iconManager.cacheModIcon(modId, resourceLocation, dynamicTexture);
-                    return Pair.of(resourceLocation, Pair.of(nativeImage.getWidth(), nativeImage.getHeight()));
-                } catch (Exception ignored) {
-                    // Safety reasons
-                    // To my knowledge, the try here should never fail
-                    // However, VRAM leaks are particularly annoying in that they're unnoticeable until the device crashes, at which point the screen blacks out until drivers reboot
-                    if (dynamicTexture != null)
-                        dynamicTexture.close();
-                    return null; // Return null to indicate failure for this icon
-                }
-            });
-            // If we found a valid icon, we return it
-            // This will stop the loop as we don't need to look at other entries
-            if (result != null)
-                return result;
-        }
-        // If we went through all the icons and none succeeded or were valid,
-        // we cache null,null to indicate that and return null
-        this.screen.iconManager.cacheModIcon(modId, null, null);
-        return null;
     }
 
     public ModDataHolder getModDataHolder() {

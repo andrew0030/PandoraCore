@@ -14,6 +14,7 @@ public class FabricModDataHolder extends ModDataHolder {
     private final ModMetadata metadata;
     private final List<String> icons = new ArrayList<>();
     private Optional<Boolean> blurIcon = Optional.empty();
+    private final List<String> backgrounds = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
 
     public FabricModDataHolder(ModMetadata metadata) {
@@ -34,6 +35,11 @@ public class FabricModDataHolder extends ModDataHolder {
                             .filter(blurIconVal -> blurIconVal.getType() == CustomValue.CvType.BOOLEAN)
                             .map(CustomValue::getAsBoolean)
                             .ifPresent(val -> this.blurIcon = Optional.of(val));
+                    // Background
+                    Optional.ofNullable(pandoracoreObj.get("background"))
+                            .filter(backgroundVal -> backgroundVal.getType() == CustomValue.CvType.STRING)
+                            .map(CustomValue::getAsString)
+                            .ifPresent(this.backgrounds::add);
                     // Because its handy I also check for all other paco properties here
                     // Update URL
                     Optional.ofNullable(pandoracoreObj.get("updateURL"))
@@ -53,13 +59,21 @@ public class FabricModDataHolder extends ModDataHolder {
         Optional.ofNullable(metadata.getCustomValue("catalogue"))
                 .filter(val -> val.getType() == CustomValue.CvType.OBJECT)
                 .map(CustomValue::getAsObject)
-                .map(catalogueObj -> catalogueObj.get("icon"))
-                .filter(iconVal -> iconVal.getType() == CustomValue.CvType.OBJECT)
-                .map(CustomValue::getAsObject)
-                .map(iconObj -> iconObj.get("image"))
-                .filter(imageVal -> imageVal.getType() == CustomValue.CvType.STRING)
-                .map(CustomValue::getAsString)
-                .ifPresent(this.icons::add);
+                .ifPresent(catalogueObj -> {
+                    // Icon
+                    Optional.ofNullable(catalogueObj.get("icon"))
+                            .filter(iconVal -> iconVal.getType() == CustomValue.CvType.OBJECT)
+                            .map(CustomValue::getAsObject)
+                            .map(iconObj -> iconObj.get("image"))
+                            .filter(imageVal -> imageVal.getType() == CustomValue.CvType.STRING)
+                            .map(CustomValue::getAsString)
+                            .ifPresent(this.icons::add);
+                    // Background
+                    Optional.ofNullable(catalogueObj.get("background"))
+                            .filter(backgroundVal -> backgroundVal.getType() == CustomValue.CvType.STRING)
+                            .map(CustomValue::getAsString)
+                            .ifPresent(this.backgrounds::add);
+                });
         // Fabric
         metadata.getIconPath(0).ifPresent(this.icons::add);
 
@@ -90,6 +104,11 @@ public class FabricModDataHolder extends ModDataHolder {
     @Override
     public Optional<Boolean> getBlurModIcon() {
         return this.blurIcon;
+    }
+
+    @Override
+    public List<String> getModBackgroundFiles() {
+        return this.backgrounds;
     }
 
     @Override

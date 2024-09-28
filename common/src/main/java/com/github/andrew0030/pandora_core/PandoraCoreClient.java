@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core;
 
+import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.platform.Services;
@@ -9,6 +10,7 @@ import java.util.List;
 
 public class PandoraCoreClient {
     public static final TemplateShaderResourceLoader templateShaderLoader = new TemplateShaderResourceLoader();
+    public static final PaCoCoreShaders coreShaders = new PaCoCoreShaders();
 
     /* Early client init (mod construction) */
     public static void earlyInit() {
@@ -16,7 +18,7 @@ public class PandoraCoreClient {
 
         Services.RELOAD_LISTENER.registerResourceLoader((side) -> {
             if (side == LogicalSide.CLIENT) {
-                return List.of(templateShaderLoader);
+                return List.of(templateShaderLoader, coreShaders);
             } else return null;
         });
     }

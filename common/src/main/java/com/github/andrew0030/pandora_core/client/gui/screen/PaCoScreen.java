@@ -7,6 +7,7 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIm
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
+import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
@@ -15,6 +16,7 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -24,12 +26,14 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 
 import java.util.*;
 
@@ -262,15 +266,14 @@ public class PaCoScreen extends Screen {
     protected void renderContentPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 
         PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart,  this.contentPanelWidth - PADDING_TWO, this.contentMenuHeight, PaCoColor.color(100, 0, 0, 0), null);
-        int bannerWidth = this.contentPanelWidth - PADDING_TWO;
-        int bannerHeight = this.contentMenuHeight / 4;
-        // Debug Outline For Banner
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, bannerWidth, bannerHeight, null, PaCoColor.color(255, 40, 40), 1);
+        int backgroundWidth = this.contentPanelWidth - PADDING_TWO;
+        int backgroundHeight = this.contentMenuHeight / 3;
+
         if (this.selectedModButton != null)
-            this.renderModBackground(this.selectedModButton.getModDataHolder(), graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, bannerWidth, bannerHeight);
+            this.renderModBackground(this.selectedModButton.getModDataHolder(), graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight);
 
         // Debug Outline For Banner
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, this.contentPanelWidth - PADDING_TWO, this.contentMenuHeight / 4, null, PaCoColor.color(255, 40, 40), 1);
+//        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight, null, PaCoColor.color(100, 255, 0, 0), 1);
 
         // Top Bar
         graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PADDING_TWO, this.contentMenuHeightStart - 4, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);
@@ -432,9 +435,45 @@ public class PaCoScreen extends Screen {
         );
         if (backgroundData != null) {
             // If the ResourceLocation isn't null we render the background.
-            ResourceLocation resourceLocation = backgroundData.getFirst();
+            ResourceLocation rl = backgroundData.getFirst();
             Pair<Integer, Integer> dimensions = backgroundData.getSecond();
-            graphics.blit(resourceLocation, posX, posY, width, height, 0, 0, dimensions.getFirst(), dimensions.getSecond(), dimensions.getFirst(), dimensions.getSecond());
+
+//            graphics.blit(resourceLocation, posX, (posY + height / 2) - (width / 4), width, width / 2, 0, 0, dimensions.getFirst(), dimensions.getSecond(), dimensions.getFirst(), dimensions.getSecond());
+
+            RenderSystem.setShaderTexture(0, rl);
+            RenderSystem.setShader(PaCoCoreShaders::getPositionColorTexFullAlphaShader);
+            RenderSystem.enableBlend();
+            Matrix4f matrix4f = graphics.pose().last().pose();
+            BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+            int visible = PaCoColor.color(255, 255, 255, 255);
+            int hidden = PaCoColor.color(0, 255, 255, 255);
+            float halfBackground = height / 2F; // Visible height from the background center to the background top/bottom
+            float imgHeight = width / 2F; // Since the background is 2:1, its height is the width divided by two
+            float originTop = (posY + halfBackground) - (imgHeight / 2F); // Original background top position (centered)
+            float shift = posY - originTop; // Shift amount: how much we need to move the background  to be within bounds
+
+            // Top Quad with adjustments
+            float pY1 = originTop + shift;
+            float pY2 = pY1 + (imgHeight / 2F) - shift;
+            float v1 = shift / imgHeight;
+            float v2 = 0.5F ;
+            bufferbuilder.vertex(matrix4f, posX, pY1, 0).color(visible).uv(0F, v1).endVertex(); // Top Left
+            bufferbuilder.vertex(matrix4f, posX, pY2, 0).color(visible).uv(0F, v2).endVertex(); // Bottom Left
+            bufferbuilder.vertex(matrix4f, posX + width, pY2, 0).color(visible).uv(1F, v2).endVertex(); // Bottom Right
+            bufferbuilder.vertex(matrix4f, posX + width, pY1, 0).color(visible).uv(1F, v1).endVertex(); // Top Right
+
+            pY1 = pY2;
+            pY2 = posY + height;
+            v1 = v2;
+            v2 = v1 + (pY2 - pY1) / imgHeight;
+            bufferbuilder.vertex(matrix4f, posX, pY1, 0).color(visible).uv(0F, v1).endVertex(); // Top Left
+            bufferbuilder.vertex(matrix4f, posX, pY2, 0).color(hidden).uv(0F, v2).endVertex(); // Bottom Left
+            bufferbuilder.vertex(matrix4f, posX + width, pY2, 0).color(hidden).uv(1F, v2).endVertex(); // Bottom Right
+            bufferbuilder.vertex(matrix4f, posX + width, pY1, 0).color(visible).uv(1F, v1).endVertex(); // Top Right
+
+            BufferUploader.drawWithShader(bufferbuilder.end());
+            RenderSystem.disableBlend();
         } else {
             // Otherwise we render a predefined or missing icon texture.
             //TODO render generic backgrounds...

@@ -2,7 +2,7 @@ Pandora Core Libraries Attribution Notice
 This product includes software developed by other open-source projects.
 Please see below for specific notices and licenses.
 
-For ComparableVersion.class, which is used to evaluate if a new version is available.
+For 'ComparableVersion.class', which is used to evaluate if a new version is available.
 Source: https://github.com/apache/maven
 Original Notice and License:
 -------------------------------------------------------------------------------

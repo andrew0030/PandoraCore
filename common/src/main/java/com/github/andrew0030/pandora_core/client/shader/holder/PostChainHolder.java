@@ -18,7 +18,7 @@ import java.util.Map;
  *   <li>{@link ResourceLocation} of the shader.</li>
  *   <li>{@link IPaCoPostChainProcessor} which is used to handle passing parameters to the shader.</li>
  * </ul>
- * The holder also has a {@link com.github.andrew0030.pandora_core.client.shader.holder.PostChainHolder#processPostChain(float, Map)} method, which uses the given parameters and processes the shader.
+ * The holder also has a {@link PostChainHolder#processPostChain(float, Map)} method, which uses the given parameters and processes the shader.
  */
 public class PostChainHolder {
     private final ResourceLocation resourceLocation;
@@ -58,7 +58,7 @@ public class PostChainHolder {
     /**
      * Called in {@link GameRenderer#reloadShaders(ResourceProvider)}, to create a new {@link PostChain} based on the given {@link ResourceLocation}.
      * If the {@link PostChain} is successfully created, the {@link PostChain} field of the {@link PostChainHolder} is updated.
-     * */
+     */
     @ApiStatus.Internal
     public void setPostChain(PostChain postChain) {
         this.postChain = postChain;

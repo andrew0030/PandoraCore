@@ -185,8 +185,8 @@ public class PaCoScreen extends Screen {
         RenderSystem.disableDepthTest(); // Needed so it works if chat is rendering.
         // TODO: if PaCo menu behaviour is weird, for example elements disappear, maybe look into re-enabling depth test.
         this.renderBlurredBackground(partialTick);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.2F * this.fadeInProgress);//TODO: look into this darkness fade, once fading has a config
-        graphics.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.fadeInProgress);//TODO: look into this darkness fade, once fading has a config
+        graphics.fillGradient(0, 0, this.width, this.height, PaCoColor.color(83, 16, 16, 16), PaCoColor.color(67, 16, 16, 16));
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         int slideInTime = 600; //TODO add config options for slide in time
@@ -265,11 +265,21 @@ public class PaCoScreen extends Screen {
         int backgroundWidth = this.contentPanelWidth - PADDING_TWO;
         int backgroundHeight = this.contentMenuHeight / 3;
 
-        if (this.selectedModButton != null)
+        if (this.selectedModButton != null) {
             this.renderModBackground(this.selectedModButton.getModDataHolder(), graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight);
+            // Debug Outline For Banner
+//            PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight, null, PaCoColor.color(100, 255, 0, 0), 1);
 
-        // Debug Outline For Banner
-//        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight, null, PaCoColor.color(100, 255, 0, 0), 1);
+            // TODO: the text bellow is placeholder code to get a good feeling for the UI, I will have to add a dynamic system to calculate height more easily
+            graphics.pose().pushPose();
+            graphics.pose().translate(this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, this.contentMenuHeight / 3.2F, 0F);
+            graphics.pose().scale(2F, 2F, 2F);
+            graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModName(), 0, 0, PaCoColor.WHITE, true);
+            graphics.pose().popPose();
+
+            graphics.drawString(this.font, "version:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 20, PaCoColor.color(120, 120, 120), true);
+            graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModVersion(), this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR + PADDING_TWO + this.font.width("version:"), Mth.ceil(this.contentMenuHeight / 3.2F) + 21, PaCoColor.color(220, 220, 220), false);
+        }
 
         // Top Bar
         graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PADDING_TWO, this.contentMenuHeightStart - 4, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);

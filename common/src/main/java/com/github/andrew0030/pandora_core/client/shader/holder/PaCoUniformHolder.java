@@ -1,16 +1,17 @@
 package com.github.andrew0030.pandora_core.client.shader.holder;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoPostChainAccess;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoTagged;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoPostChainAccess;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoUniformAccess;
 import com.github.andrew0030.pandora_core.utils.TagFilter;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.renderer.PostPass;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +19,9 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSetter>, IPaCoPostChainAccess {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PandoraCore.MOD_NAME + "::PaCoUniformHolder");
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "PaCoUniformHolder");
 
+    private static final List<PostPass> NO_PASSES = ImmutableList.of();
     final UniformSetter value = new UniformSetter();
     private final IPaCoUniformAccess uniformAccess;
     private final String key;
@@ -57,6 +59,8 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
 
     @Override
     public List<PostPass> pandoraCore$getPasses() {
+        if (this.uniformAccess == null)
+            return NO_PASSES;
         return ((IPaCoPostChainAccess) uniformAccess).pandoraCore$getPasses();
     }
 

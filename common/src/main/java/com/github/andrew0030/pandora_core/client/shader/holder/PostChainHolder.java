@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.client.shader.holder;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoUniformAccess;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import net.irisshaders.iris.gl.uniform.UniformHolder;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
@@ -67,11 +68,18 @@ public class PostChainHolder {
         }
     }
 
+    /**
+     * Gets the {@link PaCoUniformHolder} of the given name.<br/>
+     * If there is none, this method will create a new one and store it.
+     *
+     * @param name The name of the uniform
+     * @return The {@link PaCoUniformHolder} of the given name
+     */
     public PaCoUniformHolder getUniform(String name) {
         PaCoUniformHolder holder = this.uniforms.get(name);
         if (holder == null)
             this.uniforms.put(name, holder = new PaCoUniformHolder((IPaCoUniformAccess) this.postChain, name));
-        if (holder.isDirty)
+        if (holder.isDirty && this.postChain != null)
             holder.value.uniforms = ((IPaCoUniformAccess) postChain).pandoraCore$getUniforms(name);
         return holder;
     }

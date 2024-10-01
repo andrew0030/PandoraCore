@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.loading.StringUtils;
 import net.minecraftforge.forgespi.language.IModInfo;
 
@@ -15,6 +16,7 @@ public class ForgeModDataHolder extends ModDataHolder {
     private Optional<Boolean> blurIcon = Optional.empty();
     private final List<String> backgrounds = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
+    private final List<Component> modWarnings = new ArrayList<>();
 
     public ForgeModDataHolder(IModInfo modInfo) {
         this.modInfo = modInfo;
@@ -31,6 +33,16 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .ifPresent(this.backgrounds::add);
+        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreUpdateURL"))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .ifPresent(val -> this.updateURL = Optional.ofNullable(StringUtils.toURL(val)));
+        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreWarningFactory"))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .ifPresent(factoryClass -> {
+                    this.modWarnings.addAll(this.loadWarningsFromFactory(factoryClass));
+                });
         // Catalogue
         Optional.ofNullable(this.modInfo.getModProperties().get("catalogueImageIcon"))
                 .filter(String.class::isInstance)
@@ -42,14 +54,6 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .ifPresent(this.backgrounds::add);
         // Forge
         modInfo.getLogoFile().ifPresent(this.icons::add);
-
-        /* We check if there is an update checking URL, and perform a check if needed */
-        // Pandora Core
-        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreUpdateURL"))
-                .filter(String.class::isInstance)
-                .map(String.class::cast)
-                .ifPresent(val -> this.updateURL = Optional.ofNullable(StringUtils.toURL(val)));
-        // Forge
         modInfo.getUpdateURL().ifPresent(url -> this.updateURL = this.updateURL.isPresent() ? this.updateURL : modInfo.getUpdateURL());
 
         // TODO add config option to disable update checking
@@ -92,7 +96,7 @@ public class ForgeModDataHolder extends ModDataHolder {
     }
 
     @Override
-    public boolean isOutdated() {
-        return this.getUpdateStatus().map(UpdateChecker.Status::isOutdated).orElse(false);
+    public List<Component> getModWarnings() {
+        return this.modWarnings;
     }
 }

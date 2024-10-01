@@ -11,5 +11,7 @@
   "gui.pandora_core.paco.filter.tooltip": "Filter: %s",
   "gui.pandora_core.paco.filter.tooltip.none": "None",
   "gui.pandora_core.paco.filter.tooltip.warnings": "Warnings",
-  "gui.pandora_core.paco.filter.tooltip.updates": "Updates"
+  "gui.pandora_core.paco.filter.tooltip.updates": "Updates",
+
+  "warnings.pandora_core.opti_fine.post_shader": "[OptiFine] Detected, post shaders have been disabled!"
 }

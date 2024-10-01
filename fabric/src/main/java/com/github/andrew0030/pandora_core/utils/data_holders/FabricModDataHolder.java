@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.utils.data_holders;
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.minecraft.network.chat.Component;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,6 +17,7 @@ public class FabricModDataHolder extends ModDataHolder {
     private Optional<Boolean> blurIcon = Optional.empty();
     private final List<String> backgrounds = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
+    private final List<Component> modWarnings = new ArrayList<>();
 
     public FabricModDataHolder(ModMetadata metadata) {
         this.metadata = metadata;
@@ -40,6 +42,13 @@ public class FabricModDataHolder extends ModDataHolder {
                             .filter(backgroundVal -> backgroundVal.getType() == CustomValue.CvType.STRING)
                             .map(CustomValue::getAsString)
                             .ifPresent(this.backgrounds::add);
+                    // Mod Warnings
+                    Optional.ofNullable(pandoracoreObj.get("warningFactory"))
+                            .filter(factoryVal -> factoryVal.getType() == CustomValue.CvType.STRING)
+                            .map(CustomValue::getAsString)
+                            .ifPresent(factoryClass -> {
+                                this.modWarnings.addAll(this.loadWarningsFromFactory(factoryClass));
+                            });
                     // Because its handy I also check for all other paco properties here
                     // Update URL
                     Optional.ofNullable(pandoracoreObj.get("updateURL"))
@@ -117,7 +126,7 @@ public class FabricModDataHolder extends ModDataHolder {
     }
 
     @Override
-    public boolean isOutdated() {
-        return this.getUpdateStatus().map(UpdateChecker.Status::isOutdated).orElse(false);
+    public List<Component> getModWarnings() {
+        return this.modWarnings;
     }
 }

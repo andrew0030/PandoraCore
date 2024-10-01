@@ -24,6 +24,7 @@ public class ModButton extends AbstractButton {
     public static final HashMap<String, ResourceLocation> MOD_ICONS = new HashMap<>();
     private final ModDataHolder modDataHolder;
     private final PaCoScreen screen;
+    private final int nameColor;
     private final int versionColor;
     private boolean selected;
 
@@ -36,6 +37,7 @@ public class ModButton extends AbstractButton {
         super(x, y, width, height, Component.literal(modDataHolder.getModName()));
         this.modDataHolder = modDataHolder;
         this.screen = screen;
+        this.nameColor = this.modDataHolder.hasModWarnings() ? PaCoScreen.SOFT_RED_TEXT_COLOR : PaCoColor.WHITE;
         this.versionColor = this.modDataHolder.isOutdated() ? PaCoColor.color(200, 150, 10) : PaCoColor.color(130, 130, 130);
     }
 
@@ -61,39 +63,47 @@ public class ModButton extends AbstractButton {
             // Mod Name
             String name = this.modDataHolder.getModName();
             int availableWidth = this.getWidth() - 27; // Total width minus icon width and padding.
+            int iconOffset = this.modDataHolder.hasModWarnings() ? 9 : 0;
             int nameWidth = Minecraft.getInstance().font.width(name);
-            if (nameWidth > availableWidth) {
-                name = Minecraft.getInstance().font.plainSubstrByWidth(name, availableWidth - Minecraft.getInstance().font.width("...")).trim().concat("...");
+            if (nameWidth > availableWidth - iconOffset) {
+                name = Minecraft.getInstance().font.plainSubstrByWidth(name, availableWidth - iconOffset - Minecraft.getInstance().font.width("...")).trim().concat("...");
             }
-            graphics.drawString(Minecraft.getInstance().font, name, this.getX() + this.getHeight() + 2, this.getY() + 3, PaCoColor.color(255, 255, 255), false);
+            graphics.drawString(Minecraft.getInstance().font, name, this.getX() + this.getHeight() + 2 + iconOffset, this.getY() + 3, this.nameColor, false);
             // Mod Version
             String version = "v" + this.modDataHolder.getModVersion();
-            int iconOffset = this.modDataHolder.isOutdated() ? 9 : 0;
+            iconOffset = this.modDataHolder.isOutdated() ? 9 : 0;
             int versionWidth = Minecraft.getInstance().font.width(version);
             if (versionWidth > availableWidth - iconOffset) {
                 version = Minecraft.getInstance().font.plainSubstrByWidth(version, availableWidth - iconOffset - Minecraft.getInstance().font.width("...")).concat("...");
             }
             graphics.drawString(Minecraft.getInstance().font, version, this.getX() + this.getHeight() + 2 + iconOffset, this.getY() + 14, this.versionColor, false);
 
-            // Update/Warning Icons
+            // Warning/Update Icons
+            if (this.modDataHolder.hasModWarnings())
+                this.renderWarningIcon(graphics);
             if (this.modDataHolder.isOutdated())
                 this.renderUpdateIcon(graphics);
         }
     }
 
+    private void renderWarningIcon(GuiGraphics graphics) {
+        RenderSystem.enableBlend();
+        graphics.pose().pushPose();
+        int idx = Math.max(this.screen.filteredMods.indexOf(this.getModDataHolder()), 0);
+        float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick() + idx * 2) * 0.16F));
+        graphics.pose().translate(0F, offset, 0F);
+        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getHeight() + 2, this.getY() + 2, 8, 170, 8, 10);
+        graphics.pose().popPose();
+    }
+
     private void renderUpdateIcon(GuiGraphics graphics) {
         RenderSystem.enableBlend();
         graphics.pose().pushPose();
-        float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick()) * 0.16F));
+        int idx = Math.max(this.screen.filteredMods.indexOf(this.getModDataHolder()), 0);
+        float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick() + idx * 2) * 0.16F));
         graphics.pose().translate(0F, offset, 0F);
         graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getHeight() + 2, this.getY() + 13, 0, 170, 8, 10);
         graphics.pose().popPose();
-
-
-
-
-        //TODO add method for warnings or make a smart pos calculation thingy that determines where to place the icons
-//        graphics.blit(PaCoScreen.TEXTURE, this.getX() + 10, this.getY() - 1, 8, 170, 8, 10);
     }
 
     @Override

@@ -62,6 +62,7 @@ public class PaCoScreen extends Screen {
     public static final int DARK_RED_TEXT_COLOR = PaCoColor.color(235, 74, 74);
     private static final int PADDING_ONE = 1;
     private static final int PADDING_TWO = 2;
+    private static final int PADDING_THREE = 3;
     private static final int PADDING_FOUR = 4;
     private static final int MOD_BUTTON_HEIGHT = 25;
     public final List<ModDataHolder> filteredMods = this.createOrderedModsList();
@@ -109,9 +110,9 @@ public class PaCoScreen extends Screen {
         this.contentMenuHeightStop = this.contentMenuHeightStart + this.contentMenuHeight;
         this.modsPanelWidth = Mth.floor(this.width * 0.32F);
         this.contentPanelWidth = this.width - this.modsPanelWidth - PADDING_TWO;
-        this.modButtonsStart = 41;
+        this.modButtonsStart = 38;
         this.modButtonsLength = (this.filteredMods.size() * (MOD_BUTTON_HEIGHT + PADDING_ONE)) - 1;
-        this.modButtonsPanelLength = this.menuHeightStop - this.modButtonsStart;
+        this.modButtonsPanelLength = this.menuHeightStop - this.modButtonsStart - PADDING_THREE;
         this.modButtonWidth = this.modsPanelWidth - (this.modButtonsLength > this.modButtonsPanelLength ? 15 : 10);
         this.modsHandleHeight = Math.max(8, this.modButtonsPanelLength - (this.modButtonsLength - this.modButtonsPanelLength));
     }
@@ -149,7 +150,7 @@ public class PaCoScreen extends Screen {
         }
         // Scroll Bar (Slider)
         if (this.modButtonsLength > this.modButtonsPanelLength) { // We only add it if its needed
-            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart, 6, this.modButtonsPanelLength, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
+            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PADDING_TWO, 6, this.modButtonsPanelLength - PADDING_FOUR, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
                     .setSilent(true)
                     .setTextHidden(true)
                     .setHandleSize(8, this.modsHandleHeight)
@@ -225,6 +226,8 @@ public class PaCoScreen extends Screen {
         graphics.blit(TEXTURE, 5, this.menuHeightStart, 18, 36, 9, 18);
         graphics.blitRepeating(TEXTURE, 14, this.menuHeightStart, this.modsPanelWidth - 41, 18, 27, 36, 18, 18);
         graphics.blit(TEXTURE, this.modsPanelWidth - 27, this.menuHeightStart, 45, 36, 9, 18);
+        // Bottom Bar
+        graphics.blitNineSliced(TEXTURE, 5, this.modButtonsStart + this.modButtonsPanelLength, this.modsPanelWidth - 5, 3, 1, 18, 18, 0, 36);
         // Renders Mod Buttons
         PaCoGuiUtils.enableScissor(graphics, 5, this.modButtonsStart, this.modButtonWidth, this.modButtonsPanelLength);
         graphics.pose().pushPose();
@@ -246,7 +249,7 @@ public class PaCoScreen extends Screen {
             int maxVal = this.modButtonsLength - this.modButtonsPanelLength;
             if (this.modsScrollBar.getValue() < maxVal) {
                 int gradientHeight = (int) Math.min(25, maxVal - this.modsScrollBar.getValue());
-                graphics.blitRepeating(TEXTURE, 5, this.menuHeightStop - gradientHeight, this.modButtonWidth, gradientHeight, 0, 97, 25, gradientHeight);
+                graphics.blitRepeating(TEXTURE, 5, this.modButtonsStart + this.modButtonsPanelLength - gradientHeight, this.modButtonWidth, gradientHeight, 0, 97, 25, gradientHeight);
             }
             RenderSystem.enableDepthTest();
         }
@@ -279,6 +282,11 @@ public class PaCoScreen extends Screen {
 
             graphics.drawString(this.font, "version:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 20, PaCoColor.color(120, 120, 120), true);
             graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModVersion(), this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR + PADDING_TWO + this.font.width("version:"), Mth.ceil(this.contentMenuHeight / 3.2F) + 21, PaCoColor.color(220, 220, 220), false);
+
+            if (!this.selectedModButton.getModDataHolder().getModWarnings().isEmpty()) {
+                graphics.drawString(this.font, "warning:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 29, PaCoColor.color(120, 120, 120), true);
+                graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModWarnings().get(0), this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR + PADDING_TWO + this.font.width("warning:"), Mth.ceil(this.contentMenuHeight / 3.2F) + 30, PaCoColor.color(250, 20, 20), false);
+            }
         }
 
         // Top Bar
@@ -364,9 +372,8 @@ public class PaCoScreen extends Screen {
                 if (this.filterButton.getFilterType() == ModsFilterButton.FilterType.UPDATES && holder.isOutdated())
                     mods.add(holder);
                 // Warnings Only
-                // TODO: add warnings filtering once the logic has been coded.
-//                if (this.filterButton.getFilterType() == ModsFilterButton.FilterType.WARNINGS)
-//                    mods.add(holder);
+                if (this.filterButton.getFilterType() == ModsFilterButton.FilterType.WARNINGS && !holder.getModWarnings().isEmpty())
+                    mods.add(holder);
                 continue;
             }
             // If no filters are present we build the list as we would normally
@@ -410,7 +417,7 @@ public class PaCoScreen extends Screen {
         this.modsScrollBar = null; // We reset the scroll bar to null after we removed it from the lists
         // We create a new scroll bar if one is needed
         if (this.modButtonsLength > this.modButtonsPanelLength) {
-            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart, 6, this.modButtonsPanelLength, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
+            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PADDING_TWO, 6, this.modButtonsPanelLength + PADDING_ONE, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
                     .setSilent(true)
                     .setTextHidden(true)
                     .setHandleSize(8, this.modsHandleHeight)

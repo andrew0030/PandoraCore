@@ -114,7 +114,7 @@ public class PaCoScreen extends Screen {
         this.modButtonsLength = (this.filteredMods.size() * (MOD_BUTTON_HEIGHT + PADDING_ONE)) - 1;
         this.modButtonsPanelLength = this.menuHeightStop - this.modButtonsStart - PADDING_THREE;
         this.modButtonWidth = this.modsPanelWidth - (this.modButtonsLength > this.modButtonsPanelLength ? 15 : 10);
-        this.modsHandleHeight = Math.max(8, this.modButtonsPanelLength - (this.modButtonsLength - this.modButtonsPanelLength));
+        this.modsHandleHeight = Math.max(8, this.modButtonsPanelLength - (this.modButtonsLength - this.modButtonsPanelLength) + PADDING_ONE);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class PaCoScreen extends Screen {
         }
         // Scroll Bar (Slider)
         if (this.modButtonsLength > this.modButtonsPanelLength) { // We only add it if its needed
-            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PADDING_TWO, 6, this.modButtonsPanelLength - PADDING_FOUR, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
+            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PADDING_TWO, 6, this.modButtonsPanelLength + PADDING_ONE, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
                     .setSilent(true)
                     .setTextHidden(true)
                     .setHandleSize(8, this.modsHandleHeight)
@@ -227,7 +227,8 @@ public class PaCoScreen extends Screen {
         graphics.blitRepeating(TEXTURE, 14, this.menuHeightStart, this.modsPanelWidth - 41, 18, 27, 36, 18, 18);
         graphics.blit(TEXTURE, this.modsPanelWidth - 27, this.menuHeightStart, 45, 36, 9, 18);
         // Bottom Bar
-        graphics.blitNineSliced(TEXTURE, 5, this.modButtonsStart + this.modButtonsPanelLength, this.modsPanelWidth - 5, 3, 1, 18, 18, 0, 36);
+        if (this.modsScrollBar != null) // No scroll bar means, not enough mods to reach the "bottom"
+            graphics.blitNineSliced(TEXTURE, 5, this.modButtonsStart + this.modButtonsPanelLength, this.modButtonWidth, 3, 1, 18, 18, 0, 36);
         // Renders Mod Buttons
         PaCoGuiUtils.enableScissor(graphics, 5, this.modButtonsStart, this.modButtonWidth, this.modButtonsPanelLength);
         graphics.pose().pushPose();

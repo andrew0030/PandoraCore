@@ -26,6 +26,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -278,7 +279,7 @@ public class PaCoScreen extends Screen {
             graphics.pose().pushPose();
             graphics.pose().translate(this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, this.contentMenuHeight / 3.2F, 0F);
             graphics.pose().scale(2F, 2F, 2F);
-            graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModName(), 0, 0, PaCoColor.WHITE, true);
+            PaCoGuiUtils.drawWordWrap(graphics, this.font, FormattedText.of(this.selectedModButton.getModDataHolder().getModName()), 0, 0, (this.contentPanelWidth - 8) / 2, PaCoColor.WHITE, true);
             graphics.pose().popPose();
 
             graphics.drawString(this.font, "version:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 20, PaCoColor.color(120, 120, 120), true);

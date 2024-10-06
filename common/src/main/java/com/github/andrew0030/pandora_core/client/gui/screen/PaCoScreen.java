@@ -242,15 +242,16 @@ public class PaCoScreen extends Screen {
         RenderSystem.enableBlend();
         if (this.modsScrollBar != null) {
             RenderSystem.disableDepthTest();
+            int roundedVal = (int) Math.round(this.modsScrollBar.getValue());
             // Top Gradient
-            if (this.modsScrollBar.getValue() > 0) {
-                int gradientHeight = (int) Math.min(25, this.modsScrollBar.getValue());
+            if (roundedVal > 0) {
+                int gradientHeight = Math.min(25, roundedVal);
                 graphics.blitRepeating(TEXTURE, 5, this.modButtonsStart, this.modButtonWidth, gradientHeight, 25, 122 - gradientHeight, 25, gradientHeight);
             }
             // Bottom Gradient
             int maxVal = this.modButtonsLength - this.modButtonsPanelLength;
-            if (this.modsScrollBar.getValue() < maxVal) {
-                int gradientHeight = (int) Math.min(25, maxVal - this.modsScrollBar.getValue());
+            if (roundedVal < maxVal) {
+                int gradientHeight = Math.min(25, maxVal - roundedVal);
                 graphics.blitRepeating(TEXTURE, 5, this.modButtonsStart + this.modButtonsPanelLength - gradientHeight, this.modButtonWidth, gradientHeight, 0, 97, 25, gradientHeight);
             }
             RenderSystem.enableDepthTest();

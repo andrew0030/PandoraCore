@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.client.gui.buttons;
 
-import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;

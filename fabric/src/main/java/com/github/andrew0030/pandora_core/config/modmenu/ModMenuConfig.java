@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.config.modmenu;
 
-import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;

@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.client.registry;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.shader.PaCoPostShaderRegistry;
 import com.github.andrew0030.pandora_core.client.shader.holder.PaCoUniformHolder;
 import com.github.andrew0030.pandora_core.client.shader.holder.PostChainHolder;

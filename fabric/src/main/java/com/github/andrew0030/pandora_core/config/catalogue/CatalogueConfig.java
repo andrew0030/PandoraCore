@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.config.catalogue;
 
-import com.github.andrew0030.pandora_core.client.gui.screen.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.gui.screens.Screen;

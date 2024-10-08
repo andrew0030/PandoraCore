@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.client.gui.screen;
+package com.github.andrew0030.pandora_core.client.gui.screen.paco_main;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.buttons.ModsFilterButton;

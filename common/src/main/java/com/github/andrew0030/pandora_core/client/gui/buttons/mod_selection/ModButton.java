@@ -3,6 +3,9 @@ package com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.PaCoClientTicker;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.BackgroundContentElement;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.TitleContentElement;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
@@ -147,11 +150,18 @@ public class ModButton extends AbstractButton {
                 this.screen.selectedModButton.setSelected(false);
             this.setSelected(true);
             this.screen.selectedModButton = this;
+            this.buildContentPanel(this.getModDataHolder());
         } else {
             // We unselect this button if it's already selected
             this.setSelected(false);
             this.screen.selectedModButton = null;
         }
+    }
+
+    private void buildContentPanel(ModDataHolder holder) {
+        PaCoContentPanelManager manager = this.screen.contentPanelManager;
+        manager.addElement(new BackgroundContentElement());
+        manager.addElement(new TitleContentElement(holder.getModName()));
     }
 
     @Override

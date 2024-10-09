@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.ModsFilterButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModImageManager;
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
@@ -26,7 +27,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +44,7 @@ public class PaCoScreen extends Screen {
     public static final Component NO_WARNINGS = Component.translatable("gui.pandora_core.paco.no_warnings");
     public static final Component NO_UPDATES = Component.translatable("gui.pandora_core.paco.no_updates");
     public final ModImageManager imageManager = new ModImageManager();
+    public PaCoContentPanelManager contentPanelManager;
     private final Map<String, Object> parameters;
     // Transition Stuff
     private float fadeInProgress = 0.0F;
@@ -61,10 +62,10 @@ public class PaCoScreen extends Screen {
     public static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
     public static final int SOFT_RED_TEXT_COLOR = PaCoColor.color(255, 90, 100);
     public static final int DARK_RED_TEXT_COLOR = PaCoColor.color(235, 74, 74);
-    private static final int PADDING_ONE = 1;
-    private static final int PADDING_TWO = 2;
-    private static final int PADDING_THREE = 3;
-    private static final int PADDING_FOUR = 4;
+    public static final int PADDING_ONE = 1;
+    public static final int PADDING_TWO = 2;
+    public static final int PADDING_THREE = 3;
+    public static final int PADDING_FOUR = 4;
     private static final int MOD_BUTTON_HEIGHT = 25;
     public final List<ModDataHolder> filteredMods = this.createOrderedModsList();
     public int menuHeight;
@@ -162,6 +163,8 @@ public class PaCoScreen extends Screen {
         // On resize if there was text in the search bar we apply it to the new one, which will update everything
         if (activeSearchText != null)
             this.searchBox.setValue(activeSearchText);
+
+        this.contentPanelManager = new PaCoContentPanelManager(this);
     }
 
     @Override
@@ -266,30 +269,48 @@ public class PaCoScreen extends Screen {
     }
 
     protected void renderContentPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // Panel Background
+        RenderSystem.enableBlend();
+        graphics.blitRepeating(TEXTURE, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, this.contentPanelWidth - PADDING_TWO, this.contentMenuHeight, 0, 122, 48, 48);
 
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart,  this.contentPanelWidth - PADDING_TWO, this.contentMenuHeight, PaCoColor.color(100, 0, 0, 0), null);
-        int backgroundWidth = this.contentPanelWidth - PADDING_TWO;
-        int backgroundHeight = this.contentMenuHeight / 3;
+        this.contentPanelManager.renderElements(graphics, mouseX, mouseY, partialTick);
 
         if (this.selectedModButton != null) {
-            this.renderModBackground(this.selectedModButton.getModDataHolder(), graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight);
+            //TODO maybe move this into a content panel manager element?
+//            this.renderModBackground(this.selectedModButton.getModDataHolder(), graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight);
             // Debug Outline For Banner
 //            PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight, null, PaCoColor.color(100, 255, 0, 0), 1);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             // TODO: the text bellow is placeholder code to get a good feeling for the UI, I will have to add a dynamic system to calculate height more easily
-            graphics.pose().pushPose();
-            graphics.pose().translate(this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, this.contentMenuHeight / 3.2F, 0F);
-            graphics.pose().scale(2F, 2F, 2F);
-            PaCoGuiUtils.drawWordWrap(graphics, this.font, FormattedText.of(this.selectedModButton.getModDataHolder().getModName()), 0, 0, (this.contentPanelWidth - 8) / 2, PaCoColor.WHITE, true);
-            graphics.pose().popPose();
-
-            graphics.drawString(this.font, "version:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 20, PaCoColor.color(120, 120, 120), true);
-            graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModVersion(), this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR + PADDING_TWO + this.font.width("version:"), Mth.ceil(this.contentMenuHeight / 3.2F) + 21, PaCoColor.color(220, 220, 220), false);
-
-            if (!this.selectedModButton.getModDataHolder().getModWarnings().isEmpty()) {
-                graphics.drawString(this.font, "warning:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 29, PaCoColor.color(120, 120, 120), true);
-                graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModWarnings().get(0), this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR + PADDING_TWO + this.font.width("warning:"), Mth.ceil(this.contentMenuHeight / 3.2F) + 30, PaCoColor.color(250, 20, 20), false);
-            }
+//            graphics.pose().pushPose();
+//            graphics.pose().translate(this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, this.contentMenuHeight / 3.2F, 0F);
+//            graphics.pose().scale(2F, 2F, 2F);
+//            PaCoGuiUtils.drawWordWrap(graphics, this.font, FormattedText.of(this.selectedModButton.getModDataHolder().getModName()), 0, 0, (this.contentPanelWidth - 8) / 2, PaCoColor.WHITE, true);
+//            graphics.pose().popPose();
+//
+//            graphics.drawString(this.font, "version:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 20, PaCoColor.color(120, 120, 120), true);
+//            graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModVersion(), this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR + PADDING_TWO + this.font.width("version:"), Mth.ceil(this.contentMenuHeight / 3.2F) + 21, PaCoColor.color(220, 220, 220), false);
+//
+//            if (!this.selectedModButton.getModDataHolder().getModWarnings().isEmpty()) {
+//                graphics.drawString(this.font, "warning:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 29, PaCoColor.color(120, 120, 120), true);
+//                graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModWarnings().get(0), this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR + PADDING_TWO + this.font.width("warning:"), Mth.ceil(this.contentMenuHeight / 3.2F) + 30, PaCoColor.color(250, 20, 20), false);
+//            }
         }
 
         // Top Bar
@@ -439,7 +460,7 @@ public class PaCoScreen extends Screen {
         this.narratables.addAll(filterIdx + 1, newModButtons);
     }
 
-    private void renderModBackground(ModDataHolder holder, GuiGraphics graphics, int posX, int posY, int width, int height) {
+    public void renderModBackground(ModDataHolder holder, GuiGraphics graphics, int posX, int posY, int width, int height) {
         Pair<ResourceLocation, Pair<Integer, Integer>> backgroundData = this.imageManager.getImageData(
                 holder.getModId(),
                 this.imageManager::getCachedBackground,

@@ -150,18 +150,13 @@ public class ModButton extends AbstractButton {
                 this.screen.selectedModButton.setSelected(false);
             this.setSelected(true);
             this.screen.selectedModButton = this;
-            this.buildContentPanel(this.getModDataHolder());
+            this.screen.contentPanelManager.buildContentPanel(this.getModDataHolder());
         } else {
+            this.screen.contentPanelManager.clearElements();
             // We unselect this button if it's already selected
             this.setSelected(false);
             this.screen.selectedModButton = null;
         }
-    }
-
-    private void buildContentPanel(ModDataHolder holder) {
-        PaCoContentPanelManager manager = this.screen.contentPanelManager;
-        manager.addElement(new BackgroundContentElement());
-        manager.addElement(new TitleContentElement(holder.getModName()));
     }
 
     @Override

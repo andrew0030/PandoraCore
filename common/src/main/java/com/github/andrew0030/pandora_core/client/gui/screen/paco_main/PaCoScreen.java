@@ -165,6 +165,8 @@ public class PaCoScreen extends Screen {
             this.searchBox.setValue(activeSearchText);
 
         this.contentPanelManager = new PaCoContentPanelManager(this);
+        if (this.selectedModButton != null)
+            this.contentPanelManager.buildContentPanel(this.selectedModButton.getModDataHolder());
     }
 
     @Override
@@ -476,6 +478,9 @@ public class PaCoScreen extends Screen {
             Pair<Integer, Integer> dimensions = backgroundData.getSecond();
 
 //            graphics.blit(resourceLocation, posX, (posY + height / 2) - (width / 4), width, width / 2, 0, 0, dimensions.getFirst(), dimensions.getSecond(), dimensions.getFirst(), dimensions.getSecond());
+
+            if (width < height * 2)
+                width = height * 2;
 
             RenderSystem.setShaderTexture(0, rl);
             RenderSystem.setShader(PaCoCoreShaders::getPositionColorTexFullAlphaShader);

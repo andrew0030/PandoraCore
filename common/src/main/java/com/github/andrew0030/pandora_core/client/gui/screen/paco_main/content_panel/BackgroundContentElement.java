@@ -1,21 +1,26 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
+import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class BackgroundContentElement extends BaseContentElement {
-    private int height;
 
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, PaCoContentPanelManager manager) {
-        int width = manager.screen.contentPanelWidth - 2;
-        this.height = manager.screen.contentMenuHeight / 3;
+    public BackgroundContentElement(PaCoContentPanelManager manager) {
+        this(manager, 0, 0);
+    }
 
-        manager.screen.renderModBackground(manager.screen.selectedModButton.getModDataHolder(), graphics, manager.posX, manager.posY, width, this.height);
+    public BackgroundContentElement(PaCoContentPanelManager manager, int offsetX, int offsetY) {
+        super(manager, offsetX, offsetY);
+        this.height = manager.getScreen().contentMenuHeight / 3;
     }
 
     @Override
-    public int getElementHeight() {
-        return this.height;
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        PaCoScreen screen = this.manager.getScreen();
+        screen.renderModBackground(screen.selectedModButton.getModDataHolder(), graphics, this.manager.posX, this.manager.getContentHeight(), this.manager.width, this.height);
+
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.manager.posX, this.manager.getContentHeight(), this.manager.width, this.height, null, PaCoColor.color(255, 40, 40), 1);
     }
 }

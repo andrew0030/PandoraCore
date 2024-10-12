@@ -21,6 +21,6 @@ public class BackgroundContentElement extends BaseContentElement {
         PaCoScreen screen = this.manager.getScreen();
         screen.renderModBackground(screen.selectedModButton.getModDataHolder(), graphics, this.manager.posX + this.getOffsetX(), this.manager.getContentHeight() + this.getOffsetY(), this.manager.width, this.height);
 
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.manager.posX + this.getOffsetX(), this.manager.getContentHeight() + this.getOffsetY(), this.manager.width, this.height, null, PaCoColor.color(255, 40, 40), 1);
+//        PaCoGuiUtils.renderBoxWithRim(graphics, this.manager.posX + this.getOffsetX(), this.manager.getContentHeight() + this.getOffsetY(), this.manager.width, this.height, null, PaCoColor.color(255, 40, 40), 1);
     }
 }

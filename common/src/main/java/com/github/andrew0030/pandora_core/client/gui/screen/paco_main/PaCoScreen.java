@@ -38,11 +38,17 @@ import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders
 
 public class PaCoScreen extends Screen {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
+    // Mods Panel
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
     public static final Component SEARCH = Component.translatable("gui.pandora_core.paco.search");
     public static final Component NO_MATCHES = Component.translatable("gui.pandora_core.paco.no_matches");
     public static final Component NO_WARNINGS = Component.translatable("gui.pandora_core.paco.no_warnings");
     public static final Component NO_UPDATES = Component.translatable("gui.pandora_core.paco.no_updates");
+    // Content Panel | No Active Mod
+    // TODO
+    // Content Panel | With Active Mod
+    public static final Component MOD_VERSION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.version.key");
+    public static final Component MOD_DESCRIPTION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.description.key");
     public final ModImageManager imageManager = new ModImageManager();
     public PaCoContentPanelManager contentPanelManager;
     private final Map<String, Object> parameters;

@@ -1,9 +1,9 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
+import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import net.minecraft.client.gui.GuiGraphics;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,9 @@ public class PaCoContentPanelManager {
         this.clearElements();
         this.elements.add(new BackgroundContentElement(this));
         this.elements.add(new TitleContentElement(this, PaCoScreen.PADDING_FOUR, -16, holder.getModName()));
+        this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, PaCoScreen.MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
+        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, "Warnings: ", List.of("This is a warning and you are in trouble!", "This is another warning, hehe", "This is a banana...", "Anyone want a cup of tea?", "I think that's enough entries.", "Why are you reading all of this?")).setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR).setValuePrefix("• "));
+        this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, PaCoScreen.MOD_DESCRIPTION_KEY.getString(), holder.getModDescription()).setValueColor(PaCoColor.color(160, 160, 160)));
     }
 
     public void clearElements() {

@@ -71,6 +71,16 @@ public class ForgeModDataHolder extends ModDataHolder {
     }
 
     @Override
+    public String getModDescription() {
+        return this.modInfo.getDescription();
+    }
+
+    @Override
+    public List<String> getModAuthors() {
+        return List.of();// TODO do this later!
+    }
+
+    @Override
     public String getModVersion() {
         return this.modInfo.getVersion().toString();
     }

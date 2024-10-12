@@ -101,6 +101,11 @@ public class FabricModDataHolder extends ModDataHolder {
     }
 
     @Override
+    public String getModDescription() {
+        return this.metadata.getDescription();
+    }
+
+    @Override
     public String getModVersion() {
         return this.metadata.getVersion().getFriendlyString();
     }

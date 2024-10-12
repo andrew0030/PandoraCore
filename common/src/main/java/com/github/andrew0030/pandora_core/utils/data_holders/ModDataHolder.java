@@ -19,6 +19,12 @@ public abstract class ModDataHolder {
     /** @return The mod name. */
     public abstract String getModName();
 
+    /** @return The mod description. */
+    public abstract String getModDescription();
+
+    /** @return The mod authors. */
+    public abstract List<String> getModAuthors();
+
     /** @return The mod version. */
     public abstract String getModVersion();
 

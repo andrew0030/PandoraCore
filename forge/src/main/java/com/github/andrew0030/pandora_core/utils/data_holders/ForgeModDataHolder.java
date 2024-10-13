@@ -3,10 +3,12 @@ package com.github.andrew0030.pandora_core.utils.data_holders;
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.loading.StringUtils;
+import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +19,8 @@ public class ForgeModDataHolder extends ModDataHolder {
     private final List<String> backgrounds = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
     private final List<Component> modWarnings = new ArrayList<>();
+    private final List<String> authors = new ArrayList<>();
+    private final List<String> credits = new ArrayList<>();
 
     public ForgeModDataHolder(IModInfo modInfo) {
         this.modInfo = modInfo;
@@ -56,6 +60,9 @@ public class ForgeModDataHolder extends ModDataHolder {
         modInfo.getLogoFile().ifPresent(this.icons::add);
         modInfo.getUpdateURL().ifPresent(url -> this.updateURL = this.updateURL.isPresent() ? this.updateURL : modInfo.getUpdateURL());
 
+        ((ModInfo) modInfo).getConfigElement("authors").map(Object::toString).ifPresent(string -> this.authors.addAll(Arrays.stream(string.replaceAll(" (and|&) ", ",").split("(?<=:)|[,;]")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
+        ((ModInfo) modInfo).getConfigElement("credits").map(Object::toString).ifPresent(string -> this.credits.addAll(Arrays.stream(string.replaceAll("^[\\r\\n]+|[\\r\\n]+$", "").split("\\n")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
+
         // TODO add config option to disable update checking
         UpdateChecker.checkForUpdate(this);
     }
@@ -72,12 +79,23 @@ public class ForgeModDataHolder extends ModDataHolder {
 
     @Override
     public String getModDescription() {
-        return this.modInfo.getDescription();
+        // Trims new line characters from the description, as we don't want it to affect the of the PaCo screen.
+        return this.modInfo.getDescription().replaceAll("^[\\r\\n]+|[\\r\\n]+$", "");
     }
 
     @Override
     public List<String> getModAuthors() {
-        return List.of();// TODO do this later!
+        return this.authors;
+    }
+
+    @Override
+    public List<String> getModCredits() {
+        return this.credits;
+    }
+
+    @Override
+    public String getModLicense() {
+        return this.modInfo.getOwningFile().getLicense();
     }
 
     @Override

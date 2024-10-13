@@ -24,7 +24,7 @@ public class KeyTextContentElement extends BaseContentElement {
         this.key = key;
         this.value = FormattedText.of(value);
         Font font = Minecraft.getInstance().font;
-        this.height = 9;
+        this.height = 11;
         this.height += font.split(this.value, (this.manager.width - this.valueInset - this.getOffsetX())).size() * 9;
     }
 
@@ -48,7 +48,7 @@ public class KeyTextContentElement extends BaseContentElement {
                 Minecraft.getInstance().font,
                 this.value,
                 this.manager.posX + this.valueInset + this.getOffsetX(),
-                9 + this.manager.getContentHeight() + this.getOffsetY(),
+                11 + this.manager.getContentHeight() + this.getOffsetY(),
                 this.manager.width - this.valueInset - this.getOffsetX(),
                 this.valueColor,
                 true

@@ -25,6 +25,12 @@ public abstract class ModDataHolder {
     /** @return The mod authors. */
     public abstract List<String> getModAuthors();
 
+    /** @return The mod credits/contributors. */
+    public abstract List<String> getModCredits();
+
+    /** @return The mod license. */
+    public abstract String getModLicense();
+
     /** @return The mod version. */
     public abstract String getModVersion();
 

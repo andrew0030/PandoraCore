@@ -13,8 +13,8 @@
   "gui.pandora_core.paco.filter.tooltip.warnings": "Warnings",
   "gui.pandora_core.paco.filter.tooltip.updates": "Updates",
 
-  "gui.pandora_core.paco.content.mod.version.key": "Version: ",
-  "gui.pandora_core.paco.content.mod.description.key": "Description: ",
+  "gui.pandora_core.paco.content.mod.version.key": "Version:",
+  "gui.pandora_core.paco.content.mod.description.key": "Description:",
 
   "warnings.pandora_core.opti_fine.post_shader": "[OptiFine] Detected, post shaders have been disabled!"
 }

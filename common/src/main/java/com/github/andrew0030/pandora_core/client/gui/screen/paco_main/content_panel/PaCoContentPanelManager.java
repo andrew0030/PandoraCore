@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
+import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import net.minecraft.client.gui.GuiGraphics;
@@ -30,8 +31,13 @@ public class PaCoContentPanelManager {
         this.elements.add(new BackgroundContentElement(this));
         this.elements.add(new TitleContentElement(this, PaCoScreen.PADDING_FOUR, -16, holder.getModName()));
         this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, PaCoScreen.MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
-        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, "Warnings: ", List.of("This is a warning and you are in trouble!", "This is another warning, hehe", "This is a banana...", "Anyone want a cup of tea?", "I think that's enough entries.", "Why are you reading all of this?")).setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR).setValuePrefix("• "));
+        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, "Warning(s):", List.of("This is a warning and you are in trouble!", "This is another warning, hehe", "This is a banana...", "Anyone want a cup of tea?", "I think that's enough entries.", "Why are you reading all of this?")).setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR).setValuePrefix("• "));
         this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, PaCoScreen.MOD_DESCRIPTION_KEY.getString(), holder.getModDescription()).setValueColor(PaCoColor.color(160, 160, 160)));
+        this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, "License:", holder.getModLicense()).setValueColor(PaCoColor.color(160, 160, 160)));
+//        if (!holder.getModAuthors().isEmpty()) // We only add the authors if there are any specified
+        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, "Author(s):", holder.getModAuthors()).setValueColor(PaCoColor.color(160, 160, 160)));
+        boolean isForge = Services.PLATFORM.getPlatformName().equals("Forge");
+        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, isForge ? "Credits:" : "Contributor(s):", holder.getModCredits()).setValueColor(PaCoColor.color(160, 160, 160)));
     }
 
     public void clearElements() {

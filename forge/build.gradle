@@ -62,7 +62,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
     // MrCrayfish Config Mods
-    compileOnly fg.deobf("curse.maven:catalogue-459701:4766090") // Catalogue
+    implementation fg.deobf("curse.maven:catalogue-459701:4766090") // Catalogue
     compileOnly fg.deobf("curse.maven:configured-457570:5180900") // Configured
     // My Mods (PaCo Screen Tests)
     runtimeOnly fg.deobf("curse.maven:swampier-swamps-632591:4578599") // Swampier Swamps

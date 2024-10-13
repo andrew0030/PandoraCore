@@ -36,7 +36,7 @@ public class KeyTextListContentElement extends BaseContentElement {
             this.values.put(i, Pair.of(value, valueHeight));
         }
         // Calculates the total height
-        this.height = 9 + this.values.values().stream().mapToInt(Pair::getSecond).sum();
+        this.height = 11 + this.values.values().stream().mapToInt(Pair::getSecond).sum();
     }
 
     public KeyTextListContentElement setKeyColor(int keyColor) {
@@ -60,7 +60,7 @@ public class KeyTextListContentElement extends BaseContentElement {
             this.values.put(i, Pair.of(value, valueHeight));
         }
         // Updates the total height
-        this.height = 9 + this.values.values().stream().mapToInt(Pair::getSecond).sum();
+        this.height = 11 + this.values.values().stream().mapToInt(Pair::getSecond).sum();
         return this;
     }
 
@@ -69,7 +69,7 @@ public class KeyTextListContentElement extends BaseContentElement {
         // Key
         graphics.drawString(Minecraft.getInstance().font, this.key, this.manager.posX + this.getOffsetX(), this.manager.getContentHeight() + this.getOffsetY(), this.keyColor, true);
         // Value
-        int lineOffsetY = 9;
+        int lineOffsetY = 11;
         Font font = Minecraft.getInstance().font;
         for (int i = 0; i < this.values.size(); i++) {
             int posX = this.manager.posX + this.valueInset + this.getOffsetX();

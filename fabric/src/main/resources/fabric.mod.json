@@ -5,7 +5,10 @@
     "name": "${mod_name}",
     "description": "${description}",
     "authors": [
-        "${mod_author}"
+        "${mod_authors}"
+    ],
+    "contributors": [
+        ${fabric_mod_credits}
     ],
     "contact": {
         "homepage": "${display_url}",

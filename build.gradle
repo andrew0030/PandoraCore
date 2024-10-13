@@ -17,11 +17,11 @@ subprojects {
         manifest {
             attributes([
                 'Specification-Title'     : mod_name,
-                'Specification-Vendor'    : mod_author,
+                'Specification-Vendor'    : mod_authors,
                 'Specification-Version'   : project.jar.archiveVersion,
                 'Implementation-Title'    : project.name,
                 'Implementation-Version'  : project.jar.archiveVersion,
-                'Implementation-Vendor'   : mod_author,
+                'Implementation-Vendor'   : mod_authors,
                 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 'Timestamp'               : System.currentTimeMillis(),
                 'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
@@ -49,25 +49,27 @@ subprojects {
 
     processResources {
         def expandProps = [
-                "version": version,
-                "mapping_version": mapping_version,
-                "group": project.group, //Else we target the task's group.
-                "minecraft_version": minecraft_version,
-                "forge_version": forge_version,
-                "forge_loader_version_range": forge_loader_version_range,
-                "forge_version_range": forge_version_range,
-                "minecraft_version_range_forge": minecraft_version_range_forge,
-                "fabric_version": fabric_version,
-                "fabric_loader_version": fabric_loader_version,
-                "minecraft_version_range_fabric": minecraft_version_range_fabric,
-                "modmenu_version": modmenu_version,
-                "mod_name": mod_name,
-                "mod_author": mod_author,
-                "mod_id": mod_id,
-                "license": license,
-                "description": project.description,
-                "display_url": display_url,
-                "issue_tracker_url": issue_tracker_url
+                "version"                           : version,
+                "mapping_version"                   : mapping_version,
+                "group"                             : project.group, //Else we target the task's group.
+                "minecraft_version"                 : minecraft_version,
+                "forge_version"                     : forge_version,
+                "forge_loader_version_range"        : forge_loader_version_range,
+                "forge_version_range"               : forge_version_range,
+                "minecraft_version_range_forge"     : minecraft_version_range_forge,
+                "fabric_version"                    : fabric_version,
+                "fabric_loader_version"             : fabric_loader_version,
+                "minecraft_version_range_fabric"    : minecraft_version_range_fabric,
+                "modmenu_version"                   : modmenu_version,
+                "mod_name"                          : mod_name,
+                "mod_authors"                       : mod_authors,
+                "forge_mod_credits"                 : mod_credits,
+                "fabric_mod_credits"                : mod_credits.split("\n").collect { "\"${it.trim()}\"" }.join(", "), // JSON array format
+                "mod_id"                            : mod_id,
+                "license"                           : license,
+                "description"                       : project.description,
+                "display_url"                       : display_url,
+                "issue_tracker_url"                 : issue_tracker_url
         ]
 
         filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', '*.mixins.json']) {

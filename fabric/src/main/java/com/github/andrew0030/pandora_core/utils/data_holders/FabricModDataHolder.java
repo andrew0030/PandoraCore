@@ -3,7 +3,9 @@ package com.github.andrew0030.pandora_core.utils.data_holders;
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.network.chat.Component;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,6 +20,8 @@ public class FabricModDataHolder extends ModDataHolder {
     private final List<String> backgrounds = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
     private final List<Component> modWarnings = new ArrayList<>();
+    private final List<String> authors = new ArrayList<>();
+    private final List<String> credits = new ArrayList<>();
 
     public FabricModDataHolder(ModMetadata metadata) {
         this.metadata = metadata;
@@ -86,6 +90,9 @@ public class FabricModDataHolder extends ModDataHolder {
         // Fabric
         metadata.getIconPath(0).ifPresent(this.icons::add);
 
+        this.authors.addAll(this.metadata.getAuthors().stream().map(Person::getName).toList());
+        this.credits.addAll(this.metadata.getContributors().stream().map(Person::getName).toList());
+
         // TODO add config option to disable update checking
         UpdateChecker.checkForUpdate(this);
     }
@@ -103,6 +110,21 @@ public class FabricModDataHolder extends ModDataHolder {
     @Override
     public String getModDescription() {
         return this.metadata.getDescription();
+    }
+
+    @Override
+    public List<String> getModAuthors() {
+        return this.authors;
+    }
+
+    @Override
+    public List<String> getModCredits() {
+        return this.credits;
+    }
+
+    @Override
+    public String getModLicense() {
+        return StringUtils.join(this.metadata.getLicense(), ", ");
     }
 
     @Override

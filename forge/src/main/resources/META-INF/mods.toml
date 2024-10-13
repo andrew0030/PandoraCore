@@ -9,8 +9,9 @@ issueTrackerURL="${issue_tracker_url}"
     displayName = "${mod_name}"
     displayURL="${display_url}"
     logoFile = "${mod_id}.png"
-    authors = "${mod_author}"
-    description = '''${description}'''
+    authors = "${mod_authors}"
+    credits = """${forge_mod_credits}"""
+    description = """${description}"""
 
 [[dependencies.${mod_id}]]
     modId = "forge"

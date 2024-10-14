@@ -276,48 +276,13 @@ public class PaCoScreen extends Screen {
 
     protected void renderContentPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Panel Background
+        boolean hasScrollBar = this.contentPanelManager.hasScrollBar();
+        int posX = this.modsPanelWidth + (hasScrollBar ? 12 : 4);
+        int width = this.contentPanelWidth - (hasScrollBar ? 10 : 2);
         RenderSystem.enableBlend();
-        graphics.blitRepeating(TEXTURE, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, this.contentPanelWidth - PADDING_TWO, this.contentMenuHeight, 0, 122, 48, 48);
+        graphics.blitRepeating(TEXTURE, posX, this.contentMenuHeightStart, width, this.contentMenuHeight, 0, 122, 48, 48);
 
         this.contentPanelManager.renderElements(graphics, mouseX, mouseY, partialTick);
-
-        if (this.selectedModButton != null) {
-            //TODO maybe move this into a content panel manager element?
-//            this.renderModBackground(this.selectedModButton.getModDataHolder(), graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight);
-            // Debug Outline For Banner
-//            PaCoGuiUtils.renderBoxWithRim(graphics, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, backgroundWidth, backgroundHeight, null, PaCoColor.color(100, 255, 0, 0), 1);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // TODO: the text bellow is placeholder code to get a good feeling for the UI, I will have to add a dynamic system to calculate height more easily
-//            graphics.pose().pushPose();
-//            graphics.pose().translate(this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, this.contentMenuHeight / 3.2F, 0F);
-//            graphics.pose().scale(2F, 2F, 2F);
-//            PaCoGuiUtils.drawWordWrap(graphics, this.font, FormattedText.of(this.selectedModButton.getModDataHolder().getModName()), 0, 0, (this.contentPanelWidth - 8) / 2, PaCoColor.WHITE, true);
-//            graphics.pose().popPose();
-//
-//            graphics.drawString(this.font, "version:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 20, PaCoColor.color(120, 120, 120), true);
-//            graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModVersion(), this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR + PADDING_TWO + this.font.width("version:"), Mth.ceil(this.contentMenuHeight / 3.2F) + 21, PaCoColor.color(220, 220, 220), false);
-//
-//            if (!this.selectedModButton.getModDataHolder().getModWarnings().isEmpty()) {
-//                graphics.drawString(this.font, "warning:", this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR, Mth.ceil(this.contentMenuHeight / 3.2F) + 29, PaCoColor.color(120, 120, 120), true);
-//                graphics.drawString(this.font, this.selectedModButton.getModDataHolder().getModWarnings().get(0), this.modsPanelWidth + PADDING_FOUR + PADDING_FOUR + PADDING_TWO + this.font.width("warning:"), Mth.ceil(this.contentMenuHeight / 3.2F) + 30, PaCoColor.color(250, 20, 20), false);
-//            }
-        }
 
         // Top Bar
         graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PADDING_TWO, this.contentMenuHeightStart - 4, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);

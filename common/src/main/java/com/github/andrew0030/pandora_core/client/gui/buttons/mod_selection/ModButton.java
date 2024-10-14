@@ -144,18 +144,22 @@ public class ModButton extends AbstractButton {
 
     @Override
     public void onPress() {
-        if (this.screen.selectedModButton != this) {
-            // We unselect the currently selected mod button if it's a different one
-            if (this.screen.selectedModButton != null)
-                this.screen.selectedModButton.setSelected(false);
-            this.setSelected(true);
-            this.screen.selectedModButton = this;
-            this.screen.contentPanelManager.buildContentPanel(this.getModDataHolder());
-        } else {
-            this.screen.contentPanelManager.clearElements();
+        ModButton currentButton = this.screen.selectedModButton;
+        PaCoContentPanelManager manager = this.screen.contentPanelManager;
+        manager.resetBounds();
+        if (currentButton == this) {
             // We unselect this button if it's already selected
+            manager.clearElements();
             this.setSelected(false);
             this.screen.selectedModButton = null;
+        } else {
+            // We unselect the currently selected mod button if it's a different one
+            if (currentButton != null)
+                currentButton.setSelected(false);
+            // We select the new button
+            this.setSelected(true);
+            this.screen.selectedModButton = this;
+            manager.buildContentPanel(this.getModDataHolder());
         }
     }
 

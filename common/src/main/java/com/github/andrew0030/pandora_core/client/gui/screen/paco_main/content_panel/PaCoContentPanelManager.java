@@ -12,9 +12,9 @@ import java.util.List;
 public class PaCoContentPanelManager {
     private final List<BaseContentElement> elements = new ArrayList<>();
     private final PaCoScreen screen;
-    private final int posX;
+    private int posX;
     private final int posY;
-    private final int width;
+    private int width;
     private final int height;
     private int contentHeight = 0;
     private boolean hasScrollBar;
@@ -32,9 +32,6 @@ public class PaCoContentPanelManager {
 
     public void buildContentPanel(ModDataHolder holder) {
         this.clearElements();
-
-
-
         this.elements.add(new BackgroundContentElement(this));
         this.elements.add(new TitleContentElement(this, PaCoScreen.PADDING_FOUR, -16, holder.getModName()));
         this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, PaCoScreen.MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
@@ -46,12 +43,24 @@ public class PaCoContentPanelManager {
         boolean isForge = Services.PLATFORM.getPlatformName().equals("Forge");
         this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, isForge ? "Credits:" : "Contributor(s):", holder.getModCredits()).setValueColor(PaCoColor.color(160, 160, 160)));
 
-        
+        // If the height of the elements is greater than the panel size we flag as "needs scroll bar" and recalculate the elements with the new dimensions
+        if (!this.hasScrollBar() && this.getContentHeight() > this.getScreen().contentMenuHeight) {
+            this.hasScrollBar = true;
+            this.posX += 8;
+            this.width -= 8;
+            this.buildContentPanel(holder);
+        }
     }
 
     public void clearElements() {
         this.elements.clear();
         this.contentHeight = 0;
+    }
+
+    public void resetBounds() {
+        this.hasScrollBar = false;
+        this.posX = screen.modsPanelWidth + PaCoScreen.PADDING_FOUR;
+        this.width = screen.contentPanelWidth - PaCoScreen.PADDING_TWO;
     }
 
     public void renderElements(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
@@ -71,7 +80,7 @@ public class PaCoContentPanelManager {
     }
 
     public boolean hasScrollBar() {
-
+        return this.hasScrollBar;
     }
 
     public PaCoScreen getScreen() {

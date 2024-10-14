@@ -8,6 +8,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.StringUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,18 +26,23 @@ public class KeyTextListContentElement extends BaseContentElement {
         this(manager, 0, 0, key, value);
     }
 
-    public KeyTextListContentElement(PaCoContentPanelManager manager, int offsetX, int offsetY, String key, List<String> values) {
+    public KeyTextListContentElement(PaCoContentPanelManager manager, int offsetX, int offsetY, String key, List<String> values, String valuePrefix) {
         super(manager, offsetX, offsetY);
         this.key = key;
+        this.valuePrefix = valuePrefix;
         Font font = Minecraft.getInstance().font;
+        this.valueInset += StringUtil.isNullOrEmpty(valuePrefix) ? 0 : font.width(valuePrefix);
         // Calculates and stores the values with corresponding heights
         for (int i = 0; i < values.size(); i++) {
             FormattedText value = FormattedText.of(values.get(i));
-            int valueHeight = font.split(value, this.manager.width - this.valueInset - this.getOffsetX()).size() * 9;
+            int valueHeight = font.split(value, this.manager.getWidth() - this.valueInset - this.getOffsetX()).size() * 9;
             this.values.put(i, Pair.of(value, valueHeight));
         }
-        // Calculates the total height
-        this.height = 11 + this.values.values().stream().mapToInt(Pair::getSecond).sum();
+        this.initializeHeight();
+    }
+
+    public KeyTextListContentElement(PaCoContentPanelManager manager, int offsetX, int offsetY, String key, List<String> values) {
+        this(manager, offsetX, offsetY, key, values, null);
     }
 
     public KeyTextListContentElement setKeyColor(int keyColor) {
@@ -49,40 +55,30 @@ public class KeyTextListContentElement extends BaseContentElement {
         return this;
     }
 
-    public KeyTextListContentElement setValuePrefix(String valuePrefix) {
-        this.valuePrefix = valuePrefix;
-        Font font = Minecraft.getInstance().font;
-        this.valueInset += font.width(valuePrefix);
-        // Updates the heights of the stored values
-        for (int i = 0; i < this.values.size(); i++) {
-            FormattedText value = this.values.get(i).getFirst();
-            int valueHeight = font.split(value, this.manager.width - this.valueInset - this.getOffsetX()).size() * 9;
-            this.values.put(i, Pair.of(value, valueHeight));
-        }
-        // Updates the total height
-        this.height = 11 + this.values.values().stream().mapToInt(Pair::getSecond).sum();
-        return this;
-    }
-
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Key
-        graphics.drawString(Minecraft.getInstance().font, this.key, this.manager.posX + this.getOffsetX(), this.manager.getContentHeight() + this.getOffsetY(), this.keyColor, true);
+        graphics.drawString(Minecraft.getInstance().font, this.key, this.getX(), this.getY(), this.keyColor, true);
         // Value
         int lineOffsetY = 11;
         Font font = Minecraft.getInstance().font;
         for (int i = 0; i < this.values.size(); i++) {
-            int posX = this.manager.posX + this.valueInset + this.getOffsetX();
-            int posY = lineOffsetY + this.manager.getContentHeight() + this.getOffsetY();
+            int posX = this.getX() + this.valueInset;
+            int posY = this.getY() + lineOffsetY;
             // Prefix (if needed)
             if (!StringUtil.isNullOrEmpty(this.valuePrefix))
                 graphics.drawString(font, this.valuePrefix, posX - font.width(this.valuePrefix), posY, this.valueColor);
             // Value
             FormattedText lineValue = this.values.get(i).getFirst();
-            PaCoGuiUtils.drawWordWrap(graphics, font, lineValue, posX, posY, this.manager.width - this.valueInset - this.getOffsetX(), this.valueColor, true);
+            PaCoGuiUtils.drawWordWrap(graphics, font, lineValue, posX, posY, this.manager.getWidth() - this.valueInset - this.getOffsetX(), this.valueColor, true);
             lineOffsetY += this.values.get(i).getSecond();
         }
 
 //        PaCoGuiUtils.renderBoxWithRim(graphics, this.manager.posX, this.manager.getContentHeight() + getOffsetY(), this.manager.width, this.height, null, PaCoColor.color(255, 255, 40), 1);
+    }
+
+    @Override
+    public int getHeight() {
+        return 11 + this.values.values().stream().mapToInt(Pair::getSecond).sum();
     }
 }

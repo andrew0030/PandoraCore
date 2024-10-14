@@ -171,8 +171,6 @@ public class PaCoScreen extends Screen {
             this.searchBox.setValue(activeSearchText);
 
         this.contentPanelManager = new PaCoContentPanelManager(this);
-        if (this.selectedModButton != null)
-            this.contentPanelManager.buildContentPanel(this.selectedModButton.getModDataHolder());
     }
 
     @Override

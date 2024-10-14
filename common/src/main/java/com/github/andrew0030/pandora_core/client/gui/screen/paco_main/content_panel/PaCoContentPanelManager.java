@@ -12,11 +12,12 @@ import java.util.List;
 public class PaCoContentPanelManager {
     private final List<BaseContentElement> elements = new ArrayList<>();
     private final PaCoScreen screen;
-    public final int posX;
-    public final int posY;
-    public final int width;
-    public final int height;
+    private final int posX;
+    private final int posY;
+    private final int width;
+    private final int height;
     private int contentHeight = 0;
+    private boolean hasScrollBar;
 
     public PaCoContentPanelManager(PaCoScreen screen) {
         this.screen = screen;
@@ -24,31 +25,40 @@ public class PaCoContentPanelManager {
         this.posY = screen.contentMenuHeightStart;
         this.width = screen.contentPanelWidth - PaCoScreen.PADDING_TWO;
         this.height = screen.contentMenuHeight;
+
+        if (this.getScreen().selectedModButton != null)
+            this.buildContentPanel(this.getScreen().selectedModButton.getModDataHolder());
     }
 
     public void buildContentPanel(ModDataHolder holder) {
         this.clearElements();
+
+
+
         this.elements.add(new BackgroundContentElement(this));
         this.elements.add(new TitleContentElement(this, PaCoScreen.PADDING_FOUR, -16, holder.getModName()));
         this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, PaCoScreen.MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
-        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, "Warning(s):", List.of("This is a warning and you are in trouble!", "This is another warning, hehe", "This is a banana...", "Anyone want a cup of tea?", "I think that's enough entries.", "Why are you reading all of this?")).setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR).setValuePrefix("• "));
+        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, "Warning(s):", List.of("This is a warning and you are in trouble!", "This is another warning, hehe", "This is a banana...", "Anyone want a cup of tea?", "I think that's enough entries.", "Why are you reading all of this?"), "• ").setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR));
         this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, PaCoScreen.MOD_DESCRIPTION_KEY.getString(), holder.getModDescription()).setValueColor(PaCoColor.color(160, 160, 160)));
         this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, "License:", holder.getModLicense()).setValueColor(PaCoColor.color(160, 160, 160)));
 //        if (!holder.getModAuthors().isEmpty()) // We only add the authors if there are any specified
         this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, "Author(s):", holder.getModAuthors()).setValueColor(PaCoColor.color(160, 160, 160)));
         boolean isForge = Services.PLATFORM.getPlatformName().equals("Forge");
         this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, isForge ? "Credits:" : "Contributor(s):", holder.getModCredits()).setValueColor(PaCoColor.color(160, 160, 160)));
+
+        
     }
 
     public void clearElements() {
         this.elements.clear();
+        this.contentHeight = 0;
     }
 
     public void renderElements(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.contentHeight = this.posY; // We start at Y because the content panel doesn't start at the top of the screen
+//        this.contentHeight = this.posY; // We start at Y because the content panel doesn't start at the top of the screen
         for (BaseContentElement element : this.elements) {
             element.render(graphics, mouseX, mouseY, partialTick);
-            this.contentHeight += Math.max(0, element.getElementHeight());
+//            this.contentHeight += Math.max(0, element.getElementHeight());
         }
     }
 
@@ -56,7 +66,31 @@ public class PaCoContentPanelManager {
         return this.contentHeight;
     }
 
+    public void addContentHeight(int amount) {
+        this.contentHeight += Math.max(0, amount);
+    }
+
+    public boolean hasScrollBar() {
+
+    }
+
     public PaCoScreen getScreen() {
         return this.screen;
+    }
+
+    public int getPosX() {
+        return this.posX;
+    }
+
+    public int getPosY() {
+        return this.posY;
+    }
+
+    public int getWidth() {
+        return this.width;
+    }
+
+    public int getHeight() {
+        return this.height;
     }
 }

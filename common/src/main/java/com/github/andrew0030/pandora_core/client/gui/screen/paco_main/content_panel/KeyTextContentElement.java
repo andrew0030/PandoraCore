@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.util.StringUtil;
 
 public class KeyTextContentElement extends BaseContentElement {
 
@@ -23,9 +24,7 @@ public class KeyTextContentElement extends BaseContentElement {
         super(manager, offsetX, offsetY);
         this.key = key;
         this.value = FormattedText.of(value);
-        Font font = Minecraft.getInstance().font;
-        this.height = 11;
-        this.height += font.split(this.value, (this.manager.width - this.valueInset - this.getOffsetX())).size() * 9;
+        this.initializeHeight();
     }
 
     public KeyTextContentElement setKeyColor(int keyColor) {
@@ -41,19 +40,25 @@ public class KeyTextContentElement extends BaseContentElement {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Key
-        graphics.drawString(Minecraft.getInstance().font, this.key, this.manager.posX + this.getOffsetX(), this.manager.getContentHeight() + this.getOffsetY(), this.keyColor, true);
+        graphics.drawString(Minecraft.getInstance().font, this.key, this.getX(), this.getY(), this.keyColor, true);
         // Value
         PaCoGuiUtils.drawWordWrap(
                 graphics,
                 Minecraft.getInstance().font,
                 this.value,
-                this.manager.posX + this.valueInset + this.getOffsetX(),
-                11 + this.manager.getContentHeight() + this.getOffsetY(),
-                this.manager.width - this.valueInset - this.getOffsetX(),
+                this.getX() + this.valueInset,
+                this.getY() + 11,
+                this.manager.getWidth() - this.getOffsetX() - this.valueInset,
                 this.valueColor,
                 true
         );
 
 //        PaCoGuiUtils.renderBoxWithRim(graphics, this.manager.posX, this.manager.getContentHeight() + getOffsetY(), this.manager.width, this.height, null, PaCoColor.color(40, 40, 255), 1);
+    }
+
+    @Override
+    public int getHeight() {
+        Font font = Minecraft.getInstance().font;
+        return 11 + font.split(this.value, (this.manager.getWidth() - this.valueInset - this.getOffsetX())).size() * 9;
     }
 }

@@ -1,12 +1,27 @@
 package com.github.andrew0030.pandora_core.client.utils.gui;
 
 import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -217,5 +232,34 @@ public class PaCoGuiUtils {
             y += 9;
         }
         return Pair.of(biggestWidth, y - startY);
+    }
+
+    /**
+     * Renders the given {@link ItemStack} at the specified scale, centered on the given position.
+     * @param poseStack The {@link PoseStack} used for rendering
+     * @param itemStack The {@link ItemStack} of the {@link Item} or {@link Block} that will be rendered
+     * @param pX        The x-axis position the {@link ItemStack} will be centered on
+     * @param pY        The y-axis position the {@link ItemStack} will be centered on
+     * @param size      The size in pixels the {@link ItemStack} should be rendered as
+     */
+    public static void renderScaledItemStack(PoseStack poseStack, ItemStack itemStack, int pX, int pY, int size) {
+        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+        BakedModel itemBakedModel = itemRenderer.getModel(itemStack, null, null, 0);
+        Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        poseStack.pushPose();
+        poseStack.translate(pX, pY, 100.0F);
+        poseStack.scale(1.0F, -1.0F, 1.0F);
+        poseStack.scale(size, size, size);
+        RenderSystem.applyModelViewMatrix();
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        Lighting.setupForFlatItems();
+        itemRenderer.render(itemStack, ItemDisplayContext.GUI, false, poseStack, bufferSource, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, itemBakedModel);
+        bufferSource.endBatch();
+        poseStack.popPose();
+        RenderSystem.applyModelViewMatrix();
     }
 }

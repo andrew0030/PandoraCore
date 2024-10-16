@@ -30,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.*;
@@ -64,6 +65,7 @@ public class PaCoScreen extends Screen {
     public ModsFilterButton filterButton;
     public PaCoSlider modsScrollBar;
     public ModButton selectedModButton;
+    public PaCoSlider contentScrollBar;
     // Misc
     public static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
     public static final int SOFT_RED_TEXT_COLOR = PaCoColor.color(255, 90, 100);
@@ -137,6 +139,7 @@ public class PaCoScreen extends Screen {
         this.filterButton = null;
         this.panelModButtons.clear(); // We clear the list (needed because resize would cause duplicates otherwise)
         this.modsScrollBar = null;
+        this.contentScrollBar = null;
         // Search Box
         this.searchBox = new PaCoEditBox(this.font, 7, this.menuHeightStart + 2, this.modsPanelWidth - 27, 14, SEARCH, this);
         this.searchBox.setMaxLength(50);
@@ -270,20 +273,44 @@ public class PaCoScreen extends Screen {
         // Renders Search Box and Filter Button
         this.searchBox.render(graphics, mouseX, mouseY, partialTick);
         this.filterButton.render(graphics, mouseX, mouseY, partialTick);
-        // Renders Mods the Scroll Bar
+        // Renders the Mods Panel Scroll Bar
         if (this.modsScrollBar != null) this.modsScrollBar.render(graphics, mouseX, mouseY, partialTick);
     }
 
     protected void renderContentPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // Panel Background
         boolean hasScrollBar = this.contentPanelManager.hasScrollBar();
         int posX = this.modsPanelWidth + (hasScrollBar ? 12 : 4);
         int width = this.contentPanelWidth - (hasScrollBar ? 10 : 2);
+        // Panel Background
         RenderSystem.enableBlend();
         graphics.blitRepeating(TEXTURE, posX, this.contentMenuHeightStart, width, this.contentMenuHeight, 0, 122, 48, 48);
-
+        // Renders all the elements inside the content panel
+        PaCoGuiUtils.enableScissor(graphics, this.contentPanelManager.getPosX(), this.contentMenuHeightStart, this.contentPanelManager.getWidth(), this.contentMenuHeight);
+        graphics.pose().pushPose();
         this.contentPanelManager.renderElements(graphics, mouseX, mouseY, partialTick);
+        graphics.pose().popPose();
+        graphics.disableScissor();
 
+        // Content Panel Gradients
+        RenderSystem.enableBlend();
+        if (this.contentScrollBar != null) {
+            RenderSystem.disableDepthTest();
+            int roundedVal = (int) Math.round(this.contentScrollBar.getValue());
+            // Top Gradient
+            if (roundedVal > 0) {
+                int gradientHeight = Math.min(25, roundedVal);
+                graphics.blitRepeating(TEXTURE, this.contentPanelManager.getPosX(), this.contentMenuHeightStart, this.contentPanelManager.getWidth(), gradientHeight, 25, 122 - gradientHeight, 25, gradientHeight);
+            }
+            // Bottom Gradient
+            int maxVal = this.contentPanelManager.getContentHeight() - this.contentMenuHeight;
+            if (roundedVal < maxVal) {
+                int gradientHeight = Math.min(25, maxVal - roundedVal);
+                graphics.blitRepeating(TEXTURE, this.contentPanelManager.getPosX(), this.contentMenuHeightStart + this.contentMenuHeight - gradientHeight, this.contentPanelManager.getWidth(), gradientHeight, 0, 97, 25, gradientHeight);
+            }
+            RenderSystem.enableDepthTest();
+        }
+        // Renders the Content Panel Scroll Bar
+        if (this.contentScrollBar != null) this.contentScrollBar.render(graphics, mouseX, mouseY, partialTick);
         // Top Bar
         graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PADDING_TWO, this.contentMenuHeightStart - 4, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);
         // Bottom Bar
@@ -314,7 +341,7 @@ public class PaCoScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        // If there is a scroll bar and the mouse is over the mods buttons, we move the scroll bar.
+        // Mods Panel Scroll
         if (this.modsScrollBar != null && PaCoGuiUtils.isMouseWithin(mouseX, mouseY, 0, this.modButtonsStart, this.modsPanelWidth, this.modButtonsPanelLength)) {
             int maxVal = this.modButtonsLength - this.modButtonsPanelLength;
             int pixelStep = (int) (maxVal * 0.12); // Modify the value by 12%
@@ -322,6 +349,15 @@ public class PaCoScreen extends Screen {
             int newValue = (int) (this.modsScrollBar.getValue() - (delta * pixelStep));
             newValue = Mth.clamp(newValue, 0, maxVal);
             this.modsScrollBar.setValue(newValue);
+        }
+        // Content Panel Scroll
+        if (this.contentScrollBar != null && PaCoGuiUtils.isMouseWithin(mouseX, mouseY, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, this.contentPanelWidth, this.contentMenuHeight)) {
+            int maxVal = this.contentPanelManager.getContentHeight() - this.contentMenuHeight;
+            int pixelStep = (int) (maxVal * 0.12); // Modify the value by 12%
+            pixelStep = Mth.clamp(pixelStep, 5, 30); // Ensures that the step size is within 5-30
+            int newValue = (int) (this.contentScrollBar.getValue() - (delta * pixelStep));
+            newValue = Mth.clamp(newValue, 0, maxVal);
+            this.contentScrollBar.setValue(newValue);
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
@@ -339,6 +375,19 @@ public class PaCoScreen extends Screen {
 
         PaCoPostShaders.PACO_BLUR.processPostChain(partialTick, this.parameters);
         minecraft.getMainRenderTarget().bindWrite(false);
+    }
+
+    public void setContentScrollBar(@Nullable PaCoSlider contentScrollBar) {
+        if (this.contentScrollBar != contentScrollBar) {
+            // If there is already a slider we remove it from the widgets
+            if (this.contentScrollBar != null)
+                this.removeWidget(this.contentScrollBar);
+            // We set the content scroll bar field to the new value (which can be null)
+            this.contentScrollBar = contentScrollBar;
+            // If the new scroll bar isn't null we add it to the widgets
+            if (contentScrollBar != null)
+                this.addWidget(contentScrollBar);
+        }
     }
 
     /**
@@ -445,11 +494,12 @@ public class PaCoScreen extends Screen {
             // If the ResourceLocation isn't null we render the background.
             ResourceLocation rl = backgroundData.getFirst();
             Pair<Integer, Integer> dimensions = backgroundData.getSecond();
-
 //            graphics.blit(resourceLocation, posX, (posY + height / 2) - (width / 4), width, width / 2, 0, 0, dimensions.getFirst(), dimensions.getSecond(), dimensions.getFirst(), dimensions.getSecond());
 
-            if (width < height * 2)
-                width = height * 2;
+            if (width < height * 2) {
+                posX = (posX + (width / 2)) - (height); // Centers the banner
+                width = height * 2; // Ensures the banner maintains a 2:1 ratio
+            }
 
             RenderSystem.setShaderTexture(0, rl);
             RenderSystem.setShader(PaCoCoreShaders::getPositionColorTexFullAlphaShader);

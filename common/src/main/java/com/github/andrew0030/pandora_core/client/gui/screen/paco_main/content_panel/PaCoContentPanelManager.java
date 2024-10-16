@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
@@ -49,6 +50,19 @@ public class PaCoContentPanelManager {
             this.posX += 8;
             this.width -= 8;
             this.buildContentPanel(holder);
+            // We add the slider to the screen
+            int heightPadding = PaCoScreen.PADDING_FOUR;
+            int sliderHeight = this.getHeight() - heightPadding;
+            int posX = this.getScreen().modsPanelWidth + PaCoScreen.PADDING_FOUR;
+            int posY = this.getScreen().contentMenuHeightStart + heightPadding / 2;
+            this.getScreen().setContentScrollBar(
+                    new PaCoVerticalSlider(posX, posY, 6, sliderHeight, 0, (this.getContentHeight() - this.getScreen().contentMenuHeight), 0, 1)
+                            .setSilent(true)
+                            .setTextHidden(true)
+                            .setHandleSize(8, Math.max(8, this.getHeight() - (this.getContentHeight() - this.getHeight()) - PaCoScreen.PADDING_FOUR))
+                            .setSliderTexture(PaCoScreen.TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                            .setHandleTexture(PaCoScreen.TEXTURE, 12, 54, 20, 54, 8, 18, 1)
+            );
         }
     }
 
@@ -92,7 +106,10 @@ public class PaCoContentPanelManager {
     }
 
     public int getPosY() {
-        return this.posY;
+        int scrollOffset = 0;
+        if (this.getScreen().contentScrollBar != null)
+            scrollOffset = (int) Math.round(this.getScreen().contentScrollBar.getValue());
+        return this.posY - scrollOffset;
     }
 
     public int getWidth() {

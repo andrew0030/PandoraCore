@@ -150,6 +150,7 @@ public class ModButton extends AbstractButton {
         if (currentButton == this) {
             // We unselect this button if it's already selected
             manager.clearElements();
+            this.screen.setContentScrollBar(null);
             this.setSelected(false);
             this.screen.selectedModButton = null;
         } else {
@@ -159,6 +160,7 @@ public class ModButton extends AbstractButton {
             // We select the new button
             this.setSelected(true);
             this.screen.selectedModButton = this;
+            this.screen.setContentScrollBar(null);
             manager.buildContentPanel(this.getModDataHolder());
         }
     }

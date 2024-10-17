@@ -200,7 +200,7 @@ public class ModButton extends AbstractButton {
                 // The "rim", this is technically the entire icon, but it's easier to just do it this way
                 graphics.blit(MISSING_MOD_ICON, posX, posY, size, size, 0, 0, 23, 23, 23, 23);
                 // The centerpiece
-                int color = PaCoColor.colorFromHSV(Math.abs(modId.hashCode()) % 360, 0.8F, 0.7F);
+                int color = PaCoColor.colorFromHSV(Math.abs(modId.hashCode()) % 360, 0.8F, 0.7F); //TODO: adjust colors or text
                 float r = PaCoColor.red(color) / 255F;
                 float g = PaCoColor.green(color) / 255F;
                 float b = PaCoColor.blue(color) / 255F;

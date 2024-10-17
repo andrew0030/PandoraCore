@@ -14,7 +14,12 @@
   "gui.pandora_core.paco.filter.tooltip.updates": "Updates",
 
   "gui.pandora_core.paco.content.mod.version.key": "Version:",
+  "gui.pandora_core.paco.content.mod.warning.key": "Warning(s):",
   "gui.pandora_core.paco.content.mod.description.key": "Description:",
+  "gui.pandora_core.paco.content.mod.authors.key": "Author(s):",
+  "gui.pandora_core.paco.content.mod.credits.key": "Credits:",
+  "gui.pandora_core.paco.content.mod.contributors.key": "Contributor(s):",
+  "gui.pandora_core.paco.content.mod.license.key": "License:",
 
   "warnings.pandora_core.opti_fine.post_shader": "[OptiFine] Detected, post shaders have been disabled!"
 }

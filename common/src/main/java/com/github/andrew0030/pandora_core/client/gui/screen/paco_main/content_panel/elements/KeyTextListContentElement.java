@@ -1,5 +1,6 @@
-package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel;
+package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements;
 
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.datafixers.util.Pair;
@@ -8,7 +9,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.StringUtil;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;

@@ -25,8 +25,18 @@ public abstract class ModDataHolder {
     /** @return The mod authors. */
     public abstract List<String> getModAuthors();
 
+    /** @return Whether this mod has any mod authors specified. */
+    public boolean hasModAuthors() {
+        return !this.getModAuthors().isEmpty();
+    }
+
     /** @return The mod credits/contributors. */
     public abstract List<String> getModCredits();
+
+    /** @return Whether this mod has any mod credits/contributors specified. */
+    public boolean hasModCredits() {
+        return !this.getModCredits().isEmpty();
+    }
 
     /** @return The mod license. */
     public abstract String getModLicense();

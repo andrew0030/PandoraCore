@@ -1,5 +1,6 @@
-package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel;
+package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements;
 
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class BaseContentElement {

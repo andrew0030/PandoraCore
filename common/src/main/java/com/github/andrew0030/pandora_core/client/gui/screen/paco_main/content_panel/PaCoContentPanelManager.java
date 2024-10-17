@@ -1,16 +1,28 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.*;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PaCoContentPanelManager {
+    // Content Panel | With Active Mod
+    public static final Component MOD_VERSION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.version.key");
+    public static final Component MOD_WARNING_KEY = Component.translatable("gui.pandora_core.paco.content.mod.warning.key");
+    public static final Component MOD_DESCRIPTION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.description.key");
+    public static final Component MOD_AUTHORS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.authors.key");
+    public static final Component MOD_CREDITS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.credits.key");
+    public static final Component MOD_CONTRIBUTORS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.contributors.key");
+    public static final Component MOD_LICENSE_KEY = Component.translatable("gui.pandora_core.paco.content.mod.license.key");
+    // Content Panel | No Active Mod
+    // TODO
     private final List<BaseContentElement> elements = new ArrayList<>();
     private final PaCoScreen screen;
     private int posX;
@@ -33,16 +45,20 @@ public class PaCoContentPanelManager {
 
     public void buildContentPanel(ModDataHolder holder) {
         this.clearElements();
+        int paddingX = PaCoScreen.PADDING_FOUR;
+        int paddingY = 8;
         this.elements.add(new BackgroundContentElement(this));
-        this.elements.add(new TitleContentElement(this, PaCoScreen.PADDING_FOUR, -16, holder.getModName()));
-        this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, PaCoScreen.MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
-        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, "Warning(s):", List.of("This is a warning and you are in trouble!", "This is another warning, hehe", "This is a banana...", "Anyone want a cup of tea?", "I think that's enough entries.", "Why are you reading all of this?"), "• ").setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR));
-        this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, PaCoScreen.MOD_DESCRIPTION_KEY.getString(), holder.getModDescription()).setValueColor(PaCoColor.color(160, 160, 160)));
-        this.elements.add(new KeyTextContentElement(this, PaCoScreen.PADDING_FOUR, 4, "License:", holder.getModLicense()).setValueColor(PaCoColor.color(160, 160, 160)));
-//        if (!holder.getModAuthors().isEmpty()) // We only add the authors if there are any specified
-        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, "Author(s):", holder.getModAuthors()).setValueColor(PaCoColor.color(160, 160, 160)));
-        boolean isForge = Services.PLATFORM.getPlatformName().equals("Forge");
-        this.elements.add(new KeyTextListContentElement(this, PaCoScreen.PADDING_FOUR, 4, isForge ? "Credits:" : "Contributor(s):", holder.getModCredits()).setValueColor(PaCoColor.color(160, 160, 160)));
+        this.elements.add(new TitleContentElement(this, paddingX, -16, holder.getModName()));
+        this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
+        if (holder.hasModWarnings()) // We only add warnings if there are any
+            this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_WARNING_KEY.getString(), holder.getModWarnings().stream().map(Component::getString).toList(), "• ").setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR));
+        this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_DESCRIPTION_KEY.getString(), holder.getModDescription()).setValueColor(PaCoColor.color(160, 160, 160)));
+        if (holder.hasModAuthors()) // We only add the authors if there are any specified
+            this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_AUTHORS_KEY.getString(), holder.getModAuthors()).setValueColor(PaCoColor.color(160, 160, 160)));
+        if (holder.hasModCredits())
+            this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, Services.PLATFORM.getPlatformName().equals("Forge") ? MOD_CREDITS_KEY.getString() : MOD_CONTRIBUTORS_KEY.getString(), holder.getModCredits()).setValueColor(PaCoColor.color(160, 160, 160)));
+        this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_LICENSE_KEY.getString(), holder.getModLicense()).setValueColor(PaCoColor.color(160, 160, 160)));
+        this.elements.add(new EmptyContentElement(this, paddingY));
 
         // If the height of the elements is greater than the panel size we flag as "needs scroll bar" and recalculate the elements with the new dimensions
         if (!this.hasScrollBar() && this.getContentHeight() > this.getScreen().contentMenuHeight) {

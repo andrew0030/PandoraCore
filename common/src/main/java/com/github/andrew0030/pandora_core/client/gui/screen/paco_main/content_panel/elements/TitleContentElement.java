@@ -1,5 +1,6 @@
-package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel;
+package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements;
 
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import net.minecraft.client.Minecraft;

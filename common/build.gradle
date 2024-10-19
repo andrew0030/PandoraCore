@@ -4,9 +4,11 @@ plugins {
     id 'maven-publish'
     id 'org.spongepowered.gradle.vanilla'
 }
+
 base {
     archivesName = "${mod_id}-common-${minecraft_version}"
 }
+
 minecraft {
     version(minecraft_version)
     if(file("src/main/resources/${mod_id}.accesswidener").exists()){
@@ -17,12 +19,15 @@ minecraft {
 repositories {
     maven { url "https://www.cursemaven.com" }
 }
+
 dependencies {
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
     compileOnly group: 'org.ow2.asm', name: 'asm-tree', version: '9.6'
 
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
 
-    compileOnly "curse.maven:embeddium-908741:5456704"
-    compileOnly "curse.maven:oculus-581495:5299671"
+    compileOnly "net.objecthunter:exp4j:0.4.8" // exp4j
+
+    compileOnly "curse.maven:embeddium-908741:5456704" // Embeddium
+    compileOnly "curse.maven:oculus-581495:5299671" // Oculus
 }

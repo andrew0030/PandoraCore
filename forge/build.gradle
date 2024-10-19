@@ -4,10 +4,13 @@ plugins {
     id 'net.minecraftforge.gradle'
     id 'org.spongepowered.mixin'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'com.gradleup.shadow' version '8.3.3'
 }
+
 base {
     archivesName = "${mod_id}-forge-${minecraft_version}"
 }
+
 mixin {
     add(sourceSets.main, "${mod_id}.refmap.json")
 
@@ -55,9 +58,14 @@ minecraft {
     }
 }
 
+configurations {
+    shade
+}
+
 repositories {
     maven { url "https://www.cursemaven.com" }
 }
+
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
@@ -72,6 +80,10 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:yungs-api-421850:5331703") // YUNG's API
     runtimeOnly fg.deobf("curse.maven:yungs-better-witch-huts-631401:4769489") // YUNG's Better Witch Huts
     runtimeOnly fg.deobf("curse.maven:yungs-better-end-island-901344:5193815") // YUNG's Better End Island
+
+    // exp4j (Expression Parsing)
+    minecraftLibrary "net.objecthunter:exp4j:0.4.8"
+    shade "net.objecthunter:exp4j:0.4.8"
 
     // Performance Monitoring
     runtimeOnly fg.deobf("curse.maven:spark-361579:4738952") // Spark
@@ -89,5 +101,20 @@ tasks.withType(JavaCompile).configureEach {
 processResources {
     from project(":common").sourceSets.main.resources
 }
+
+shadowJar {
+    archiveClassifier.set("")
+    configurations = [project.configurations.shade]
+    relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
+    finalizedBy('reobfShadowJar')
+    dependsOn "reobfJar"
+}
+// This block configures how the shadowJar will be reobfuscated.
+reobf {
+    shadowJar {} // Specifies that the reobfuscation will operate on the shadowJar.
+}
+// Makes sure that the assemble task depends on the shadowJar task.
+// This means that the shadow JAR will be built before the final assembly of the project.
+assemble.dependsOn shadowJar
 
 jar.finalizedBy('reobfJar')

@@ -3,14 +3,22 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'fabric-loom'
+    id 'com.gradleup.shadow' version '8.3.3'
 }
+
 base {
     archivesName = "${mod_id}-fabric-${minecraft_version}"
 }
+
+configurations {
+    shade
+}
+
 repositories {
     maven { url "https://www.cursemaven.com" }
     maven { url "https://api.modrinth.com/maven/" }
 }
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.layered() {
@@ -24,6 +32,10 @@ dependencies {
     modImplementation  "maven.modrinth:modmenu:${modmenu_version}"
     // MrCrayfish Config Mods
     modImplementation "curse.maven:catalogue-fabric-667377:4766089" // Catalogue
+
+    // exp4j (Expression Parsing)
+    modImplementation "net.objecthunter:exp4j:0.4.8"
+    shade "net.objecthunter:exp4j:0.4.8"
 
     // Performance Monitoring
     modRuntimeOnly "curse.maven:spark-361579:4738953" // Spark
@@ -63,3 +75,12 @@ tasks.withType(JavaCompile).configureEach {
 processResources {
     from project(":common").sourceSets.main.resources
 }
+
+shadowJar {
+    archiveClassifier.set("")
+    configurations = [project.configurations.shade]
+    relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
+}
+// Makes sure that the assemble task depends on the shadowJar task.
+// This means that the shadow JAR will be built before the final assembly of the project.
+assemble.dependsOn shadowJar

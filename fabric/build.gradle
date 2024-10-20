@@ -36,6 +36,11 @@ dependencies {
     // exp4j (Expression Parsing)
     modImplementation "net.objecthunter:exp4j:0.4.8"
     shade "net.objecthunter:exp4j:0.4.8"
+    // NightConfig (Config System)
+    compileOnly "com.electronwill.night-config:core:3.8.1" // Core
+    compileOnly "com.electronwill.night-config:toml:3.8.1" // Toml
+    shade "com.electronwill.night-config:core:3.8.1"
+    shade "com.electronwill.night-config:toml:3.8.1"
 
     // Performance Monitoring
     modRuntimeOnly "curse.maven:spark-361579:4738953" // Spark
@@ -80,6 +85,7 @@ shadowJar {
     archiveClassifier.set("")
     configurations = [project.configurations.shade]
     relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
+    relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
 }
 // Makes sure that the assemble task depends on the shadowJar task.
 // This means that the shadow JAR will be built before the final assembly of the project.

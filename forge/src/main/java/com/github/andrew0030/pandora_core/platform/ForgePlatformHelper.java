@@ -9,6 +9,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.locating.IModFile;
 import net.minecraftforge.resource.ResourcePackLoader;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -41,6 +43,16 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public String getMinecraftVersion() {
         return FMLLoader.versionInfo().mcVersion();
+    }
+
+    @Override
+    public Path getGameDirectory() {
+        return FMLPaths.GAMEDIR.get();
+    }
+
+    @Override
+    public Path getConfigDirectory() {
+        return FMLPaths.CONFIGDIR.get();
     }
 
     @Override

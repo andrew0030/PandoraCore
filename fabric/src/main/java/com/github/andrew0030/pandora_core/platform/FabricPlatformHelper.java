@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -41,6 +42,16 @@ public class FabricPlatformHelper implements IPlatformHelper {
         return FabricLoader.getInstance().getModContainer("minecraft")
                 .map(container -> container.getMetadata().getVersion().getFriendlyString())
                 .orElse("Unknown Version");
+    }
+
+    @Override
+    public Path getGameDirectory() {
+        return FabricLoader.getInstance().getGameDir();
+    }
+
+    @Override
+    public Path getConfigDirectory() {
+        return FabricLoader.getInstance().getConfigDir();
     }
 
     @Override

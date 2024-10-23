@@ -37,8 +37,8 @@ dependencies {
     modImplementation "net.objecthunter:exp4j:0.4.8"
     shade "net.objecthunter:exp4j:0.4.8"
     // NightConfig (Config System)
-    compileOnly "com.electronwill.night-config:core:3.8.1" // Core
-    compileOnly "com.electronwill.night-config:toml:3.8.1" // Toml
+    modImplementation "com.electronwill.night-config:core:3.8.1" // Core
+    modImplementation "com.electronwill.night-config:toml:3.8.1" // Toml
     shade "com.electronwill.night-config:core:3.8.1"
     shade "com.electronwill.night-config:toml:3.8.1"
 

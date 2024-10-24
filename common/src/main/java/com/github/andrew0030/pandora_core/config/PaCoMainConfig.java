@@ -1,8 +1,8 @@
 package com.github.andrew0030.pandora_core.config;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
+import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 
 //TODO: create a config system using NightConfig
 // - Probably add annotations as its a nice clean and simple way to create configs
@@ -12,7 +12,7 @@ import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConf
 // - Alternatively if mods like Catalogue or Mod Menu are installed, check their config screen entry points
 // - Maybe keep track of mods that used the PaCoMainConfig system...
 
-@PaCoConfig(PandoraCore.MOD_ID + "-main")
+@PaCoConfig(modId = PandoraCore.MOD_ID, name = "main")
 public class PaCoMainConfig {
 
     @PaCoConfigValues.IntegerValue

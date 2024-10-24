@@ -16,13 +16,18 @@ public class PandoraCore {
     public static final String MOD_NAME = "Pandora Core";
     private static final Logger LOGGER = PaCoLogger.create(MOD_NAME);
     private static final HashMap<String, ModDataHolder> MOD_HOLDERS = new HashMap<>();
+    // Config
+    public static final PaCoMainConfig MAIN_CONFIG = new PaCoMainConfig();
 
     /** Common Init */
     public static void init() {
         Services.PLATFORM.getModDataHolders().forEach(holder -> PandoraCore.MOD_HOLDERS.put(holder.getModId(), holder));
 
 
-        PaCoConfigSpec config = new PaCoConfigSpec(PaCoMainConfig.class);
+        PaCoConfigSpec.register(MAIN_CONFIG);
+
+        LOGGER.info("Integer Value: {}", MAIN_CONFIG.integerValue);
+        LOGGER.info("Ranged Integer Value: {}", MAIN_CONFIG.rangedIntegerValue);
 
 
     }

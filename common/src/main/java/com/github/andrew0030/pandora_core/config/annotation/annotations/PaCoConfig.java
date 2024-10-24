@@ -5,10 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-//TODO: Deal with the mod id prefix in a better way, as it should automatically create configs using:
-// "mod id" + "-" + "value" + ".toml" instead of having to manually specify the "mod id"
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface PaCoConfig {
-    String value();
+    String modId();
+    String name();
 }

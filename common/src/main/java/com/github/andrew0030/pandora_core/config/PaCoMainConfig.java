@@ -18,6 +18,21 @@ public class PaCoMainConfig {
     @PaCoConfigValues.IntegerValue
     public int integerValue = 10;
 
+    @PaCoConfigValues.IntegerValue
+    public int integerValue1 = 11;
+
+    @PaCoConfigValues.IntegerValue
+    public int integerValue2 = 12;
+
+    @PaCoConfigValues.IntegerValue
+    public int integerValue3 = 13;
+
+    @PaCoConfigValues.IntegerValue(minValue = 0, maxValue = 100)
+    public int rangedAltInt = 100;
+
+    @PaCoConfigValues.IntegerValue
+    public int inBetweenInt = 4000;
+
     @PaCoConfigValues.IntegerValue(minValue = 0, maxValue = 10)
     public int rangedIntegerValue = 5;
 }

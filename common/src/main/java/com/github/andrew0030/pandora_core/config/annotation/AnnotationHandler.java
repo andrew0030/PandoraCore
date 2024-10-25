@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.config.annotation;
 
-import com.electronwill.nightconfig.core.file.FileConfig;
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
@@ -32,15 +32,15 @@ public class AnnotationHandler {
     }
 
     /**
-     * Writes default values from the config instance to the {@link FileConfig}
+     * Writes default values from the config instance to the {@link CommentedFileConfig}
      */
-    public void writeDefaultValues(Object configInstance, FileConfig fileConfig) {
-        for (Field field : configClass.getDeclaredFields()) {
+    public void writeDefaultValues(Object configInstance, CommentedFileConfig config) {
+        for (Field field : this.configClass.getDeclaredFields()) {
             try {
                 if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class)) {
                     field.setAccessible(true);
                     int value = field.getInt(configInstance);
-                    fileConfig.set(field.getName(), value);
+                    config.add(field.getName(), value);
                     LOGGER.info("Writing default value for field '{}': {}", field.getName(), value);
                 }
 
@@ -55,13 +55,13 @@ public class AnnotationHandler {
     /**
      * Loads values from the file and sets them on the config class fields.
      */
-    public void loadConfigValues(Object configInstance, FileConfig fileConfig) {
-        for (Field field : configClass.getDeclaredFields()) {
+    public void loadConfigValues(Object configInstance, CommentedFileConfig config) {
+        for (Field field : this.configClass.getDeclaredFields()) {
             try {
                 if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class)) {
                     field.setAccessible(true);
                     int defaultValue = field.getInt(configInstance);
-                    int loadedValue = fileConfig.getOrElse(field.getName(), defaultValue);
+                    int loadedValue = config.getOrElse(field.getName(), defaultValue);
                     field.setInt(configInstance, loadedValue); // Sets the loaded value back to the field
                     LOGGER.info("Loaded value for field '{}': {}", field.getName(), loadedValue);
                 }

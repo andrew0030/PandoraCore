@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core;
 
 import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
-import com.github.andrew0030.pandora_core.config.spec.PaCoConfigSpec;
+import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
@@ -24,10 +24,7 @@ public class PandoraCore {
         Services.PLATFORM.getModDataHolders().forEach(holder -> PandoraCore.MOD_HOLDERS.put(holder.getModId(), holder));
 
 
-        PaCoConfigSpec.register(MAIN_CONFIG);
-
-        LOGGER.info("Integer Value: {}", MAIN_CONFIG.integerValue);
-        LOGGER.info("Ranged Integer Value: {}", MAIN_CONFIG.rangedIntegerValue);
+        PaCoConfigManager.register(MAIN_CONFIG);
 
 
     }

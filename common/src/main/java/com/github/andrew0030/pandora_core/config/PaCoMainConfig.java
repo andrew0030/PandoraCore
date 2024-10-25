@@ -15,8 +15,11 @@ import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConf
 @PaCoConfig(modId = PandoraCore.MOD_ID, name = "main")
 public class PaCoMainConfig {
 
-    @PaCoConfigValues.IntegerValue
-    public int integerValue = 10;
+    @PaCoConfigValues.BooleanValue
+    public boolean falseValue = false;
+
+    @PaCoConfigValues.BooleanValue
+    public boolean trueValue = true;
 
     @PaCoConfigValues.IntegerValue
     public int integerValue1 = 11;
@@ -29,9 +32,6 @@ public class PaCoMainConfig {
 
     @PaCoConfigValues.IntegerValue(minValue = 0, maxValue = 100)
     public int rangedAltInt = 100;
-
-    @PaCoConfigValues.IntegerValue
-    public int inBetweenInt = 4000;
 
     @PaCoConfigValues.IntegerValue(minValue = 0, maxValue = 10)
     public int rangedIntegerValue = 5;

@@ -8,7 +8,10 @@ import java.lang.annotation.Target;
 /** Helper class containing all the value annotations that can be used with {@link PaCoConfig}. */
 public class PaCoConfigValues {
 
-    /** Used to specify an {@link Integer} value. */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface BooleanValue {}
+
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface IntegerValue {

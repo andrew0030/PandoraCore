@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.config.manager;
 
 import com.electronwill.nightconfig.core.ConfigSpec;
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.AnnotationHandler;
@@ -9,8 +10,11 @@ import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import org.slf4j.Logger;
 
+import java.lang.reflect.Field;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class PaCoConfigManager {
@@ -30,7 +34,7 @@ public class PaCoConfigManager {
         this.configSpec = this.annotationHandler.createConfigSpec();
         this.config = this.createConfig();
 
-        this.loadAndCorrect(); //TODO figure out why config spec isn't ordered???
+        this.loadAndCorrect();
     }
 
     /**
@@ -64,6 +68,25 @@ public class PaCoConfigManager {
             LOGGER.info("Correction Summary for [{}]: {} values adjusted.", this.annotationHandler.getConfigName(), correctionCount);
         }
 
+        //TODO Remove later
+        Map<String, Object> tempMap = new LinkedHashMap<>();
+        // Iterate over the ordered keys and retrieve their values
+        for (String key : Arrays.stream(this.configInstance.getClass().getDeclaredFields()).map(Field::getName).toList()) {
+            Object value = this.config.get(key); // Get the corrected value
+            tempMap.put(key, value); // Store in the temp map
+        }
+        // Clear the original config and reinsert in order
+        this.config.clear(); // Clear existing values
+        tempMap.forEach(this.config::set); // Reinsert the values in order
+
+
+        System.out.println(this.config.entrySet().stream().map(UnmodifiableConfig.Entry::getKey).toList());
+
+        this.config.setComment("falseValue", """
+                 This is a comment block test.
+                 Is this line in the next line?
+                 Range [0 - 10] (not really just comment testing)
+                """);
         this.config.save();
     }
 

@@ -6,56 +6,33 @@ import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConf
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AnnotationHandler {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "AnnotationHandler");
+    private final List<String> annotatedFields = new ArrayList<>();
+    private final ConfigSpec configSpec = new ConfigSpec();
     private final PaCoConfigManager manager;
     private final String configName;
 
     public AnnotationHandler(PaCoConfigManager manager) {
         this.manager = manager;
-        this.configName = this.retrieveConfigName();
+        this.configName = this.initConfigName();
+        // Initializes the: annotatedFields, configSpec
+        this.initConfigCaches();
     }
 
-    private String retrieveConfigName() {
+    /** Initializes the config name */
+    private String initConfigName() {
         PaCoConfig configAnnotation = this.manager.getConfigClass().getAnnotation(PaCoConfig.class);
         if (configAnnotation == null)
             throw new IllegalArgumentException("Class " + this.manager.getConfigClass().getName() + " must be annotated with @PaCoConfig");
         return String.format("%s-%s", configAnnotation.modId(), configAnnotation.name());
-    }
-
-    public ConfigSpec createConfigSpec() {
-        ConfigSpec configSpec = new ConfigSpec();
-        for (Field field : this.manager.getConfigClass().getDeclaredFields()) {
-            // Boolean
-            if (field.isAnnotationPresent(PaCoConfigValues.BooleanValue.class)) {
-                if (field.getType() != boolean.class)
-                    throw new IllegalArgumentException("Field: '" + field.getName() + "' in Class: '" + this.manager.getConfigClass().getName() + "' must be of type boolean for BooleanValue annotation.");
-                field.setAccessible(true);
-                try {
-                    boolean defaultValue = field.getBoolean(this.manager.getConfigInstance());
-                    configSpec.define(field.getName(), defaultValue);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            // Integer
-            if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class)) {
-                if (field.getType() != int.class)
-                    throw new IllegalArgumentException("Field: '" + field.getName() + "' in Class: '" + this.manager.getConfigClass().getName() + "' must be of type int for IntegerValue annotation.");
-                field.setAccessible(true);
-                try {
-                    int defaultValue = field.getInt(this.manager.getConfigInstance());
-                    configSpec.define(field.getName(), defaultValue);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        return configSpec;
     }
 
     /**
@@ -71,72 +48,87 @@ public class AnnotationHandler {
         return this.configName;
     }
 
+    /**
+     * TODO: finish javadoc
+     * <br/>
+     * <strong>Note</strong>: This method ensures type safety.
+     */
+    private void initConfigCaches() {
+        for (Field field : this.manager.getConfigClass().getDeclaredFields()) {
+            // Boolean
+            if (field.isAnnotationPresent(PaCoConfigValues.BooleanValue.class)) {
+                if (field.getType() != boolean.class)
+                    throw new IllegalArgumentException("Field: '" + field.getName() + "' in Class: '" + this.manager.getConfigClass().getName() + "' must be of type boolean for BooleanValue annotation.");
+                field.setAccessible(true);
+                try {
+                    boolean defaultValue = field.getBoolean(this.manager.getConfigInstance());
+                    configSpec.define(field.getName(), defaultValue);
+                    this.annotatedFields.add(field.getName());
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            // Integer
+            if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class)) {
+                if (field.getType() != int.class)
+                    throw new IllegalArgumentException("Field: '" + field.getName() + "' in Class: '" + this.manager.getConfigClass().getName() + "' must be of type int for IntegerValue annotation.");
+                field.setAccessible(true);
+                try {
+                    int defaultValue = field.getInt(this.manager.getConfigInstance());
+                    configSpec.define(field.getName(), defaultValue);
+                    this.annotatedFields.add(field.getName());
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
 
+    /**
+     * Used to retrieve a fully defined {@link ConfigSpec}, containing all the annotated fields as entries.
+     *
+     * @return the {@link ConfigSpec} created based on the specified {@link PaCoConfig}
+     */
+    public ConfigSpec getConfigSpec() {
+        return this.configSpec;
+    }
 
+    /**
+     * TODO: finish javadoc
+     * @return
+     */
+    public ImmutableList<String> getAnnotatedFields() {
+        return ImmutableList.copyOf(this.annotatedFields);
+    }
 
-
-
-
-
-
-
-
-
-//    /**
-//     * Writes default values from the config instance to the {@link CommentedFileConfig}
-//     */
-//    public void writeDefaultValues(Object configInstance, CommentedFileConfig config) {
-//        for (Field field : this.configClass.getDeclaredFields()) {
-//            try {
-//                if (field.isAnnotationPresent(PaCoConfigValues.BooleanValue.class)) {
-//                    field.setAccessible(true);
-//                    boolean value = field.getBoolean(configInstance);
-//                    config.add(field.getName(), value);
-//                    LOGGER.info("Writing default value for field '{}': {}", field.getName(), value);
+//    public ConfigSpec createConfigSpec() {
+//        ConfigSpec configSpec = new ConfigSpec();
+//        for (Field field : this.manager.getConfigClass().getDeclaredFields()) {
+//            // Boolean
+//            if (field.isAnnotationPresent(PaCoConfigValues.BooleanValue.class)) {
+//                if (field.getType() != boolean.class)
+//                    throw new IllegalArgumentException("Field: '" + field.getName() + "' in Class: '" + this.manager.getConfigClass().getName() + "' must be of type boolean for BooleanValue annotation.");
+//                field.setAccessible(true);
+//                try {
+//                    boolean defaultValue = field.getBoolean(this.manager.getConfigInstance());
+//                    configSpec.define(field.getName(), defaultValue);
+//                } catch (IllegalAccessException e) {
+//                    throw new RuntimeException(e);
 //                }
-//
-//                if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class)) {
-//                    field.setAccessible(true);
-//                    int value = field.getInt(configInstance);
-//                    config.add(field.getName(), value);
-//                    LOGGER.info("Writing default value for field '{}': {}", field.getName(), value);
+//            }
+//            // Integer
+//            if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class)) {
+//                if (field.getType() != int.class)
+//                    throw new IllegalArgumentException("Field: '" + field.getName() + "' in Class: '" + this.manager.getConfigClass().getName() + "' must be of type int for IntegerValue annotation.");
+//                field.setAccessible(true);
+//                try {
+//                    int defaultValue = field.getInt(this.manager.getConfigInstance());
+//                    configSpec.define(field.getName(), defaultValue);
+//                } catch (IllegalAccessException e) {
+//                    throw new RuntimeException(e);
 //                }
-//
-//
-//
-//            } catch (IllegalAccessException e) {
-//                LOGGER.error("Failed to set field '{}'", field.getName(), e);
 //            }
 //        }
-//    }
-//
-//    /**
-//     * Loads values from the file and sets them on the config class fields.
-//     */
-//    public void loadConfigValues(Object configInstance, CommentedFileConfig config) {
-//        for (Field field : this.configClass.getDeclaredFields()) {
-//            try {
-//                if (field.isAnnotationPresent(PaCoConfigValues.BooleanValue.class)) {
-//                    field.setAccessible(true);
-//                    boolean defaultValue = field.getBoolean(configInstance);
-//                    boolean loadedValue = config.getOrElse(field.getName(), defaultValue);
-//                    field.setBoolean(configInstance, loadedValue); // Sets the loaded value back to the field
-//                    LOGGER.info("Loaded value for field '{}': {}", field.getName(), loadedValue);
-//                }
-//
-//                if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class)) {
-//                    field.setAccessible(true);
-//                    int defaultValue = field.getInt(configInstance);
-//                    int loadedValue = config.getOrElse(field.getName(), defaultValue);
-//                    field.setInt(configInstance, loadedValue); // Sets the loaded value back to the field
-//                    LOGGER.info("Loaded value for field '{}': {}", field.getName(), loadedValue);
-//                }
-//
-//
-//
-//            } catch (IllegalAccessException e) {
-//                LOGGER.error("Failed to set field '{}'", field.getName(), e);
-//            }
-//        }
+//        return configSpec;
 //    }
 }

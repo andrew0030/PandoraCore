@@ -1,7 +1,6 @@
 package com.github.andrew0030.pandora_core.config.manager;
 
 import com.electronwill.nightconfig.core.ConfigSpec;
-import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.AnnotationHandler;
@@ -10,9 +9,7 @@ import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import org.slf4j.Logger;
 
-import java.lang.reflect.Field;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,16 +22,13 @@ public class PaCoConfigManager {
     // Config Managing
     private final Object configInstance;               // The config instance with the annotated fields
     private final AnnotationHandler annotationHandler; // Helper class that deals with annotations
-    private final ConfigSpec configSpec;               // A config spec used for validation/correction
     private final CommentedFileConfig config;          // The config file
 
     private PaCoConfigManager(Object configInstance) {
         this.configInstance = configInstance;
         this.annotationHandler = new AnnotationHandler(this);
-        this.configSpec = this.annotationHandler.createConfigSpec();
-        this.config = this.createConfig();
-
-        this.loadAndCorrect();
+        this.config = this.createEmptyConfig();
+        this.config.load();
     }
 
     /**
@@ -45,17 +39,21 @@ public class PaCoConfigManager {
      *
      * @return a {@link CommentedFileConfig} instance
      */
-    private CommentedFileConfig createConfig() {
+    private CommentedFileConfig createEmptyConfig() {
         String configName = this.annotationHandler.getConfigName();
         Path configDirectory = Services.PLATFORM.getConfigDirectory();
         Path configFilePath = configDirectory.resolve(configName + ".toml");
         // Creates the CommentedFileConfig instance
-        return CommentedFileConfig.builder(configFilePath).preserveInsertionOrder().build();
+        return CommentedFileConfig.builder(configFilePath).preserveInsertionOrder().autoreload().onLoad(this.loadListener()).build();
     }
 
-    private void loadAndCorrect() {
-        this.config.load(); // Loads the config from the file
-        boolean isConfigCorrect = this.configSpec.isCorrect(this.config);
+    private Runnable loadListener() {
+        return this::correctIfNeeded;
+    }
+
+    private void correctIfNeeded() {
+        ConfigSpec configSpec = this.annotationHandler.getConfigSpec();
+        boolean isConfigCorrect = configSpec.isCorrect(this.config);
         // If the config isn't correct we handle it.
         if (!isConfigCorrect) {
             // Listener to log corrections made to the config
@@ -64,30 +62,18 @@ public class PaCoConfigManager {
                 LOGGER.warn(" - Config Correction | Key: {} | Detected: {} | Corrected: {}", pathString, incorrectValue, correctedValue);
             };
             LOGGER.warn("Detected inconsistencies in [{}] config. Initiating corrections...", this.annotationHandler.getConfigName());
-            int correctionCount = this.configSpec.correct(this.config, listener);
+            int correctionCount = configSpec.correct(this.config, listener);
             LOGGER.info("Correction Summary for [{}]: {} values adjusted.", this.annotationHandler.getConfigName(), correctionCount);
+            // Orders config, this is needed because the config from .load() is unordered
+            this.orderConfigEntries();
+            // Saves the corrected and ordered config to the file, as the corrections need to be applied there as well
+            this.config.save();
+        } else {
+            // Orders config, this is needed because the config from .load() is unordered
+            // We don't need to call .save(), because in this case the file itself was correct,
+            // and we simply order the "in memory" config for QoL
+            this.orderConfigEntries();
         }
-
-        //TODO Remove later
-        Map<String, Object> tempMap = new LinkedHashMap<>();
-        // Iterate over the ordered keys and retrieve their values
-        for (String key : Arrays.stream(this.configInstance.getClass().getDeclaredFields()).map(Field::getName).toList()) {
-            Object value = this.config.get(key); // Get the corrected value
-            tempMap.put(key, value); // Store in the temp map
-        }
-        // Clear the original config and reinsert in order
-        this.config.clear(); // Clear existing values
-        tempMap.forEach(this.config::set); // Reinsert the values in order
-
-
-        System.out.println(this.config.entrySet().stream().map(UnmodifiableConfig.Entry::getKey).toList());
-
-        this.config.setComment("falseValue", """
-                 This is a comment block test.
-                 Is this line in the next line?
-                 Range [0 - 10] (not really just comment testing)
-                """);
-        this.config.save();
     }
 
     public Object getConfigInstance() {
@@ -96,6 +82,30 @@ public class PaCoConfigManager {
 
     public Class<?> getConfigClass() {
         return this.configInstance.getClass();
+    }
+
+    public void closeConfig() {
+        LOGGER.info("Closing [{}] config", this.annotationHandler.getConfigName());
+        this.config.close();
+    }
+
+    /**
+     * Re-orders the config entries, to match the annotation order of the given {@link PaCoConfig}.
+     * <br/>
+     * <strong>Note</strong>: this method doesn't perform any validation, so it should only be
+     * used if the config has been validated and the entries in {@link PaCoConfigManager#config}
+     * match the fields specified in {@link PaCoConfig}.
+     */
+    private void orderConfigEntries() {
+        Map<String, Object> tempMap = new LinkedHashMap<>();
+        // Iterates over the ordered keys and retrieves their values, before storing them in tempMap
+        for (String key : this.annotationHandler.getAnnotatedFields()) {
+            Object value = this.config.get(key);
+            tempMap.put(key, value);
+        }
+        // Clears the original config, and reinserts the ordered entries from tempMap
+        this.config.clear();
+        tempMap.forEach(this.config::set);
     }
 
     // These may still get replaced or modified, it all depends on how I decide to deal with registration...

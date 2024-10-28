@@ -2,6 +2,8 @@ package com.github.andrew0030.pandora_core.config.manager;
 
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.file.CommentedFileConfigBuilder;
+import com.electronwill.nightconfig.core.file.FileConfig;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.AnnotationHandler;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
@@ -9,6 +11,7 @@ import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import org.slf4j.Logger;
 
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -28,7 +31,9 @@ public class PaCoConfigManager {
         this.configInstance = configInstance;
         this.annotationHandler = new AnnotationHandler(this);
         this.config = this.createEmptyConfig();
-        this.config.load();
+        this.loadAndCorrect(); // Loads the config and corrects it if needed
+
+        // TODO: add a shutdown hook to call .close()
     }
 
     /**
@@ -44,11 +49,24 @@ public class PaCoConfigManager {
         Path configDirectory = Services.PLATFORM.getConfigDirectory();
         Path configFilePath = configDirectory.resolve(configName + ".toml");
         // Creates the CommentedFileConfig instance
-        return CommentedFileConfig.builder(configFilePath).preserveInsertionOrder().autoreload().onLoad(this.loadListener()).build();
-    }
+        CommentedFileConfigBuilder builder = CommentedFileConfig.builder(configFilePath);
+        builder.preserveInsertionOrder();
+        // Conditionally adds auto reloading to the config. We need this because forge has an outdated version of
+        // Night Config, and thus we don't have access to the onAutoReload method. However, this is only the case
+        // inside the IDE, as for production we shade the latest Night Config version, so the method becomes available.
+        if (Services.PLATFORM.isDevelopmentEnvironment() && Services.PLATFORM.getPlatformName().equals("Forge")) {
+            LOGGER.warn("[Forge IDE] detected, 'autoreload' for [{}] config has been disabled.", this.annotationHandler.getConfigName());
+        } else {
+            builder.autoreload();
+        }
+        // Adds an auto reload listener when possible. The only time this should fail is in a Forge IDE, as forge ships
+        // an older version that doesn't have the method. But since we shade in production this should work just fine.
+        try {
+            Method onAutoReloadMethod = CommentedFileConfigBuilder.class.getMethod("onAutoReload", Runnable.class);
+            onAutoReloadMethod.invoke(builder, this.autoReloadListener());
+        } catch (Exception ignored) {}
 
-    private Runnable loadListener() {
-        return this::correctIfNeeded;
+        return builder.build();
     }
 
     private void correctIfNeeded() {
@@ -63,7 +81,7 @@ public class PaCoConfigManager {
             };
             LOGGER.warn("Detected inconsistencies in [{}] config. Initiating corrections...", this.annotationHandler.getConfigName());
             int correctionCount = configSpec.correct(this.config, listener);
-            LOGGER.info("Correction Summary for [{}]: {} values adjusted.", this.annotationHandler.getConfigName(), correctionCount);
+            LOGGER.warn("Correction Summary for [{}]: {} values adjusted.", this.annotationHandler.getConfigName(), correctionCount);
             // Orders config, this is needed because the config from .load() is unordered
             this.orderConfigEntries();
             // Saves the corrected and ordered config to the file, as the corrections need to be applied there as well
@@ -76,10 +94,22 @@ public class PaCoConfigManager {
         }
     }
 
+    /**
+     * Calls {@link FileConfig#load()} followed by validating the config using
+     * the generated {@link ConfigSpec} and fixing the order of the entries.
+     * This also calls {@link FileConfig#save()} if the config had to be corrected.
+     */
+    public void loadAndCorrect() {
+        this.config.load();
+        this.correctIfNeeded();
+    }
+
+    /** @return the config instance that was used to register this manager. */
     public Object getConfigInstance() {
         return this.configInstance;
     }
 
+    /** @return the <code>.class</code> of the config instance that was used to register this manager. */
     public Class<?> getConfigClass() {
         return this.configInstance.getClass();
     }
@@ -106,6 +136,11 @@ public class PaCoConfigManager {
         // Clears the original config, and reinserts the ordered entries from tempMap
         this.config.clear();
         tempMap.forEach(this.config::set);
+    }
+
+    /** Runnable that gets called when the config is automatically re-loaded. */
+    private Runnable autoReloadListener() {
+        return this::correctIfNeeded;
     }
 
     // These may still get replaced or modified, it all depends on how I decide to deal with registration...

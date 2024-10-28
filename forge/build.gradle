@@ -84,6 +84,10 @@ dependencies {
     // exp4j (Expression Parsing)
     minecraftLibrary "net.objecthunter:exp4j:0.4.8"
     shade "net.objecthunter:exp4j:0.4.8"
+    // NightConfig (Config System)
+    // We shade because forges version is outdated...
+    shade "com.electronwill.night-config:core:3.8.1"
+    shade "com.electronwill.night-config:toml:3.8.1"
 
     // Performance Monitoring
     runtimeOnly fg.deobf("curse.maven:spark-361579:4738952") // Spark
@@ -106,6 +110,7 @@ shadowJar {
     archiveClassifier.set("")
     configurations = [project.configurations.shade]
     relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
+    relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
     finalizedBy('reobfShadowJar')
     dependsOn "reobfJar"
 }

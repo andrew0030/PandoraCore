@@ -13,9 +13,7 @@ import org.slf4j.Logger;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PaCoConfigManager {
 
@@ -32,8 +30,6 @@ public class PaCoConfigManager {
         this.annotationHandler = new AnnotationHandler(this);
         this.config = this.createEmptyConfig();
         this.loadAndCorrect(); // Loads the config and corrects it if needed
-
-        // TODO: add a shutdown hook to call .close()
     }
 
     /**
@@ -74,13 +70,26 @@ public class PaCoConfigManager {
         boolean isConfigCorrect = configSpec.isCorrect(this.config);
         // If the config isn't correct we handle it.
         if (!isConfigCorrect) {
-            // Listener to log corrections made to the config
+            // List to store correction entries for formatted output
+            List<CorrectionEntry> correctionEntries = new ArrayList<>();
+            // Listener to store corrections made to the config in the correctionEntries list
             ConfigSpec.CorrectionListener listener = (action, path, incorrectValue, correctedValue) -> {
                 String pathString = String.join(".", path);
-                LOGGER.warn(" - Config Correction | Key: {} | Detected: {} | Corrected: {}", pathString, incorrectValue, correctedValue);
+                correctionEntries.add(new CorrectionEntry(pathString, incorrectValue, correctedValue));
             };
             LOGGER.warn("Detected inconsistencies in [{}] config. Initiating corrections...", this.annotationHandler.getConfigName());
             int correctionCount = configSpec.correct(this.config, listener);
+            // Calculates padding
+            int maxKeyLength = correctionEntries.stream().mapToInt(e -> e.key.length()).max().orElse(0);
+            int maxDetectedLength = correctionEntries.stream().mapToInt(e -> e.detected.length()).max().orElse(0);
+            int maxCorrectedLength = correctionEntries.stream().mapToInt(e -> e.corrected.length()).max().orElse(0);
+            // Logs each entry with aligned padding
+            for (CorrectionEntry entry : correctionEntries)
+                LOGGER.warn(" - Correction | Key: {} | Detected: {} | Corrected: {}",
+                        this.padRight(entry.key, maxKeyLength),
+                        this.padRight(entry.detected, maxDetectedLength),
+                        this.padRight(entry.corrected, maxCorrectedLength)
+                );
             LOGGER.warn("Correction Summary for [{}]: {} values adjusted.", this.annotationHandler.getConfigName(), correctionCount);
             // Orders config, this is needed because the config from .load() is unordered
             this.orderConfigEntries();
@@ -92,6 +101,11 @@ public class PaCoConfigManager {
             // and we simply order the "in memory" config for QoL
             this.orderConfigEntries();
         }
+    }
+
+    /** Utility method to pad Strings to a given length. */
+    private String padRight(String text, int length) {
+        return String.format("%-" + length + "s", text);
     }
 
     /**
@@ -115,7 +129,6 @@ public class PaCoConfigManager {
     }
 
     public void closeConfig() {
-        LOGGER.info("Closing [{}] config", this.annotationHandler.getConfigName());
         this.config.close();
     }
 
@@ -156,6 +169,10 @@ public class PaCoConfigManager {
     public static PaCoConfigManager getPaCoConfigmanager(Object configInstance) {
         return CONFIG_MANAGERS.get(configInstance.getClass().getName());
     }
+
+    public static Collection<PaCoConfigManager> getPaCoConfigManagers() {
+        return CONFIG_MANAGERS.values();
+    }
     //##################################################################################################################
 
 
@@ -193,4 +210,15 @@ public class PaCoConfigManager {
 //            this.annotationHandler.loadConfigValues(this.configInstance, this.config);
 //        }
 //    }
+    private static class CorrectionEntry {
+        String key;
+        String detected;
+        String corrected;
+
+        CorrectionEntry(String key, Object detected, Object corrected) {
+            this.key = key;
+            this.detected = detected != null ? detected.toString() : "null";
+            this.corrected = corrected != null ? corrected.toString() : "null";
+        }
+    }
 }

@@ -128,8 +128,14 @@ public class PaCoConfigManager {
         return this.configInstance.getClass();
     }
 
-    public void closeConfig() {
-        this.config.close();
+    public CommentedFileConfig getConfig() {
+        return this.config;
+    }
+
+    public static void closeConfigs() {
+        for (PaCoConfigManager manager : PaCoConfigManager.getPaCoConfigManagers()) {
+            manager.getConfig().close();
+        }
     }
 
     /**

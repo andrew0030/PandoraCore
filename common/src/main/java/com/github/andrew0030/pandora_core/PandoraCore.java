@@ -27,11 +27,7 @@ public class PandoraCore {
         PaCoConfigManager.register(MAIN_CONFIG);
 
         // Calls FileConfig#close() on all registered configs when the game shuts down
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            for (PaCoConfigManager manager : PaCoConfigManager.getPaCoConfigManagers()) {
-                manager.closeConfig();
-            }
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(PaCoConfigManager::closeConfigs));
     }
 
     /** Thread Safe Common Init */

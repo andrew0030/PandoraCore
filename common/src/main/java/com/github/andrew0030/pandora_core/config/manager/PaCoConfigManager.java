@@ -7,10 +7,12 @@ import com.electronwill.nightconfig.core.file.FileConfig;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.AnnotationHandler;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
+import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import org.slf4j.Logger;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.*;
@@ -93,6 +95,10 @@ public class PaCoConfigManager {
             LOGGER.warn("Correction Summary for [{}]: {} values adjusted.", this.annotationHandler.getConfigName(), correctionCount);
             // Orders config, this is needed because the config from .load() is unordered
             this.orderConfigEntries();
+            // Adds the comments to the config
+            this.setConfigComments();
+            // Updates the values of the fields in memory
+            this.updateConfigFields();
             // Saves the corrected and ordered config to the file, as the corrections need to be applied there as well
             this.config.save();
         } else {
@@ -100,6 +106,10 @@ public class PaCoConfigManager {
             // We don't need to call .save(), because in this case the file itself was correct,
             // and we simply order the "in memory" config for QoL
             this.orderConfigEntries();
+            // Adds the comments to the config
+            this.setConfigComments();
+            // Updates the values of the fields in memory
+            this.updateConfigFields();
         }
     }
 
@@ -155,6 +165,38 @@ public class PaCoConfigManager {
         // Clears the original config, and reinserts the ordered entries from tempMap
         this.config.clear();
         tempMap.forEach(this.config::set);
+    }
+
+    /**
+     * Adds comments specified by {@link PaCoConfigValues.Comment} to the config entries, this also includes ranges.
+     * <br/>
+     * <strong>Note</strong>: this method doesn't perform any validation, so it should only be
+     * used if the config has been validated and the entries in {@link PaCoConfigManager#config}
+     * match the fields specified in {@link PaCoConfig}.
+     */
+    private void setConfigComments() {
+        for (ConfigDataHolder holder : this.annotationHandler.getConfigDataHolders())
+            if (holder.hasComment())
+                this.config.setComment(holder.getField().getName(), holder.getComment());
+    }
+
+    /**
+     * Modifies the in memory field values inside the {@link PaCoConfig} class.
+     * <br/>
+     * <strong>Note</strong>: this method doesn't perform any validation, so it should only be
+     * used if the config has been validated and the entries in {@link PaCoConfigManager#config}
+     * match the fields specified in {@link PaCoConfig}.
+     */
+    public void updateConfigFields() {
+        for (ConfigDataHolder holder : this.annotationHandler.getConfigDataHolders()) {
+            Field field = holder.getField();
+            field.setAccessible(true);
+            try {
+                field.set(this.getConfigInstance(), this.getConfig().get(field.getName()));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Failed to set value for field: " + field.getName(), e);
+            }
+        }
     }
 
     /** Runnable that gets called when the config is automatically re-loaded. */

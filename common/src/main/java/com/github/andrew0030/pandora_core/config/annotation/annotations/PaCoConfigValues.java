@@ -18,4 +18,22 @@ public class PaCoConfigValues {
         int minValue() default Integer.MIN_VALUE;
         int maxValue() default Integer.MAX_VALUE;
     }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface DoubleValue {
+        double minValue() default Double.MIN_VALUE;
+        double maxValue() default Double.MAX_VALUE;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface StringValue {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Comment {
+        String value();
+        int padding() default 1;
+    }
 }

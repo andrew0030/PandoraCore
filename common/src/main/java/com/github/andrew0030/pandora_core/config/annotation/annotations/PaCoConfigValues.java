@@ -28,6 +28,13 @@ public class PaCoConfigValues {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
+    public @interface LongValue {
+        long minValue() default Long.MIN_VALUE;
+        long maxValue() default Long.MAX_VALUE;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
     public @interface StringValue {}
 
     @Retention(RetentionPolicy.RUNTIME)

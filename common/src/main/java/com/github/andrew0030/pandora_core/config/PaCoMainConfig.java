@@ -57,4 +57,8 @@ public class PaCoMainConfig {
     @PaCoConfigValues.Comment("Comment above a Double")
     @PaCoConfigValues.DoubleValue(minValue = 0)
     public double someDoubleValue = Math.PI;
+
+    @PaCoConfigValues.Comment("Comment above a Long")
+    @PaCoConfigValues.LongValue
+    public long someLongValue = 500L;
 }

@@ -28,6 +28,13 @@ public class PaCoConfigValues {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
+    public @interface FloatValue {
+        float minValue() default Float.MIN_VALUE;
+        float maxValue() default Float.MAX_VALUE;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
     public @interface LongValue {
         long minValue() default Long.MIN_VALUE;
         long maxValue() default Long.MAX_VALUE;
@@ -36,6 +43,16 @@ public class PaCoConfigValues {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface StringValue {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface ListValue {
+        Class<?> elementType();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface EnumValue {}
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)

@@ -11,7 +11,9 @@ import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AnnotationHandler {
@@ -57,25 +59,29 @@ public class AnnotationHandler {
     private void initConfigCaches() {
         for (Field field : this.manager.getConfigClass().getDeclaredFields()) {
             // Boolean
-            if (field.isAnnotationPresent(PaCoConfigValues.BooleanValue.class)) {
+            if (field.isAnnotationPresent(PaCoConfigValues.BooleanValue.class))
                 this.handleBooleanField(field);
-            }
             // Integer
-            if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class)) {
+            if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class))
                 this.handleIntegerField(field);
-            }
             // Double
-            if (field.isAnnotationPresent(PaCoConfigValues.DoubleValue.class)) {
+            if (field.isAnnotationPresent(PaCoConfigValues.DoubleValue.class))
                 this.handleDoubleField(field);
-            }
+            // Float
+            if (field.isAnnotationPresent(PaCoConfigValues.FloatValue.class))
+                this.handleFloatField(field);
             // Long
-            if (field.isAnnotationPresent(PaCoConfigValues.LongValue.class)) {
+            if (field.isAnnotationPresent(PaCoConfigValues.LongValue.class))
                 this.handleLongField(field);
-            }
             // String
-            if (field.isAnnotationPresent(PaCoConfigValues.StringValue.class)) {
+            if (field.isAnnotationPresent(PaCoConfigValues.StringValue.class))
                 this.handleStringField(field);
-            }
+            // List
+            if (field.isAnnotationPresent(PaCoConfigValues.ListValue.class))
+                this.handleListField(field);
+            // Enum
+            if (field.isAnnotationPresent(PaCoConfigValues.EnumValue.class))
+                this.handleEnumField(field);
             // Comment
             if (field.isAnnotationPresent(PaCoConfigValues.Comment.class)) {
                 PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
@@ -187,6 +193,39 @@ public class AnnotationHandler {
         }
     }
 
+    private void handleFloatField(Field field) {
+        if (field.getType() != float.class) //TODO maybe add 'Float' support?
+            throw new IllegalArgumentException(String.format(
+                    "Field: '%s' in Class: '%s' must be of type float for FloatValue annotation.",
+                    field.getName(),
+                    this.manager.getConfigClass().getName()
+            ));
+        PaCoConfigValues.FloatValue floatAnnotation = field.getAnnotation(PaCoConfigValues.FloatValue.class);
+        field.setAccessible(true);
+        try {
+            float defaultValue = field.getFloat(this.manager.getConfigInstance());
+            float minVal = floatAnnotation.minValue();
+            float maxVal = floatAnnotation.maxValue();
+            if (defaultValue < minVal || defaultValue > maxVal)
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': Default value %f is out of range (min: %f, max: %f).",
+                        field.getName(),
+                        this.manager.getConfigClass().getName(),
+                        defaultValue,
+                        minVal,
+                        maxVal
+                ));
+            configSpec.defineInRange(field.getName(), defaultValue, minVal, maxVal);
+            this.dataHolders.put(field.getName(), new ConfigDataHolder(field).setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal).setConverter(value -> {
+                if (value instanceof Number number)
+                    return number.floatValue();
+                throw new IllegalArgumentException("Config value is not a Number as expected for float.");
+            }));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void handleLongField(Field field) {
         if (field.getType() != long.class)
             throw new IllegalArgumentException(String.format(
@@ -241,6 +280,64 @@ public class AnnotationHandler {
             String defaultValue = (String) field.get(this.manager.getConfigInstance());
             configSpec.define(field.getName(), defaultValue);
             this.dataHolders.put(field.getName(), new ConfigDataHolder(field));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleListField(Field field) {
+        if (field.getType() != List.class)
+            throw new IllegalArgumentException(String.format(
+                    "Field: '%s' in Class: '%s' must be of type List for ListValue annotation.",
+                    field.getName(),
+                    this.manager.getConfigClass().getName()
+            ));
+        PaCoConfigValues.ListValue listAnnotation = field.getAnnotation(PaCoConfigValues.ListValue.class);
+        field.setAccessible(true);
+        try {
+            List<?> defaultValue = (List<?>) field.get(this.manager.getConfigInstance());
+            if (defaultValue == null)
+                throw new IllegalArgumentException(String.format(
+                        "Field: '%s' in Class: '%s' cannot have a null list as a default value.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            configSpec.defineList(field.getName(), defaultValue, element -> listAnnotation.elementType().isInstance(element));
+            this.dataHolders.put(field.getName(), new ConfigDataHolder(field));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleEnumField(Field field) {
+        if (!field.getType().isEnum())
+            throw new IllegalArgumentException(String.format(
+                    "Field: '%s' in Class: '%s' must be of type Enum for EnumValue annotation.",
+                    field.getName(),
+                    this.manager.getConfigClass().getName()
+            ));
+        field.setAccessible(true);
+        try {
+            Enum<?> defaultValue = (Enum<?>) field.get(this.manager.getConfigInstance());
+            Class<? extends Enum> enumClass = (Class<? extends Enum>) field.getType();
+            Object[] enumConstants = enumClass.getEnumConstants();
+            List<String> enumNames = Arrays.stream(enumConstants)
+                    .map(enumConstant -> ((Enum<?>) enumConstant).name())
+                    .toList();
+            configSpec.define(field.getName(), defaultValue.name(), value -> {
+                if (value instanceof String stringVal) {
+                    try {
+                        Enum.valueOf(enumClass, stringVal);
+                        return true;
+                    } catch (IllegalArgumentException ignored) {}
+                }
+                return false;
+            });
+            this.dataHolders.put(field.getName(), new ConfigDataHolder(field).setValidValues(enumNames).setConverter(value -> {
+                if (value instanceof String stringVal)
+                    return Enum.valueOf(enumClass, stringVal);
+                throw new IllegalArgumentException("Config value is not a String as expected for enum.");
+            }));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

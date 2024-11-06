@@ -192,7 +192,7 @@ public class PaCoConfigManager {
             Field field = holder.getField();
             field.setAccessible(true);
             try {
-                field.set(this.getConfigInstance(), this.getConfig().get(field.getName()));
+                field.set(this.getConfigInstance(), holder.convert(this.getConfig().get(field.getName())));
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Failed to set value for field: " + field.getName(), e);
             }

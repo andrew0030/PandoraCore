@@ -3,6 +3,10 @@ package com.github.andrew0030.pandora_core.config;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
+import net.minecraft.util.Mth;
+
+import java.util.Arrays;
+import java.util.List;
 
 //TODO: create a config system using NightConfig
 // - Probably add annotations as its a nice clean and simple way to create configs
@@ -54,11 +58,36 @@ public class PaCoMainConfig {
     @PaCoConfigValues.StringValue
     public String someStringValue = "This is a String";
 
-    @PaCoConfigValues.Comment("Comment above a Double")
-    @PaCoConfigValues.DoubleValue(minValue = 0)
-    public double someDoubleValue = Math.PI;
+    @PaCoConfigValues.Comment("This is a Double version of PI")
+    @PaCoConfigValues.DoubleValue
+    public double doublePI = Math.PI;
+
+    @PaCoConfigValues.Comment("This is a Float version of PI")
+    @PaCoConfigValues.FloatValue
+    public float float_PI = Mth.PI;
 
     @PaCoConfigValues.Comment("Comment above a Long")
     @PaCoConfigValues.LongValue
     public long someLongValue = 500L;
+
+    @PaCoConfigValues.Comment("Comment above a String List")
+    @PaCoConfigValues.ListValue(elementType = String.class)
+    public List<String> stringList = Arrays.asList("Element 1", "Element 2", "Element 3");
+
+    @PaCoConfigValues.Comment("Comment above an Integer List")
+    @PaCoConfigValues.ListValue(elementType = Integer.class)
+    public List<Integer> integerList = Arrays.asList(111, 22, 3333);
+
+    @PaCoConfigValues.Comment("Comment above a Boolean List")
+    @PaCoConfigValues.ListValue(elementType = Boolean.class)
+    public List<Boolean> booleanList = Arrays.asList(false, true, true, false, true);
+
+    @PaCoConfigValues.Comment("Comment above an Enum")
+    @PaCoConfigValues.EnumValue
+    public Difficulty enumValue = Difficulty.MEDIUM;
+    public enum Difficulty {
+        EASY,
+        MEDIUM,
+        HARD
+    }
 }

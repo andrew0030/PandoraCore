@@ -10,14 +10,14 @@ import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class AnnotationHandler {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "AnnotationHandler");
+    private final Map<Class<? extends Annotation>, Consumer<Field>> annotationHandlers = new HashMap<>();
     private final Map<String, ConfigDataHolder> dataHolders = new LinkedHashMap<>();
     private final ConfigSpec configSpec = new ConfigSpec();
     private final PaCoConfigManager manager;
@@ -57,38 +57,21 @@ public class AnnotationHandler {
      * <strong>Note</strong>: This method ensures type safety.
      */
     private void initConfigCaches() {
+        this.annotationHandlers.put(PaCoConfigValues.BooleanValue.class, this::handleBooleanField);
+        this.annotationHandlers.put(PaCoConfigValues.IntegerValue.class, this::handleIntegerField);
+        this.annotationHandlers.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);
+        this.annotationHandlers.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);
+        this.annotationHandlers.put(PaCoConfigValues.LongValue.class, this::handleLongField);
+        this.annotationHandlers.put(PaCoConfigValues.StringValue.class, this::handleStringField);
+        this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);
+        this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);
+        this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);
+
         for (Field field : this.manager.getConfigClass().getDeclaredFields()) {
-            // Boolean
-            if (field.isAnnotationPresent(PaCoConfigValues.BooleanValue.class))
-                this.handleBooleanField(field);
-            // Integer
-            if (field.isAnnotationPresent(PaCoConfigValues.IntegerValue.class))
-                this.handleIntegerField(field);
-            // Double
-            if (field.isAnnotationPresent(PaCoConfigValues.DoubleValue.class))
-                this.handleDoubleField(field);
-            // Float
-            if (field.isAnnotationPresent(PaCoConfigValues.FloatValue.class))
-                this.handleFloatField(field);
-            // Long
-            if (field.isAnnotationPresent(PaCoConfigValues.LongValue.class))
-                this.handleLongField(field);
-            // String
-            if (field.isAnnotationPresent(PaCoConfigValues.StringValue.class))
-                this.handleStringField(field);
-            // List
-            if (field.isAnnotationPresent(PaCoConfigValues.ListValue.class))
-                this.handleListField(field);
-            // Enum
-            if (field.isAnnotationPresent(PaCoConfigValues.EnumValue.class))
-                this.handleEnumField(field);
-            // Comment
-            if (field.isAnnotationPresent(PaCoConfigValues.Comment.class)) {
-                PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
-                ConfigDataHolder holder = this.dataHolders.get(field.getName());
-                if (holder != null) {
-                    holder.setComment(commentAnnotation.value(), commentAnnotation.padding());
-                }
+            for (Annotation annotation : field.getAnnotations()) {
+                Consumer<Field> consumer = this.annotationHandlers.get(annotation.annotationType());
+                if (consumer != null)
+                    consumer.accept(field);
             }
         }
     }
@@ -129,7 +112,8 @@ public class AnnotationHandler {
         try {
             boolean defaultValue = field.getBoolean(this.manager.getConfigInstance());
             configSpec.define(field.getName(), defaultValue);
-            this.dataHolders.put(field.getName(), new ConfigDataHolder(field));
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(), holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -158,7 +142,8 @@ public class AnnotationHandler {
                         maxVal
                 ));
             configSpec.defineInRange(field.getName(), defaultValue, minVal, maxVal);
-            this.dataHolders.put(field.getName(), new ConfigDataHolder(field).setRange(minVal == Integer.MIN_VALUE ? null : minVal, maxVal == Integer.MAX_VALUE ? null : maxVal));
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(), holder.setRange(minVal == Integer.MIN_VALUE ? null : minVal, maxVal == Integer.MAX_VALUE ? null : maxVal));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -187,7 +172,8 @@ public class AnnotationHandler {
                         maxVal
                 ));
             configSpec.defineInRange(field.getName(), defaultValue, minVal, maxVal);
-            this.dataHolders.put(field.getName(), new ConfigDataHolder(field).setRange(minVal == Double.MIN_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal));
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(), holder.setRange(minVal == Double.MIN_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -216,7 +202,8 @@ public class AnnotationHandler {
                         maxVal
                 ));
             configSpec.defineInRange(field.getName(), defaultValue, minVal, maxVal);
-            this.dataHolders.put(field.getName(), new ConfigDataHolder(field).setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal).setConverter(value -> {
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(), holder.setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal).setConverter(value -> {
                 if (value instanceof Number number)
                     return number.floatValue();
                 throw new IllegalArgumentException("Config value is not a Number as expected for float.");
@@ -262,7 +249,8 @@ public class AnnotationHandler {
                 }
                 return false;
             });
-            this.dataHolders.put(field.getName(), new ConfigDataHolder(field).setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal));
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(),holder.setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -279,7 +267,8 @@ public class AnnotationHandler {
         try {
             String defaultValue = (String) field.get(this.manager.getConfigInstance());
             configSpec.define(field.getName(), defaultValue);
-            this.dataHolders.put(field.getName(), new ConfigDataHolder(field));
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(), holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -303,7 +292,8 @@ public class AnnotationHandler {
                         this.manager.getConfigClass().getName()
                 ));
             configSpec.defineList(field.getName(), defaultValue, element -> listAnnotation.elementType().isInstance(element));
-            this.dataHolders.put(field.getName(), new ConfigDataHolder(field));
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(), holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -333,7 +323,8 @@ public class AnnotationHandler {
                 }
                 return false;
             });
-            this.dataHolders.put(field.getName(), new ConfigDataHolder(field).setValidValues(enumNames).setConverter(value -> {
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(), holder.setValidValues(enumNames).setConverter(value -> {
                 if (value instanceof String stringVal)
                     return Enum.valueOf(enumClass, stringVal);
                 throw new IllegalArgumentException("Config value is not a String as expected for enum.");
@@ -341,5 +332,12 @@ public class AnnotationHandler {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void handleComment(Field field) {
+        PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
+        ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+        if (holder != null)
+            holder.setComment(commentAnnotation.value(), commentAnnotation.padding());
     }
 }

@@ -21,7 +21,7 @@ public class PaCoMainConfig {
 
     @PaCoConfigValues.Comment("This is a test comment")
     @PaCoConfigValues.BooleanValue
-    public boolean falseValue = false;
+    public Boolean falseValue = false;
 
     @PaCoConfigValues.Comment("This is an additional test comment")
     @PaCoConfigValues.BooleanValue
@@ -29,11 +29,11 @@ public class PaCoMainConfig {
 
     @PaCoConfigValues.Comment("This is an Integer Value, with index: '1'")
     @PaCoConfigValues.IntegerValue
-    public int integerValue1 = 11;
+    public Integer integerValue1 = 11;
 
     @PaCoConfigValues.Comment("This is an Integer Value, with index: '2'")
     @PaCoConfigValues.IntegerValue
-    public int integerValue2 = 12;
+    public Integer integerValue2 = 12;
 
     @PaCoConfigValues.Comment("This is an Integer Value, with index: '3'")
     @PaCoConfigValues.IntegerValue
@@ -69,6 +69,10 @@ public class PaCoMainConfig {
     @PaCoConfigValues.Comment("Comment above a Long")
     @PaCoConfigValues.LongValue
     public long someLongValue = 500L;
+
+    @PaCoConfigValues.Comment("Comment above a second Long")
+    @PaCoConfigValues.LongValue
+    public Long someOtherLongValue = 500000L;
 
     @PaCoConfigValues.Comment("Comment above a String List")
     @PaCoConfigValues.ListValue(elementType = String.class)

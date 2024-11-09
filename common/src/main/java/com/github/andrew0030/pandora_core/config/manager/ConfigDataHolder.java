@@ -1,11 +1,11 @@
 package com.github.andrew0030.pandora_core.config.manager;
 
 import net.minecraft.util.StringUtil;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -14,10 +14,10 @@ public class ConfigDataHolder {
     private final Field field;
     private Function<Object, Object> converter;
     private List<String> validValues;
+    private Number minVal;
+    private Number maxVal;
     private String comment;
     private int commentPadding = 1;
-    private Object minVal;
-    private Object maxVal;
 
     public ConfigDataHolder(Field field) {
         this.field = field;
@@ -32,10 +32,16 @@ public class ConfigDataHolder {
         return this;
     }
 
+    /**
+     * A converter {@link Function} may be present depending on the type of the field, the {@link Function}
+     * is called on the value retrieved from the config file, before its stored in the field, as the type
+     * may require a conversion, e.g. (String -> Enum) or (Double -> Float).
+     * @param value the {@link Object} that will be converted to a different {@link Object}
+     * @return the converted {@link Object}, if no converter {@link Function} was specified, the {@link Object} is returned as is
+     */
     public Object convert(Object value) {
-        if (converter != null) {
+        if (converter != null)
             return converter.apply(value);
-        }
         return value;
     }
 
@@ -56,8 +62,14 @@ public class ConfigDataHolder {
         this.commentPadding = padding;
     }
 
+    /** @return the config entry comment as is, meaning this doesn't contain "range" or "valid values" or any other optional comment additions */
+    public String getCommentRaw() {
+        return this.comment != null ? this.comment : "";
+    }
+
+    /** @return the config entry comment with "range" or "valid values" or any other optional comment additions */
     public String getComment() {
-        String comment = this.comment != null ? this.comment : "";
+        String comment = this.getCommentRaw();
         // Moves the Range comment into a new line if needed
         if (!StringUtil.isNullOrEmpty(comment) && (this.minVal != null || this.maxVal != null || this.validValues != null))
             comment = comment.concat("\n");
@@ -75,11 +87,14 @@ public class ConfigDataHolder {
         return comment;
     }
 
+    /** @return whether the config entry has a comment */
     public boolean hasComment() {
         return !StringUtil.isNullOrEmpty(this.getComment());
     }
 
-    public ConfigDataHolder setRange(Object minVal, Object maxVal) {
+    /** Used to cache the value range (if applicable), which is then used for internal logic */
+    @ApiStatus.Internal
+    public ConfigDataHolder setRange(Number minVal, Number maxVal) {
         this.minVal = minVal;
         this.maxVal = maxVal;
         return this;

@@ -14,6 +14,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class AnnotationHandler {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "AnnotationHandler");
@@ -52,7 +53,7 @@ public class AnnotationHandler {
     }
 
     /**
-     * TODO: finish javadoc
+     * This method initializes the annotation handler caches.
      * <br/>
      * <strong>Note</strong>: This method ensures type safety.
      */
@@ -78,21 +79,18 @@ public class AnnotationHandler {
 
     /**
      * Used to retrieve a fully defined {@link ConfigSpec}, containing all the annotated fields as entries.
-     *
      * @return the {@link ConfigSpec} created based on the specified {@link PaCoConfig}
      */
     public ConfigSpec getConfigSpec() {
         return this.configSpec;
     }
 
-    /**
-     * TODO: finish javadoc
-     * @return
-     */
+    /** @return an ordered {@link ImmutableList}, containing a {@link String} for each field name inside the {@link PaCoConfig} class */
     public ImmutableList<String> getAnnotatedFields() {
         return ImmutableList.copyOf(this.dataHolders.keySet());
     }
 
+    /** @return an ordered {@link ImmutableList}, containing a {@link ConfigDataHolder} for each field inside the {@link PaCoConfig} class */
     public ImmutableList<ConfigDataHolder> getConfigDataHolders() {
         return ImmutableList.copyOf(this.dataHolders.values());
     }
@@ -102,15 +100,10 @@ public class AnnotationHandler {
     // ######################################################################
 
     private void handleBooleanField(Field field) {
-        if (field.getType() != boolean.class)
-            throw new IllegalArgumentException(String.format(
-                    "Field: '%s' in Class: '%s' must be of type boolean for BooleanValue annotation.",
-                    field.getName(),
-                    this.manager.getConfigClass().getName()
-            ));
+        this.checkFieldValidity(field, PaCoConfigValues.BooleanValue.class.getSimpleName(), boolean.class, Boolean.class);
         field.setAccessible(true);
         try {
-            boolean defaultValue = field.getBoolean(this.manager.getConfigInstance());
+            boolean defaultValue = (boolean) field.get(this.manager.getConfigInstance());
             configSpec.define(field.getName(), defaultValue);
             ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
             this.dataHolders.put(field.getName(), holder);
@@ -120,16 +113,11 @@ public class AnnotationHandler {
     }
 
     private void handleIntegerField(Field field) {
-        if (field.getType() != int.class)
-            throw new IllegalArgumentException(String.format(
-                    "Field: '%s' in Class: '%s' must be of type int for IntegerValue annotation.",
-                    field.getName(),
-                    this.manager.getConfigClass().getName()
-            ));
+        this.checkFieldValidity(field, PaCoConfigValues.IntegerValue.class.getSimpleName(), int.class, Integer.class);
         PaCoConfigValues.IntegerValue integerAnnotation = field.getAnnotation(PaCoConfigValues.IntegerValue.class);
         field.setAccessible(true);
         try {
-            int defaultValue = field.getInt(this.manager.getConfigInstance());
+            int defaultValue = (int) field.get(this.manager.getConfigInstance());
             int minVal = integerAnnotation.minValue();
             int maxVal = integerAnnotation.maxValue();
             if (defaultValue < minVal || defaultValue > maxVal)
@@ -150,16 +138,11 @@ public class AnnotationHandler {
     }
 
     private void handleDoubleField(Field field) {
-        if (field.getType() != double.class)
-            throw new IllegalArgumentException(String.format(
-                    "Field: '%s' in Class: '%s' must be of type double for DoubleValue annotation.",
-                    field.getName(),
-                    this.manager.getConfigClass().getName()
-            ));
+        this.checkFieldValidity(field, PaCoConfigValues.DoubleValue.class.getSimpleName(), double.class, Double.class);
         PaCoConfigValues.DoubleValue doubleAnnotation = field.getAnnotation(PaCoConfigValues.DoubleValue.class);
         field.setAccessible(true);
         try {
-            double defaultValue = field.getDouble(this.manager.getConfigInstance());
+            double defaultValue = (double) field.get(this.manager.getConfigInstance());
             double minVal = doubleAnnotation.minValue();
             double maxVal = doubleAnnotation.maxValue();
             if (defaultValue < minVal || defaultValue > maxVal)
@@ -180,16 +163,11 @@ public class AnnotationHandler {
     }
 
     private void handleFloatField(Field field) {
-        if (field.getType() != float.class) //TODO maybe add 'Float' support?
-            throw new IllegalArgumentException(String.format(
-                    "Field: '%s' in Class: '%s' must be of type float for FloatValue annotation.",
-                    field.getName(),
-                    this.manager.getConfigClass().getName()
-            ));
+        this.checkFieldValidity(field, PaCoConfigValues.FloatValue.class.getSimpleName(), float.class, Float.class);
         PaCoConfigValues.FloatValue floatAnnotation = field.getAnnotation(PaCoConfigValues.FloatValue.class);
         field.setAccessible(true);
         try {
-            float defaultValue = field.getFloat(this.manager.getConfigInstance());
+            float defaultValue = (float) field.get(this.manager.getConfigInstance());
             float minVal = floatAnnotation.minValue();
             float maxVal = floatAnnotation.maxValue();
             if (defaultValue < minVal || defaultValue > maxVal)
@@ -214,16 +192,11 @@ public class AnnotationHandler {
     }
 
     private void handleLongField(Field field) {
-        if (field.getType() != long.class)
-            throw new IllegalArgumentException(String.format(
-                    "Field: '%s' in Class: '%s' must be of type long for LongValue annotation.",
-                    field.getName(),
-                    this.manager.getConfigClass().getName()
-            ));
+        this.checkFieldValidity(field, PaCoConfigValues.LongValue.class.getSimpleName(), long.class, Long.class);
         PaCoConfigValues.LongValue longAnnotation = field.getAnnotation(PaCoConfigValues.LongValue.class);
         field.setAccessible(true);
         try {
-            Long defaultValue = field.getLong(this.manager.getConfigInstance());
+            Long defaultValue = (Long) field.get(this.manager.getConfigInstance());
             Long minVal = longAnnotation.minValue();
             Long maxVal = longAnnotation.maxValue();
             if (minVal.compareTo(maxVal) > 0) {
@@ -250,19 +223,18 @@ public class AnnotationHandler {
                 return false;
             });
             ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-            this.dataHolders.put(field.getName(),holder.setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal));
+            this.dataHolders.put(field.getName(), holder.setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal).setConverter(value -> {
+                if (value instanceof Number number)
+                    return number.longValue();
+                throw new IllegalArgumentException("Config value is not a Number as expected for long.");
+            }));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void handleStringField(Field field) {
-        if (field.getType() != String.class)
-            throw new IllegalArgumentException(String.format(
-                    "Field: '%s' in Class: '%s' must be of type String for StringValue annotation.",
-                    field.getName(),
-                    this.manager.getConfigClass().getName()
-            ));
+        this.checkFieldValidity(field, PaCoConfigValues.StringValue.class.getSimpleName(), String.class);
         field.setAccessible(true);
         try {
             String defaultValue = (String) field.get(this.manager.getConfigInstance());
@@ -275,12 +247,7 @@ public class AnnotationHandler {
     }
 
     private void handleListField(Field field) {
-        if (field.getType() != List.class)
-            throw new IllegalArgumentException(String.format(
-                    "Field: '%s' in Class: '%s' must be of type List for ListValue annotation.",
-                    field.getName(),
-                    this.manager.getConfigClass().getName()
-            ));
+        this.checkFieldValidity(field, PaCoConfigValues.ListValue.class.getSimpleName(), List.class);
         PaCoConfigValues.ListValue listAnnotation = field.getAnnotation(PaCoConfigValues.ListValue.class);
         field.setAccessible(true);
         try {
@@ -339,5 +306,16 @@ public class AnnotationHandler {
         ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
         if (holder != null)
             holder.setComment(commentAnnotation.value(), commentAnnotation.padding());
+    }
+
+    private void checkFieldValidity(Field field, String annotationName, Class<?>... types) {
+        if (!Set.of(types).contains(field.getType()))
+            throw new IllegalArgumentException(String.format(
+                    "Field: '%s' in Class: '%s' must be of type %s for '%s' annotation.",
+                    field.getName(),
+                    this.manager.getConfigClass().getName(),
+                    Arrays.stream(types).map(clazz -> "'" + clazz.getSimpleName() + "'").collect(Collectors.joining(" or ")),
+                    annotationName
+            ));
     }
 }

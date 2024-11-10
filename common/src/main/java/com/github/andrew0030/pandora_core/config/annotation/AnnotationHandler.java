@@ -304,8 +304,7 @@ public class AnnotationHandler {
     private void handleComment(Field field) {
         PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
         ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-        if (holder != null)
-            holder.setComment(commentAnnotation.value(), commentAnnotation.padding());
+        this.dataHolders.put(field.getName(), holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
     }
 
     private void checkFieldValidity(Field field, String annotationName, Class<?>... types) {

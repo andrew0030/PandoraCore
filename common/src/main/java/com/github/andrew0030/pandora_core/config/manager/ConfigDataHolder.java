@@ -50,16 +50,18 @@ public class ConfigDataHolder {
         return this;
     }
 
-    public void setComment(String comment) {
+    public ConfigDataHolder setComment(String comment) {
         this.setComment(comment, 1);
+        return this;
     }
 
-    public void setComment(String comment, int padding) {
+    public ConfigDataHolder setComment(String comment, int padding) {
         // Splits the comment into lines, applies padding to each line, and joins them back together
         this.comment = Arrays.stream(comment.split("\n"))
                 .map(line -> " ".repeat(Math.max(0, padding)) + line)
                 .collect(Collectors.joining("\n"));
         this.commentPadding = padding;
+        return this;
     }
 
     /** @return the config entry comment as is, meaning this doesn't contain "range" or "valid values" or any other optional comment additions */

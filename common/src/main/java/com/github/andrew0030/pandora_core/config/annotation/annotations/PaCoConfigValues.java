@@ -17,6 +17,23 @@ public class PaCoConfigValues {
     public @interface IntegerValue {
         int minValue() default Integer.MIN_VALUE;
         int maxValue() default Integer.MAX_VALUE;
+        boolean showFullRange() default false;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface ByteValue {
+        byte minValue() default Byte.MIN_VALUE;
+        byte maxValue() default Byte.MAX_VALUE;
+        boolean showFullRange() default false;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface ShortValue {
+        short minValue() default Short.MIN_VALUE;
+        short maxValue() default Short.MAX_VALUE;
+        boolean showFullRange() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -24,6 +41,7 @@ public class PaCoConfigValues {
     public @interface DoubleValue {
         double minValue() default Double.MIN_VALUE;
         double maxValue() default Double.MAX_VALUE;
+        boolean showFullRange() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -31,6 +49,7 @@ public class PaCoConfigValues {
     public @interface FloatValue {
         float minValue() default Float.MIN_VALUE;
         float maxValue() default Float.MAX_VALUE;
+        boolean showFullRange() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -38,6 +57,7 @@ public class PaCoConfigValues {
     public @interface LongValue {
         long minValue() default Long.MIN_VALUE;
         long maxValue() default Long.MAX_VALUE;
+        boolean showFullRange() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)

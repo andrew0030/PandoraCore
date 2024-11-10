@@ -28,7 +28,7 @@ public class PaCoMainConfig {
     public boolean trueValue = true;
 
     @PaCoConfigValues.Comment("This is an Integer Value, with index: '1'")
-    @PaCoConfigValues.IntegerValue
+    @PaCoConfigValues.IntegerValue(showFullRange = true)
     public Integer integerValue1 = 11;
 
     @PaCoConfigValues.Comment("This is an Integer Value, with index: '2'")
@@ -38,6 +38,22 @@ public class PaCoMainConfig {
     @PaCoConfigValues.Comment("This is an Integer Value, with index: '3'")
     @PaCoConfigValues.IntegerValue
     public int integerValue3 = 13;
+
+    @PaCoConfigValues.Comment("A Byte value is right here")
+    @PaCoConfigValues.ByteValue(showFullRange = true)
+    public byte byteValue = -50;
+
+    @PaCoConfigValues.Comment("A Max Val Byte instead of byte")
+    @PaCoConfigValues.ByteValue
+    public Byte maxByteVal = Byte.MAX_VALUE;
+
+    @PaCoConfigValues.Comment("A Short value\nWith a multiline comment above!")
+    @PaCoConfigValues.ShortValue(maxValue = 0)
+    public short shortValue = -50;
+
+    @PaCoConfigValues.Comment("A Full Range Short")
+    @PaCoConfigValues.ShortValue(showFullRange = true)
+    public Short fullRangeShort = 32000;
 
     @PaCoConfigValues.IntegerValue(minValue = 0, maxValue = 100)
     public int rangedAltInt = 100;

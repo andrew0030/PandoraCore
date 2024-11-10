@@ -60,6 +60,8 @@ public class AnnotationHandler {
     private void initConfigCaches() {
         this.annotationHandlers.put(PaCoConfigValues.BooleanValue.class, this::handleBooleanField);
         this.annotationHandlers.put(PaCoConfigValues.IntegerValue.class, this::handleIntegerField);
+        this.annotationHandlers.put(PaCoConfigValues.ByteValue.class, this::handleByteField);
+        this.annotationHandlers.put(PaCoConfigValues.ShortValue.class, this::handleShortField);
         this.annotationHandlers.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);
         this.annotationHandlers.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);
         this.annotationHandlers.put(PaCoConfigValues.LongValue.class, this::handleLongField);
@@ -120,6 +122,7 @@ public class AnnotationHandler {
             int defaultValue = (int) field.get(this.manager.getConfigInstance());
             int minVal = integerAnnotation.minValue();
             int maxVal = integerAnnotation.maxValue();
+            boolean showFullRange = integerAnnotation.showFullRange();
             if (defaultValue < minVal || defaultValue > maxVal)
                 throw new IllegalArgumentException(String.format(
                         "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
@@ -131,7 +134,93 @@ public class AnnotationHandler {
                 ));
             configSpec.defineInRange(field.getName(), defaultValue, minVal, maxVal);
             ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-            this.dataHolders.put(field.getName(), holder.setRange(minVal == Integer.MIN_VALUE ? null : minVal, maxVal == Integer.MAX_VALUE ? null : maxVal));
+            this.dataHolders.put(field.getName(), holder.setRange(minVal == Integer.MIN_VALUE ? null : minVal, maxVal == Integer.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleByteField(Field field) {
+        this.checkFieldValidity(field, PaCoConfigValues.ByteValue.class.getSimpleName(), byte.class, Byte.class);
+        PaCoConfigValues.ByteValue byteAnnotation = field.getAnnotation(PaCoConfigValues.ByteValue.class);
+        field.setAccessible(true);
+        try {
+            byte defaultValue = (byte) field.get(this.manager.getConfigInstance());
+            byte minVal = byteAnnotation.minValue();
+            byte maxVal = byteAnnotation.maxValue();
+            boolean showFullRange = byteAnnotation.showFullRange();
+            if (minVal >= maxVal) {
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            }
+            if (defaultValue < minVal || defaultValue > maxVal)
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
+                        field.getName(),
+                        this.manager.getConfigClass().getName(),
+                        defaultValue,
+                        minVal,
+                        maxVal
+                ));
+            configSpec.define(field.getName(), defaultValue, o -> {
+                if (o instanceof Integer || o instanceof Byte) {
+                    byte byteValue = ((Number) o).byteValue();
+                    return byteValue >= minVal && byteValue <= maxVal;
+                }
+                return false;
+            });
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(), holder.setRange(minVal == Byte.MIN_VALUE ? null : minVal, maxVal == Byte.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal).setConverter(value -> {
+                if (value instanceof Number number)
+                    return number.byteValue();
+                throw new IllegalArgumentException("Config value is not a Number as expected for byte.");
+            }));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleShortField(Field field) {
+        this.checkFieldValidity(field, PaCoConfigValues.ShortValue.class.getSimpleName(), short.class, Short.class);
+        PaCoConfigValues.ShortValue shortAnnotation = field.getAnnotation(PaCoConfigValues.ShortValue.class);
+        field.setAccessible(true);
+        try {
+            short defaultValue = (short) field.get(this.manager.getConfigInstance());
+            short minVal = shortAnnotation.minValue();
+            short maxVal = shortAnnotation.maxValue();
+            boolean showFullRange = shortAnnotation.showFullRange();
+            if (minVal >= maxVal) {
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            }
+            if (defaultValue < minVal || defaultValue > maxVal)
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
+                        field.getName(),
+                        this.manager.getConfigClass().getName(),
+                        defaultValue,
+                        minVal,
+                        maxVal
+                ));
+            configSpec.define(field.getName(), defaultValue, o -> {
+                if (o instanceof Integer || o instanceof Short) {
+                    short shortValue = ((Number) o).shortValue();
+                    return shortValue >= minVal && shortValue <= maxVal;
+                }
+                return false;
+            });
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
+            this.dataHolders.put(field.getName(), holder.setRange(minVal == Short.MIN_VALUE ? null : minVal, maxVal == Short.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal).setConverter(value -> {
+                if (value instanceof Number number)
+                    return number.shortValue();
+                throw new IllegalArgumentException("Config value is not a Number as expected for short.");
+            }));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -145,6 +234,7 @@ public class AnnotationHandler {
             double defaultValue = (double) field.get(this.manager.getConfigInstance());
             double minVal = doubleAnnotation.minValue();
             double maxVal = doubleAnnotation.maxValue();
+            boolean showFullRange = doubleAnnotation.showFullRange();
             if (defaultValue < minVal || defaultValue > maxVal)
                 throw new IllegalArgumentException(String.format(
                         "Invalid value for field '%s' in class '%s': Default value %f is out of range (min: %f, max: %f).",
@@ -156,7 +246,7 @@ public class AnnotationHandler {
                 ));
             configSpec.defineInRange(field.getName(), defaultValue, minVal, maxVal);
             ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-            this.dataHolders.put(field.getName(), holder.setRange(minVal == Double.MIN_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal));
+            this.dataHolders.put(field.getName(), holder.setRange(minVal == Double.MIN_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -170,6 +260,7 @@ public class AnnotationHandler {
             float defaultValue = (float) field.get(this.manager.getConfigInstance());
             float minVal = floatAnnotation.minValue();
             float maxVal = floatAnnotation.maxValue();
+            boolean showFullRange = floatAnnotation.showFullRange();
             if (defaultValue < minVal || defaultValue > maxVal)
                 throw new IllegalArgumentException(String.format(
                         "Invalid value for field '%s' in class '%s': Default value %f is out of range (min: %f, max: %f).",
@@ -181,7 +272,8 @@ public class AnnotationHandler {
                 ));
             configSpec.defineInRange(field.getName(), defaultValue, minVal, maxVal);
             ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-            this.dataHolders.put(field.getName(), holder.setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal).setConverter(value -> {
+            this.dataHolders.put(
+                    field.getName(), holder.setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal).setConverter(value -> {
                 if (value instanceof Number number)
                     return number.floatValue();
                 throw new IllegalArgumentException("Config value is not a Number as expected for float.");
@@ -196,10 +288,11 @@ public class AnnotationHandler {
         PaCoConfigValues.LongValue longAnnotation = field.getAnnotation(PaCoConfigValues.LongValue.class);
         field.setAccessible(true);
         try {
-            Long defaultValue = (Long) field.get(this.manager.getConfigInstance());
-            Long minVal = longAnnotation.minValue();
-            Long maxVal = longAnnotation.maxValue();
-            if (minVal.compareTo(maxVal) > 0) {
+            long defaultValue = (long) field.get(this.manager.getConfigInstance());
+            long minVal = longAnnotation.minValue();
+            long maxVal = longAnnotation.maxValue();
+            boolean showFullRange = longAnnotation.showFullRange();
+            if (minVal >= maxVal) {
                 throw new IllegalArgumentException(String.format(
                         "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
                         field.getName(),
@@ -223,7 +316,7 @@ public class AnnotationHandler {
                 return false;
             });
             ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-            this.dataHolders.put(field.getName(), holder.setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal).setConverter(value -> {
+            this.dataHolders.put(field.getName(), holder.setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal).setConverter(value -> {
                 if (value instanceof Number number)
                     return number.longValue();
                 throw new IllegalArgumentException("Config value is not a Number as expected for long.");

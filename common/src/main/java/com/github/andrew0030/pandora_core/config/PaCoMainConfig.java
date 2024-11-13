@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.config;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.config.annotation.annotations.ConfigType;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import net.minecraft.util.Mth;
@@ -16,7 +17,7 @@ import java.util.List;
 // - Alternatively if mods like Catalogue or Mod Menu are installed, check their config screen entry points
 // - Maybe keep track of mods that used the PaCoMainConfig system...
 
-@PaCoConfig(modId = PandoraCore.MOD_ID, name = "main")
+@PaCoConfig(type = ConfigType.COMMON, modId = PandoraCore.MOD_ID, name = "main")
 public class PaCoMainConfig {
 
     @PaCoConfigValues.Comment("This is a test comment")

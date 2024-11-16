@@ -17,7 +17,7 @@ import java.util.List;
 // - Alternatively if mods like Catalogue or Mod Menu are installed, check their config screen entry points
 // - Maybe keep track of mods that used the PaCoMainConfig system...
 
-@PaCoConfig(type = ConfigType.COMMON, modId = PandoraCore.MOD_ID, name = "main")
+@PaCoConfig.Config(type = ConfigType.COMMON, modId = PandoraCore.MOD_ID, name = "main")
 public class PaCoMainConfig {
 
     @PaCoConfigValues.Comment("This is a test comment")
@@ -110,5 +110,19 @@ public class PaCoMainConfig {
         EASY,
         MEDIUM,
         HARD
+    }
+
+    @PaCoConfigValues.Category
+    public SomeSubCategory someSubCategory = new SomeSubCategory();
+    @PaCoConfig.Category("test")
+    public static class SomeSubCategory {
+
+        @PaCoConfigValues.Comment("A boolean inside the \"test\" category")
+        @PaCoConfigValues.BooleanValue
+        public boolean categoryBoolean = true;
+
+        @PaCoConfigValues.Comment("An int inside the \"test\" category")
+        @PaCoConfigValues.IntegerValue
+        public Integer categoryInteger = 100;
     }
 }

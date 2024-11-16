@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Helper class containing all the value annotations that can be used with {@link PaCoConfig}. */
+/** Helper class containing all the value annotations that can be used within {@link PaCoConfig}. */
 public class PaCoConfigValues {
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -92,4 +92,8 @@ public class PaCoConfigValues {
         String value();
         int padding() default 1;
     }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Category {}
 }

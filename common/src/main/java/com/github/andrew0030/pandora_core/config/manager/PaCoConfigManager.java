@@ -207,9 +207,9 @@ public class PaCoConfigManager {
     // These may still get replaced or modified, it all depends on how I decide to deal with registration...
     //##################################################################################################################
     public static void register(Object configInstance) {
-        PaCoConfig configAnnotation = configInstance.getClass().getAnnotation(PaCoConfig.class);
+        PaCoConfig.Config configAnnotation = configInstance.getClass().getAnnotation(PaCoConfig.Config.class);
         if (configAnnotation == null)
-            throw new IllegalArgumentException("Class " + configInstance.getClass().getName() + " must be annotated with @PaCoConfig");
+            throw new IllegalArgumentException("Class " + configInstance.getClass().getName() + " must be annotated with @PaCoConfig.Config");
         PaCoConfigManager manager =  new PaCoConfigManager(configInstance);
         CONFIG_MANAGERS.put(configInstance.getClass().getName(), manager);
     }

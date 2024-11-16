@@ -33,15 +33,15 @@ public class AnnotationHandler {
 
     /** Initializes the config name */
     private String initConfigName() {
-        PaCoConfig configAnnotation = this.manager.getConfigClass().getAnnotation(PaCoConfig.class);
+        PaCoConfig.Config configAnnotation = this.manager.getConfigClass().getAnnotation(PaCoConfig.Config.class);
         if (configAnnotation == null)
-            throw new IllegalArgumentException("Class " + this.manager.getConfigClass().getName() + " must be annotated with @PaCoConfig");
+            throw new IllegalArgumentException("Class " + this.manager.getConfigClass().getName() + " must be annotated with @PaCoConfig.Config");
         return String.format("%s-%s", configAnnotation.modId(), configAnnotation.name());
     }
 
     /**
-     * Gets the name the config should have, this happens by checking {@link PaCoConfig}
-     * and using the {@link PaCoConfig#modId()} and {@link PaCoConfig#name()} to create
+     * Gets the name the config should have, this happens by checking {@link PaCoConfig.Config}
+     * and using the {@link PaCoConfig.Config#modId()} and {@link PaCoConfig.Config#name()} to create
      * a {@link String} with the format of:<br/>
      * <code>example_id-some_name</code><br/>
      * <strong>Note</strong>: This does not contain the <strong>file type</strong> (<code>.toml</code>)
@@ -69,6 +69,7 @@ public class AnnotationHandler {
         this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);
         this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);
         this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);
+        this.annotationHandlers.put(PaCoConfigValues.Category.class, this::handleCategory);
 
         for (Field field : this.manager.getConfigClass().getDeclaredFields()) {
             for (Annotation annotation : field.getAnnotations()) {
@@ -398,6 +399,32 @@ public class AnnotationHandler {
         PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
         ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
         this.dataHolders.put(field.getName(), holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
+    }
+
+    private void handleCategory(Field field) {
+        field.setAccessible(true);
+        try {
+            // Gets or instantiates the category object
+            Object categoryInstance = field.get(this.manager.getConfigInstance());
+            if (categoryInstance == null) {
+                categoryInstance = field.getType().getDeclaredConstructor().newInstance();
+                field.set(this.manager.getConfigInstance(), categoryInstance);
+            }
+
+            PaCoConfig.Category categoryAnnotation = field.getType().getAnnotation(PaCoConfig.Category.class);
+            String categoryName = categoryAnnotation.value();
+
+            // TODO: replace this with a handler that passes on "categoryName" so subFields are properly categorized
+            for (Field subField : field.getType().getDeclaredFields()) {
+                for (Annotation annotation : subField.getAnnotations()) {
+                    Consumer<Field> consumer = this.annotationHandlers.get(annotation.annotationType());
+                    if (consumer != null)
+                        consumer.accept(field);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Failed to process category for field '%s'.", field.getName()), e);
+        }
     }
 
     private void checkFieldValidity(Field field, String annotationName, Class<?>... types) {

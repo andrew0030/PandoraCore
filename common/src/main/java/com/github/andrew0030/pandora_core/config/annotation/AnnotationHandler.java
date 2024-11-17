@@ -13,12 +13,13 @@ import org.slf4j.Logger;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class AnnotationHandler {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "AnnotationHandler");
-    private final Map<Class<? extends Annotation>, Consumer<Field>> annotationHandlers = new HashMap<>();
+    private final Map<Class<? extends Annotation>, BiConsumer<Field, String>> annotationHandlers = new HashMap<>();
     private final Map<String, ConfigDataHolder> dataHolders = new LinkedHashMap<>();
     private final ConfigSpec configSpec = new ConfigSpec();
     private final PaCoConfigManager manager;
@@ -73,9 +74,9 @@ public class AnnotationHandler {
 
         for (Field field : this.manager.getConfigClass().getDeclaredFields()) {
             for (Annotation annotation : field.getAnnotations()) {
-                Consumer<Field> consumer = this.annotationHandlers.get(annotation.annotationType());
+                BiConsumer<Field, String> consumer = this.annotationHandlers.get(annotation.annotationType());
                 if (consumer != null)
-                    consumer.accept(field);
+                    consumer.accept(field, "");
             }
         }
     }
@@ -102,7 +103,7 @@ public class AnnotationHandler {
     // #                           Field Handling                           #
     // ######################################################################
 
-    private void handleBooleanField(Field field) {
+    private void handleBooleanField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.BooleanValue.class.getSimpleName(), boolean.class, Boolean.class);
         field.setAccessible(true);
         try {
@@ -115,7 +116,7 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleIntegerField(Field field) {
+    private void handleIntegerField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.IntegerValue.class.getSimpleName(), int.class, Integer.class);
         PaCoConfigValues.IntegerValue integerAnnotation = field.getAnnotation(PaCoConfigValues.IntegerValue.class);
         field.setAccessible(true);
@@ -141,7 +142,7 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleByteField(Field field) {
+    private void handleByteField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.ByteValue.class.getSimpleName(), byte.class, Byte.class);
         PaCoConfigValues.ByteValue byteAnnotation = field.getAnnotation(PaCoConfigValues.ByteValue.class);
         field.setAccessible(true);
@@ -184,7 +185,7 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleShortField(Field field) {
+    private void handleShortField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.ShortValue.class.getSimpleName(), short.class, Short.class);
         PaCoConfigValues.ShortValue shortAnnotation = field.getAnnotation(PaCoConfigValues.ShortValue.class);
         field.setAccessible(true);
@@ -227,7 +228,7 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleDoubleField(Field field) {
+    private void handleDoubleField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.DoubleValue.class.getSimpleName(), double.class, Double.class);
         PaCoConfigValues.DoubleValue doubleAnnotation = field.getAnnotation(PaCoConfigValues.DoubleValue.class);
         field.setAccessible(true);
@@ -253,7 +254,7 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleFloatField(Field field) {
+    private void handleFloatField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.FloatValue.class.getSimpleName(), float.class, Float.class);
         PaCoConfigValues.FloatValue floatAnnotation = field.getAnnotation(PaCoConfigValues.FloatValue.class);
         field.setAccessible(true);
@@ -284,7 +285,7 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleLongField(Field field) {
+    private void handleLongField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.LongValue.class.getSimpleName(), long.class, Long.class);
         PaCoConfigValues.LongValue longAnnotation = field.getAnnotation(PaCoConfigValues.LongValue.class);
         field.setAccessible(true);
@@ -327,7 +328,7 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleStringField(Field field) {
+    private void handleStringField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.StringValue.class.getSimpleName(), String.class);
         field.setAccessible(true);
         try {
@@ -340,7 +341,7 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleListField(Field field) {
+    private void handleListField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.ListValue.class.getSimpleName(), List.class);
         PaCoConfigValues.ListValue listAnnotation = field.getAnnotation(PaCoConfigValues.ListValue.class);
         field.setAccessible(true);
@@ -360,7 +361,7 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleEnumField(Field field) {
+    private void handleEnumField(Field field, String category) {
         if (!field.getType().isEnum())
             throw new IllegalArgumentException(String.format(
                     "Field: '%s' in Class: '%s' must be of type Enum for EnumValue annotation.",
@@ -395,13 +396,13 @@ public class AnnotationHandler {
         }
     }
 
-    private void handleComment(Field field) {
+    private void handleComment(Field field, String category) {
         PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
         ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
         this.dataHolders.put(field.getName(), holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
     }
 
-    private void handleCategory(Field field) {
+    private void handleCategory(Field field, String category) {
         field.setAccessible(true);
         try {
             // Gets or instantiates the category object
@@ -415,13 +416,13 @@ public class AnnotationHandler {
             String categoryName = categoryAnnotation.value();
 
             // TODO: replace this with a handler that passes on "categoryName" so subFields are properly categorized
-            for (Field subField : field.getType().getDeclaredFields()) {
-                for (Annotation annotation : subField.getAnnotations()) {
-                    Consumer<Field> consumer = this.annotationHandlers.get(annotation.annotationType());
-                    if (consumer != null)
-                        consumer.accept(field);
-                }
-            }
+//            for (Field subField : field.getType().getDeclaredFields()) {
+//                for (Annotation annotation : subField.getAnnotations()) {
+//                    Consumer<Field> consumer = this.annotationHandlers.get(annotation.annotationType());
+//                    if (consumer != null)
+//                        consumer.accept(field);
+//                }
+//            }
         } catch (Exception e) {
             throw new RuntimeException(String.format("Failed to process category for field '%s'.", field.getName()), e);
         }

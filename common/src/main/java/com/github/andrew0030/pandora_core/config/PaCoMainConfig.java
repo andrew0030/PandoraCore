@@ -28,101 +28,99 @@ public class PaCoMainConfig {
     @PaCoConfigValues.BooleanValue
     public boolean trueValue = true;
 
-    @PaCoConfigValues.Comment("This is an Integer Value, with index: '1'")
-    @PaCoConfigValues.IntegerValue(showFullRange = true)
-    public Integer integerValue1 = 11;
+    @PaCoConfig.Category("booleans")
+    public static class BooleanSubCategory {
 
-    @PaCoConfigValues.Comment("This is an Integer Value, with index: '2'")
-    @PaCoConfigValues.IntegerValue
-    public Integer integerValue2 = 12;
-
-    @PaCoConfigValues.Comment("This is an Integer Value, with index: '3'")
-    @PaCoConfigValues.IntegerValue
-    public int integerValue3 = 13;
-
-    @PaCoConfigValues.Comment("A Byte value is right here")
-    @PaCoConfigValues.ByteValue(showFullRange = true)
-    public byte byteValue = -50;
-
-    @PaCoConfigValues.Comment("A Max Val Byte instead of byte")
-    @PaCoConfigValues.ByteValue
-    public Byte maxByteVal = Byte.MAX_VALUE;
-
-    @PaCoConfigValues.Comment("A Short value\nWith a multiline comment above!")
-    @PaCoConfigValues.ShortValue(maxValue = 0)
-    public short shortValue = -50;
-
-    @PaCoConfigValues.Comment("A Full Range Short")
-    @PaCoConfigValues.ShortValue(showFullRange = true)
-    public Short fullRangeShort = 32000;
-
-    @PaCoConfigValues.IntegerValue(minValue = 0, maxValue = 100)
-    public int rangedAltInt = 100;
-
-    @PaCoConfigValues.Comment("\nThis is a comment over a ranged int")
-    @PaCoConfigValues.IntegerValue(minValue = 0, maxValue = 10)
-    public int commentedRangeInt = 5;
-
-    @PaCoConfigValues.Comment("This value should only have a \"visible\" min value")
-    @PaCoConfigValues.IntegerValue(minValue = 0)
-    public int minOnlyValue = 200;
-
-    @PaCoConfigValues.Comment("This value should only have a \"visible\" max value")
-    @PaCoConfigValues.IntegerValue(maxValue = 500)
-    public int maxOnlyValue = 300;
-
-    @PaCoConfigValues.Comment("Comment above a String")
-    @PaCoConfigValues.StringValue
-    public String someStringValue = "This is a String";
-
-    @PaCoConfigValues.Comment("This is a Double version of PI")
-    @PaCoConfigValues.DoubleValue
-    public double doublePI = Math.PI;
-
-    @PaCoConfigValues.Comment("This is a Float version of PI")
-    @PaCoConfigValues.FloatValue
-    public float float_PI = Mth.PI;
-
-    @PaCoConfigValues.Comment("Comment above a Long")
-    @PaCoConfigValues.LongValue
-    public long someLongValue = 500L;
-
-    @PaCoConfigValues.Comment("Comment above a second Long")
-    @PaCoConfigValues.LongValue
-    public Long someOtherLongValue = 500000L;
-
-    @PaCoConfigValues.Comment("Comment above a String List")
-    @PaCoConfigValues.ListValue(elementType = String.class)
-    public List<String> stringList = Arrays.asList("Element 1", "Element 2", "Element 3");
-
-    @PaCoConfigValues.Comment("Comment above an Integer List")
-    @PaCoConfigValues.ListValue(elementType = Integer.class)
-    public List<Integer> integerList = Arrays.asList(111, 22, 3333);
-
-    @PaCoConfigValues.Comment("Comment above a Boolean List")
-    @PaCoConfigValues.ListValue(elementType = Boolean.class)
-    public List<Boolean> booleanList = Arrays.asList(false, true, true, false, true);
-
-    @PaCoConfigValues.Comment("Comment above an Enum")
-    @PaCoConfigValues.EnumValue
-    public Difficulty enumValue = Difficulty.MEDIUM;
-    public enum Difficulty {
-        EASY,
-        MEDIUM,
-        HARD
-    }
-
-    @PaCoConfigValues.Category
-    public SomeSubCategory someSubCategory = new SomeSubCategory();
-    @PaCoConfig.Category("test")
-    public static class SomeSubCategory {
-
-        @PaCoConfigValues.Comment("A boolean inside the \"test\" category")
+        @PaCoConfigValues.Comment("First Boolean inside the boolean category")
         @PaCoConfigValues.BooleanValue
-        public boolean categoryBoolean = true;
+        public Boolean falseValue = false;
 
-        @PaCoConfigValues.Comment("An int inside the \"test\" category")
-        @PaCoConfigValues.IntegerValue
-        public Integer categoryInteger = 100;
+        @PaCoConfigValues.Comment("Second Boolean inside the boolean category")
+        @PaCoConfigValues.BooleanValue
+        public Boolean trueValue = true;
     }
+
+//    @PaCoConfigValues.Comment("This is an Integer Value, with index: '1'")
+//    @PaCoConfigValues.IntegerValue(showFullRange = true)
+//    public Integer integerValue1 = 11;
+//
+//    @PaCoConfigValues.Comment("This is an Integer Value, with index: '2'")
+//    @PaCoConfigValues.IntegerValue
+//    public Integer integerValue2 = 12;
+//
+//    @PaCoConfigValues.Comment("This is an Integer Value, with index: '3'")
+//    @PaCoConfigValues.IntegerValue
+//    public int integerValue3 = 13;
+//
+//    @PaCoConfigValues.Comment("A Byte value is right here")
+//    @PaCoConfigValues.ByteValue(showFullRange = true)
+//    public byte byteValue = -50;
+//
+//    @PaCoConfigValues.Comment("A Max Val Byte instead of byte")
+//    @PaCoConfigValues.ByteValue
+//    public Byte maxByteVal = Byte.MAX_VALUE;
+//
+//    @PaCoConfigValues.Comment("A Short value\nWith a multiline comment above!")
+//    @PaCoConfigValues.ShortValue(maxValue = 0)
+//    public short shortValue = -50;
+//
+//    @PaCoConfigValues.Comment("A Full Range Short")
+//    @PaCoConfigValues.ShortValue(showFullRange = true)
+//    public Short fullRangeShort = 32000;
+//
+//    @PaCoConfigValues.IntegerValue(minValue = 0, maxValue = 100)
+//    public int rangedAltInt = 100;
+//
+//    @PaCoConfigValues.Comment("\nThis is a comment over a ranged int")
+//    @PaCoConfigValues.IntegerValue(minValue = 0, maxValue = 10)
+//    public int commentedRangeInt = 5;
+//
+//    @PaCoConfigValues.Comment("This value should only have a \"visible\" min value")
+//    @PaCoConfigValues.IntegerValue(minValue = 0)
+//    public int minOnlyValue = 200;
+//
+//    @PaCoConfigValues.Comment("This value should only have a \"visible\" max value")
+//    @PaCoConfigValues.IntegerValue(maxValue = 500)
+//    public int maxOnlyValue = 300;
+//
+//    @PaCoConfigValues.Comment("Comment above a String")
+//    @PaCoConfigValues.StringValue
+//    public String someStringValue = "This is a String";
+//
+//    @PaCoConfigValues.Comment("This is a Double version of PI")
+//    @PaCoConfigValues.DoubleValue
+//    public double doublePI = Math.PI;
+//
+//    @PaCoConfigValues.Comment("This is a Float version of PI")
+//    @PaCoConfigValues.FloatValue
+//    public float float_PI = Mth.PI;
+//
+//    @PaCoConfigValues.Comment("Comment above a Long")
+//    @PaCoConfigValues.LongValue
+//    public long someLongValue = 500L;
+//
+//    @PaCoConfigValues.Comment("Comment above a second Long")
+//    @PaCoConfigValues.LongValue
+//    public Long someOtherLongValue = 500000L;
+//
+//    @PaCoConfigValues.Comment("Comment above a String List")
+//    @PaCoConfigValues.ListValue(elementType = String.class)
+//    public List<String> stringList = Arrays.asList("Element 1", "Element 2", "Element 3");
+//
+//    @PaCoConfigValues.Comment("Comment above an Integer List")
+//    @PaCoConfigValues.ListValue(elementType = Integer.class)
+//    public List<Integer> integerList = Arrays.asList(111, 22, 3333);
+//
+//    @PaCoConfigValues.Comment("Comment above a Boolean List")
+//    @PaCoConfigValues.ListValue(elementType = Boolean.class)
+//    public List<Boolean> booleanList = Arrays.asList(false, true, true, false, true);
+//
+//    @PaCoConfigValues.Comment("Comment above an Enum")
+//    @PaCoConfigValues.EnumValue
+//    public Difficulty enumValue = Difficulty.MEDIUM;
+//    public enum Difficulty {
+//        EASY,
+//        MEDIUM,
+//        HARD
+//    }
 }

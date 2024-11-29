@@ -92,8 +92,4 @@ public class PaCoConfigValues {
         String value();
         int padding() default 1;
     }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
-    public @interface Category {}
 }

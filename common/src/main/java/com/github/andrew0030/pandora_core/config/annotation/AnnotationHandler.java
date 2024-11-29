@@ -8,13 +8,15 @@ import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.util.StringUtil;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class AnnotationHandler {
@@ -70,13 +72,37 @@ public class AnnotationHandler {
 //        this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);
 //        this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);
         this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);
-        this.annotationHandlers.put(PaCoConfigValues.Category.class, this::handleCategory);
 
-        for (Field field : this.manager.getConfigClass().getDeclaredFields()) {
+        this.processConfigClass(this.manager.getConfigClass(), null);
+    }
+
+    /** Handles loading all the fields and subclasses inside the config */
+    private void processConfigClass(Class<?> configClass, @Nullable String category) {
+        String categoryPrefix = StringUtil.isNullOrEmpty(category) ? "" : category + ".";
+
+        //TODO: add logic to get declared classes, this also includes figuring out how to do so while preserving the order
+        for (Field field : configClass.getDeclaredFields()) {
+            field.setAccessible(true);
+            // If the field is a category we validate it, followed by calling process on its fields
+            if (field.isAnnotationPresent(PaCoConfig.Category.class)) {
+                Class<?> categoryClass = field.getType();
+                if (!categoryClass.isMemberClass() || !Modifier.isStatic(categoryClass.getModifiers())) {
+                    throw new IllegalArgumentException(String.format(
+                            "Field: '%s' in Class: '%s' must be a static inner class to be a valid category.",
+                            field.getName(),
+                            configClass.getName()
+                    ));
+                }
+                String categoryName = field.getAnnotation(PaCoConfig.Category.class).value();
+                this.processConfigClass(categoryClass, categoryPrefix + categoryName);
+                continue;
+            }
+
+            // Processes regular fields
             for (Annotation annotation : field.getAnnotations()) {
                 BiConsumer<Field, String> consumer = this.annotationHandlers.get(annotation.annotationType());
                 if (consumer != null)
-                    consumer.accept(field, "");
+                    consumer.accept(field, categoryPrefix);
             }
         }
     }
@@ -105,12 +131,12 @@ public class AnnotationHandler {
 
     private void handleBooleanField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.BooleanValue.class.getSimpleName(), boolean.class, Boolean.class);
-        field.setAccessible(true);
         try {
             boolean defaultValue = (boolean) field.get(this.manager.getConfigInstance());
-            configSpec.define(field.getName(), defaultValue);
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-            this.dataHolders.put(field.getName(), holder);
+            String key = category + field.getName();
+            configSpec.define(key, defaultValue);
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolder(field));
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -400,32 +426,6 @@ public class AnnotationHandler {
         PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
         ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
         this.dataHolders.put(field.getName(), holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
-    }
-
-    private void handleCategory(Field field, String category) {
-        field.setAccessible(true);
-        try {
-            // Gets or instantiates the category object
-            Object categoryInstance = field.get(this.manager.getConfigInstance());
-            if (categoryInstance == null) {
-                categoryInstance = field.getType().getDeclaredConstructor().newInstance();
-                field.set(this.manager.getConfigInstance(), categoryInstance);
-            }
-
-            PaCoConfig.Category categoryAnnotation = field.getType().getAnnotation(PaCoConfig.Category.class);
-            String categoryName = categoryAnnotation.value();
-
-            // TODO: replace this with a handler that passes on "categoryName" so subFields are properly categorized
-//            for (Field subField : field.getType().getDeclaredFields()) {
-//                for (Annotation annotation : subField.getAnnotations()) {
-//                    Consumer<Field> consumer = this.annotationHandlers.get(annotation.annotationType());
-//                    if (consumer != null)
-//                        consumer.accept(field);
-//                }
-//            }
-        } catch (Exception e) {
-            throw new RuntimeException(String.format("Failed to process category for field '%s'.", field.getName()), e);
-        }
     }
 
     private void checkFieldValidity(Field field, String annotationName, Class<?>... types) {

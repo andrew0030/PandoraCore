@@ -4,10 +4,6 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.ConfigType;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
-import net.minecraft.util.Mth;
-
-import java.util.Arrays;
-import java.util.List;
 
 //TODO: create a config system using NightConfig
 // - Probably add annotations as its a nice clean and simple way to create configs

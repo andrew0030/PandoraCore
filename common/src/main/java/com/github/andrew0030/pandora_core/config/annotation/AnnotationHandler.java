@@ -80,23 +80,21 @@ public class AnnotationHandler {
     private void processConfigClass(Class<?> configClass, @Nullable String category) {
         String categoryPrefix = StringUtil.isNullOrEmpty(category) ? "" : category + ".";
 
-        //TODO: add logic to get declared classes, this also includes figuring out how to do so while preserving the order
         for (Field field : configClass.getDeclaredFields()) {
             field.setAccessible(true);
-            // If the field is a category we validate it, followed by calling process on its fields
-            if (field.isAnnotationPresent(PaCoConfig.Category.class)) {
-                Class<?> categoryClass = field.getType();
-                if (!categoryClass.isMemberClass() || !Modifier.isStatic(categoryClass.getModifiers())) {
-                    throw new IllegalArgumentException(String.format(
-                            "Field: '%s' in Class: '%s' must be a static inner class to be a valid category.",
-                            field.getName(),
-                            configClass.getName()
-                    ));
-                }
-                String categoryName = field.getAnnotation(PaCoConfig.Category.class).value();
-                this.processConfigClass(categoryClass, categoryPrefix + categoryName);
-                continue;
-            }
+//            if (field.isAnnotationPresent(PaCoConfig.Category.class)) {
+//                Class<?> categoryClass = field.getType();
+//                if (!categoryClass.isMemberClass() || !Modifier.isStatic(categoryClass.getModifiers())) {
+//                    throw new IllegalArgumentException(String.format(
+//                            "Field: '%s' in Class: '%s' must be a static inner class to be a valid category.",
+//                            field.getName(),
+//                            configClass.getName()
+//                    ));
+//                }
+//                String categoryName = field.getAnnotation(PaCoConfig.Category.class).value();
+//                this.processConfigClass(categoryClass, categoryPrefix + categoryName);
+//                continue;
+//            }
 
             // Processes regular fields
             for (Annotation annotation : field.getAnnotations()) {
@@ -104,6 +102,10 @@ public class AnnotationHandler {
                 if (consumer != null)
                     consumer.accept(field, categoryPrefix);
             }
+
+            //TODO: after fields have been initialized loop over declared classes and recursively call process on them.
+            // this will make it so all categories added with the "class approach" will be added to the bottom of the config.
+            // Alternatively also add an annotation based category system for fields, which will allow categories at any point.
         }
     }
 

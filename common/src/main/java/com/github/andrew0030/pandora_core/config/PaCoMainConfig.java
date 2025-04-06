@@ -18,22 +18,84 @@ public class PaCoMainConfig {
 
     @PaCoConfigValues.Comment("This is a test comment")
     @PaCoConfigValues.BooleanValue
-    public Boolean falseValue = false;
+    public static Boolean falseValue = false;
 
     @PaCoConfigValues.Comment("This is an additional test comment")
     @PaCoConfigValues.BooleanValue
-    public boolean trueValue = true;
+    public static boolean trueValue = true;
 
+    @PaCoConfigValues.Comment("""
+            There should be a category under this entry.
+            This is the last boolean value before declared classes.
+            """)
+    @PaCoConfigValues.BooleanValue
+    public static boolean lastBoolean = false;
+
+    @PaCoConfig.Comment("   This is a test category for booleans.\n   It holds 2 boolean values!   ")
     @PaCoConfig.Category("booleans")
     public static class BooleanSubCategory {
 
-        @PaCoConfigValues.Comment("First Boolean inside the boolean category")
+        @PaCoConfigValues.Comment("\nFirst Boolean inside the boolean category")
         @PaCoConfigValues.BooleanValue
-        public Boolean falseValue = false;
+        public static Boolean falseValue = false;
 
-        @PaCoConfigValues.Comment("Second Boolean inside the boolean category")
+        @PaCoConfigValues.Comment("\nSecond Boolean inside the boolean category")
         @PaCoConfigValues.BooleanValue
-        public Boolean trueValue = true;
+        public static Boolean trueValue = true;
+    }
+
+    @PaCoConfig.Category("booleans2")
+    public static class BooleanSubCategory2 {
+
+        @PaCoConfigValues.BooleanValue
+        public static Boolean falseValue = true;
+    }
+
+    @PaCoConfig.Category("booleans3")
+    public static class BooleanSubCategory3 {
+
+        @PaCoConfigValues.BooleanValue
+        public static Boolean someValue = true;
+    }
+
+    @PaCoConfig.Comment("This category contains 2 other categories.")
+    @PaCoConfig.Category("nested_outer")
+    public static class NestedOuter {
+
+        @PaCoConfig.Category("nested_inner1")
+        public static class NestedInner1 {
+
+            @PaCoConfigValues.BooleanValue
+            public static Boolean someValue = true;
+        }
+
+        @PaCoConfig.Category("nested_inner2")
+        public static class NestedInner2 {
+
+            @PaCoConfigValues.BooleanValue
+            public static Boolean someValue = true;
+        }
+
+        @PaCoConfig.Category("nested_inner3")
+        public static class NestedInner3 {
+
+            @PaCoConfigValues.BooleanValue
+            public static Boolean someValue = true;
+        }
+
+        @PaCoConfig.Category("nested_inner4")
+        public static class NestedInner4 {
+
+            @PaCoConfigValues.BooleanValue
+            public static Boolean someValue = true;
+        }
+
+        @PaCoConfig.Category("nested_inner5")
+        public static class NestedInner5 {
+
+            @PaCoConfigValues.BooleanValue
+            public static Boolean someValue = true;
+        }
     }
 
 //    @PaCoConfigValues.Comment("This is an Integer Value, with index: '1'")

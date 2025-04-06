@@ -16,15 +16,13 @@ public class PandoraCore {
     public static final String MOD_NAME = "Pandora Core";
     private static final Logger LOGGER = PaCoLogger.create(MOD_NAME);
     private static final HashMap<String, ModDataHolder> MOD_HOLDERS = new HashMap<>();
-    // Config
-    public static final PaCoMainConfig MAIN_CONFIG = new PaCoMainConfig();
 
     /** Common Init */
     public static void init() {
         Services.PLATFORM.getModDataHolders().forEach(holder -> PandoraCore.MOD_HOLDERS.put(holder.getModId(), holder));
 
-
-        PaCoConfigManager.register(MAIN_CONFIG);
+        // Configs
+        PaCoConfigManager.register(PaCoMainConfig.class);
 
         // Calls FileConfig#close() on all registered configs when the game shuts down
         Runtime.getRuntime().addShutdownHook(new Thread(PaCoConfigManager::closeConfigs));

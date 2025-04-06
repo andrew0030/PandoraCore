@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.config.manager;
 
+import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfigBuilder;
@@ -21,14 +22,14 @@ public class PaCoConfigManager {
 
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "PaCoConfigManager");
     // A Map to store PaCoConfigManager instances
-    private static final Map<String, PaCoConfigManager> CONFIG_MANAGERS = new HashMap<>();
+    private static final Map<Class<?>, PaCoConfigManager> CONFIG_MANAGERS = new HashMap<>();
     // Config Managing
-    private final Object configInstance;               // The config instance with the annotated fields
+    private final Class<?> configClass;                // The config class with the annotated fields
     private final AnnotationHandler annotationHandler; // Helper class that deals with annotations
     private final CommentedFileConfig config;          // The config file
 
-    private PaCoConfigManager(Object configInstance) {
-        this.configInstance = configInstance;
+    private PaCoConfigManager(Class<?> configClass) {
+        this.configClass = configClass;
         this.annotationHandler = new AnnotationHandler(this);
         this.config = this.createEmptyConfig();
         this.loadAndCorrect(); // Loads the config and corrects it if needed
@@ -128,14 +129,9 @@ public class PaCoConfigManager {
         this.correctIfNeeded();
     }
 
-    /** @return the config instance that was used to register this manager. */
-    public Object getConfigInstance() {
-        return this.configInstance;
-    }
-
-    /** @return the <code>.class</code> of the config instance that was used to register this manager. */
+    /** @return the <code>.class</code> of the config that was used to register this manager. */
     public Class<?> getConfigClass() {
-        return this.configInstance.getClass();
+        return this.configClass;
     }
 
     public CommentedFileConfig getConfig() {
@@ -156,15 +152,36 @@ public class PaCoConfigManager {
      * match the fields specified in {@link PaCoConfig}.
      */
     private void orderConfigEntries() {
+        this.reorderTable(this.config, this.annotationHandler.getAnnotatedFields());
+    }
+
+    private void reorderTable(Config config, List<String> orderedKeys) {
         Map<String, Object> tempMap = new LinkedHashMap<>();
-        // Iterates over the ordered keys and retrieves their values, before storing them in tempMap
-        for (String key : this.annotationHandler.getAnnotatedFields()) {
-            Object value = this.config.get(key);
-            tempMap.put(key, value);
+        for (String key : orderedKeys) {
+            String[] parts = key.split("\\.");
+            if (parts.length == 1) {
+                // Top-level key
+                tempMap.put(key, config.get(key));
+            } else {
+                // Nested key
+                String topKey = parts[0];
+                Config sub = config.get(topKey);
+                if (sub instanceof Config) {
+                    // Collects relevant nested keys
+                    List<String> subKeys = orderedKeys.stream()
+                            .filter(subKey -> subKey.startsWith(topKey + "."))
+                            .map(subKey -> subKey.substring(topKey.length() + 1)) // Removes the prefix
+                            .toList();
+                    // Recursively reorders the sub-table
+                    this.reorderTable(sub, subKeys);
+                    if (!tempMap.containsKey(topKey))
+                        tempMap.put(topKey, sub);
+                }
+            }
         }
-        // Clears the original config, and reinserts the ordered entries from tempMap
-        this.config.clear();
-        tempMap.forEach(this.config::set);
+        // Clears the config, and reinserts the ordered entries from tempMap
+        config.clear();
+        tempMap.forEach(config::set);
     }
 
     /**
@@ -177,7 +194,7 @@ public class PaCoConfigManager {
     private void setConfigComments() {
         for (ConfigDataHolder holder : this.annotationHandler.getConfigDataHolders())
             if (holder.hasComment())
-                this.config.setComment(holder.getField().getName(), holder.getComment());
+                this.config.setComment(holder.getPath(), holder.getComment());
     }
 
     /**
@@ -189,10 +206,14 @@ public class PaCoConfigManager {
      */
     public void updateConfigFields() {
         for (ConfigDataHolder holder : this.annotationHandler.getConfigDataHolders()) {
-            Field field = holder.getField();
+            // Skips over holders that don't have a field e.g. categories.
+            if (!holder.hasField())
+                continue;
+            ConfigDataHolderEntry holderEntry = (ConfigDataHolderEntry) holder;
+            Field field = holderEntry.getField();
             field.setAccessible(true);
             try {
-                field.set(this.getConfigInstance(), holder.convert(this.getConfig().get(field.getName())));
+                field.set(null, holderEntry.convert(this.getConfig().get(holderEntry.getPath())));
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Failed to set value for field: " + field.getName(), e);
             }
@@ -206,16 +227,18 @@ public class PaCoConfigManager {
 
     // These may still get replaced or modified, it all depends on how I decide to deal with registration...
     //##################################################################################################################
-    public static void register(Object configInstance) {
-        PaCoConfig.Config configAnnotation = configInstance.getClass().getAnnotation(PaCoConfig.Config.class);
+    public static void register(Class<?> configClass) {
+        PaCoConfig.Config configAnnotation = configClass.getAnnotation(PaCoConfig.Config.class);
         if (configAnnotation == null)
-            throw new IllegalArgumentException("Class " + configInstance.getClass().getName() + " must be annotated with @PaCoConfig.Config");
-        PaCoConfigManager manager =  new PaCoConfigManager(configInstance);
-        CONFIG_MANAGERS.put(configInstance.getClass().getName(), manager);
+            throw new IllegalArgumentException("Class " + configClass.getName() + " must be annotated with @PaCoConfig.Config");
+        if (CONFIG_MANAGERS.containsKey(configClass))
+            throw new IllegalStateException("Config class " + configClass.getName() + " is already registered!");
+        PaCoConfigManager manager =  new PaCoConfigManager(configClass);
+        CONFIG_MANAGERS.put(configClass, manager);
     }
 
-    public static PaCoConfigManager getPaCoConfigmanager(Object configInstance) {
-        return CONFIG_MANAGERS.get(configInstance.getClass().getName());
+    public static PaCoConfigManager getPaCoConfigmanager(Class<?> configClass) {
+        return CONFIG_MANAGERS.get(configClass);
     }
 
     public static Collection<PaCoConfigManager> getPaCoConfigManagers() {

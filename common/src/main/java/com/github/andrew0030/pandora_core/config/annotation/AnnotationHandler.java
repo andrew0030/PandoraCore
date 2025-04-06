@@ -5,6 +5,8 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
+import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderCategory;
+import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderEntry;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.common.collect.ImmutableList;
@@ -79,33 +81,39 @@ public class AnnotationHandler {
     /** Handles loading all the fields and subclasses inside the config */
     private void processConfigClass(Class<?> configClass, @Nullable String category) {
         String categoryPrefix = StringUtil.isNullOrEmpty(category) ? "" : category + ".";
-
+        // Processes fields
         for (Field field : configClass.getDeclaredFields()) {
             field.setAccessible(true);
-//            if (field.isAnnotationPresent(PaCoConfig.Category.class)) {
-//                Class<?> categoryClass = field.getType();
-//                if (!categoryClass.isMemberClass() || !Modifier.isStatic(categoryClass.getModifiers())) {
-//                    throw new IllegalArgumentException(String.format(
-//                            "Field: '%s' in Class: '%s' must be a static inner class to be a valid category.",
-//                            field.getName(),
-//                            configClass.getName()
-//                    ));
-//                }
-//                String categoryName = field.getAnnotation(PaCoConfig.Category.class).value();
-//                this.processConfigClass(categoryClass, categoryPrefix + categoryName);
-//                continue;
-//            }
-
-            // Processes regular fields
+            if (!Modifier.isStatic(field.getModifiers())) {
+                throw new IllegalArgumentException(String.format(
+                        "Field: '%s' in Class: '%s' must be a static field to be valid.",
+                        field.getName(),
+                        configClass.getName()
+                ));
+            }
             for (Annotation annotation : field.getAnnotations()) {
                 BiConsumer<Field, String> consumer = this.annotationHandlers.get(annotation.annotationType());
                 if (consumer != null)
                     consumer.accept(field, categoryPrefix);
             }
-
-            //TODO: after fields have been initialized loop over declared classes and recursively call process on them.
-            // this will make it so all categories added with the "class approach" will be added to the bottom of the config.
-            // Alternatively also add an annotation based category system for fields, which will allow categories at any point.
+        }
+        // Processes classes
+        List<Class<?>> declaredClasses = Arrays.asList(configClass.getDeclaredClasses());
+        Collections.reverse(declaredClasses);
+        for (Class<?> clazz : declaredClasses) {
+            if (clazz.isAnnotationPresent(PaCoConfig.Category.class)) {
+                if (!clazz.isMemberClass() || !Modifier.isStatic(clazz.getModifiers())) {
+                    throw new IllegalArgumentException(String.format(
+                            "Class: '%s' in Class: '%s' must be a static inner class to be a valid category.",
+                            clazz.getName(),
+                            configClass.getName()
+                    ));
+                }
+                String classCategory = categoryPrefix + clazz.getAnnotation(PaCoConfig.Category.class).value();
+                if (clazz.isAnnotationPresent(PaCoConfig.Comment.class))
+                    this.handleCategoryComment(clazz, classCategory);
+                this.processConfigClass(clazz, classCategory);
+            }
         }
     }
 
@@ -134,10 +142,11 @@ public class AnnotationHandler {
     private void handleBooleanField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.BooleanValue.class.getSimpleName(), boolean.class, Boolean.class);
         try {
-            boolean defaultValue = (boolean) field.get(this.manager.getConfigInstance());
+            boolean defaultValue = (boolean) field.get(null);
             String key = category + field.getName();
             configSpec.define(key, defaultValue);
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolder(field));
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            holder.setPath(key);
             this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -426,8 +435,16 @@ public class AnnotationHandler {
 
     private void handleComment(Field field, String category) {
         PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
-        ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-        this.dataHolders.put(field.getName(), holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
+        String key = category + field.getName();
+        ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+        this.dataHolders.put(key, holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
+    }
+
+    private void handleCategoryComment(Class<?> clazz, String category) {
+        PaCoConfig.Comment commentAnnotation = clazz.getAnnotation(PaCoConfig.Comment.class);
+        ConfigDataHolder holder = this.dataHolders.getOrDefault(category, new ConfigDataHolderCategory());
+        holder.setPath(category);
+        this.dataHolders.put(category, holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
     }
 
     private void checkFieldValidity(Field field, String annotationName, Class<?>... types) {

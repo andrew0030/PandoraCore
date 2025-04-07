@@ -30,7 +30,7 @@ public class ConfigDataHolderEntry extends ConfigDataHolder {
         return this.field.getName();
     }
 
-    public ConfigDataHolder setConverter(Function<Object, Object> converter) {
+    public ConfigDataHolderEntry setConverter(Function<Object, Object> converter) {
         this.converter = converter;
         return this;
     }
@@ -48,14 +48,14 @@ public class ConfigDataHolderEntry extends ConfigDataHolder {
         return value;
     }
 
-    public ConfigDataHolder setValidValues(List<String> validValues) {
+    public ConfigDataHolderEntry setValidValues(List<String> validValues) {
         this.validValues = validValues;
         return this;
     }
 
     /** Used to cache the value range (if applicable), which is then used for internal logic */
     @ApiStatus.Internal
-    public ConfigDataHolder setRange(@Nullable Number minVal, @Nullable Number maxVal) {
+    public ConfigDataHolderEntry setRange(@Nullable Number minVal, @Nullable Number maxVal) {
         // We check for null to make sure this won't override "showFullRange", this is technically a bit
         // overkill as both of these methods are flagged as internal, however I say "better safe than sorry!"
         if (this.minVal == null)
@@ -67,7 +67,7 @@ public class ConfigDataHolderEntry extends ConfigDataHolder {
 
     /** Used to toggle whether the range should be displayed, regardless of the value. (Useful for small values like byte) */
     @ApiStatus.Internal
-    public ConfigDataHolder setShowFullRange(boolean showFullRange, @NotNull Number minVal, @NotNull Number maxVal) {
+    public ConfigDataHolderEntry setShowFullRange(boolean showFullRange, @NotNull Number minVal, @NotNull Number maxVal) {
         this.showFullRange = showFullRange;
         if (showFullRange) {
             this.minVal = minVal;

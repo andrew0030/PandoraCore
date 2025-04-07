@@ -24,6 +24,10 @@ public class PaCoMainConfig {
     @PaCoConfigValues.BooleanValue
     public static boolean trueValue = true;
 
+    @PaCoConfigValues.Comment("This is an Integer Value")
+    @PaCoConfigValues.IntegerValue(showFullRange = true)
+    public static Integer integerValue1 = 11;
+
     @PaCoConfigValues.Comment("""
             There should be a category under this entry.
             This is the last boolean value before declared classes.
@@ -42,20 +46,6 @@ public class PaCoMainConfig {
         @PaCoConfigValues.Comment("\nSecond Boolean inside the boolean category")
         @PaCoConfigValues.BooleanValue
         public static Boolean trueValue = true;
-    }
-
-    @PaCoConfig.Category("booleans2")
-    public static class BooleanSubCategory2 {
-
-        @PaCoConfigValues.BooleanValue
-        public static Boolean falseValue = true;
-    }
-
-    @PaCoConfig.Category("booleans3")
-    public static class BooleanSubCategory3 {
-
-        @PaCoConfigValues.BooleanValue
-        public static Boolean someValue = true;
     }
 
     @PaCoConfig.Comment("This category contains 2 other categories.")
@@ -98,18 +88,19 @@ public class PaCoMainConfig {
         }
     }
 
-//    @PaCoConfigValues.Comment("This is an Integer Value, with index: '1'")
-//    @PaCoConfigValues.IntegerValue(showFullRange = true)
-//    public Integer integerValue1 = 11;
-//
-//    @PaCoConfigValues.Comment("This is an Integer Value, with index: '2'")
-//    @PaCoConfigValues.IntegerValue
-//    public Integer integerValue2 = 12;
-//
-//    @PaCoConfigValues.Comment("This is an Integer Value, with index: '3'")
-//    @PaCoConfigValues.IntegerValue
-//    public int integerValue3 = 13;
-//
+    @PaCoConfig.Comment("A Category containing Integers")
+    @PaCoConfig.Category("integers")
+    public static class IntegerSubCategory {
+
+        @PaCoConfigValues.Comment("This is an Integer Value")
+        @PaCoConfigValues.IntegerValue
+        public static Integer integerValue2 = 12;
+
+        @PaCoConfigValues.Comment("This is the last integer in the category")
+        @PaCoConfigValues.IntegerValue
+        public static int integerValue3 = 13;
+    }
+
 //    @PaCoConfigValues.Comment("A Byte value is right here")
 //    @PaCoConfigValues.ByteValue(showFullRange = true)
 //    public byte byteValue = -50;

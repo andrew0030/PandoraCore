@@ -65,14 +65,14 @@ public class AnnotationHandler {
     private void initConfigCaches() {
         this.annotationHandlers.put(PaCoConfigValues.BooleanValue.class, this::handleBooleanField);
         this.annotationHandlers.put(PaCoConfigValues.IntegerValue.class, this::handleIntegerField);
-//        this.annotationHandlers.put(PaCoConfigValues.ByteValue.class, this::handleByteField);
-//        this.annotationHandlers.put(PaCoConfigValues.ShortValue.class, this::handleShortField);
-//        this.annotationHandlers.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);
-//        this.annotationHandlers.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);
-//        this.annotationHandlers.put(PaCoConfigValues.LongValue.class, this::handleLongField);
-//        this.annotationHandlers.put(PaCoConfigValues.StringValue.class, this::handleStringField);
-//        this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);
-//        this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);
+        this.annotationHandlers.put(PaCoConfigValues.ByteValue.class, this::handleByteField);
+        this.annotationHandlers.put(PaCoConfigValues.ShortValue.class, this::handleShortField);
+        this.annotationHandlers.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);
+        this.annotationHandlers.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);
+        this.annotationHandlers.put(PaCoConfigValues.LongValue.class, this::handleLongField);
+        this.annotationHandlers.put(PaCoConfigValues.StringValue.class, this::handleStringField);
+        this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);
+        this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);
         this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);
 
         this.processConfigClass(this.manager.getConfigClass(), null);
@@ -161,6 +161,13 @@ public class AnnotationHandler {
             int minVal = integerAnnotation.minValue();
             int maxVal = integerAnnotation.maxValue();
             boolean showFullRange = integerAnnotation.showFullRange();
+            if (minVal >= maxVal) {
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            }
             if (defaultValue < minVal || defaultValue > maxVal)
                 throw new IllegalArgumentException(String.format(
                         "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
@@ -184,259 +191,309 @@ public class AnnotationHandler {
         }
     }
 
-//    private void handleByteField(Field field, String category) {
-//        this.checkFieldValidity(field, PaCoConfigValues.ByteValue.class.getSimpleName(), byte.class, Byte.class);
-//        PaCoConfigValues.ByteValue byteAnnotation = field.getAnnotation(PaCoConfigValues.ByteValue.class);
-//        field.setAccessible(true);
-//        try {
-//            byte defaultValue = (byte) field.get(this.manager.getConfigInstance());
-//            byte minVal = byteAnnotation.minValue();
-//            byte maxVal = byteAnnotation.maxValue();
-//            boolean showFullRange = byteAnnotation.showFullRange();
-//            if (minVal >= maxVal) {
-//                throw new IllegalArgumentException(String.format(
-//                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
-//                        field.getName(),
-//                        this.manager.getConfigClass().getName()
-//                ));
-//            }
-//            if (defaultValue < minVal || defaultValue > maxVal)
-//                throw new IllegalArgumentException(String.format(
-//                        "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
-//                        field.getName(),
-//                        this.manager.getConfigClass().getName(),
-//                        defaultValue,
-//                        minVal,
-//                        maxVal
-//                ));
-//            configSpec.define(field.getName(), defaultValue, o -> {
-//                if (o instanceof Integer || o instanceof Byte) {
-//                    byte byteValue = ((Number) o).byteValue();
-//                    return byteValue >= minVal && byteValue <= maxVal;
-//                }
-//                return false;
-//            });
-//            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-//            this.dataHolders.put(field.getName(), holder.setRange(minVal == Byte.MIN_VALUE ? null : minVal, maxVal == Byte.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal).setConverter(value -> {
-//                if (value instanceof Number number)
-//                    return number.byteValue();
-//                throw new IllegalArgumentException("Config value is not a Number as expected for byte.");
-//            }));
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    private void handleShortField(Field field, String category) {
-//        this.checkFieldValidity(field, PaCoConfigValues.ShortValue.class.getSimpleName(), short.class, Short.class);
-//        PaCoConfigValues.ShortValue shortAnnotation = field.getAnnotation(PaCoConfigValues.ShortValue.class);
-//        field.setAccessible(true);
-//        try {
-//            short defaultValue = (short) field.get(this.manager.getConfigInstance());
-//            short minVal = shortAnnotation.minValue();
-//            short maxVal = shortAnnotation.maxValue();
-//            boolean showFullRange = shortAnnotation.showFullRange();
-//            if (minVal >= maxVal) {
-//                throw new IllegalArgumentException(String.format(
-//                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
-//                        field.getName(),
-//                        this.manager.getConfigClass().getName()
-//                ));
-//            }
-//            if (defaultValue < minVal || defaultValue > maxVal)
-//                throw new IllegalArgumentException(String.format(
-//                        "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
-//                        field.getName(),
-//                        this.manager.getConfigClass().getName(),
-//                        defaultValue,
-//                        minVal,
-//                        maxVal
-//                ));
-//            configSpec.define(field.getName(), defaultValue, o -> {
-//                if (o instanceof Integer || o instanceof Short) {
-//                    short shortValue = ((Number) o).shortValue();
-//                    return shortValue >= minVal && shortValue <= maxVal;
-//                }
-//                return false;
-//            });
-//            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-//            this.dataHolders.put(field.getName(), holder.setRange(minVal == Short.MIN_VALUE ? null : minVal, maxVal == Short.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal).setConverter(value -> {
-//                if (value instanceof Number number)
-//                    return number.shortValue();
-//                throw new IllegalArgumentException("Config value is not a Number as expected for short.");
-//            }));
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    private void handleDoubleField(Field field, String category) {
-//        this.checkFieldValidity(field, PaCoConfigValues.DoubleValue.class.getSimpleName(), double.class, Double.class);
-//        PaCoConfigValues.DoubleValue doubleAnnotation = field.getAnnotation(PaCoConfigValues.DoubleValue.class);
-//        field.setAccessible(true);
-//        try {
-//            double defaultValue = (double) field.get(this.manager.getConfigInstance());
-//            double minVal = doubleAnnotation.minValue();
-//            double maxVal = doubleAnnotation.maxValue();
-//            boolean showFullRange = doubleAnnotation.showFullRange();
-//            if (defaultValue < minVal || defaultValue > maxVal)
-//                throw new IllegalArgumentException(String.format(
-//                        "Invalid value for field '%s' in class '%s': Default value %f is out of range (min: %f, max: %f).",
-//                        field.getName(),
-//                        this.manager.getConfigClass().getName(),
-//                        defaultValue,
-//                        minVal,
-//                        maxVal
-//                ));
-//            configSpec.defineInRange(field.getName(), defaultValue, minVal, maxVal);
-//            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-//            this.dataHolders.put(field.getName(), holder.setRange(minVal == Double.MIN_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal));
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    private void handleFloatField(Field field, String category) {
-//        this.checkFieldValidity(field, PaCoConfigValues.FloatValue.class.getSimpleName(), float.class, Float.class);
-//        PaCoConfigValues.FloatValue floatAnnotation = field.getAnnotation(PaCoConfigValues.FloatValue.class);
-//        field.setAccessible(true);
-//        try {
-//            float defaultValue = (float) field.get(this.manager.getConfigInstance());
-//            float minVal = floatAnnotation.minValue();
-//            float maxVal = floatAnnotation.maxValue();
-//            boolean showFullRange = floatAnnotation.showFullRange();
-//            if (defaultValue < minVal || defaultValue > maxVal)
-//                throw new IllegalArgumentException(String.format(
-//                        "Invalid value for field '%s' in class '%s': Default value %f is out of range (min: %f, max: %f).",
-//                        field.getName(),
-//                        this.manager.getConfigClass().getName(),
-//                        defaultValue,
-//                        minVal,
-//                        maxVal
-//                ));
-//            configSpec.defineInRange(field.getName(), defaultValue, minVal, maxVal);
-//            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-//            this.dataHolders.put(
-//                    field.getName(), holder.setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal).setConverter(value -> {
-//                if (value instanceof Number number)
-//                    return number.floatValue();
-//                throw new IllegalArgumentException("Config value is not a Number as expected for float.");
-//            }));
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    private void handleLongField(Field field, String category) {
-//        this.checkFieldValidity(field, PaCoConfigValues.LongValue.class.getSimpleName(), long.class, Long.class);
-//        PaCoConfigValues.LongValue longAnnotation = field.getAnnotation(PaCoConfigValues.LongValue.class);
-//        field.setAccessible(true);
-//        try {
-//            long defaultValue = (long) field.get(this.manager.getConfigInstance());
-//            long minVal = longAnnotation.minValue();
-//            long maxVal = longAnnotation.maxValue();
-//            boolean showFullRange = longAnnotation.showFullRange();
-//            if (minVal >= maxVal) {
-//                throw new IllegalArgumentException(String.format(
-//                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
-//                        field.getName(),
-//                        this.manager.getConfigClass().getName()
-//                ));
-//            }
-//            if (defaultValue < minVal || defaultValue > maxVal)
-//                throw new IllegalArgumentException(String.format(
-//                        "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
-//                        field.getName(),
-//                        this.manager.getConfigClass().getName(),
-//                        defaultValue,
-//                        minVal,
-//                        maxVal
-//                ));
-//            configSpec.define(field.getName(), defaultValue, o -> {
-//                if (o instanceof Integer || o instanceof Long) {
-//                    long longValue = ((Number) o).longValue();
-//                    return longValue >= minVal && longValue <= maxVal;
-//                }
-//                return false;
-//            });
-//            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-//            this.dataHolders.put(field.getName(), holder.setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal).setShowFullRange(showFullRange, minVal, maxVal).setConverter(value -> {
-//                if (value instanceof Number number)
-//                    return number.longValue();
-//                throw new IllegalArgumentException("Config value is not a Number as expected for long.");
-//            }));
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    private void handleStringField(Field field, String category) {
-//        this.checkFieldValidity(field, PaCoConfigValues.StringValue.class.getSimpleName(), String.class);
-//        field.setAccessible(true);
-//        try {
-//            String defaultValue = (String) field.get(this.manager.getConfigInstance());
-//            configSpec.define(field.getName(), defaultValue);
-//            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-//            this.dataHolders.put(field.getName(), holder);
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    private void handleListField(Field field, String category) {
-//        this.checkFieldValidity(field, PaCoConfigValues.ListValue.class.getSimpleName(), List.class);
-//        PaCoConfigValues.ListValue listAnnotation = field.getAnnotation(PaCoConfigValues.ListValue.class);
-//        field.setAccessible(true);
-//        try {
-//            List<?> defaultValue = (List<?>) field.get(this.manager.getConfigInstance());
-//            if (defaultValue == null)
-//                throw new IllegalArgumentException(String.format(
-//                        "Field: '%s' in Class: '%s' cannot have a null list as a default value.",
-//                        field.getName(),
-//                        this.manager.getConfigClass().getName()
-//                ));
-//            configSpec.defineList(field.getName(), defaultValue, element -> listAnnotation.elementType().isInstance(element));
-//            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-//            this.dataHolders.put(field.getName(), holder);
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    private void handleEnumField(Field field, String category) {
-//        if (!field.getType().isEnum())
-//            throw new IllegalArgumentException(String.format(
-//                    "Field: '%s' in Class: '%s' must be of type Enum for EnumValue annotation.",
-//                    field.getName(),
-//                    this.manager.getConfigClass().getName()
-//            ));
-//        field.setAccessible(true);
-//        try {
-//            Enum<?> defaultValue = (Enum<?>) field.get(this.manager.getConfigInstance());
-//            Class<? extends Enum> enumClass = (Class<? extends Enum>) field.getType();
-//            Object[] enumConstants = enumClass.getEnumConstants();
-//            List<String> enumNames = Arrays.stream(enumConstants)
-//                    .map(enumConstant -> ((Enum<?>) enumConstant).name())
-//                    .toList();
-//            configSpec.define(field.getName(), defaultValue.name(), value -> {
-//                if (value instanceof String stringVal) {
-//                    try {
-//                        Enum.valueOf(enumClass, stringVal);
-//                        return true;
-//                    } catch (IllegalArgumentException ignored) {}
-//                }
-//                return false;
-//            });
-//            ConfigDataHolder holder = this.dataHolders.getOrDefault(field.getName(), new ConfigDataHolder(field));
-//            this.dataHolders.put(field.getName(), holder.setValidValues(enumNames).setConverter(value -> {
-//                if (value instanceof String stringVal)
-//                    return Enum.valueOf(enumClass, stringVal);
-//                throw new IllegalArgumentException("Config value is not a String as expected for enum.");
-//            }));
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    private void handleByteField(Field field, String category) {
+        this.checkFieldValidity(field, PaCoConfigValues.ByteValue.class.getSimpleName(), byte.class, Byte.class);
+        PaCoConfigValues.ByteValue byteAnnotation = field.getAnnotation(PaCoConfigValues.ByteValue.class);
+        field.setAccessible(true);
+        try {
+            byte defaultValue = (byte) field.get(null);
+            byte minVal = byteAnnotation.minValue();
+            byte maxVal = byteAnnotation.maxValue();
+            boolean showFullRange = byteAnnotation.showFullRange();
+            if (minVal >= maxVal) {
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            }
+            if (defaultValue < minVal || defaultValue > maxVal)
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
+                        field.getName(),
+                        this.manager.getConfigClass().getName(),
+                        defaultValue,
+                        minVal,
+                        maxVal
+                ));
+            String key = category + field.getName();
+            configSpec.define(key, defaultValue, o -> {
+                if (o instanceof Integer || o instanceof Byte) {
+                    byte byteValue = ((Number) o).byteValue();
+                    return byteValue >= minVal && byteValue <= maxVal;
+                }
+                return false;
+            });
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            if (holder instanceof ConfigDataHolderEntry holderEntry)
+                this.dataHolders.put(key, holderEntry
+                        .setRange(minVal == Byte.MIN_VALUE ? null : minVal, maxVal == Byte.MAX_VALUE ? null : maxVal)
+                        .setShowFullRange(showFullRange, minVal, maxVal)
+                        .setConverter(value -> {
+                            if (value instanceof Number number)
+                                return number.byteValue();
+                            throw new IllegalArgumentException("Config value is not a Number as expected for byte.");
+                        }).setPath(key)
+                );
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleShortField(Field field, String category) {
+        this.checkFieldValidity(field, PaCoConfigValues.ShortValue.class.getSimpleName(), short.class, Short.class);
+        PaCoConfigValues.ShortValue shortAnnotation = field.getAnnotation(PaCoConfigValues.ShortValue.class);
+        field.setAccessible(true);
+        try {
+            short defaultValue = (short) field.get(null);
+            short minVal = shortAnnotation.minValue();
+            short maxVal = shortAnnotation.maxValue();
+            boolean showFullRange = shortAnnotation.showFullRange();
+            if (minVal >= maxVal) {
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            }
+            if (defaultValue < minVal || defaultValue > maxVal)
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
+                        field.getName(),
+                        this.manager.getConfigClass().getName(),
+                        defaultValue,
+                        minVal,
+                        maxVal
+                ));
+            String key = category + field.getName();
+            configSpec.define(key, defaultValue, o -> {
+                if (o instanceof Integer || o instanceof Short) {
+                    short shortValue = ((Number) o).shortValue();
+                    return shortValue >= minVal && shortValue <= maxVal;
+                }
+                return false;
+            });
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            if (holder instanceof ConfigDataHolderEntry holderEntry)
+                this.dataHolders.put(key, holderEntry
+                        .setRange(minVal == Short.MIN_VALUE ? null : minVal, maxVal == Short.MAX_VALUE ? null : maxVal)
+                        .setShowFullRange(showFullRange, minVal, maxVal)
+                        .setConverter(value -> {
+                            if (value instanceof Number number)
+                                return number.shortValue();
+                            throw new IllegalArgumentException("Config value is not a Number as expected for short.");
+                        }).setPath(key)
+                );
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleDoubleField(Field field, String category) {
+        this.checkFieldValidity(field, PaCoConfigValues.DoubleValue.class.getSimpleName(), double.class, Double.class);
+        PaCoConfigValues.DoubleValue doubleAnnotation = field.getAnnotation(PaCoConfigValues.DoubleValue.class);
+        field.setAccessible(true);
+        try {
+            double defaultValue = (double) field.get(null);
+            double minVal = doubleAnnotation.minValue();
+            double maxVal = doubleAnnotation.maxValue();
+            boolean showFullRange = doubleAnnotation.showFullRange();
+            if (minVal >= maxVal) {
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            }
+            if (defaultValue < minVal || defaultValue > maxVal)
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': Default value %f is out of range (min: %f, max: %f).",
+                        field.getName(),
+                        this.manager.getConfigClass().getName(),
+                        defaultValue,
+                        minVal,
+                        maxVal
+                ));
+            String key = category + field.getName();
+            configSpec.defineInRange(key, defaultValue, minVal, maxVal);
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            if (holder instanceof ConfigDataHolderEntry holderEntry)
+                this.dataHolders.put(key, holderEntry
+                        .setRange(minVal == Double.MIN_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal)
+                        .setShowFullRange(showFullRange, minVal, maxVal)
+                        .setPath(key)
+                );
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleFloatField(Field field, String category) {
+        this.checkFieldValidity(field, PaCoConfigValues.FloatValue.class.getSimpleName(), float.class, Float.class);
+        PaCoConfigValues.FloatValue floatAnnotation = field.getAnnotation(PaCoConfigValues.FloatValue.class);
+        field.setAccessible(true);
+        try {
+            float defaultValue = (float) field.get(null);
+            float minVal = floatAnnotation.minValue();
+            float maxVal = floatAnnotation.maxValue();
+            boolean showFullRange = floatAnnotation.showFullRange();
+            if (minVal >= maxVal) {
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            }
+            if (defaultValue < minVal || defaultValue > maxVal)
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': Default value %f is out of range (min: %f, max: %f).",
+                        field.getName(),
+                        this.manager.getConfigClass().getName(),
+                        defaultValue,
+                        minVal,
+                        maxVal
+                ));
+            String key = category + field.getName();
+            configSpec.defineInRange(key, defaultValue, minVal, maxVal);
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            if (holder instanceof ConfigDataHolderEntry holderEntry)
+                this.dataHolders.put(key, holderEntry
+                        .setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal)
+                        .setShowFullRange(showFullRange, minVal, maxVal)
+                        .setConverter(value -> {
+                            if (value instanceof Number number)
+                                return number.floatValue();
+                            throw new IllegalArgumentException("Config value is not a Number as expected for float.");
+                        }).setPath(key)
+                );
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleLongField(Field field, String category) {
+        this.checkFieldValidity(field, PaCoConfigValues.LongValue.class.getSimpleName(), long.class, Long.class);
+        PaCoConfigValues.LongValue longAnnotation = field.getAnnotation(PaCoConfigValues.LongValue.class);
+        field.setAccessible(true);
+        try {
+            long defaultValue = (long) field.get(null);
+            long minVal = longAnnotation.minValue();
+            long maxVal = longAnnotation.maxValue();
+            boolean showFullRange = longAnnotation.showFullRange();
+            if (minVal >= maxVal) {
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': The minimum must be less than the maximum.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            }
+            if (defaultValue < minVal || defaultValue > maxVal)
+                throw new IllegalArgumentException(String.format(
+                        "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
+                        field.getName(),
+                        this.manager.getConfigClass().getName(),
+                        defaultValue,
+                        minVal,
+                        maxVal
+                ));
+            String key = category + field.getName();
+            configSpec.define(key, defaultValue, o -> {
+                if (o instanceof Integer || o instanceof Long) {
+                    long longValue = ((Number) o).longValue();
+                    return longValue >= minVal && longValue <= maxVal;
+                }
+                return false;
+            });
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            if (holder instanceof ConfigDataHolderEntry holderEntry)
+                this.dataHolders.put(key, holderEntry
+                        .setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal)
+                        .setShowFullRange(showFullRange, minVal, maxVal)
+                        .setConverter(value -> {
+                            if (value instanceof Number number)
+                                return number.longValue();
+                            throw new IllegalArgumentException("Config value is not a Number as expected for long.");
+                        }).setPath(key)
+                );
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleStringField(Field field, String category) {
+        this.checkFieldValidity(field, PaCoConfigValues.StringValue.class.getSimpleName(), String.class);
+        field.setAccessible(true);
+        try {
+            String defaultValue = (String) field.get(null);
+            String key = category + field.getName();
+            configSpec.define(key, defaultValue);
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            this.dataHolders.put(key, holder.setPath(key));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleListField(Field field, String category) {
+        this.checkFieldValidity(field, PaCoConfigValues.ListValue.class.getSimpleName(), List.class);
+        PaCoConfigValues.ListValue listAnnotation = field.getAnnotation(PaCoConfigValues.ListValue.class);
+        field.setAccessible(true);
+        try {
+            List<?> defaultValue = (List<?>) field.get(null);
+            if (defaultValue == null)
+                throw new IllegalArgumentException(String.format(
+                        "Field: '%s' in Class: '%s' cannot have a null list as a default value.",
+                        field.getName(),
+                        this.manager.getConfigClass().getName()
+                ));
+            String key = category + field.getName();
+            configSpec.defineList(key, defaultValue, element -> listAnnotation.elementType().isInstance(element));
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            this.dataHolders.put(key, holder.setPath(key));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleEnumField(Field field, String category) {
+        if (!field.getType().isEnum())
+            throw new IllegalArgumentException(String.format(
+                    "Field: '%s' in Class: '%s' must be of type Enum for EnumValue annotation.",
+                    field.getName(),
+                    this.manager.getConfigClass().getName()
+            ));
+        field.setAccessible(true);
+        try {
+            Enum<?> defaultValue = (Enum<?>) field.get(null);
+            Class<? extends Enum> enumClass = (Class<? extends Enum>) field.getType();
+            Object[] enumConstants = enumClass.getEnumConstants();
+            List<String> enumNames = Arrays.stream(enumConstants)
+                    .map(enumConstant -> ((Enum<?>) enumConstant).name())
+                    .toList();
+            String key = category + field.getName();
+            configSpec.define(key, defaultValue.name(), value -> {
+                if (value instanceof String stringVal) {
+                    try {
+                        Enum.valueOf(enumClass, stringVal);
+                        return true;
+                    } catch (IllegalArgumentException ignored) {}
+                }
+                return false;
+            });
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            if (holder instanceof ConfigDataHolderEntry holderEntry)
+                this.dataHolders.put(key, holderEntry
+                        .setValidValues(enumNames)
+                        .setConverter(value -> {
+                            if (value instanceof String stringVal)
+                                return Enum.valueOf(enumClass, stringVal);
+                            throw new IllegalArgumentException("Config value is not a String as expected for enum.");
+                        }).setPath(key)
+                );
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private void handleComment(Field field, String category) {
         PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);

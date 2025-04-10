@@ -12,6 +12,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 public class PandoraCoreForge {
 
     public PandoraCoreForge() {
+        PandoraCore.earlyInit();
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         final IEventBus forgeEventBus = MinecraftForge.EVENT_BUS;
 

@@ -17,6 +17,11 @@ public class PandoraCore {
     private static final Logger LOGGER = PaCoLogger.create(MOD_NAME);
     private static final HashMap<String, ModDataHolder> MOD_HOLDERS = new HashMap<>();
 
+    /** Early Init (Mod Construction) **/
+    public static void earlyInit() {
+
+    }
+
     /** Common Init */
     public static void init() {
         Services.PLATFORM.getModDataHolders().forEach(holder -> PandoraCore.MOD_HOLDERS.put(holder.getModId(), holder));

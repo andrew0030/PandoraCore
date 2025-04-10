@@ -23,11 +23,10 @@ public class PaCoKeyMappingRegistry {
     }
 
     /**
-     * This needs to be called on each loader, so event listeners are created for said loader.<br/>
-     * It is important to note that this needs to be called pretty early on certain loaders.<br/>
-     * Here is a list of when to call it for each loader:<br/><br/>
-     * <strong>Forge</strong>: Inside Client Init (NOTE: <strong>not</strong> FMLClientSetupEvent, See <strong>PandoraCoreClientForge</strong>).<br/>
-     * <strong>Fabric</strong>: Inside ClientModInitializer#onInitializeClient (See <strong>PandoraCoreClientFabric</strong>).<br/>
+     * This needs to be called, so event listeners are created by the loaders.<br/>
+     * Here is a list of when to call it, on each loader:<br/><br/>
+     * <strong>Forge</strong>: Client side, inside mod constructor.<br/>
+     * <strong>Fabric</strong>: Inside ClientModInitializer#onInitializeClient.<br/>
      */
     public void registerKeyBindings() {
         Services.KEY_MAPPING.registerKeyMappings(KEY_MAPPINGS);

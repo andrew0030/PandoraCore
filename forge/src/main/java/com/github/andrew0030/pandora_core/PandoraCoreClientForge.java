@@ -20,8 +20,6 @@ public class PandoraCoreClientForge {
         // Forge Event Bus
         forgeEventBus.addListener(ForgeClientTickEvent::init);
 
-        // Registers the PaCo KeyMappings
-        PaCoKeyMappings.KEY_MAPPINGS.registerKeyBindings();
         // Registers Config Screen (Basically opens the PaCo screen if you press the config button in the Forge Mods Screen)
         //TODO probably alter this a bit so it opens the actual config screen directly?
         ModLoadingContext.get().registerExtensionPoint(

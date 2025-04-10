@@ -7,6 +7,7 @@ public class PandoraCoreFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         // Common Module Initialization.
+        PandoraCore.earlyInit();
         PandoraCore.init();
         PandoraCore.initThreadSafe();
 

@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core;
 
 import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
+import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.platform.Services;
@@ -12,8 +13,11 @@ public class PandoraCoreClient {
     public static final TemplateShaderResourceLoader templateShaderLoader = new TemplateShaderResourceLoader();
     public static final PaCoCoreShaders coreShaders = new PaCoCoreShaders();
 
-    /* Early client init (mod construction) */
+    /** Early Client Init (Mod Construction) **/
     public static void earlyInit() {
+        // Registers the PaCo KeyMappings
+        PaCoKeyMappings.KEY_MAPPINGS.registerKeyBindings();
+
         PaCoTesting.testInitClient();
 
         Services.RELOAD_LISTENER.registerResourceLoader((side) -> {

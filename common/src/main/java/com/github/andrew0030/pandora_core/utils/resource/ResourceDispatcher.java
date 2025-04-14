@@ -164,11 +164,16 @@ public class ResourceDispatcher {
      * @param r       the action to run to apply resources
      */
     public void apply(String section, Runnable r) {
-        dispatches.add(new CompletedDispatch<>(CompletableFuture.runAsync(() -> {
-            applyProfiler.push(section);
-            r.run();
-            applyProfiler.pop();
-        }, applyExecutor)));
+        dispatches.add(new CompletedDispatch<>(CompletableFuture
+                .runAsync(() -> {
+                })
+                .thenCompose(barrier::wait)
+                .thenRunAsync(() -> {
+                    applyProfiler.push(section);
+                    r.run();
+                    applyProfiler.pop();
+                }, applyExecutor)
+        ));
     }
 
     /**

@@ -5,7 +5,6 @@ import com.github.andrew0030.pandora_core.utils.resource.PacoResourceManager;
 import com.github.andrew0030.pandora_core.utils.resource.ResourceDispatcher;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import javax.annotation.Nullable;
@@ -24,16 +23,14 @@ public class PaCoCoreShaders implements PacoResourceManager {
 
     @Override
     public void run(ResourceManager manager, ResourceDispatcher dispatcher) {
-        dispatcher.prepare("paco_core_shader_prep", () -> {})
-                .barrier()
-                .apply("paco_core_shader_loading", (result) -> {
-                    if (PaCoCoreShaders.positionColorTexFullAlphaShader != null)
-                        PaCoCoreShaders.positionColorTexFullAlphaShader.close();
-                    try {
-                        PaCoCoreShaders.positionColorTexFullAlphaShader = new ShaderInstance(manager, PandoraCore.MOD_ID + ":position_color_tex_full_alpha", DefaultVertexFormat.POSITION_COLOR_TEX);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+        dispatcher.apply("paco_core_shader_loading", () -> {
+            if (PaCoCoreShaders.positionColorTexFullAlphaShader != null)
+                PaCoCoreShaders.positionColorTexFullAlphaShader.close();
+            try {
+                PaCoCoreShaders.positionColorTexFullAlphaShader = new ShaderInstance(manager, PandoraCore.MOD_ID + ":position_color_tex_full_alpha", DefaultVertexFormat.POSITION_COLOR_TEX);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

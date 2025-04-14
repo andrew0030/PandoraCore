@@ -46,18 +46,56 @@ public class ResourceDispatcher {
     }
 
     /**
-     * An object representing a completed dispatch
+     * Computes the provided supplier off-thread
+     * GL resource management must be done on thread, in an apply
+     *
+     * @param section a name for a profiler section to create
+     * @param r       a supplier providing an object to pass to the next element in the chain
+     * @return a SubDispatch to chain more preparation and application actions off of
      */
-    public final class CompletedDispatch<T> {
-        CompletableFuture<T> future;
+    public <T> SubDispatch<T> prepare(String section, Supplier<T> r) {
+        return new SubDispatch<>(CompletableFuture.supplyAsync(() -> {
+            prepareProfiler.push(section);
+            T t = r.get();
+            prepareProfiler.pop();
+            return t;
+        }, prepareExecutor));
+    }
 
-        public CompletedDispatch(CompletableFuture<T> future) {
-            this.future = future;
-        }
+    /**
+     * Runs the provided runnable off-thread
+     * GL resource management must be done on thread, in an apply
+     *
+     * @param section a name for a profiler section to create
+     * @param r       the runnable to run for resource preparation
+     * @return a SubDispatch to chain more preparation and application actions off of
+     */
+    public SubDispatch<Void> prepare(String section, Runnable r) {
+        return new SubDispatch<>(CompletableFuture.runAsync(() -> {
+            prepareProfiler.push(section);
+            r.run();
+            prepareProfiler.pop();
+        }, prepareExecutor));
+    }
 
-//        public T get() throws InterruptedException, ExecutionException {
-//            return future.join();
-//        }
+    /**
+     * Runs the provided runnable on thread after resource loading
+     * GL resources can be managed in this
+     *
+     * @param section a name for a profiler section to create
+     * @param r       the action to run to apply resources
+     */
+    public void apply(String section, Runnable r) {
+        dispatches.add(new CompletedDispatch<>(CompletableFuture
+                .runAsync(() -> {
+                })
+                .thenCompose(barrier::wait)
+                .thenRunAsync(() -> {
+                    applyProfiler.push(section);
+                    r.run();
+                    applyProfiler.pop();
+                }, applyExecutor)
+        ));
     }
 
     /**
@@ -68,6 +106,48 @@ public class ResourceDispatcher {
 
         public SubDispatch(CompletableFuture<T> stem) {
             this.stem = stem;
+        }
+
+        /**
+         * Computes the provided function off-thread
+         * GL resource management must be done on thread, in an apply
+         *
+         * @param section a name for a profiler section to create
+         * @param r       a function mapping the result of the previous preparation action to a new object
+         * @return a SubDispatch to chain more preparation and application actions off of
+         */
+        public <V> SubDispatch<V> prepare(String section, Function<T, V> r) {
+            return new SubDispatch<>(
+                    stem.thenComposeAsync((v) -> {
+                        prepareProfiler.push(section);
+                        V a = r.apply(v);
+                        prepareProfiler.pop();
+                        return CompletableFuture.completedStage(a);
+                    }, prepareExecutor)
+            );
+        }
+
+        /**
+         * Computes the provided consumer off-thread
+         * GL resource management must be done on thread, in an apply
+         *
+         * @param section a name for a profiler section to create
+         * @param r       a consumer taking the result of the previous preparation action and performing more actions
+         * @return a SubDispatch to chain more preparation and application actions off of
+         */
+        public SubDispatch<Void> prepare(String section, Consumer<T> r) {
+            return new SubDispatch<>(
+                    stem.thenAcceptAsync((v) -> {
+                        prepareProfiler.push(section);
+                        r.accept(v);
+                        prepareProfiler.pop();
+                    }, prepareExecutor)
+            );
+        }
+
+        public SubDispatch<T> barrier() {
+            stem = stem.thenCompose(barrier::wait);
+            return this;
         }
 
         /**
@@ -112,100 +192,20 @@ public class ResourceDispatcher {
             dispatches.add(dispatch);
             return dispatch;
         }
-
-        /**
-         * Computes the provided function off-thread
-         * GL resource management must be done on thread, in an apply
-         *
-         * @param section a name for a profiler section to create
-         * @param r       a function mapping the result of the previous preparation action to a new object
-         * @return a SubDispatch to chain more preparation and application actions off of
-         */
-        public <V> SubDispatch<V> prepare(String section, Function<T, V> r) {
-            return new SubDispatch<>(
-                    stem.thenComposeAsync((v) -> {
-                        prepareProfiler.push(section);
-                        V a = r.apply(v);
-                        prepareProfiler.pop();
-                        return CompletableFuture.completedStage(a);
-                    }, prepareExecutor)
-            );
-        }
-
-        /**
-         * Computes the provided consumer off-thread
-         * GL resource management must be done on thread, in an apply
-         *
-         * @param section a name for a profiler section to create
-         * @param r       a consumer taking the result of the previous preparation action and performing more actions
-         * @return a SubDispatch to chain more preparation and application actions off of
-         */
-        public SubDispatch<Void> prepare(String section, Consumer<T> r) {
-            return new SubDispatch<>(
-                    stem.thenAcceptAsync((v) -> {
-                        prepareProfiler.push(section);
-                        r.accept(v);
-                        prepareProfiler.pop();
-                    }, prepareExecutor)
-            );
-        }
-
-        public SubDispatch<T> barrier() {
-            stem = stem.thenCompose(barrier::wait);
-            return this;
-        }
     }
 
     /**
-     * Runs the provided runnable on thread after resource loading
-     * GL resources can be managed in this
-     *
-     * @param section a name for a profiler section to create
-     * @param r       the action to run to apply resources
+     * An object representing a completed dispatch
      */
-    public void apply(String section, Runnable r) {
-        dispatches.add(new CompletedDispatch<>(CompletableFuture
-                .runAsync(() -> {
-                })
-                .thenCompose(barrier::wait)
-                .thenRunAsync(() -> {
-                    applyProfiler.push(section);
-                    r.run();
-                    applyProfiler.pop();
-                }, applyExecutor)
-        ));
-    }
+    public final class CompletedDispatch<T> {
+        CompletableFuture<T> future;
 
-    /**
-     * Computes the provided supplier off-thread
-     * GL resource management must be done on thread, in an apply
-     *
-     * @param section a name for a profiler section to create
-     * @param r       a supplier providing an object to pass to the next element in the chain
-     * @return a SubDispatch to chain more preparation and application actions off of
-     */
-    public <T> SubDispatch<T> prepare(String section, Supplier<T> r) {
-        return new SubDispatch<>(CompletableFuture.supplyAsync(() -> {
-            prepareProfiler.push(section);
-            T t = r.get();
-            prepareProfiler.pop();
-            return t;
-        }, prepareExecutor));
-    }
+        public CompletedDispatch(CompletableFuture<T> future) {
+            this.future = future;
+        }
 
-    /**
-     * Runs the provided runnable off-thread
-     * GL resource management must be done on thread, in an apply
-     *
-     * @param section a name for a profiler section to create
-     * @param r       the runnable to run for resource preparation
-     * @return a SubDispatch to chain more preparation and application actions off of
-     */
-    public SubDispatch<Void> prepare(String section, Runnable r) {
-        return new SubDispatch<>(CompletableFuture.runAsync(() -> {
-            prepareProfiler.push(section);
-            r.run();
-            prepareProfiler.pop();
-        }, prepareExecutor));
+//        public T get() throws InterruptedException, ExecutionException {
+//            return future.join();
+//        }
     }
 }

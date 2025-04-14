@@ -7,17 +7,38 @@ import net.minecraft.client.KeyMapping;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Helper Class that allows registering KeyMappings. */
+/**
+ * A simple, cross-platform registry helper used for registering KeyMappings, in a unified way for all mod loaders.
+ *
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * public static final PaCoKeyMappingRegistry KEY_MAPPINGS = new PaCoKeyMappingRegistry();
+ * public static final KeyMapping KEY_EXAMPLE = KEY_MAPPINGS.register(
+ *     new KeyMapping(
+ *         "key.example_mod.example_key",
+ *         InputConstants.Type.KEYSYM,
+ *         GLFW.GLFW_KEY_F,
+ *         "category.example_mod.example_key"
+ *     ), () -> {
+ *         Minecraft.getInstance().setScreen(new ExampleScreen());
+ *     }
+ * );
+ * }</pre>
+ * <p>And then client side during mod construction:</p>
+ * <pre>{@code
+ * ExampleModKeyMappings.KEY_MAPPINGS.register();
+ * }</pre>
+ */
 public class PaCoKeyMappingRegistry {
     private final List<Pair<KeyMapping, Runnable>> KEY_MAPPINGS = new ArrayList<>();
 
     /**
-     * Registers a new {@link KeyMapping} and a {@link Runnable}, which will be run when the key is pressed.
+     * Adds a new {@link KeyMapping} and {@link Runnable}, to be registered later.
      * @param keyMapping The {@link KeyMapping} to be registered.
-     * @param runnable The {@link Runnable} that will run when the key is pressed.
-     * @return The given {@link KeyMapping}.
+     * @param runnable   The {@link Runnable} that will run when the key is pressed.
+     * @return The given {@link KeyMapping}, for convenient assignment.
      */
-    public KeyMapping register(KeyMapping keyMapping, Runnable runnable) {
+    public KeyMapping add(KeyMapping keyMapping, Runnable runnable) {
         KEY_MAPPINGS.add(new Pair<>(keyMapping, runnable));
         return keyMapping;
     }
@@ -28,7 +49,7 @@ public class PaCoKeyMappingRegistry {
      * <strong>Forge</strong>: Client side, inside mod constructor.<br/>
      * <strong>Fabric</strong>: Inside ClientModInitializer#onInitializeClient.<br/>
      */
-    public void registerKeyBindings() {
+    public void register() {
         Services.KEY_MAPPING.registerKeyMappings(KEY_MAPPINGS);
     }
 }

@@ -16,6 +16,10 @@ import java.util.function.Supplier;
  * public static final PaCoRegistry<Item> ITEMS = new PaCoRegistry<>(BuiltInRegistries.ITEM, MyMod.MOD_ID);
  * public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.add("example_item", () -> new Item(new Item.Properties()));
  * }</pre>
+ * <p>And then during mod construction:</p>
+ * <pre>{@code
+ * ExampleModItems.ITEMS.register();
+ * }</pre>
  *
  * @param <T> The type of object being registered (e.g., Item, Block, EntityType, etc.)
  */

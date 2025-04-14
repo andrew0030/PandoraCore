@@ -16,7 +16,7 @@ public class PandoraCoreClient {
     /** Early Client Init (Mod Construction) **/
     public static void earlyInit() {
         // Registers the PaCo KeyMappings
-        PaCoKeyMappings.KEY_MAPPINGS.registerKeyBindings();
+        PaCoKeyMappings.KEY_MAPPINGS.register();
 
         PaCoTesting.testInitClient();
 

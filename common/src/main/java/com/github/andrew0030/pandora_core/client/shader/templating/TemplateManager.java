@@ -34,7 +34,7 @@ public class TemplateManager {
     public static TemplatedShaderInstance getTemplated(ResourceLocation resource) {
         return TEMPLATED.get(new ResourceLocation(
                 resource.getNamespace(),
-                resource.getPath() + ".json"
+                resource.getPath()
         ));
     }
 

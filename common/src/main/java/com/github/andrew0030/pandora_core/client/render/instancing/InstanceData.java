@@ -41,6 +41,17 @@ public class InstanceData {
         return this;
     }
 
+    /**
+     * Makes sure the buffer is setup to write an instance
+     * Puts it at instance 0 if not
+     */
+    public void ensureInstance() {
+        if (startWrite == -1) {
+            startWrite = 0;
+            endWrite = 0;
+        }
+    }
+
     public InstanceData write(byte b) {
         buffer.put(b);
         return this;

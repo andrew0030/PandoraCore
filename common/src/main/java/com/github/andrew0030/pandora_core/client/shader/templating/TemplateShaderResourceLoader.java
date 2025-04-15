@@ -84,7 +84,15 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
                                     builder.toString(),
                                     JsonObject.class
                             );
-                            TemplateStruct struct = new TemplateStruct(location);
+                            String pth = location.getPath();
+                            if (pth.endsWith(".json"))
+                                pth = pth.substring(0, pth.length() - ".json".length());
+                            TemplateStruct struct = new TemplateStruct(
+                                    new ResourceLocation(
+                                            location.getNamespace(),
+                                            pth
+                                    )
+                            );
                             struct.parse(obj);
                             structs.add(struct);
                         } catch (Throwable err) {

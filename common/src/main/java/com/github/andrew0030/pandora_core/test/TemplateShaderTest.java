@@ -21,8 +21,10 @@ public class TemplateShaderTest {
     );
     private static final int CUBE_COUNT = 100_000;
     protected static final CollectiveDrawData data = new CollectiveDrawData(FORMAT, CUBE_COUNT, VertexBuffer.Usage.STATIC);
-    protected static final CollectiveVBO collectiveVBO = new CollectiveVBO(VertexBuffer.Usage.STATIC, FORMAT);
+    public static final CollectiveVBO collectiveVBO = new CollectiveVBO(VertexBuffer.Usage.STATIC, FORMAT);
     protected static final BufferBuilder builder = new BufferBuilder(3497);
+    public static CollectiveBufferBuilder.MeshRange cubeRange;
+    public static CollectiveBufferBuilder.MeshRange queenRange;
 
     public static void uploadVBO(ObjModel queenObj, ObjModel cubeObj) {
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
@@ -31,12 +33,12 @@ public class TemplateShaderTest {
                 new PoseStack(),
                 multidrawBuffer, LightTexture.FULL_SKY
         );
-        CollectiveBufferBuilder.MeshRange queenRange = multidrawBuffer.endMesh("queen");
+        queenRange = multidrawBuffer.endMesh("queen");
         cubeObj.render(
                 new PoseStack(),
                 multidrawBuffer, LightTexture.FULL_SKY
         );
-        CollectiveBufferBuilder.MeshRange cubeRange = multidrawBuffer.endMesh("cube");
+        cubeRange = multidrawBuffer.endMesh("cube");
 
         collectiveVBO.bind();
         {

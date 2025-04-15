@@ -92,8 +92,8 @@ dependencies {
     // Performance Monitoring
     runtimeOnly fg.deobf("curse.maven:spark-361579:4738952") // Spark
     // Render Mods To Test Shader Patcher
-    implementation fg.deobf("curse.maven:embeddium-908741:5456704") // Embeddium
-    implementation fg.deobf("curse.maven:oculus-581495:5299671") // Oculus
+    compileOnly fg.deobf("curse.maven:embeddium-908741:5456704") // Embeddium
+    compileOnly fg.deobf("curse.maven:oculus-581495:5299671") // Oculus
 
     compileOnly project(":common")
 }

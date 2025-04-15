@@ -48,6 +48,14 @@ public class CollectiveDrawData {
         return this;
     }
 
+    /**
+     * Makes sure the buffer is setup to write an instance
+     * Puts it at instance 0 if not
+     */
+    public void ensureInstance() {
+        writing.ensureInstance();
+    }
+
     public CollectiveDrawData write(byte b) {
         writing.write(b);
         return this;

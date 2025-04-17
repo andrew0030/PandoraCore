@@ -22,6 +22,10 @@ Systems TODO:
   - [ ] Copy all the code from Table Top Craft / Pandoras Creatures
   - [ ] Create better Animation State (make it a standalone class and add chainable methods to toggle which animations should start/stop)
   - [ ] Optimize Animation System
+  - [ ] Add proper ghost model
+  - [ ] Add better BlockEntity handling
+  - [ ] Maybe add Item animations
+  - [ ] Maybe add Player animations
 - Click Location System (Abstract TTCs System)
   - Not sure yet how I want to make this...
 - PaCo Screen
@@ -34,12 +38,19 @@ Systems TODO:
   - [ ] Hook mod config system into it
 - Update Checker
   - [ ] Swap CompletableFuture system to an Update Checker Thread
-  - [ ] Add automatic Modrinth update checker using modrinths API (similar to what modmenu does)
+  - [ ] Add automatic Modrinth update checker using modrinth's API (similar to what modmenu does)
 - Registries
   - [x] Create PaCoRegistry to abstract all Object registration
   - [ ] Create more registry classes or a util class, to allow registering event based stuff (model layers, particles, e.t.c)
   - [ ] Maybe look into abstracting custom Registry registration
 - Random Render Stuff
   - [ ] Create abstraction for BEWLERs
+- Sounds
+  - [ ] Get sounds to play
+  - [ ] Figure out looped sounds
+  - [ ] Maybe add some kind of system to adjust pitch/volume based on some value (e.g. distance to source)
+- Screen Shaker
+  - [ ] Add a limit to how much the screen can shake
+  - [ ] Maybe add a special override that allows bypassing the limit, might be handy for a few very select "shakes"
 - Shader Patcher
   - I dont understand enough about this system to write TODOs

@@ -46,7 +46,7 @@ Systems TODO:
 - Random Render Stuff
   - [ ] Create abstraction for BEWLERs
 - Sounds
-  - [ ] Get sounds to play
+  - [x] Get sounds to play
   - [ ] Figure out looped sounds
   - [ ] Maybe add some kind of system to adjust pitch/volume based on some value (e.g. distance to source)
 - Screen Shaker

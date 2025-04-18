@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core;
 
+import com.github.andrew0030.pandora_core.client.registry.PaCoSoundEvents;
 import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.platform.Services;
@@ -21,6 +22,7 @@ public class PandoraCore {
     /** Early Init (Mod Construction) **/
     public static void earlyInit() {
         PaCoItems.ITEMS.register();
+        PaCoSoundEvents.SOUND_EVENTS.register();
     }
 
     /** Common Init */

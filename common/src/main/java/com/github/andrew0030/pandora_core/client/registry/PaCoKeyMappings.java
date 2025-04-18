@@ -25,4 +25,15 @@ public class PaCoKeyMappings {
             Minecraft.getInstance().setScreen(new PaCoScreen());
         }
     );
+
+    public static final KeyMapping KEY_DUN_DUN_DUUUN = KEY_MAPPINGS.add(
+            new KeyMapping(
+                    "dun dun duuun",
+                    InputConstants.Type.KEYSYM,
+                    GLFW.GLFW_KEY_K,
+                    "category.pandora_core.pandora_core"
+            ), () -> {
+                Minecraft.getInstance().player.playSound(PaCoSoundEvents.DUN_DUN_DUUUN.get());
+            }
+    );
 }

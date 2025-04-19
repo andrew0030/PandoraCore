@@ -1,7 +1,6 @@
 package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.platform.services.IKeyMappingHelper;
 import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
 import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
 import com.github.andrew0030.pandora_core.platform.services.IResourceLoaderHelper;
@@ -13,7 +12,6 @@ import java.util.ServiceLoader;
 public class Services {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Services");
     public static final IPlatformHelper PLATFORM = Services.load(IPlatformHelper.class);
-    public static final IKeyMappingHelper KEY_MAPPING = Services.load(IKeyMappingHelper.class);
     public static final IResourceLoaderHelper RELOAD_LISTENER = Services.load(IResourceLoaderHelper.class);
     public static final IRegistryHelper REGISTRY = Services.load(IRegistryHelper.class);
 

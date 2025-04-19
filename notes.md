@@ -47,8 +47,8 @@ Systems TODO:
   - [ ] Create abstraction for BEWLERs
 - Sounds
   - [x] Get sounds to play
-  - [ ] Figure out looped sounds
-  - [ ] Maybe add some kind of system to adjust pitch/volume based on some value (e.g. distance to source)
+  - [x] Figure out looped sounds
+  - [x] ~~Maybe add some kind of system to adjust pitch/volume based on some value (e.g. distance to source).~~ One can use AbstractTickableSoundInstance to achieve this.
 - Screen Shaker
   - [ ] Add a limit to how much the screen can shake
   - [ ] Maybe add a special override that allows bypassing the limit, might be handy for a few very select "shakes"

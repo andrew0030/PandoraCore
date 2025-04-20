@@ -64,6 +64,7 @@ configurations {
 
 repositories {
     maven { url "https://www.cursemaven.com" }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -84,6 +85,9 @@ dependencies {
     // exp4j (Expression Parsing)
     minecraftLibrary "net.objecthunter:exp4j:0.4.8"
     shade "net.objecthunter:exp4j:0.4.8"
+    // glsl preprocessor (shader patching)
+    minecraftLibrary "com.github.Ocelot5836:glsl-processor:${glsl_processor_version}"
+    shade "com.github.Ocelot5836:glsl-processor:${glsl_processor_version}"
     // NightConfig (Config System)
     // We shade because forges version is outdated...
     shade "com.electronwill.night-config:core:3.8.1"

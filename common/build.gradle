@@ -18,6 +18,7 @@ minecraft {
 
 repositories {
     maven { url "https://www.cursemaven.com" }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -34,4 +35,6 @@ dependencies {
 
     compileOnly "curse.maven:embeddium-908741:5456704" // Embeddium
     compileOnly "curse.maven:oculus-581495:5299671" // Oculus
+
+    compileOnly "com.github.Ocelot5836:glsl-processor:${glsl_processor_version}"
 }

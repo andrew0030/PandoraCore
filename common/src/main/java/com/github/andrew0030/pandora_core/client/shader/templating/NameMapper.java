@@ -16,21 +16,27 @@ public class NameMapper {
     // TODO: proper optifine map, as most of these variables are illegal, and thus need to be switched out before loading the shader
 
     static {
-        SHADER_MAPPING.put("UV0",         "gl_MultiTexCoord0"); // texture coords
-        SHADER_MAPPING.put("UV1",         null); // TODO: of has weird overlay coord support
-        SHADER_MAPPING.put("UV2",         "gl_MultiTexCoord1"); // lightmap coords
+        SHADER_MAPPING.put("UV0",                   "gl_MultiTexCoord0"); // texture coords
+        SHADER_MAPPING.put("UV1",                   null); // TODO: of has weird overlay coord support
+        SHADER_MAPPING.put("UV2",                   "gl_MultiTexCoord1"); // lightmap coords
 
-        SHADER_MAPPING.put("Position",    "gl_Vertex"); // position
-        SHADER_MAPPING.put("Color",       "gl_Color"); // color
-        SHADER_MAPPING.put("Normal",      "gl_Normal"); // normal
+        SHADER_MAPPING.put("Position",              "gl_Vertex"); // position
+        SHADER_MAPPING.put("Color",                 "gl_Color"); // color
+        SHADER_MAPPING.put("Normal",                "gl_Normal"); // normal
 
-        IRIS_MAPPING.put("iris_UV0",      "UV0");
-        IRIS_MAPPING.put("iris_UV1",      "UV1");
-        IRIS_MAPPING.put("iris_UV2",      "UV2");
+        IRIS_MAPPING.put("iris_UV0",                "UV0");
+        IRIS_MAPPING.put("iris_UV1",                "UV1");
+        IRIS_MAPPING.put("iris_UV2",                "UV2");
 
-        IRIS_MAPPING.put("iris_Position", "Position");
-        IRIS_MAPPING.put("iris_Color",    "Color");
-        IRIS_MAPPING.put("iris_Normal",   "Normal");
+        IRIS_MAPPING.put("iris_Position",           "Position");
+        IRIS_MAPPING.put("iris_Color",              "Color");
+        IRIS_MAPPING.put("iris_Normal",             "Normal");
+
+        IRIS_MAPPING.put("iris_ProjMat",            "ProjMat");
+        IRIS_MAPPING.put("iris_ModelViewMat",       "ModelViewMat");
+        IRIS_MAPPING.put("iris_ModelViewMatInverse","ModelViewMat");
+        // does not exist in vanilla
+//        IRIS_MAPPING.put("iris_NormalMat",          "ModelViewMat");
 
         IRIS_MAPPING.forEach((k, v) -> IRIS_MAPPING_REVERSE.put(v, k));
     }

@@ -19,9 +19,19 @@ public class InstanceData {
     int endWrite = -1;
     int glBuffer;
     boolean uploaded = false;
+    boolean grown = false;
 
     int usage;
     static final int STATIC_USAGE = ((IPaCoAccessibleUsage) (Object) VertexBuffer.Usage.STATIC).pandoraCore$id();
+
+    private void grow() {
+        ByteBuffer newBuffer = MemoryUtil.memAlloc(buffer.capacity() * 2);
+        int pos = buffer.position();
+        newBuffer.put(buffer.position(0));
+        MemoryUtil.memFree(buffer);
+        buffer = newBuffer.position(pos);
+        grown = true;
+    }
 
     public InstanceData(InstanceFormat format, int count, VertexBuffer.Usage usage) {
         buffer = MemoryUtil.memAlloc(format.stride * count);
@@ -126,6 +136,11 @@ public class InstanceData {
         if (buffer.position() != (endWrite + 1) * format.stride)
             throw new RuntimeException("Instance not filled.");
         endWrite++;
+
+        if ((endWrite + 1) * format.stride > buffer.capacity()) {
+            grow();
+        }
+
         return this;
     }
 
@@ -144,7 +159,7 @@ public class InstanceData {
         if (startWrite == -1) return;
 
         GlStateManager._glBindBuffer(GL30.GL_ARRAY_BUFFER, glBuffer);
-        if (!uploaded || (startWrite == 0 && endWrite == instances)) {
+        if (!uploaded || (startWrite == 0 && endWrite == instances) || grown) {
             buffer.position(0).limit(buffer.capacity());
             GlStateManager._glBufferData(
                     GL30.GL_ARRAY_BUFFER,
@@ -152,6 +167,7 @@ public class InstanceData {
                     usage
             );
             uploaded = true;
+            grown = false;
         } else {
             buffer.position(startWrite * format.stride);
             buffer.limit(endWrite * format.stride);

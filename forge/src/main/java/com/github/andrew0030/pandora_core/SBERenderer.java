@@ -9,10 +9,12 @@ import com.github.andrew0030.pandora_core.client.render.renderers.instancing.Ins
 import com.github.andrew0030.pandora_core.test.PaCoRenderTypes;
 import com.github.andrew0030.pandora_core.test.TemplateShaderTest;
 import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
+import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 public class SBERenderer extends InstancedBlockEntityRenderer<PandoraCoreForge.SBE> {
@@ -45,9 +47,14 @@ public class SBERenderer extends InstancedBlockEntityRenderer<PandoraCoreForge.S
 
     @Override
     public void flush(Level level, CollectiveDrawData data) {
+        RenderSystem.setShaderFogShape(FogShape.SPHERE);
+        RenderSystem.setShaderTexture(0, new ResourceLocation(
+                "minecraft:dynamic/light_map_1"
+        ));
         RenderType type = PaCoRenderTypes.type;
         type.setupRenderState();
         vbo.setupData(data);
+        RenderSystem.getShader().apply();
         data.upload();
         vbo.bind();
         vbo.drawWithShader(
@@ -56,5 +63,6 @@ public class SBERenderer extends InstancedBlockEntityRenderer<PandoraCoreForge.S
                 RenderSystem.getShader()
         );
         type.clearRenderState();
+        RenderSystem.setShaderFogShape(FogShape.CYLINDER);
     }
 }

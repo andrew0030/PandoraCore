@@ -3,7 +3,6 @@ package com.github.andrew0030.pandora_core.client.shader.templating.transformer.
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.action.InsertionAction;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
-import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.patches.WrapFieldNode;
 import io.github.ocelot.glslprocessor.api.grammar.GlslTypeSpecifier;
 import io.github.ocelot.glslprocessor.api.node.GlslNode;
 import io.github.ocelot.glslprocessor.api.node.GlslTree;

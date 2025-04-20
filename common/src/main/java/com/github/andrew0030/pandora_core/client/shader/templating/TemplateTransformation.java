@@ -26,6 +26,7 @@ public class TemplateTransformation {
     @ApiStatus.Internal
     public void lock() {
         boolean hasQuatTransform = false;
+        boolean hasMatrixTranslate = false;
         // resolve required information from the transformation definition
         for (InsertionAction action : actions) {
             if (action instanceof Injection inject) {
@@ -34,6 +35,10 @@ public class TemplateTransformation {
             if (action instanceof TransformVar transform) {
                 hasQuatTransform = transform.hasQuatRot();
                 funcCache.put("rotateQuat", "paco_rotateQuat_" + generateSnowflake());
+            }
+            if (action instanceof TransformVar transform) {
+                hasMatrixTranslate = transform.hasMatrTranslate();
+                funcCache.put("translateMatr", "paco_translateMatr_" + generateSnowflake());
             }
         }
         // if a mutation involving quaternion rotations is present, a method for rotating quats has to be injected
@@ -87,6 +92,36 @@ public class TemplateTransformation {
                             point.w
                         );
                     }vec3 %func%(const vec3 point,const vec4 quat){return %func%(vec4(point,0.0),quat).xyz;}
+                    """.replace("%func%", qName);
+            actions.add(0, new InsertionAction() {
+                @Override
+                public String headInjection(TemplateTransformation transformation) {
+                    return qFunc;
+                }
+            });
+        }
+        // if a mutation involving matrix translations is present, a method for translating matrices has to be injected
+        if (hasMatrixTranslate) {
+            String qName = funcCache.get("translateMatr");
+            String qFunc = """
+                    mat4 %func%(mat4 matr, const vec3 vec){
+                        matr[3] = vec4(matr[3].xyz + (mat3(matr) * vec), matr[3].w);
+                        return matr;
+                    }
+                    mat4 %func%(mat4 matr, const vec4 vec){
+                        mat4 mcpy = matr;
+                        mcpy[3] = vec4(0.0);
+                        
+                        matr[3] = vec4(matr[3] + (mcpy * vec));
+                        return matr;
+                    }
+                    mat3 %func%(mat3 matr, const vec3 vec){
+                        mat3 mcpy = matr;
+                        mcpy[2] = vec3(0.0);
+                        
+                        matr[2] = matr[2] + (mcpy * vec);
+                        return matr;
+                    }
                     """.replace("%func%", qName);
             actions.add(0, new InsertionAction() {
                 @Override

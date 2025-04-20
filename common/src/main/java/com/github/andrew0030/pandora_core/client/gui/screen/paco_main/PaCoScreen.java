@@ -208,6 +208,12 @@ public class PaCoScreen extends Screen {
         graphics.pose().translate(width * (1 - Easing.CUBIC_OUT.apply(slideInProgress)), 0.0F, 0.0F);
         this.renderContentPanel(graphics, mouseX, mouseY, partialTick);
         graphics.pose().popPose();
+        // Filter Button
+        // The reason this isn't inside "renderModsPanel" is because the tooltip overlaps with this content panel, which causes issues.
+        graphics.pose().pushPose();
+        graphics.pose().translate(-width * (1 - Easing.CUBIC_OUT.apply(slideInProgress)), 0.0F, 0.0F);
+        this.filterButton.render(graphics, mouseX, mouseY, partialTick);
+        graphics.pose().popPose();
     }
 
     protected void renderModsPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
@@ -265,7 +271,8 @@ public class PaCoScreen extends Screen {
         // Note: Widgets "should" be rendered after scissors, because certain things like tooltips are weird if rendered before.
         // Renders Search Box and Filter Button
         this.searchBox.render(graphics, mouseX, mouseY, partialTick);
-        this.filterButton.render(graphics, mouseX, mouseY, partialTick);
+        // Moved filterButton render call into "render" since it needs to be rendered after the content panel to prevent some overlapping issues.
+        // this.filterButton.render(graphics, mouseX, mouseY, partialTick);
         // Renders the Mods Panel Scroll Bar
         if (this.modsScrollBar != null) this.modsScrollBar.render(graphics, mouseX, mouseY, partialTick);
     }

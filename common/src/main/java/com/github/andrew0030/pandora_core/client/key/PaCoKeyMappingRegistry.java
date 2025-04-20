@@ -50,6 +50,6 @@ public class PaCoKeyMappingRegistry {
      * <strong>Fabric</strong>: Inside ClientModInitializer#onInitializeClient.<br/>
      */
     public void register() {
-        Services.KEY_MAPPING.registerKeyMappings(KEY_MAPPINGS);
+        Services.REGISTRY.registerKeyMappings(KEY_MAPPINGS);
     }
 }

@@ -1,7 +1,6 @@
 package com.github.andrew0030.pandora_core.client.shader.templating;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.client.utils.shader.ShaderFile;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.resource.PacoResourceManager;

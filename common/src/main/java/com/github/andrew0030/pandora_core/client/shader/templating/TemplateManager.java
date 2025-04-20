@@ -209,6 +209,7 @@ public class TemplateManager {
                 for (TemplateLoader loader : LOADERS)
                     builder.append("- ").append(loader.name()).append("\n");
                 LOGGER.info(builder.toString().trim());
+                // TODO: keep track of which shaders threw errors while parsing
             }
             return null;
         }

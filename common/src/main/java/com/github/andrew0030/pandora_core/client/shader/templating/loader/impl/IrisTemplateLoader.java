@@ -11,8 +11,6 @@ import com.github.andrew0030.pandora_core.client.shader.templating.transformer.V
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
-import com.github.andrew0030.pandora_core.client.utils.shader.ShaderFile;
-import com.github.andrew0030.pandora_core.client.utils.shader.ShaderParser;
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
@@ -138,7 +136,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
             if (vsh == null || fsh == null || instance == null)
                 return LoadResult.UNCACHED;
 
-            ShaderFile file = processor.process(this, ShaderParser.parse(vsh), transformation);
+            String file = processor.process(this, vsh, transformation);
             vsh = file.toString();
             manager.load(new VanillaTemplatedShader(
                     this, this,

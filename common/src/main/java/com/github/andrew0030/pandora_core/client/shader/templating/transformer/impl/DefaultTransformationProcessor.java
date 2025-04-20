@@ -1,70 +1,30 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.NameMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.action.InsertionAction;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
-import com.github.andrew0030.pandora_core.client.utils.shader.ShaderFile;
-import com.github.andrew0030.pandora_core.client.utils.shader.ln.Line;
-
-import java.util.ArrayList;
-import java.util.List;
+import io.github.ocelot.glslprocessor.api.GlslParser;
+import io.github.ocelot.glslprocessor.api.node.GlslTree;
+import io.github.ocelot.glslprocessor.api.visitor.GlslTreeStringWriter;
 
 public class DefaultTransformationProcessor extends TransformationProcessor {
     @Override
-    public ShaderFile process(VariableMapper mapper, ShaderFile source, TemplateTransformation transformation) {
-        ArrayList<Line> result = new ArrayList<>();
+    public String process(VariableMapper mapper, String source, TemplateTransformation transformation) {
+        try {
+            GlslTree tree = GlslParser.parse(source);
 
-        boolean hitNonComment = false;
-
-        for (Line line : source.lines()) {
-            result.add(line);
-            String trim = line.text.trim();
-
-            if (trim.startsWith("#version")) {
-                for (InsertionAction action : transformation.getActions()) {
-                    String inject = action.headInjection(transformation);
-                    if (inject != null) {
-                        result.add(new Line(-1, inject));
-                    }
-                }
-                hitNonComment = true;
+            ShaderTransformer transformer = new ShaderTransformer(transformation);
+            for (InsertionAction action : transformation.getActions()) {
+                transformer.addAction(action);
             }
+            transformer.transform(mapper, tree);
 
-            if (trim.startsWith("in") || trim.startsWith("uniform")) {
-                List<String> strs = line.resolveInputVar();
-
-                if (strs.size() >= 3) {
-                    String type = strs.get(1);
-                    String name = strs.get(2);
-
-                    for (InsertionAction action : transformation.getActions()) {
-                        // TODO: track defines to make this a little more bullet proof
-                        type = NameMapper.assumeType(type, name);
-
-                        String inject = action.afterInputVar(mapper, transformation, type, name);
-                        if (inject != null) {
-                            result.add(new Line(-1, inject));
-                        }
-                    }
-                }
-            }
-
-            if (line.type() != Line.LineType.COMMENT) {
-                if (!hitNonComment) {
-                    for (InsertionAction action : transformation.getActions()) {
-                        String inject = action.headInjection(transformation);
-                        if (inject != null) {
-                            result.add(result.size() - 1, new Line(-1, inject));
-                        }
-                    }
-
-                    hitNonComment = true;
-                }
-            }
+            GlslTreeStringWriter writer = new GlslTreeStringWriter();
+            tree.visit(writer);
+            return writer.toString();
+        } catch (Throwable err) {
+            throw new RuntimeException("Unexpected error while patching shader", err);
         }
-
-        return new ShaderFile(result);
     }
 }

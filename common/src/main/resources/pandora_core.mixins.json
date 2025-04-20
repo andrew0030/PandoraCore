@@ -40,7 +40,14 @@
     "render.VBOAccessorMixin",
     "render.WindowMixin",
     "render.instancing.BlockEntityTypeMixin",
-    "test.ShaderTemplateTest"
+    "test.ShaderTemplateTest",
+
+    "render.instancing.compat.BuiltSectionMixin",
+    "render.instancing.compat.SectionBuilderMixin",
+    "render.instancing.compat.RenderSectionMixin",
+    "render.instancing.compat.SodiumRendererMixin",
+    "render.instancing.compat.RenderListMixin",
+    "render.instancing.compat.ChunkBuilderMeshingTaskMixin"
   ],
   "server": [],
   "injectors": {

@@ -130,4 +130,10 @@ public class CollectiveDrawData {
             instanceData.upload();
         }
     }
+
+    public void wipeIndices() {
+        for (InstanceData value : datas.values()) {
+            value.writeInstance(0);
+        }
+    }
 }

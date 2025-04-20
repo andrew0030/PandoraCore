@@ -18,6 +18,7 @@ public class InstanceManager {
     public void markFrame() {
         for (CollectiveDrawData value : thisFrame.values()) {
             value.deactivate();
+            value.wipeIndices();
         }
         thisFrame.clear();
     }

@@ -24,13 +24,14 @@ public abstract class TemplatedShader {
         this.template = template;
     }
 
-    protected static void bindAttributes(int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
+    public static void bindAttributes(int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
         for (String vertexAttribute : transformation.getVertexAttributes()) {
             int aid = GL32.glGetAttribLocation(id, vertexAttribute);
             if (aid != -1) {
                 Uniform.glBindAttribLocation(id, index, vertexAttribute);
             }
         }
+        Uniform.glBindAttribLocation(id, index, "paco_Inject_Translation");
     }
 
     public abstract void apply();
@@ -57,5 +58,5 @@ public abstract class TemplatedShader {
 
     public abstract AbstractUniform getUniform(String name, int type, int count);
 
-    protected static final AbstractUniform ABSTRACT_INST = new AbstractUniform();
+    public static final AbstractUniform ABSTRACT_INST = new AbstractUniform();
 }

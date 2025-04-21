@@ -86,7 +86,11 @@ public abstract class ShadowPassMixin {
 
                 for (BlockEntity be : ((InstancingResults) section).getAll()) {
                     InstancedBlockEntityRenderer beRenderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
-                    beRenderer.render(getLevel(), be, be.getBlockPos());
+                    if (beRenderer.shouldRender(
+                            be, playerCamera.getPosition()
+                    )) {
+                        beRenderer.render(getLevel(), be, be.getBlockPos());
+                    }
                 }
             }
         });

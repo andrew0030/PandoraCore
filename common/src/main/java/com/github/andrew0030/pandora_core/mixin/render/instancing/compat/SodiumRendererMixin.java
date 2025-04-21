@@ -70,7 +70,11 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
 
                 for (BlockEntity be : ((InstancingResults) section).getAll()) {
                     InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
-                    renderer.render(world, be, be.getBlockPos());
+                    if (renderer.shouldRender(
+                            be, camera.getPosition()
+                    )) {
+                        renderer.render(world, be, be.getBlockPos());
+                    }
                 }
             }
         });

@@ -53,7 +53,11 @@ public class LevelRendererMixin {
             ChunkRenderDispatcher.CompiledChunk chnk = info.chunk.getCompiledChunk();
             for (BlockEntity be : ((InstancingResults) chnk).getAll()) {
                 InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments)be.getType()).pandoraCore$getInstancedRenderer();
-                renderer.render(level, be, be.getBlockPos());
+                if (renderer.shouldRender(
+                        be, $$4.getPosition()
+                )) {
+                    renderer.render(level, be, be.getBlockPos());
+                }
             }
         }
         manager.drawFrame(level);

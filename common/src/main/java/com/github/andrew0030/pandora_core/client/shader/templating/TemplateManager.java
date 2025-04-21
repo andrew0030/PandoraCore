@@ -98,7 +98,8 @@ public class TemplateManager {
     private static final Function<String, TemplateTransformation> transformations = (str) -> {
         TemplateTransformation trf = TRANSFORMATION_MAP.get(str);
         if (trf == null)
-            throw new RuntimeException("Shader transformation " + str + " not found.");
+//            throw new RuntimeException("Shader transformation " + str + " not found.");
+            return null;
         return trf;
     };
 

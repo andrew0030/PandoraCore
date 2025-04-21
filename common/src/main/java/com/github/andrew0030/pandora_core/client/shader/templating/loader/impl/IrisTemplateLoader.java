@@ -12,6 +12,8 @@ import com.github.andrew0030.pandora_core.client.shader.templating.transformer.i
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.IrisTemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.AttachmentSpecifier;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.AttachmentType;
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
@@ -80,30 +82,36 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         instances.remove(pandoraCore$cacheName, instance);
     }
 
-    private String getVertex(String template, boolean complete, String[] names) {
+    private void getVertex(String template, boolean complete, AttachmentSpecifier[] specifiers) {
         List<String> res = sources.get("minecraft", template + ".vsh");
-        names[0] = template;
         StringBuilder out = new StringBuilder();
         for (String re : res) out.append(re).append("\n");
-        return out.toString();
+        specifiers[0] = new AttachmentSpecifier(
+                AttachmentType.VERTEX, out.toString(),
+                template
+        );
     }
 
-    private String getFragment(String template, boolean complete, String[] names) {
+    private void getFragment(String template, boolean complete, AttachmentSpecifier[] specifiers) {
         List<String> res = sources.get("minecraft", template + ".fsh");
-        names[1] = template;
         StringBuilder out = new StringBuilder();
         for (String re : res) out.append(re).append("\n");
-        return out.toString();
+        specifiers[1] = new AttachmentSpecifier(
+                AttachmentType.FRAGMENT, out.toString(),
+                template
+        );
     }
 
-    private String getGeometry(String template, boolean complete, String[] names) {
+    private void getGeometry(String template, boolean complete, AttachmentSpecifier[] specifiers) {
         List<String> res = sources.get("minecraft", template + ".gsh");
         if (res == null)
-            return null;
-        names[2] = template;
+            return; // don't want to throw an error here, as you don't actually need a gsh
         StringBuilder out = new StringBuilder();
         for (String re : res) out.append(re).append("\n");
-        return out.toString();
+        specifiers[2] = new AttachmentSpecifier(
+                AttachmentType.GEOMETRY, out.toString(),
+                template
+        );
     }
 
     @Override
@@ -130,39 +138,31 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         if (template == null)
             return LoadResult.FAILED;
 
-        TemplateTransformation transformation = struct.getTransformation("vsh", transformers, transformations);
-
         try {
-            String[] names = new String[3];
-            String vsh;
-            String fsh;
-            String gsh;
+            AttachmentSpecifier[] specifiers = new AttachmentSpecifier[5];
             try {
-                vsh = getVertex(template, complete, names);
-                fsh = getFragment(template, complete, names);
-                gsh = getGeometry(template, complete, names);
+                getVertex(template, complete, specifiers);
+                getFragment(template, complete, specifiers);
+                getGeometry(template, complete, specifiers);
             } catch (Throwable err) {
                 return LoadResult.UNCACHED;
             }
 
             ShaderInstance instance = instances.get(template);
-            if (vsh == null || fsh == null || instance == null)
+            if (specifiers[0] == null || specifiers[1] == null || instance == null)
                 return LoadResult.UNCACHED;
 
-            String file = processor.process(this, vsh, transformation);
-            vsh = file.toString();
             manager.load(new IrisTemplatedShader(
                     this, this,
-                    struct,
+                    transformers, transformations,
+                    struct, processor,
                     template, instance,
-                    vsh, fsh,  gsh,
-                    "minecraft:" + names[0], "minecraft:" + names[1], "minecraft:" + names[2],
-                    processor
+                    specifiers
             ));
 
             return LoadResult.LOADED;
         } catch (Throwable err) {
-            LOGGER.error("Failed loading template template " + transformation.location + " for shader " + template, err);
+            LOGGER.error("Failed loading template template " + struct.location + " for shader " + template, err);
             return LoadResult.FAILED;
         }
     }

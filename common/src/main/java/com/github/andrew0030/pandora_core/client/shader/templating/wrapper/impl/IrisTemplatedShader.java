@@ -30,10 +30,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class IrisTemplatedShader extends TemplatedShader {
-//    ShaderInstance shadow;
     TemplatedProgram program;
-//    int idShadow;
-//    String vshName, fshName;
+    TemplatedProgram programShadow;
     List<String> sourceNames = new ArrayList<>();
 
     public IrisTemplatedShader(
@@ -43,73 +41,110 @@ public class IrisTemplatedShader extends TemplatedShader {
             Function<String, TemplateTransformation> transformations,
             TemplateShaderResourceLoader.TemplateStruct struct,
             TransformationProcessor processor,
-            String template,
-            ShaderInstance vanilla,
-            AttachmentSpecifier[] specifiers
+            String template, ShaderInstance vanilla, AttachmentSpecifier[] specifiers,
+            String templateShadow, ShaderInstance vanillaShadow, AttachmentSpecifier[] specifiersShadow
     ) {
         super(loader, struct, template);
 
-        List<ShaderAttachment> attachments = new ArrayList<>();
-        for (AttachmentSpecifier specifier : specifiers) {
-            if (specifier == null) continue;
+        // load base shader
+        {
+            List<ShaderAttachment> attachments = new ArrayList<>();
+            for (AttachmentSpecifier specifier : specifiers) {
+                if (specifier == null) continue;
 
-            TemplateTransformation apply = struct.getTransformation(
-                    specifier.type.strName(), transformers, transformations
-            );
-            ShaderAttachment attachment = new ShaderAttachment(
-                    specifier.source, specifier.type,
-                    apply, vanilla,
-                    specifier.preprocess, mapper,
-                    processor
-            );
-            attachments.add(attachment);
+                TemplateTransformation apply = struct.getTransformation(
+                        specifier.type.strName(), transformers, transformations
+                );
+                ShaderAttachment attachment = new ShaderAttachment(
+                        specifier.source, specifier.type,
+                        apply, vanilla,
+                        specifier.preprocess, mapper,
+                        processor
+                );
+                attachments.add(attachment);
 
-            String srcFl = specifier.fileName + "." + specifier.type.strName();
-            sourceNames.add(srcFl);
+                String srcFl = specifier.fileName + "." + specifier.type.strName();
+                sourceNames.add(srcFl);
+            }
+
+            // make program
+            program = new TemplatedProgram(
+                    vanilla,
+                    attachments
+            );
+            program.link(vanilla, mapper, struct);
+            for (ShaderAttachment attachment : attachments) attachment.delete();
+
+            // log error
+            program.validate("Iris/Oculus:Base");
         }
+        {
+            List<ShaderAttachment> attachments = new ArrayList<>();
+            for (AttachmentSpecifier specifier : specifiersShadow) {
+                if (specifier == null) continue;
 
-        // make program
-        program = new TemplatedProgram(
-                vanilla,
-                attachments
-        );
-        program.link(vanilla, mapper, struct);
-        for (ShaderAttachment attachment : attachments) attachment.delete();
+                TemplateTransformation apply = struct.getTransformation(
+                        specifier.type.strName(), transformers, transformations
+                );
+                ShaderAttachment attachment = new ShaderAttachment(
+                        specifier.source, specifier.type,
+                        apply, vanillaShadow,
+                        specifier.preprocess, mapper,
+                        processor
+                );
+                attachments.add(attachment);
 
-        // log error
-        program.validate("Iris/Oculus");
+                String srcFl = specifier.fileName + "." + specifier.type.strName();
+                sourceNames.add(srcFl);
+            }
+
+            // make program
+            programShadow = new TemplatedProgram(
+                    vanillaShadow,
+                    attachments
+            );
+            programShadow.link(vanillaShadow, mapper, struct);
+            for (ShaderAttachment attachment : attachments) attachment.delete();
+
+            // log error
+            programShadow.validate("Iris/Oculus:Shadow");
+        }
     }
 
     @Override
     public void apply() {
         try {
-//            if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+            if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+                programShadow.bind();
+            } else {
                 program.bind();
-//            } else {
-//                RenderSystem.setShader(() -> shadow);
-//                ((IPaCoConditionallyBindable) shadow).pandoraCore$disableBind();
-//                GL20.glUseProgram(idShadow);
-//            }
+            }
         } catch (Throwable err) {
         }
     }
 
     @Override
     public void upload() {
-        program.upload();
+        if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+            programShadow.upload();
+        } else {
+            program.upload();
+        }
     }
 
     @Override
     public void destroy() {
         program.close();
-//        GL20.glDeleteProgram(idShadow);
+        programShadow.close();
     }
 
     @Override
     public void clear() {
-        program.clear();
-//        ((IPaCoConditionallyBindable) shadow).pandoraCore$enableBind();
-//        shadow.clear();
+        if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+            programShadow.clear();
+        } else {
+            program.clear();
+        }
         super.clear();
     }
 
@@ -123,6 +158,10 @@ public class IrisTemplatedShader extends TemplatedShader {
 
     @Override
     public AbstractUniform getUniform(String name, int type, int count) {
-        return program.getUniform(name, type, count);
+        if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+            return programShadow.getUniform(name, type, count);
+        } else {
+            return program.getUniform(name, type, count);
+        }
     }
 }

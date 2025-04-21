@@ -48,7 +48,8 @@
     "render.instancing.compat.SodiumRendererMixin",
     "render.instancing.compat.RenderListMixin",
     "render.instancing.compat.ChunkBuilderMeshingTaskMixin",
-    "render.instancing.compat.iris.ShadowPassMixin"
+    "render.instancing.compat.iris.ShadowPassMixin",
+    "compat.shader.iris.IrisPipelineMixin"
   ],
   "server": [],
   "injectors": {

@@ -13,6 +13,7 @@ import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import net.irisshaders.iris.shaderpack.loading.ProgramId;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;

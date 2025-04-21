@@ -17,6 +17,10 @@ import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
+import net.irisshaders.iris.pipeline.programs.ShaderKey;
+import net.irisshaders.iris.shaderpack.loading.ProgramArrayId;
+import net.irisshaders.iris.shaderpack.loading.ProgramId;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
@@ -71,11 +75,13 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Iris");
 
     private static final Map<String, ShaderInstance> instances = new HashMap<>();
+    private static final List<String> deferredLoad = new ArrayList<>();
 
     public static void bindShader(String $$1, ShaderInstance shaderInstance) {
         instances.put($$1, shaderInstance);
         if (!forceLoad)
-            TemplateManager.reloadTemplate(INSTANCE, $$1);
+//            TemplateManager.reloadTemplate(INSTANCE, $$1);
+            deferredLoad.add($$1);
     }
 
     public static void unbindShader(String pandoraCore$cacheName, ShaderInstance instance) {
@@ -139,6 +145,11 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
             return LoadResult.FAILED;
 
         try {
+            ShaderKey key = ShadowProgramMapper.getKey(template);
+            ShaderKey shadow = ShadowProgramMapper.getShadow(key);
+
+            String templateShadow = shadow.getName();
+
             AttachmentSpecifier[] specifiers = new AttachmentSpecifier[5];
             try {
                 getVertex(template, complete, specifiers);
@@ -152,12 +163,23 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
             if (specifiers[0] == null || specifiers[1] == null || instance == null)
                 return LoadResult.UNCACHED;
 
+            AttachmentSpecifier[] specifiersShadow = new AttachmentSpecifier[5];
+            ShaderInstance instanceShadow = instances.get(templateShadow);
+            {
+                try {
+                    getVertex(templateShadow, complete, specifiersShadow);
+                    getFragment(templateShadow, complete, specifiersShadow);
+                    getGeometry(templateShadow, complete, specifiersShadow);
+                } catch (Throwable err) {
+                }
+            }
+
             manager.load(new IrisTemplatedShader(
                     this, this,
                     transformers, transformations,
                     struct, processor,
-                    template, instance,
-                    specifiers
+                    template, instance, specifiers,
+                    templateShadow, instanceShadow, specifiersShadow
             ));
 
             return LoadResult.LOADED;
@@ -190,6 +212,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     @Override
     public void beginReload() {
         sources.clear();
+        deferredLoad.clear();
     }
 
     @Override
@@ -200,5 +223,15 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     @Override
     public String mapTo(String proposedType, String name) {
         return NameMapper.toIris(proposedType, name);
+    }
+
+    public static void doLoad() {
+        for (String s : deferredLoad) {
+            // shadow passes aren't valid as bases
+            if (s.startsWith("shadow_")) continue;
+
+            TemplateManager.reloadTemplate(INSTANCE, s);
+        }
+        deferredLoad.clear();
     }
 }

@@ -36,8 +36,6 @@ public class IrisTemplatedShader extends TemplatedShader {
 //    String vshName, fshName;
     List<String> sourceNames = new ArrayList<>();
 
-    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Templated Vanilla/Iris");
-
     public IrisTemplatedShader(
             VariableMapper mapper,
             TemplateLoader loader,

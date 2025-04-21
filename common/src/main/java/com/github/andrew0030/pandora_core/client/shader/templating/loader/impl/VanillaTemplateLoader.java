@@ -8,8 +8,11 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.Templa
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.IrisTemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.AttachmentSpecifier;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.AttachmentType;
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
@@ -110,12 +113,11 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
         return false;
     }
 
-    private String getVertex(ResourceLocation template, boolean complete, String[] names) {
+    private void getVertex(ResourceLocation template, boolean complete, AttachmentSpecifier[] specifiers) {
         JsonObject obj = shaderJsons.get(template);
         String fName = obj.getAsJsonPrimitive("vertex").getAsString();
         ResourceLocation loc = new ResourceLocation(fName);
         List<String> res = sources.get(loc.getNamespace(), loc.getPath() + ".vsh");
-        names[0] = loc.toString();
         if (complete && res == null) {
             forceLoad = true;
             try {
@@ -135,15 +137,17 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
         }
         StringBuilder out = new StringBuilder();
         for (String re : res) out.append(re).append("\n");
-        return out.toString();
+        specifiers[0] = new AttachmentSpecifier(
+                AttachmentType.VERTEX, out.toString(),
+                template.toString()
+        );
     }
 
-    private String getFragment(ResourceLocation template, boolean complete, String[] names) {
+    private void getFragment(ResourceLocation template, boolean complete, AttachmentSpecifier[] specifiers) {
         JsonObject obj = shaderJsons.get(template);
         String fName = obj.getAsJsonPrimitive("fragment").getAsString();
         ResourceLocation loc = new ResourceLocation(fName);
         List<String> res = sources.get(loc.getNamespace(), loc.getPath() + ".fsh");
-        names[1] = loc.toString();
         if (complete && res == null) {
             forceLoad = true;
             try {
@@ -158,7 +162,10 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
         }
         StringBuilder out = new StringBuilder();
         for (String re : res) out.append(re).append("\n");
-        return out.toString();
+        specifiers[1] = new AttachmentSpecifier(
+                AttachmentType.FRAGMENT, out.toString(),
+                template.toString()
+        );
     }
 
     public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
@@ -172,12 +179,11 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
         try {
             ResourceLocation loc = new ResourceLocation(template);
             ResourceLocation locJson = new ResourceLocation(templateJson);
-            String[] names = new String[2];
-            String vsh;
-            String fsh;
+
+            AttachmentSpecifier[] specifiers = new AttachmentSpecifier[5];
             try {
-                vsh = getVertex(locJson, complete, names);
-                fsh = getFragment(locJson, complete, names);
+                getVertex(locJson, complete, specifiers);
+                getFragment(locJson, complete, specifiers);
             } catch (Throwable err) {
                 return LoadResult.UNCACHED;
             }
@@ -188,17 +194,15 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
                 template = loc.getNamespace() + ":" + loc.getPath().substring("shaders/core/".length());
             }
             ShaderInstance instance = instances.get(template);
-            if (vsh == null || fsh == null || instance == null)
+            if (specifiers[0] == null || specifiers[1] == null || instance == null)
                 return LoadResult.UNCACHED;
 
-            String file = processor.process(this, vsh, transformation);
-            vsh = file.toString();
             manager.load(new VanillaTemplatedShader(
                     this, this,
-                    struct,
+                    transformers, transformations,
+                    struct, processor,
                     template, instance,
-                    vsh, fsh,
-                    names[0], names[1]
+                    specifiers
             ));
 
             return LoadResult.LOADED;

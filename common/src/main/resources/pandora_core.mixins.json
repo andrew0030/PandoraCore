@@ -47,7 +47,8 @@
     "render.instancing.compat.RenderSectionMixin",
     "render.instancing.compat.SodiumRendererMixin",
     "render.instancing.compat.RenderListMixin",
-    "render.instancing.compat.ChunkBuilderMeshingTaskMixin"
+    "render.instancing.compat.ChunkBuilderMeshingTaskMixin",
+    "render.instancing.compat.iris.ShadowPassMixin"
   ],
   "server": [],
   "injectors": {

@@ -60,6 +60,5 @@ public class LevelRendererMixin {
 
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();
-        RenderSystem.setShaderFogShape(FogShape.CYLINDER);
     }
 }

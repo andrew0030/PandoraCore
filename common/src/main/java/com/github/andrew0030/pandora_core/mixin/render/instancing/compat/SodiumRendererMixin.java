@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.client.render.instancing.engine.PacoIn
 import com.github.andrew0030.pandora_core.client.render.renderers.backend.BlockEntityTypeAttachments;
 import com.github.andrew0030.pandora_core.client.render.renderers.backend.InstancingResults;
 import com.github.andrew0030.pandora_core.client.render.renderers.backend.sodium.RenderListAttachments;
+import com.github.andrew0030.pandora_core.client.render.renderers.backend.sodium.SodiumRendererAccessor;
 import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -34,7 +35,7 @@ import java.util.Iterator;
 import java.util.SortedSet;
 
 @Mixin(value = SodiumWorldRenderer.class, remap = false)
-public class SodiumRendererMixin {
+public class SodiumRendererMixin implements SodiumRendererAccessor {
     @Shadow
     private ClientLevel world;
 
@@ -77,6 +78,10 @@ public class SodiumRendererMixin {
 
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();
-        RenderSystem.setShaderFogShape(FogShape.CYLINDER);
+    }
+
+    @Override
+    public RenderSectionManager pandoraCore$sectionManager() {
+        return renderSectionManager;
     }
 }

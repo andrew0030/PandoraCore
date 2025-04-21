@@ -46,7 +46,7 @@ public class ShaderAttachment {
             String $$7 = StringUtils.trim(GlStateManager.glGetShaderInfoLog(id, 32768));
             GL20.glDeleteShader(id);
             try {
-                throw new IOException("Couldn't compile " + transformation.location + " from " + vanilla.getName() + " program (" + vanilla.getName() + ", " + transformation.location + ") : " + $$7);
+                throw new IOException("Couldn't compile " + source + " from " + vanilla.getName() + " program (" + vanilla.getName() + ", " + source + ") : " + $$7);
             } catch (Throwable err) {
                 throw new RuntimeException(err);
             }

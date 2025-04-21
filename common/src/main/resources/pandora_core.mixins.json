@@ -49,7 +49,8 @@
     "render.instancing.compat.RenderListMixin",
     "render.instancing.compat.ChunkBuilderMeshingTaskMixin",
     "render.instancing.compat.iris.ShadowPassMixin",
-    "compat.shader.iris.IrisPipelineMixin"
+    "compat.shader.iris.IrisPipelineMixin",
+    "compat.shader.iris.ExtendedShader_CacheSrcMixin"
   ],
   "server": [],
   "injectors": {

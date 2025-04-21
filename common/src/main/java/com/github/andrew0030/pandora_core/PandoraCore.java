@@ -3,6 +3,8 @@ package com.github.andrew0030.pandora_core;
 import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.platform.Services;
+import com.github.andrew0030.pandora_core.registry.PaCoBlockEntities;
+import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
 import com.github.andrew0030.pandora_core.registry.PaCoItems;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
@@ -20,7 +22,9 @@ public class PandoraCore {
 
     /** Early Init (Mod Construction) **/
     public static void earlyInit() {
+        PaCoBlocks.BLOCKS.register();
         PaCoItems.ITEMS.register();
+        PaCoBlockEntities.BLOCK_ENTITY_TYPES.register();
     }
 
     /** Common Init */

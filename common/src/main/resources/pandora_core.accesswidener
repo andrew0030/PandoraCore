@@ -18,6 +18,10 @@ accessible field net/minecraft/client/gui/components/AbstractSliderButton canCha
 accessible field net/minecraft/client/gui/screens/Screen children Ljava/util/List; # children
 accessible field net/minecraft/client/gui/screens/Screen narratables Ljava/util/List; # narratables
 
+# Used to register BlockEntities, normally this is made public by all loaders,
+# but since we are working in the common module we need to do this.
+accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
+
 
 
 #=================================================================================================================

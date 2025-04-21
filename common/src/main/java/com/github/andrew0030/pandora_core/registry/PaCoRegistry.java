@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.registry;
 
 import com.github.andrew0030.pandora_core.platform.Services;
+import com.github.andrew0030.pandora_core.utils.function.LazySupplier;
 import net.minecraft.core.Registry;
 
 import java.util.HashMap;
@@ -40,13 +41,18 @@ public class PaCoRegistry<T> {
 
     /**
      * Adds a new object to be registered later.
-     * @param name  The name (path) of the object.
-     * @param value A supplier that creates the object when registration occurs.
+     * @param name    The name (path) of the object.
+     * @param factory A supplier that creates the object when registration occurs.
      * @return The same supplier, for convenient assignment.
      */
-    public Supplier<T> add(String name, Supplier<T> value) {
-        entries.put(name, value);
-        return value;
+    public Supplier<T> add(String name, Supplier<T> factory) {
+        LazySupplier<T> ref = new LazySupplier<>();
+        entries.put(name, () -> {
+            T instance = factory.get();
+            ref.set(instance);
+            return instance;
+        });
+        return ref;
     }
 
     /**

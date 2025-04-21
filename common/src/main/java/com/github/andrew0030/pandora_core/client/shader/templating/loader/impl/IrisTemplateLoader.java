@@ -9,6 +9,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.Templa
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.IrisTemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
@@ -95,6 +96,16 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         return out.toString();
     }
 
+    private String getGeometry(String template, boolean complete, String[] names) {
+        List<String> res = sources.get("minecraft", template + ".gsh");
+        if (res == null)
+            return null;
+        names[2] = template;
+        StringBuilder out = new StringBuilder();
+        for (String re : res) out.append(re).append("\n");
+        return out.toString();
+    }
+
     @Override
     public boolean matches(TemplatedShader direct, String shader, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
         TemplateShaderResourceLoader.TemplateStruct transformation = direct.transformation();
@@ -122,12 +133,14 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         TemplateTransformation transformation = struct.getTransformation("vsh", transformers, transformations);
 
         try {
-            String[] names = new String[2];
+            String[] names = new String[3];
             String vsh;
             String fsh;
+            String gsh;
             try {
                 vsh = getVertex(template, complete, names);
                 fsh = getFragment(template, complete, names);
+                gsh = getGeometry(template, complete, names);
             } catch (Throwable err) {
                 return LoadResult.UNCACHED;
             }
@@ -138,12 +151,13 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
 
             String file = processor.process(this, vsh, transformation);
             vsh = file.toString();
-            manager.load(new VanillaTemplatedShader(
+            manager.load(new IrisTemplatedShader(
                     this, this,
                     struct,
                     template, instance,
-                    vsh, fsh,
-                    "minecraft:" + names[0], "minecraft:" + names[1]
+                    vsh, fsh,  gsh,
+                    "minecraft:" + names[0], "minecraft:" + names[1], "minecraft:" + names[2],
+                    processor
             ));
 
             return LoadResult.LOADED;

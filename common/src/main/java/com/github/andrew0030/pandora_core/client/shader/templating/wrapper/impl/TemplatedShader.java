@@ -4,8 +4,10 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShade
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.mojang.blaze3d.shaders.AbstractUniform;
+import com.mojang.blaze3d.shaders.Uniform;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
 
 public abstract class TemplatedShader {
     protected final TemplateLoader loader;
@@ -20,6 +22,15 @@ public abstract class TemplatedShader {
         this.loader = loader;
         this.transformation = transformation;
         this.template = template;
+    }
+
+    protected static void bindAttributes(int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
+        for (String vertexAttribute : transformation.getVertexAttributes()) {
+            int aid = GL32.glGetAttribLocation(id, vertexAttribute);
+            if (aid != -1) {
+                Uniform.glBindAttribLocation(id, index, vertexAttribute);
+            }
+        }
     }
 
     public abstract void apply();

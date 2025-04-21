@@ -2,8 +2,8 @@ package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoAccessibleProgram;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
@@ -13,6 +13,7 @@ import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
+import net.irisshaders.iris.shadows.ShadowRenderingState;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL20;
@@ -22,28 +23,32 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class VanillaTemplatedShader extends TemplatedShader {
+public class IrisTemplatedShader extends TemplatedShader {
     ShaderInstance vanilla;
+    ShaderInstance shadow;
     int id;
+    int idShadow;
     String vshName, fshName;
 
 
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Templated Vanilla/Iris");
 
-    public VanillaTemplatedShader(
+    public IrisTemplatedShader(
             TemplateLoader loader,
             VariableMapper mapper,
             TemplateShaderResourceLoader.TemplateStruct transformation,
             String template,
             ShaderInstance vanilla,
-            String vsh, String fsh,
-            String vshName, String fshName
+            String vsh, String fsh, String gsh,
+            String vshName, String fshName, String gshName,
+            TransformationProcessor processor
     ) {
         super(loader, transformation, template);
         this.vanilla = vanilla;
 
         this.vshName = vshName + ".vsh";
         this.fshName = fshName + ".fsh";
+        // TODO: gsh, tesse, tessc
 
         id = GL20.glCreateProgram();
         // load transformed vertex shader
@@ -88,9 +93,15 @@ public class VanillaTemplatedShader extends TemplatedShader {
     @Override
     public void apply() {
         try {
-            RenderSystem.setShader(() -> vanilla);
-            ((IPaCoConditionallyBindable) vanilla).pandoraCore$disableBind();
-            GL20.glUseProgram(id);
+            if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+                RenderSystem.setShader(() -> vanilla);
+                ((IPaCoConditionallyBindable) vanilla).pandoraCore$disableBind();
+                GL20.glUseProgram(id);
+            } else {
+                RenderSystem.setShader(() -> shadow);
+                ((IPaCoConditionallyBindable) shadow).pandoraCore$disableBind();
+                GL20.glUseProgram(idShadow);
+            }
         } catch (Throwable err) {
         }
     }
@@ -111,12 +122,15 @@ public class VanillaTemplatedShader extends TemplatedShader {
             pacoUform.close();
         }
         GL20.glDeleteProgram(id);
+        GL20.glDeleteProgram(idShadow);
     }
 
     @Override
     public void clear() {
         ((IPaCoConditionallyBindable) vanilla).pandoraCore$enableBind();
         vanilla.clear();
+        ((IPaCoConditionallyBindable) shadow).pandoraCore$enableBind();
+        shadow.clear();
         super.clear();
     }
 

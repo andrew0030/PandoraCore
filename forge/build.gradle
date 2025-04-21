@@ -87,7 +87,9 @@ dependencies {
     shade "net.objecthunter:exp4j:0.4.8"
     // glsl preprocessor (shader patching)
     minecraftLibrary "com.github.Ocelot5836:glsl-processor:${glsl_processor_version}"
-    shade "com.github.Ocelot5836:glsl-processor:${glsl_processor_version}"
+    shade ("com.github.Ocelot5836:glsl-processor:${glsl_processor_version}") {
+        exclude group: "org.ow2.asm"
+    }
     // NightConfig (Config System)
     // We shade because forges version is outdated...
     shade "com.electronwill.night-config:core:3.8.1"

@@ -6,6 +6,7 @@
 |----------------------------------------------------------------|---------------|
 | [Pandora Core](https://github.com/andrew0030/PandoraCore)      | LGPL-3.0-only |
 | [NightConfig](https://github.com/TheElectronWill/night-config) | LGPL-3.0-only |
+| [glsl-processor](https://github.com/Ocelot5836/glsl-processor) | LGPL-3.0-only |
 | [exp4j](https://github.com/fasseg/exp4j)                       | Apache-2.0    |
 | [ComparableVersion.class](https://github.com/apache/maven)     | Apache-2.0    |
 

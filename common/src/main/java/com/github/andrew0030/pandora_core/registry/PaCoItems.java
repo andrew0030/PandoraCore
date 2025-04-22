@@ -10,6 +10,5 @@ import java.util.function.Supplier;
 public class PaCoItems {
     public static final PaCoRegistry<Item> ITEMS = new PaCoRegistry<>(BuiltInRegistries.ITEM, PandoraCore.MOD_ID);
 
-    public static final Supplier<Item> TEST = ITEMS.add("test", () -> new Item(new Item.Properties()));
     public static final Supplier<Item> FUNK = ITEMS.add("funk", () -> new Item(new Item.Properties()));
 }

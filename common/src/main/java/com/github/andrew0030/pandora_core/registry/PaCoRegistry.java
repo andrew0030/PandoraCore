@@ -44,11 +44,14 @@ public class PaCoRegistry<T> {
      * @param factory A supplier that creates the object when registration occurs.
      * @return The same supplier, for convenient assignment.
      */
-    public Supplier<T> add(String name, Supplier<T> factory) {
+    @SuppressWarnings("unchecked")
+    public <U extends T> Supplier<U> add(String name, Supplier<U> factory) {
         if (this.registryQueue.containsKey(name))
             throw new IllegalArgumentException("An object with the name '" + name + "' is already registered.");
         var registryObject = new PaCoRegistryObject<>(factory);
-        this.registryQueue.put(name, registryObject);
+        // Note: We're storing the supplier as PaCoRegistryObject<T>, so we need to cast.
+        // The cast to PaCoRegistryObject<T> is safe because U extends T.
+        this.registryQueue.put(name, (PaCoRegistryObject<T>) registryObject);
         return registryObject;
     }
 

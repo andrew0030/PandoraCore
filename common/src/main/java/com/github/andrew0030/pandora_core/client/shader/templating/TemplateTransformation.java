@@ -27,18 +27,21 @@ public class TemplateTransformation {
     public void lock() {
         boolean hasQuatTransform = false;
         boolean hasMatrixTranslate = false;
+        boolean hasMatrixRotation = false;
         // resolve required information from the transformation definition
         for (InsertionAction action : actions) {
             if (action instanceof Injection inject) {
                 inject.resolveTypes(varTypes);
             }
             if (action instanceof TransformVar transform) {
-                hasQuatTransform = transform.hasQuatRot();
+                hasQuatTransform = hasQuatTransform || transform.hasQuatRot();
                 funcCache.put("rotateQuat", "paco_rotateQuat_" + generateSnowflake());
-            }
-            if (action instanceof TransformVar transform) {
-                hasMatrixTranslate = transform.hasMatrTranslate();
+
+                hasMatrixTranslate = hasMatrixTranslate || transform.hasMatrTranslate();
                 funcCache.put("translateMatr", "paco_translateMatr_" + generateSnowflake());
+
+                hasMatrixRotation = hasMatrixRotation || transform.hasMatrRotate();
+                funcCache.put("rotateMatr", "paco_rotateMatr_" + generateSnowflake());
             }
         }
         // if a mutation involving quaternion rotations is present, a method for rotating quats has to be injected
@@ -122,6 +125,19 @@ public class TemplateTransformation {
                         matr[2] = matr[2] + (mcpy * vec);
                         return matr;
                     }
+                    """.replace("%func%", qName);
+            actions.add(0, new InsertionAction() {
+                @Override
+                public String headInjection(TemplateTransformation transformation) {
+                    return qFunc;
+                }
+            });
+        }
+        // if a mutation involving matrix rotations is present (i.e. mat4 by mat3), a method for rotating matrices has to be injected
+        if (hasMatrixTranslate) {
+            String qName = funcCache.get("rotateMatr");
+            String qFunc = """
+                    mat4 %func%(mat4 matr, const mat3 rotation){return matr * mat4(rotation);}
                     """.replace("%func%", qName);
             actions.add(0, new InsertionAction() {
                 @Override

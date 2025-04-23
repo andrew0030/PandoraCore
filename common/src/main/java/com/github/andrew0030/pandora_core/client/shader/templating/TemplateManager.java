@@ -4,16 +4,14 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.IrisTemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.VanillaTemplateLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.OnDemandTemplateShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import net.irisshaders.iris.shaderpack.loading.ProgramId;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
@@ -119,6 +117,15 @@ public class TemplateManager {
         for (TemplateLoader loader : LOADERS) {
             loader.beginReload();
         }
+
+        TEMPLATED.forEach((k, v) -> {
+            try {
+                v.getDirect().destroy();
+            } catch (Throwable ignored) {
+                // should only occur for OnDemand
+            }
+        });
+        TEMPLATED.clear();
     }
 
     @ApiStatus.Internal
@@ -224,7 +231,7 @@ public class TemplateManager {
      * Why is this a method?
      * Because javadocs don't work on static init.
      */
-    public static void init() {
+    private static void init() {
         if (
                 Services.PLATFORM.isModLoaded("iris") ||
                         Services.PLATFORM.isModLoaded("oculus")

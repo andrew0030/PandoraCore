@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl;
 
-import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
@@ -9,21 +8,9 @@ import com.github.andrew0030.pandora_core.client.shader.templating.transformer.V
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.AttachmentSpecifier;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.ShaderAttachment;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.TemplatedProgram;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoAccessibleProgram;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
-import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.AbstractUniform;
-import com.mojang.blaze3d.shaders.Uniform;
-import com.mojang.blaze3d.systems.RenderSystem;
-import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
-import net.irisshaders.iris.shadows.ShadowRenderingState;
 import net.minecraft.client.renderer.ShaderInstance;
-import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.GL20;
-import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +47,7 @@ public class VanillaTemplatedShader extends TemplatedShader {
                     specifier.source, specifier.type,
                     apply, vanilla,
                     specifier.preprocess, mapper,
-                    processor
+                    processor, struct.location
             );
             attachments.add(attachment);
 

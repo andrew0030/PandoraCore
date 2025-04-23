@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.mixin.compat.shader.iris;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.IrisTemplateLoader;
 import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
 import net.irisshaders.iris.shaderpack.programs.ProgramSet;
@@ -16,4 +15,9 @@ public class IrisPipelineMixin {
 //        TemplateManager.reloadAll();
         IrisTemplateLoader.doLoad();
     }
+
+//    @Inject(at = @At("HEAD"), method = "destroyShaders")
+//    public void preDestroyShaders(CallbackInfo ci) {
+//
+//    }
 }

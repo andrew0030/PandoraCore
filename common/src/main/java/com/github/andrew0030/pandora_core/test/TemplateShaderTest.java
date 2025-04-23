@@ -16,8 +16,14 @@ import net.minecraft.resources.ResourceLocation;
 
 public class TemplateShaderTest {
     public static final InstanceDataElement POSITION = new InstanceDataElement("paco_Inject_Translation", NumericPrimitive.FLOAT, 3);
+    public static final InstanceDataElement ORIENTATION0 = new InstanceDataElement("paco_Inject_Orientation", NumericPrimitive.FLOAT, 3 );
+    public static final InstanceDataElement ORIENTATION1 = new InstanceDataElement("paco_Inject_Orientation", NumericPrimitive.FLOAT, 3 );
+    public static final InstanceDataElement ORIENTATION2 = new InstanceDataElement("paco_Inject_Orientation", NumericPrimitive.FLOAT, 3 );
     public static final InstanceFormat FORMAT = new InstanceFormat(
-            POSITION
+            POSITION,
+            ORIENTATION0,
+            ORIENTATION1,
+            ORIENTATION2
     );
     private static final int CUBE_COUNT = 100_000;
     protected static final CollectiveDrawData data = new CollectiveDrawData(FORMAT, CUBE_COUNT, VertexBuffer.Usage.STATIC);
@@ -41,55 +47,55 @@ public class TemplateShaderTest {
         cubeRange = multidrawBuffer.endMesh("cube");
 
         collectiveVBO.bind();
-        {
-            int rem = CUBE_COUNT;
-            boolean cube = false;
-            int cbrt = (int) Math.pow(CUBE_COUNT, 1 / (cube ? 3d : 2d)) - 1;
-            int idx = 0;
-
-            data.writeMesh(queenRange);
-            data.writeInstance(0);
-            data.activateData();
-            data.writeMesh(cubeRange);
-            data.writeInstance(0);
-            data.activateData();
-
-            for (int x = 0; x < cbrt; x++) {
-                for (int z = 0; z < cbrt; z++) {
-                    data.writeMesh(Math.random() > 0.5 ? queenRange : cubeRange);
-                    if (cube) {
-                        for (int y = 0; y < cbrt; y++) {
-                            data
-                                    .writeFloat(x, y, z)
-                                    .finishInstance();
-                        }
-                    } else {
-                        data
-                                .writeFloat(x * 4, 0, z * 4)
-                                .finishInstance();
-                    }
-                    idx++;
-                    rem--;
-                }
-            }
-            int i = 0;
-            while (idx != CUBE_COUNT) {
-                data.writeMesh(Math.random() > 0.5 ? queenRange : cubeRange);
-                data.writeFloat(0);
-                if (cube) data.writeFloat((rem + cbrt + 1) * 4);
-                else data.writeFloat((i + 1) * 4);
-                data.writeFloat(0);
-                data.finishInstance();
-                rem--;
-                idx++;
-                i++;
-            }
-        }
-
-        collectiveVBO.setupData(data);
-        data.upload();
+//        {
+//            int rem = CUBE_COUNT;
+//            boolean cube = false;
+//            int cbrt = (int) Math.pow(CUBE_COUNT, 1 / (cube ? 3d : 2d)) - 1;
+//            int idx = 0;
+//
+//            data.writeMesh(queenRange);
+//            data.writeInstance(0);
+//            data.activateData();
+//            data.writeMesh(cubeRange);
+//            data.writeInstance(0);
+//            data.activateData();
+//
+//            for (int x = 0; x < cbrt; x++) {
+//                for (int z = 0; z < cbrt; z++) {
+//                    data.writeMesh(Math.random() > 0.5 ? queenRange : cubeRange);
+//                    if (cube) {
+//                        for (int y = 0; y < cbrt; y++) {
+//                            data
+//                                    .writeFloat(x, y, z)
+//                                    .finishInstance();
+//                        }
+//                    } else {
+//                        data
+//                                .writeFloat(x * 4, 0, z * 4)
+//                                .finishInstance();
+//                    }
+//                    idx++;
+//                    rem--;
+//                }
+//            }
+//            int i = 0;
+//            while (idx != CUBE_COUNT) {
+//                data.writeMesh(Math.random() > 0.5 ? queenRange : cubeRange);
+//                data.writeFloat(0);
+//                if (cube) data.writeFloat((rem + cbrt + 1) * 4);
+//                else data.writeFloat((i + 1) * 4);
+//                data.writeFloat(0);
+//                data.finishInstance();
+//                rem--;
+//                idx++;
+//                i++;
+//            }
+//        }
+//
+//        collectiveVBO.setupData(data);
+//        data.upload();
         collectiveVBO.upload(builder.end());
-        builder.clear();
+//        builder.clear();
         VertexBuffer.unbind();
     }
 

@@ -1,11 +1,9 @@
 package com.github.andrew0030.pandora_core.client.render.instancing;
 
-import com.github.andrew0030.pandora_core.client.render.SupportChecker;
 import com.github.andrew0030.pandora_core.mixin_interfaces.render.IPaCoAccessibleUsage;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import org.lwjgl.opengl.EXTCompiledVertexArray;
-import org.lwjgl.opengl.GL11;
+import org.joml.Matrix3f;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
@@ -119,6 +117,12 @@ public class InstanceData {
         buffer.putFloat(y);
         buffer.putFloat(z);
         buffer.putFloat(w);
+        return this;
+    }
+
+    public InstanceData writeMatrix(Matrix3f matrix3f) {
+        matrix3f.get(buffer);
+        buffer.position(buffer.position() + (4 * 3 * 3));
         return this;
     }
 

@@ -1,7 +1,6 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.Uniform;
@@ -33,6 +32,7 @@ public abstract class TemplatedShader {
         }
         // TODO: remove this bit of hardcoding
         Uniform.glBindAttribLocation(id, 11, "paco_Inject_Translation");
+        Uniform.glBindAttribLocation(id, 12, "paco_Inject_Orientation");
     }
 
     public abstract void apply();

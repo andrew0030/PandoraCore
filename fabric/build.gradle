@@ -17,7 +17,11 @@ configurations {
 repositories {
     maven { url "https://www.cursemaven.com" }
     maven { url "https://api.modrinth.com/maven/" }
-    maven { url 'https://jitpack.io' }
+//    maven { url 'https://jitpack.io' }
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+    }
 }
 
 dependencies {
@@ -38,8 +42,8 @@ dependencies {
     modImplementation "net.objecthunter:exp4j:0.4.8"
     shade "net.objecthunter:exp4j:0.4.8"
     // glsl preprocessor (shader patching)
-    modImplementation "com.github.Ocelot5836:glsl-processor:${glsl_processor_version}"
-    shade ("com.github.Ocelot5836:glsl-processor:${glsl_processor_version}") {
+    modImplementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+    shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
         exclude group: "org.ow2.asm"
     }
     // NightConfig (Config System)

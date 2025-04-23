@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.client.render.collective;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceData;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import org.joml.Matrix3f;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -103,6 +104,11 @@ public class CollectiveDrawData {
 
     public CollectiveDrawData writeFloat(float x, float y, float z, float w) {
         writing.writeFloat(x, y, z, w);
+        return this;
+    }
+
+    public CollectiveDrawData writeMatrix(Matrix3f matrix3f) {
+        writing.writeMatrix(matrix3f);
         return this;
     }
 

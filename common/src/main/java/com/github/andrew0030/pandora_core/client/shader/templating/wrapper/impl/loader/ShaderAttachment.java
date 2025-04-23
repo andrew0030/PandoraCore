@@ -1,16 +1,15 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.NameMapper;
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.shaders.Uniform;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.GL40;
 
 import java.io.IOException;
 
@@ -22,7 +21,8 @@ public class ShaderAttachment {
             String source, AttachmentType type,
             TemplateTransformation transformation,
             ShaderInstance vanilla, boolean processSource,
-            VariableMapper mapper, TransformationProcessor processor
+            VariableMapper mapper, TransformationProcessor processor,
+            ResourceLocation location
     ) {
         this.type = type;
 
@@ -39,14 +39,15 @@ public class ShaderAttachment {
                     case TESSELATION_CONTROL -> GL40.GL_TESS_CONTROL_SHADER;
                 }
         );
-        GL20.glShaderSource(id, source);
+        GL20.glShaderSource(id, source.replace("out struct", "out").replace(";]", "]"));
+//        GL20.glShaderSource(id, source);
         GL20.glCompileShader(id);
 
         if (GlStateManager.glGetShaderi(id, 35713) == 0) {
             String $$7 = StringUtils.trim(GlStateManager.glGetShaderInfoLog(id, 32768));
             GL20.glDeleteShader(id);
             try {
-                throw new IOException("Couldn't compile " + source + " from " + vanilla.getName() + " program (" + vanilla.getName() + ", " + source + ") : " + $$7);
+                throw new IOException("Couldn't compile " + location.toString() + " from " + vanilla.getName() + " program (" + vanilla.getName() + ", " + location + ") : " + $$7);
             } catch (Throwable err) {
                 throw new RuntimeException(err);
             }

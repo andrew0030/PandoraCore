@@ -18,7 +18,11 @@ minecraft {
 
 repositories {
     maven { url "https://www.cursemaven.com" }
-    maven { url 'https://jitpack.io' }
+//    maven { url 'https://jitpack.io' }
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+    }
 }
 
 dependencies {
@@ -37,6 +41,6 @@ dependencies {
     compileOnly "curse.maven:oculus-581495:5299671" // Oculus
 
     // glsl preprocessor (shader patcher)
-    compileOnly "com.github.Ocelot5836:glsl-processor:${glsl_processor_version}"
-//    testImplementation "com.github.Ocelot5836:glsl-processor:${glsl_processor_version}"
+    compileOnly "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+//    testImplementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
 }

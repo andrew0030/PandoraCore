@@ -38,6 +38,14 @@ public class TransformVar extends InsertionAction {
         return false;
     }
 
+    public boolean hasMatrRotate() {
+        for (Pair<Operation, String> op : ops) {
+            if (op.getFirst() == Operation.ROTATE_MATRIX)
+                return true;
+        }
+        return false;
+    }
+
     @Override
     public String afterInputVar(VariableMapper mapper, TemplateTransformation transformation, String type, String var) {
         String varMap = mapper.mapFrom(type, var);
@@ -76,6 +84,7 @@ public class TransformVar extends InsertionAction {
         lhSUB("lhSubtract", "(%rh%+%lh%)"),
         ROTATE_QUAT("rotateQuat", "%func%(%lh%,%rh%)", "rotateQuat"),
         TRANSLATE_MATRIX("translateMatr", "%func%(%lh%,%rh%)", "translateMatr"),
+        ROTATE_MATRIX("rotateMatr", "%func%(%lh%,%rh%)", "rotateMatr"),
         ;
 
         final String name;

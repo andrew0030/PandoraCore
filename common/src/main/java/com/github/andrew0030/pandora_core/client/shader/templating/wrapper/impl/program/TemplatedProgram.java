@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader;
+package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 import static com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader.ABSTRACT_INST;
 
-public class TemplatedProgram {
+public class TemplatedProgram extends BaseProgram {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Templated Vanilla/Iris");
 
     ShaderInstance from;

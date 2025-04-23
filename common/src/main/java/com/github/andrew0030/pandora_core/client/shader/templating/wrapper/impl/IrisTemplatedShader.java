@@ -5,9 +5,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTrans
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.AttachmentSpecifier;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.ShaderAttachment;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.TemplatedProgram;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.*;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import net.irisshaders.iris.shadows.ShadowRenderingState;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -19,7 +17,7 @@ import java.util.function.Function;
 
 public class IrisTemplatedShader extends TemplatedShader {
     TemplatedProgram program;
-    TemplatedProgram programShadow;
+    BaseProgram programShadow;
     List<String> sourceNames = new ArrayList<>();
 
     public IrisTemplatedShader(
@@ -87,7 +85,7 @@ public class IrisTemplatedShader extends TemplatedShader {
             }
 
             // make program
-            programShadow = new TemplatedProgram(
+            TemplatedProgram programShadow = new TemplatedProgram(
                     vanillaShadow,
                     attachments
             );
@@ -96,9 +94,9 @@ public class IrisTemplatedShader extends TemplatedShader {
 
             // log error
             programShadow.validate("Iris/Oculus:Shadow");
+            this.programShadow = programShadow;
         } else {
-            // TODO: program which simply discards
-            programShadow = program;
+            programShadow = BlackHoleProgram.INSTANCE;
         }
     }
 

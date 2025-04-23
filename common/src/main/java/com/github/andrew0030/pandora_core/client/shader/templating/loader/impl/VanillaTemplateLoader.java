@@ -8,11 +8,10 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.Templa
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.IrisTemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.AttachmentSpecifier;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader.AttachmentType;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.AttachmentSpecifier;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.AttachmentType;
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;

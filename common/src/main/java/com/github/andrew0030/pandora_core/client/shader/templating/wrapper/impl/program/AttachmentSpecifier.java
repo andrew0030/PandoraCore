@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.loader;
+package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program;
 
 public class AttachmentSpecifier {
     public final AttachmentType type;

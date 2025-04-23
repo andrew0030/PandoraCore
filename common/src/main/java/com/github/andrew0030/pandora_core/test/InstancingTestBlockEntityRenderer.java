@@ -46,7 +46,7 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
 //                source.nextFloat() * 90,
                 new Random().nextFloat() * (float) Math.PI * 2,
                 1, 0, 0
-        );
+        ).identity();
         data.writeMesh(TemplateShaderTest.queenRange);
         data.ensureInstance();
         data.activateData();

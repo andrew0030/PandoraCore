@@ -4,22 +4,15 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.I
 import com.mojang.blaze3d.preprocessor.GlslPreprocessor;
 import com.mojang.blaze3d.shaders.Program;
 import net.irisshaders.iris.Iris;
-import net.irisshaders.iris.compat.sodium.impl.shader_overrides.IrisShaderTypes;
 import net.irisshaders.iris.pipeline.programs.ExtendedShader;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceProvider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Arrays;
 
-@Mixin(value = ExtendedShader.class, remap = false)
+@Mixin(value = ExtendedShader.class)
 public class ExtendedShader_CacheSrcMixin {
     // TODO: this does not need to be a redirect
     @SuppressWarnings({"InvalidInjectorMethodSignature", "UnresolvedMixinReference", "MixinAnnotationTarget"})

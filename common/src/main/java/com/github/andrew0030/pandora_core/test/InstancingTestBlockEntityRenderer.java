@@ -3,10 +3,10 @@ package com.github.andrew0030.pandora_core.test;
 import com.github.andrew0030.pandora_core.block_entities.InstancingTestBlockEntity;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
+import com.github.andrew0030.pandora_core.client.render.instancing.InstanceDataElement;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
-import com.github.andrew0030.pandora_core.test.PaCoRenderTypes;
-import com.github.andrew0030.pandora_core.test.TemplateShaderTest;
+import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.RenderType;
@@ -18,13 +18,13 @@ import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.joml.Matrix3f;
 import org.joml.Random;
 
-public class SBERenderer extends InstancedBlockEntityRenderer<PandoraCoreForge.SBE> {
+public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRenderer<InstancingTestBlockEntity> {
     public static final InstanceDataElement POSITION = new InstanceDataElement("paco_Inject_Translation", NumericPrimitive.FLOAT, 3);
     public static final InstanceFormat FORMAT = new InstanceFormat(
             POSITION
     );
 
-    public SBERenderer() {
+    public InstancingTestBlockEntityRenderer() {
         this(
                 TemplateShaderTest.FORMAT,
                 TemplateShaderTest.collectiveVBO

@@ -6,6 +6,10 @@ Iris compat:
 Jank:
 - starting a game of chess creates triangles
 - Investigate if spectator mode is broken (found on fabric). Basically looking diagonally and holding 'W' resulted in sideways movement instead of diagonal (maybe not a bug and just vanilla jank?).
+- sometimes crashes when switching iris shaders
+- crashes when disabling iris shaders
+- does not properly reload when enabling iris shaders
+- shader patcher does not like full F3+T with iris
 
 <hr/>
 

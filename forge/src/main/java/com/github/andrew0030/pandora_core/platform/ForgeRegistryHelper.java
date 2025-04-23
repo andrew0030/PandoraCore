@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
+import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.core.Registry;
@@ -13,14 +14,13 @@ import net.minecraftforge.registries.DeferredRegister;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class ForgeRegistryHelper implements IRegistryHelper {
 
     @Override
-    public <T> void register(Registry<T> registry, String modId, Map<String, Supplier<T>> entries) {
+    public <T> void register(Registry<T> registry, String modId, Map<String, PaCoRegistryObject<T>> registryQueue) {
         DeferredRegister<T> deferred = DeferredRegister.create(registry.key(), modId);
-        entries.forEach(deferred::register);
+        registryQueue.forEach(deferred::register);
         deferred.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 

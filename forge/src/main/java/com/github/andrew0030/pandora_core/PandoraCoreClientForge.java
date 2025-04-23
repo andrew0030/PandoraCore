@@ -1,7 +1,6 @@
 package com.github.andrew0030.pandora_core;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
-import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.events.ForgeClientTickEvent;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
 import net.minecraft.client.gui.screens.TitleScreen;

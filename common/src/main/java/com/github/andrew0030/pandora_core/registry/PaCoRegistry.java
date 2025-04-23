@@ -1,10 +1,9 @@
 package com.github.andrew0030.pandora_core.registry;
 
 import com.github.andrew0030.pandora_core.platform.Services;
-import com.github.andrew0030.pandora_core.utils.function.LazySupplier;
 import net.minecraft.core.Registry;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -27,12 +26,12 @@ import java.util.function.Supplier;
 public class PaCoRegistry<T> {
     private final Registry<T> registry;
     private final String modId;
-    private final Map<String, Supplier<T>> entries = new HashMap<>();
+    private final Map<String, PaCoRegistryObject<T>> registryQueue = new LinkedHashMap<>();
 
     /**
      * Constructs a new registry helper for a given registry and mod id.
      * @param registry The registry this helper will register objects into.
-     * @param modId    The mod id namespace to register entries under.
+     * @param modId    The mod id namespace to register objects under.
      */
     public PaCoRegistry(Registry<T> registry, String modId) {
         this.registry = registry;
@@ -45,14 +44,15 @@ public class PaCoRegistry<T> {
      * @param factory A supplier that creates the object when registration occurs.
      * @return The same supplier, for convenient assignment.
      */
-    public Supplier<T> add(String name, Supplier<T> factory) {
-        LazySupplier<T> ref = new LazySupplier<>();
-        entries.put(name, () -> {
-            T instance = factory.get();
-            ref.set(instance);
-            return instance;
-        });
-        return ref;
+    @SuppressWarnings("unchecked")
+    public <U extends T> Supplier<U> add(String name, Supplier<U> factory) {
+        if (this.registryQueue.containsKey(name))
+            throw new IllegalArgumentException("An object with the name '" + name + "' is already registered.");
+        var registryObject = new PaCoRegistryObject<>(factory);
+        // Note: We're storing the supplier as PaCoRegistryObject<T>, so we need to cast.
+        // The cast to PaCoRegistryObject<T> is safe because U extends T.
+        this.registryQueue.put(name, (PaCoRegistryObject<T>) registryObject);
+        return registryObject;
     }
 
     /**
@@ -60,12 +60,12 @@ public class PaCoRegistry<T> {
      * Here is a list of when to call it, on each loader:<br/><br/>
      * <strong>Forge</strong>: Inside mod constructor.<br/>
      * <strong>Fabric</strong>: Inside ModInitializer#onInitialize.<br/><br/>
-     * <strong>NOTE</strong>: This method also clears {@link PaCoRegistry#entries} after they have been registered.
+     * <strong>NOTE</strong>: This method also clears {@link PaCoRegistry#registryQueue} after the objects have been registered.
      */
     public void register() {
-        Services.REGISTRY.register(this.registry, this.modId, this.entries);
+        Services.REGISTRY.register(this.registry, this.modId, this.registryQueue);
         // If there is a random mod that rebuilds registries, this will probably conflict with it.
         // That said there is probably VERY FEW mods that do this, if any...
-        this.entries.clear();
+        this.registryQueue.clear();
     }
 }

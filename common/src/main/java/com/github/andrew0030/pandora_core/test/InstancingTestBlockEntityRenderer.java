@@ -1,5 +1,6 @@
-package com.github.andrew0030.pandora_core;
+package com.github.andrew0030.pandora_core.test;
 
+import com.github.andrew0030.pandora_core.block_entities.InstancingTestBlockEntity;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
@@ -18,6 +19,11 @@ import org.joml.Matrix3f;
 import org.joml.Random;
 
 public class SBERenderer extends InstancedBlockEntityRenderer<PandoraCoreForge.SBE> {
+    public static final InstanceDataElement POSITION = new InstanceDataElement("paco_Inject_Translation", NumericPrimitive.FLOAT, 3);
+    public static final InstanceFormat FORMAT = new InstanceFormat(
+            POSITION
+    );
+
     public SBERenderer() {
         this(
                 TemplateShaderTest.FORMAT,
@@ -25,12 +31,12 @@ public class SBERenderer extends InstancedBlockEntityRenderer<PandoraCoreForge.S
         );
     }
 
-    public SBERenderer(InstanceFormat format, CollectiveVBO vbo) {
+    public InstancingTestBlockEntityRenderer(InstanceFormat format, CollectiveVBO vbo) {
         super(format, vbo);
     }
 
     @Override
-    public void render(Level level, PandoraCoreForge.SBE object, BlockPos pos, CollectiveDrawData data) {
+    public void render(Level level, InstancingTestBlockEntity object, BlockPos pos, CollectiveDrawData data) {
         Matrix3f matrix3f = new Matrix3f();
         XoroshiroRandomSource source = new XoroshiroRandomSource(
                 new ChunkPos(pos).toLong(),

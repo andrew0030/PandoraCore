@@ -3,10 +3,8 @@ package com.github.andrew0030.pandora_core.test;
 import com.github.andrew0030.pandora_core.block_entities.InstancingTestBlockEntity;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
-import com.github.andrew0030.pandora_core.client.render.instancing.InstanceDataElement;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
-import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.RenderType;
@@ -19,11 +17,6 @@ import org.joml.Matrix3f;
 import org.joml.Random;
 
 public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRenderer<InstancingTestBlockEntity> {
-    public static final InstanceDataElement POSITION = new InstanceDataElement("paco_Inject_Translation", NumericPrimitive.FLOAT, 3);
-    public static final InstanceFormat FORMAT = new InstanceFormat(
-            POSITION
-    );
-
     public InstancingTestBlockEntityRenderer() {
         this(
                 TemplateShaderTest.FORMAT,
@@ -52,9 +45,7 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
         data.activateData();
         data.writeFloat(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
         data.writeMatrix(matrix3f);
-//        data.writeFloat(1, 0, 0);
-//        data.writeFloat(0, 1, 0);
-//        data.writeFloat(0, 0, 1);
+
         data.finishInstance();
     }
 

@@ -1,7 +1,6 @@
 package com.github.andrew0030.pandora_core.utils.enums;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL46;
 
 public enum NumericPrimitive {
     BYTE(GL11.GL_BYTE, 1),
@@ -18,5 +17,9 @@ public enum NumericPrimitive {
     NumericPrimitive(int glPrim, int size) {
         this.glPrim = glPrim;
         this.size = size;
+    }
+
+    public boolean isFloating() {
+        return this == BYTE || this == SHORT || this == INT || this == LONG;
     }
 }

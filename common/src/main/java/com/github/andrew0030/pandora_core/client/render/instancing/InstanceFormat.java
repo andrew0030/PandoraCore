@@ -1,9 +1,10 @@
 package com.github.andrew0030.pandora_core.client.render.instancing;
 
 import com.github.andrew0030.pandora_core.utils.collection.CyclicStack;
+import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL33;
 
 public class InstanceFormat {
     public final CyclicStack<InstanceDataElement> elements;
@@ -42,7 +43,11 @@ public class InstanceFormat {
         int offset = 0;
         for (InstanceDataElement element : elements) {
             GlStateManager._enableVertexAttribArray(attribute);
-            GlStateManager._vertexAttribPointer(attribute, element.size, element.type.glPrim, false, stride, offset);
+            if (NumericPrimitive.BYTE.isFloating()) {
+                GlStateManager._vertexAttribPointer(attribute, element.size, element.type.glPrim, element.normalize, stride, offset);
+            } else {
+                GlStateManager._vertexAttribIPointer(attribute, element.size, element.type.glPrim, stride, offset);
+            }
             // TODO: apparently, vertexAttribDivisor is in a newer version of OpenGL than MC uses
             //       a fallback uniform based implementation will be necessary
             GL33.glVertexAttribDivisor(

@@ -16,7 +16,7 @@ public class PaCoBlocks {
     public static final PaCoRegistry<Block> BLOCKS = new PaCoRegistry<>(BuiltInRegistries.BLOCK, PandoraCore.MOD_ID);
 
     public static final Supplier<Block> TEST            = PaCoBlocks.createBlock("test", TestBlock::new);
-    public static final Supplier<Block> INSTANCING_TEST = PaCoBlocks.createBlock("instancing_test", () -> new InstancingTestBlock(BlockBehaviour.Properties.copy(Blocks.STONE)));
+    public static final Supplier<Block> INSTANCING_TEST = PaCoBlocks.createBlock("instancing_test", () -> new InstancingTestBlock(BlockBehaviour.Properties.copy(Blocks.STONE).forceSolidOff().noOcclusion().noCollission()));
 
     private static Supplier<Block> createBlock(String name, Supplier<Block> supplier) {
         Supplier<Block> block = BLOCKS.add(name, supplier);

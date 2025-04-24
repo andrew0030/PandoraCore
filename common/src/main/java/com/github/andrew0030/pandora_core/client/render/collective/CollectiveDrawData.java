@@ -68,7 +68,7 @@ public class CollectiveDrawData {
     }
 
     public CollectiveDrawData writeInt(int b) {
-        writing.writeInstance(b);
+        writing.writeInt(b);
         return this;
     }
 

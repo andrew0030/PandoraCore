@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.test;
 
+import com.github.andrew0030.pandora_core.client.render.BufferBuilderUtils;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveBufferBuilder;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
@@ -33,7 +34,11 @@ public class TemplateShaderTest {
     public static CollectiveBufferBuilder.MeshRange queenRange;
 
     public static void uploadVBO(ObjModel queenObj, ObjModel cubeObj) {
-        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
+        BufferBuilderUtils.enforceExtended(
+                builder,
+                VertexFormat.Mode.TRIANGLES,
+                DefaultVertexFormat.NEW_ENTITY
+        );
         CollectiveBufferBuilder multidrawBuffer = new CollectiveBufferBuilder(builder);
         queenObj.render(
                 new PoseStack(),

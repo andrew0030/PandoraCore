@@ -57,7 +57,7 @@ Systems TODO:
   - [ ] Add a limit to how much the screen can shake
   - [ ] Maybe add a special override that allows bypassing the limit, might be handy for a few very select "shakes"
 - Creative Tabs
-  - [ ] Create builder pattern abstraction for creating creative tabs
+  - [x] ~~Create builder pattern abstraction for creating creative tabs~~ The vanilla creative tab builder is fine (just needs a helper to create it more easily)
   - [ ] Maybe expand methods by adding "insert after" and other similar methods
 - Shader Patcher
   - I dont understand enough about this system to write TODOs

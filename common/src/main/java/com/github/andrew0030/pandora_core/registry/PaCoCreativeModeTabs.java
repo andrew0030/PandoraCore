@@ -26,9 +26,13 @@ public class PaCoCreativeModeTabs {
     );
 
     public static void insertItems() {
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
+        // Stack with NBT data
+        ItemStack target = new ItemStack(Items.PAINTING);
+        target.getOrCreateTagElement("EntityTag").putString("variant", "minecraft:aztec");
+
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
             .add(PaCoItems.FUNK.get(), PaCoBlocks.TEST.get().asItem())
-            .insertBefore(Items.REDSTONE_TORCH)
+            .insertBefore(target)
             .apply();
     }
 }

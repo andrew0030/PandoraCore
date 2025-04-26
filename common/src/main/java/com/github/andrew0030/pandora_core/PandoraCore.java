@@ -36,6 +36,10 @@ public class PandoraCore {
         // Configs
         PaCoConfigManager.register(PaCoMainConfig.class);
 
+        // Inserts items into existing tabs
+        // TODO remove when done testing
+        PaCoCreativeModeTabs.insertItems();
+
         // Calls FileConfig#close() on all registered configs when the game shuts down
         Runtime.getRuntime().addShutdownHook(new Thread(PaCoConfigManager::closeConfigs));
     }

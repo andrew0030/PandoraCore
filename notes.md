@@ -58,6 +58,7 @@ Systems TODO:
   - [ ] Maybe add a special override that allows bypassing the limit, might be handy for a few very select "shakes"
 - Creative Tabs
   - [x] ~~Create builder pattern abstraction for creating creative tabs~~ The vanilla creative tab builder is fine (just needs a helper to create it more easily)
-  - [ ] Maybe expand methods by adding "insert after" and other similar methods
+  - [x] Make a tool that allows inserting items into existing tabs
+  - [x] Maybe add optional methods to "insert after" or "insert before"
 - Shader Patcher
   - I dont understand enough about this system to write TODOs

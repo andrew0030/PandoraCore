@@ -41,6 +41,8 @@ public class CreativeModeTabMixin {
         List<ItemStack> mutableDisplayItems = new LinkedList<>(this.displayItems);
         List<ItemStack> mutableDisplayItemsSearchTab = new LinkedList<>(this.displayItemsSearchTab);
 
+        //TODO: maybe add config option to disable sorting
+        PaCoTabManager.reorderTabInsertions(tabKey);
         for (TabInsertion tabInsertion : PaCoTabManager.getInsertionsFor(tabKey)) {
             if (tabInsertion.getVisibility() != TabVisibility.SEARCH_TAB_ONLY)
                 tabInsertion.getAction().apply(mutableDisplayItems);

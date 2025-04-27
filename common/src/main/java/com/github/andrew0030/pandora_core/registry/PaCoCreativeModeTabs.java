@@ -26,13 +26,40 @@ public class PaCoCreativeModeTabs {
     );
 
     public static void insertItems() {
-        // Stack with NBT data
+        // Target stack with NBT data
         ItemStack target = new ItemStack(Items.PAINTING);
         target.getOrCreateTagElement("EntityTag").putString("variant", "minecraft:aztec");
-
         PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-            .add(PaCoItems.FUNK.get(), PaCoBlocks.TEST.get().asItem())
-            .insertBefore(target)
-            .apply();
+                .add(PaCoItems.FUNK.get())
+                .insertAfter(target)
+                .apply();
+
+        // Anti infinite loop check
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
+                .add(PaCoBlocks.INSTANCING_TEST.get())
+                .insertBefore(PaCoBlocks.TEST.get())
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
+                .add(PaCoItems.FUNK.get())
+                .insertAfter(PaCoBlocks.TEST.get())
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
+                .add(PaCoBlocks.TEST.get())
+                .insertBefore(PaCoItems.FUNK.get())
+                .apply();
+
+        // 10.000 stacks insertion
+//        ItemStack baseStack = new ItemStack(PaCoItems.FUNK.get());
+//        List<ItemStack> items = new ArrayList<>();
+//        for (int i = 0; i < 10000; i++) {
+//            ItemStack stack = baseStack.copy();
+//            stack.getOrCreateTag().putInt("value", i);
+//            items.add(stack);
+//        }
+//        ItemStack[] stacks = items.toArray(ItemStack[]::new);
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
+//                .add(stacks)
+//                .insertAfter(Items.REDSTONE_TORCH)
+//                .apply();
     }
 }

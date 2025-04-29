@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A simple, cross-platform registry helper used for registering KeyMappings, in a unified way for all mod loaders.
+ * A simple, cross-platform registry helper used for registering
+ * {@link KeyMapping KeyMappings}, in a unified way across all mod loaders.
  *
  * <p>Usage example:</p>
  * <pre>{@code
@@ -30,16 +31,17 @@ import java.util.List;
  * }</pre>
  */
 public class PaCoKeyMappingRegistry {
-    private final List<Pair<KeyMapping, Runnable>> KEY_MAPPINGS = new ArrayList<>();
+    private final List<Pair<KeyMapping, Runnable>> keyMappings = new ArrayList<>();
 
     /**
      * Adds a new {@link KeyMapping} and {@link Runnable}, to be registered later.
+     *
      * @param keyMapping The {@link KeyMapping} to be registered.
      * @param runnable   The {@link Runnable} that will run when the key is pressed.
      * @return The given {@link KeyMapping}, for convenient assignment.
      */
     public KeyMapping add(KeyMapping keyMapping, Runnable runnable) {
-        KEY_MAPPINGS.add(new Pair<>(keyMapping, runnable));
+        this.keyMappings.add(new Pair<>(keyMapping, runnable));
         return keyMapping;
     }
 
@@ -50,6 +52,6 @@ public class PaCoKeyMappingRegistry {
      * <strong>Fabric</strong>: Inside ClientModInitializer#onInitializeClient.<br/>
      */
     public void register() {
-        Services.REGISTRY.registerKeyMappings(KEY_MAPPINGS);
+        Services.REGISTRY.registerKeyMappings(this.keyMappings);
     }
 }

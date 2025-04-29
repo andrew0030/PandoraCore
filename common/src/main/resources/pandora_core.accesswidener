@@ -36,6 +36,10 @@ accessible field net/minecraft/world/item/CreativeModeTabs INGREDIENTS Lnet/mine
 accessible field net/minecraft/world/item/CreativeModeTabs SPAWN_EGGS Lnet/minecraft/resources/ResourceKey;
 accessible field net/minecraft/world/item/CreativeModeTabs OP_BLOCKS Lnet/minecraft/resources/ResourceKey;
 
+# Used to access BlockEntityRenderers.render, both loaders make
+# this public, so in order to access it we need to add an AW.
+accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers register (Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/client/renderer/blockentity/BlockEntityRendererProvider;)V
+
 #=================================================================================================================
 # Shader Patcher Stuff, this is all dark magic to me so I moved it down for now to keep a clear seperation ~andrew
 #=================================================================================================================

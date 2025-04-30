@@ -60,5 +60,9 @@ Systems TODO:
   - [x] ~~Create builder pattern abstraction for creating creative tabs~~ The vanilla creative tab builder is fine (just needs a helper to create it more easily)
   - [x] Make a tool that allows inserting items into existing tabs
   - [x] Maybe add optional methods to "insert after" or "insert before"
+- Connected Textures
+  - [ ] Make system that can create custom baked models that swap textures based on neighbors
+  - [ ] Add different types of connecting texture blocks
+  - [ ] Add missing texture if the tile-atlas is missing
 - Shader Patcher
   - I dont understand enough about this system to write TODOs

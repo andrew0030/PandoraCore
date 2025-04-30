@@ -15,13 +15,15 @@ public class TabInsertion {
     private final Action action;
     private final TabVisibility visibility;
     @Nullable private final ItemStack target;
+    private final boolean targetsInsertion;
     private final List<ItemStack> insertedStacks;
 
-    TabInsertion(ResourceKey<CreativeModeTab> tab, Action action, TabVisibility visibility, ItemStack target, List<ItemStack> insertedStacks) {
+    TabInsertion(ResourceKey<CreativeModeTab> tab, Action action, TabVisibility visibility, ItemStack target, boolean targetsInsertion, List<ItemStack> insertedStacks) {
         this.tab = tab;
         this.action = action;
         this.visibility = visibility;
         this.target = target;
+        this.targetsInsertion = targetsInsertion;
         this.insertedStacks = insertedStacks;
     }
 
@@ -44,6 +46,10 @@ public class TabInsertion {
 
     public boolean hasTarget() {
         return this.target != null;
+    }
+
+    public boolean isTargetingInsertion() {
+        return this.targetsInsertion;
     }
 
     public List<ItemStack> getInsertedStacks() {

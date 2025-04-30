@@ -21,6 +21,7 @@ public class TabInsertionBuilder {
     private final List<ItemStack> stacks = new ArrayList<>();
     private TabVisibility visibility = TabVisibility.PARENT_AND_SEARCH_TABS;
     private ItemStack target;
+    private boolean targetsInsertion;
     private boolean insertBefore;
 
     /**
@@ -104,6 +105,22 @@ public class TabInsertionBuilder {
     }
 
     /**
+     * Marks this {@link TabInsertion} as dependent on another {@link TabInsertion},
+     * indicating that it must be included in the dependency sorting process.
+     * <p>
+     * <strong>When to use:</strong> Only call this if the insertion's target refers to an object
+     * inserted by another {@link TabInsertion}. This is not needed for insertions that target
+     * regular objects already present in the creative tab.
+     * </p>
+     *
+     * @return The current {@link TabInsertionBuilder} instance, for chaining.
+     */
+    public TabInsertionBuilder targetsInsertion() {
+        this.targetsInsertion = true;
+        return this;
+    }
+
+    /**
      * Sets the visibility of the tab insertion.<br/>
      * This controls whether the insertion appears in the search tab, parent tab, or both.
      *
@@ -121,7 +138,7 @@ public class TabInsertionBuilder {
     public void apply() {
         PaCoTabManager.TAB_INSERTIONS
                 .computeIfAbsent(this.tab, k -> new ArrayList<>())
-                .add(new TabInsertion(tab, this::insert, this.visibility, this.target, this.stacks));
+                .add(new TabInsertion(tab, this::insert, this.visibility, this.target, this.targetsInsertion, this.stacks));
     }
 
     /**

@@ -5,6 +5,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class provides a simple API for adding custom entries to existing creative mode tabs, along
@@ -75,14 +76,21 @@ public class PaCoTabManager {
         List<TabInsertion> list = TAB_INSERTIONS.get(tab);
         if (list == null) return;
 
-        List<TabInsertion> sorted = new ArrayList<>();
+        // Splits insertions into simple (no dependencies) and dependent
+        var partitioned = list.stream().collect(Collectors.partitioningBy(TabInsertion::isTargetingInsertion));
+        List<TabInsertion> simple = partitioned.get(false);
+        List<TabInsertion> dependent = partitioned.get(true);
+
+        List<TabInsertion> sortedDependent = new ArrayList<>();
         Set<TabInsertion> visited = new HashSet<>();
-        // Starts a DFS traversal for each entry
-        for (TabInsertion insertion : list)
-            PaCoTabManager.visitInsertion(insertion, list, sorted, visited);
+        // Starts a DFS traversal for each entry that has a dependency
+        for (TabInsertion insertion : dependent)
+            PaCoTabManager.visitInsertion(insertion, dependent, sortedDependent, visited);
 
         list.clear();
-        list.addAll(sorted);
+        // We insert simple entries first so that dependent entries can reference them reliably
+        list.addAll(simple);
+        list.addAll(sortedDependent);
     }
 
     /**

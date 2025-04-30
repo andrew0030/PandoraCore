@@ -36,19 +36,22 @@ public class PaCoCreativeModeTabs {
 
         // Anti infinite loop check
         PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
-                .add(PaCoBlocks.INSTANCING_TEST.get())
-                .insertBefore(PaCoBlocks.TEST.get())
-                .apply();
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
                 .add(PaCoItems.FUNK.get())
                 .insertAfter(PaCoBlocks.TEST.get())
+                .targetsInsertion()
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
+                .add(PaCoBlocks.INSTANCING_TEST.get())
+                .insertAfter(PaCoBlocks.TEST.get())
+                .targetsInsertion()
                 .apply();
         PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
                 .add(PaCoBlocks.TEST.get())
                 .insertBefore(PaCoItems.FUNK.get())
+                .targetsInsertion()
                 .apply();
 
-        // 10.000 stacks insertion
+        // 10.000 stacks in 1 insertion
 //        ItemStack baseStack = new ItemStack(PaCoItems.FUNK.get());
 //        List<ItemStack> items = new ArrayList<>();
 //        for (int i = 0; i < 10000; i++) {
@@ -57,9 +60,20 @@ public class PaCoCreativeModeTabs {
 //            items.add(stack);
 //        }
 //        ItemStack[] stacks = items.toArray(ItemStack[]::new);
-//        PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
 //                .add(stacks)
-//                .insertAfter(Items.REDSTONE_TORCH)
+//                .insertAfter(Items.PAINTING)
 //                .apply();
+
+        // 10.000 stacks in 10.000 insertion
+        ItemStack baseStack = new ItemStack(PaCoItems.FUNK.get());
+        for (int i = 0; i < 10000; i++) {
+            ItemStack stack = baseStack.copy();
+            stack.getOrCreateTag().putInt("value", i);
+            PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+                    .add(stack)
+                    .insertBefore(Items.PAINTING)
+                    .apply();
+        }
     }
 }

@@ -1,8 +1,8 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
-import com.github.andrew0030.pandora_core.client.shader.templating.loader.LoaderCapabilities;
-import com.github.andrew0030.pandora_core.client.shader.templating.loader.LoaderCapability;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.ShaderCapabilities;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.ShaderCapability;
 import me.jellysquid.mods.sodium.client.gl.shader.ShaderLoader;
 import net.minecraft.resources.ResourceLocation;
 
@@ -18,10 +18,10 @@ public class ShaderWrapper {
     TemplatedShaderInstance ALL_DRAW;
 
     public TemplatedShaderInstance unwrap(
-            LoaderCapability... requestedCapabilities
+            ShaderCapability... requestedCapabilities
     ) {
         if (requestedCapabilities.length == 1) {
-            if (requestedCapabilities[0].equals(LoaderCapabilities.UI_DRAW)) {
+            if (requestedCapabilities[0].equals(ShaderCapabilities.UI_DRAW)) {
                 if (UI_DRAW == null) {
                     UI_DRAW = TemplateManager.choose(
                             requestedCapabilities, instances, location
@@ -35,5 +35,17 @@ public class ShaderWrapper {
         TemplateManager.choose(
                 requestedCapabilities, instances, location
         );
+    }
+
+    public void apply() {
+        // TODO
+    }
+
+    public void upload() {
+        // TODO
+    }
+
+    public void clear() {
+        // TODO
     }
 }

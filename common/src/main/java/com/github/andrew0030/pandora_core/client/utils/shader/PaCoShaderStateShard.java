@@ -1,22 +1,37 @@
 package com.github.andrew0030.pandora_core.client.utils.shader;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
-
-import java.util.function.Supplier;
 
 public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
     Runnable setup;
     Runnable clear;
 
-    public PaCoShaderStateShard(TemplatedShaderInstance shaderInstance) {
+    // only useful for immediate use render types
+    public PaCoShaderStateShard(TemplatedShader shader) {
         super();
         setup = () -> {
-            shaderInstance.getDirect().apply();
-            shaderInstance.getDirect().upload();
+            shader.apply();
+            shader.upload();
         };
+        clear = shader::clear;
+    }
+
+    public PaCoShaderStateShard(ShaderWrapper shaderWrapper) {
+        super();
+        setup = () -> {
+            shaderWrapper.apply();
+            shaderWrapper.upload();
+        };
+        clear = shaderWrapper::clear;
+    }
+
+    // might as well
+    public PaCoShaderStateShard(ShaderInstance shaderInstance) {
+        super();
+        setup = () -> shaderInstance.apply();
         clear = shaderInstance::clear;
     }
 

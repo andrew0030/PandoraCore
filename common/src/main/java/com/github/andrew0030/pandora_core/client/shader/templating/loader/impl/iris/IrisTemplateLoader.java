@@ -1,11 +1,11 @@
-package com.github.andrew0030.pandora_core.client.shader.templating.loader.impl;
+package com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.iris;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.NameMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
-import com.github.andrew0030.pandora_core.client.shader.templating.loader.LoaderCapabilities;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.ShaderCapabilities;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
@@ -20,6 +20,7 @@ import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import net.irisshaders.iris.pipeline.programs.ShaderKey;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
@@ -42,7 +43,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     private static IrisTemplateLoader INSTANCE;
 
     public IrisTemplateLoader() {
-        super(LoaderCapabilities.CAPABILITIES_WORLD_SHADOW);
+        super(ShaderCapabilities.CAPABILITIES_WORLD_SHADOW);
         if (INSTANCE != null)
             throw new RuntimeException("Cannot create two vanilla template loaders.");
         INSTANCE = this;
@@ -231,5 +232,10 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
             TemplateManager.reloadTemplate(INSTANCE, s);
         }
         deferredLoad.clear();
+    }
+
+    @Override
+    public void prepare(ResourceManager manager) {
+        // no operation; not bound to resource manager
     }
 }

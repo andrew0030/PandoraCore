@@ -5,14 +5,15 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShade
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.util.Map;
 import java.util.function.Function;
 
 public abstract class TemplateLoader {
-    public final LoaderCapabilities capabilities;
+    public final ShaderCapabilities capabilities;
 
-    public TemplateLoader(LoaderCapabilities capabilities) {
+    public TemplateLoader(ShaderCapabilities capabilities) {
         this.capabilities = capabilities;
     }
 
@@ -53,9 +54,16 @@ public abstract class TemplateLoader {
 
     public abstract boolean matches(TemplatedShader direct, String shader, Map<String, String> transformers, Function<String, TemplateTransformation> transformations);
 
-    public boolean supports(LoaderCapability[] requestedCapabilities) {
+    public boolean supports(ShaderCapability[] requestedCapabilities) {
         return capabilities.supports(requestedCapabilities);
     }
+
+    /**
+     * Run preparation steps for resource loading
+     *
+     * @param manager the resource manager
+     */
+    public abstract void prepare(ResourceManager manager);
 
     public enum LoadResult {
         UNCACHED,

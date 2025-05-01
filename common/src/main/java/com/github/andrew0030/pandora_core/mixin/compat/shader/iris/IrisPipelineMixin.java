@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.compat.shader.iris;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.IrisTemplateLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.iris.IrisTemplateLoader;
 import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
 import net.irisshaders.iris.shaderpack.programs.ProgramSet;
 import org.spongepowered.asm.mixin.Mixin;

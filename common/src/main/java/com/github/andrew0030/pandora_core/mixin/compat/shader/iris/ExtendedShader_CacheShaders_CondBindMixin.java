@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.compat.shader.iris;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.IrisTemplateLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.iris.IrisTemplateLoader;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.gl.blending.AlphaTest;

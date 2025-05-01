@@ -4,7 +4,7 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
-import com.github.andrew0030.pandora_core.client.shader.templating.loader.LoaderCapabilities;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.ShaderCapabilities;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
@@ -19,9 +19,11 @@ import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.gson.JsonObject;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,17 +38,32 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 
     private static DualKeyMap<String, String, List<String>> sources = new DualKeyMap<>(new HashMap<>());
 
-    private final Map<ResourceLocation, JsonObject> shaderJsons;
+    private final Map<ResourceLocation, JsonObject> shaderJsons = new HashMap<>();
     private final TransformationProcessor processor = new DefaultTransformationProcessor();
 
     private static VanillaTemplateLoader INSTANCE;
 
-    public VanillaTemplateLoader(Map<ResourceLocation, JsonObject> shaderJsons) {
-        super(LoaderCapabilities.CAPABILITIES_ALL_VANILLA);
+    public VanillaTemplateLoader() {
+        super(ShaderCapabilities.CAPABILITIES_ALL_VANILLA);
         if (INSTANCE != null)
             throw new RuntimeException("Cannot create two vanilla template loaders.");
-        this.shaderJsons = shaderJsons;
         INSTANCE = this;
+    }
+
+    @Override
+    public void prepare(ResourceManager manager) {
+        manager.listResources(
+                "shaders/core",
+                (location) -> location.getPath().endsWith(".json")
+        ).forEach((location, resource) -> {
+            StringBuilder builder = new StringBuilder();
+            try (BufferedReader reader = resource.openAsReader()) {
+                reader.lines().forEach(line -> builder.append(line).append("\n"));
+                shaderJsons.put(location, TemplateManager.GSON.fromJson(builder.toString(), JsonObject.class));
+            } catch (Throwable err) {
+                LOGGER.warn("Failed to parse vanilla json " + location.toString(), err);
+            }
+        });
     }
 
     public static void activeFile(String source, String file) {

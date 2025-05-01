@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.client.shader.templating.loader.impl;
+package com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.iris;
 
 import net.irisshaders.iris.pipeline.programs.ShaderKey;
 import net.irisshaders.iris.shaderpack.loading.ProgramId;

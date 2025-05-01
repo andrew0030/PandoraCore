@@ -5,12 +5,16 @@ import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class FabricRegistryHelper implements IRegistryHelper {
 
@@ -35,5 +39,11 @@ public class FabricRegistryHelper implements IRegistryHelper {
                 }
             }
         });
+    }
+
+    @Override
+    public void registerModelLayers(Map<ModelLayerLocation, Supplier<LayerDefinition>> modelLayers) {
+        // Registers Model Layers.
+        modelLayers.forEach((location, definition) -> EntityModelLayerRegistry.registerModelLayer(location, definition::get));
     }
 }

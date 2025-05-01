@@ -1,8 +1,8 @@
 package com.github.andrew0030.pandora_core;
 
-import com.github.andrew0030.pandora_core.block_entities.InstancingTestBlockEntity;
 import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
 import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
+import com.github.andrew0030.pandora_core.client.registry.PaCoModelLayers;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.render.renderers.registry.InstancedBERendererRegistry;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
@@ -21,6 +21,8 @@ public class PandoraCoreClient {
     public static void earlyInit() {
         // Registers the PaCo KeyMappings
         PaCoKeyMappings.KEY_MAPPINGS.register();
+        // Registers the PaCo ModelLayers
+        PaCoModelLayers.MODEL_LAYERS.register();
 
         PaCoTesting.testInitClient();
 
@@ -39,6 +41,9 @@ public class PandoraCoreClient {
     /** Thread Safe Client Init */
     public static void initThreadSafe() {
         // TODO: remove this when done with testing
+        // Immediate Rendering
+        PaCoBlockEntities.registerBlockEntityRenderers();
+        // Instanced Rendering
         InstancedBERendererRegistry.register(PaCoBlockEntities.INSTANCING_TEST.get(), new InstancingTestBlockEntityRenderer());
     }
 }

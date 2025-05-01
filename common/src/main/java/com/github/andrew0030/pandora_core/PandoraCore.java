@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.registry.PaCoBlockEntities;
 import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
+import com.github.andrew0030.pandora_core.registry.PaCoCreativeModeTabs;
 import com.github.andrew0030.pandora_core.registry.PaCoItems;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
@@ -25,6 +26,7 @@ public class PandoraCore {
         PaCoBlocks.BLOCKS.register();
         PaCoItems.ITEMS.register();
         PaCoBlockEntities.BLOCK_ENTITY_TYPES.register();
+        PaCoCreativeModeTabs.CREATIVE_MODE_TABS.register();
     }
 
     /** Common Init */
@@ -33,6 +35,10 @@ public class PandoraCore {
 
         // Configs
         PaCoConfigManager.register(PaCoMainConfig.class);
+
+        // Inserts items into existing tabs
+        // TODO remove when done testing
+        PaCoCreativeModeTabs.insertItems();
 
         // Calls FileConfig#close() on all registered configs when the game shuts down
         Runtime.getRuntime().addShutdownHook(new Thread(PaCoConfigManager::closeConfigs));

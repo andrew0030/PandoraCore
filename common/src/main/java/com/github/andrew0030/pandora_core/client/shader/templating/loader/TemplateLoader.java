@@ -53,6 +53,10 @@ public abstract class TemplateLoader {
 
     public abstract boolean matches(TemplatedShader direct, String shader, Map<String, String> transformers, Function<String, TemplateTransformation> transformations);
 
+    public boolean supports(LoaderCapability[] requestedCapabilities) {
+        return capabilities.supports(requestedCapabilities);
+    }
+
     public enum LoadResult {
         UNCACHED,
         LOADED,

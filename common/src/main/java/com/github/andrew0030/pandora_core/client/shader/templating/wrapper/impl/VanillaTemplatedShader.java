@@ -5,9 +5,9 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTrans
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.AttachmentSpecifier;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.ShaderAttachment;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.TemplatedProgram;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment.AttachmentSpecifier;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment.ShaderAttachment;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import net.minecraft.client.renderer.ShaderInstance;
 

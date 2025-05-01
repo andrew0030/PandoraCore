@@ -1,17 +1,20 @@
 package com.github.andrew0030.pandora_core.client.shader.templating;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.LoaderCapability;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.IrisTemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.VanillaTemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.OnDemandTemplateShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.blackhole.VoidShaderInstance;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import me.jellysquid.mods.sodium.client.gl.shader.ShaderLoader;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
@@ -110,6 +113,18 @@ public class TemplateManager {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders");
 
     protected static final Gson GSON = new GsonBuilder().setLenient().create();
+
+    public static TemplatedShaderInstance choose(LoaderCapability[] requestedCapabilities, Map<ShaderLoader, TemplatedShaderInstance> instances, ResourceLocation location) {
+        for (TemplateLoader loader : LOADERS) {
+            if (loader.supports(requestedCapabilities)) {
+                TemplatedShaderInstance instance = instances.get(loader);
+                if (instance == null) {
+                    throw new RuntimeException("TODO");
+                }
+            }
+        }
+        return VoidShaderInstance.INSTANCE;
+    }
 
     @ApiStatus.Internal
     public void beginReload() {

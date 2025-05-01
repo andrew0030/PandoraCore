@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program;
+package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment;
 
 public enum AttachmentType {
     FRAGMENT("fsh"), VERTEX("vsh"),

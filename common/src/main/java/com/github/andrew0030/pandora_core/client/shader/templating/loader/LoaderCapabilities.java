@@ -17,7 +17,6 @@ public class LoaderCapabilities {
     public static final LoaderCapabilities CAPABILITIES_WORLD_ONLY = new LoaderCapabilities(WORLD_DRAW);
     public static final LoaderCapabilities CAPABILITIES_UI_ONLY = new LoaderCapabilities(UI_DRAW);
 
-//    private final LoaderCapability[] capabilities;
     private final HashSet<LoaderCapability> capabilitiesSet;
 
     public LoaderCapabilities(LoaderCapability... capabilities) {
@@ -27,5 +26,12 @@ public class LoaderCapabilities {
 
     public boolean hasCapability(LoaderCapability capability) {
         return this.capabilitiesSet.contains(capability);
+    }
+
+    public boolean supports(LoaderCapability[] requestedCapabilities) {
+        for (LoaderCapability requestedCapability : requestedCapabilities) {
+            if (!hasCapability(requestedCapability)) return false;
+        }
+        return true;
     }
 }

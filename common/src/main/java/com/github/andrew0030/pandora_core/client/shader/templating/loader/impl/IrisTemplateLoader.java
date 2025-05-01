@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.NameMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.LoaderCapabilities;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
@@ -41,6 +42,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     private static IrisTemplateLoader INSTANCE;
 
     public IrisTemplateLoader() {
+        super(LoaderCapabilities.CAPABILITIES_WORLD_SHADOW);
         if (INSTANCE != null)
             throw new RuntimeException("Cannot create two vanilla template loaders.");
         INSTANCE = this;

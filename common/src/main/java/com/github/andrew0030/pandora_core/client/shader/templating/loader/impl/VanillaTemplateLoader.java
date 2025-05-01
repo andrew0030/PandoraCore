@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.LoaderCapabilities;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
@@ -41,6 +42,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     private static VanillaTemplateLoader INSTANCE;
 
     public VanillaTemplateLoader(Map<ResourceLocation, JsonObject> shaderJsons) {
+        super(LoaderCapabilities.CAPABILITIES_ALL_VANILLA);
         if (INSTANCE != null)
             throw new RuntimeException("Cannot create two vanilla template loaders.");
         this.shaderJsons = shaderJsons;

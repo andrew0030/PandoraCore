@@ -10,6 +10,12 @@ import java.util.Map;
 import java.util.function.Function;
 
 public abstract class TemplateLoader {
+    public final LoaderCapabilities capabilities;
+
+    public TemplateLoader(LoaderCapabilities capabilities) {
+        this.capabilities = capabilities;
+    }
+
     /**
      * Attempts to load the shader from the defined template transformation
      *

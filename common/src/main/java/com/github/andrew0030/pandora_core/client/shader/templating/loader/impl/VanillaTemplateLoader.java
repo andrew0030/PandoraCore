@@ -186,7 +186,9 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
         );
     }
 
-    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete,  Function<String, TemplateTransformation> transformations) {
+        Map<String, String> transformers = struct.getTransformers();
+
         String template = struct.getTemplate("vanilla");
         if (template == null)
             return LoadResult.FAILED;
@@ -236,13 +238,13 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     }
 
     @Override
-    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
-        return attempt(manager, transformation, false, transformers, transformations);
+    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Function<String, TemplateTransformation> transformations) {
+        return attempt(manager, transformation, false, transformations);
     }
 
     @Override
-    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
-        return attempt(manager, transformation, true, transformers, transformations) == LoadResult.LOADED;
+    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Function<String, TemplateTransformation> transformations) {
+        return attempt(manager, transformation, true, transformations) == LoadResult.LOADED;
     }
 
     @Override
@@ -256,7 +258,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     }
 
     @Override
-    public void beginReload() {
+    public void _beginReload() {
         sources.clear();
         shaderJsons.clear();
     }

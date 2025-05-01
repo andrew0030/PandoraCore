@@ -4,9 +4,13 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManag
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -30,7 +34,7 @@ public abstract class TemplateLoader {
      * in this event, the shader manager goes onto the next loader
      * {@link LoadResult#LOADED}   indicates that the shader load successfully
      */
-    public abstract LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Map<String, String> transformers, Function<String, TemplateTransformation> transformations);
+    public abstract LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations);
 
     /**
      * Attempts to load the shader from the defined template transformation
@@ -44,13 +48,24 @@ public abstract class TemplateLoader {
      * @return whether the loader was able to successfully load the shader
      * ideally, this never returns false, but that's probably not going to happen
      */
-    public abstract boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Map<String, String> transformers, Function<String, TemplateTransformation> transformations);
+    public abstract boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations);
 
     public abstract TransformationProcessor processor();
 
     public abstract String name();
 
-    public abstract void beginReload();
+    private Map<ResourceLocation, TemplatedShaderInstance> loadedShaders = new HashMap<>();
+
+    protected abstract void _beginReload();
+
+    public final void beginReload() {
+        for (TemplatedShaderInstance value : loadedShaders.values()) {
+            if (value.hasDirect())
+                value.getDirect().destroy();
+        }
+        loadedShaders.clear();
+        _beginReload();
+    }
 
     public abstract boolean matches(TemplatedShader direct, String shader, Map<String, String> transformers, Function<String, TemplateTransformation> transformations);
 
@@ -64,6 +79,19 @@ public abstract class TemplateLoader {
      * @param manager the resource manager
      */
     public abstract void prepare(ResourceManager manager);
+
+    protected void loadShader(ResourceLocation location, TemplatedShaderInstance instance) {
+        loadedShaders.put(location, instance);
+    }
+
+    public void preload(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations) {
+        attempt(manager, struct, transformations);
+    }
+
+    public void debug(List<String> list) {
+        list.add(loadedShaders.size() + " loaded " + name() + " templates");
+        list.add("Capabilities: " + capabilities.debugString());
+    }
 
     public enum LoadResult {
         UNCACHED,

@@ -138,7 +138,8 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         return false;
     }
 
-    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
+    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Function<String, TemplateTransformation> transformations) {
+        Map<String, String> transformers = struct.getTransformers();
         String template = struct.getTemplate("iris");
         if (template == null)
             return LoadResult.FAILED;
@@ -189,13 +190,13 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     }
 
     @Override
-    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
-        return attempt(manager, transformation, false, transformers, transformations);
+    public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Function<String, TemplateTransformation> transformations) {
+        return attempt(manager, transformation, false, transformations);
     }
 
     @Override
-    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
-        return attempt(manager, transformation, true, transformers, transformations) == LoadResult.LOADED;
+    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Function<String, TemplateTransformation> transformations) {
+        return attempt(manager, transformation, true, transformations) == LoadResult.LOADED;
     }
 
     @Override
@@ -209,7 +210,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     }
 
     @Override
-    public void beginReload() {
+    public void _beginReload() {
         sources.clear();
         deferredLoad.clear();
     }
@@ -236,6 +237,11 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
 
     @Override
     public void prepare(ResourceManager manager) {
+        // no operation; not bound to resource manager
+    }
+
+    @Override
+    public void preload(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations) {
         // no operation; not bound to resource manager
     }
 }

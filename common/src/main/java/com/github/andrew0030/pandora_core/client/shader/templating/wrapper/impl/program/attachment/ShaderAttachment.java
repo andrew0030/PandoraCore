@@ -57,4 +57,8 @@ public class ShaderAttachment {
     public void delete() {
         GL20.glDeleteShader(id);
     }
+
+    public int getId() {
+        return id;
+    }
 }

@@ -6,14 +6,15 @@ import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.resource.PacoResourceManager;
 import com.github.andrew0030.pandora_core.utils.resource.ResourceDispatcher;
+import com.github.andrew0030.pandora_core.utils.resource.ResourceHelper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,8 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
         dispatch
                 // load template shader transformations
                 .prepare("paco_parse_template_shaders", (v) -> {
+                    Map<String, TemplateTransformation> transformationMap = new HashMap<>();
+
                     manager.listResources(
                             "shaders/paco/templated",
                             (location) ->
@@ -62,15 +65,15 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
                                             location.getPath().endsWith(".fsh") ||
                                             location.getPath().endsWith(".glsl")
                     ).forEach((location, resource) -> {
-                        StringBuilder builder = new StringBuilder();
-                        try (BufferedReader reader = resource.openAsReader()) {
-                            reader.lines().forEach(line -> builder.append(line).append("\n"));
-                            TemplateTransformation transformation = parser.parse(location, builder.toString());
-                            templateManager.register(transformation);
+                        try {
+                            TemplateTransformation transformation = parser.parse(location, ResourceHelper.readWholeResource(resource));
+                            transformationMap.put(transformation.location.toString(), transformation);
                         } catch (Throwable err) {
                             LOGGER.warn("Failed to parse shader template " + location.toString(), err);
                         }
                     });
+
+                    return transformationMap;
                 })
                 // load template shader jsons
                 .prepare("paco_parse_template_shaders", (v) -> {
@@ -79,35 +82,37 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
                             "shaders/paco/templated",
                             (location) -> location.getPath().endsWith(".json")
                     ).forEach((location, resource) -> {
-                        StringBuilder builder = new StringBuilder();
-                        try (BufferedReader reader = resource.openAsReader()) {
-                            reader.lines().forEach(line -> builder.append(line).append("\n"));
+                        try {
                             JsonObject obj = TemplateManager.GSON.fromJson(
-                                    builder.toString(),
+                                    ResourceHelper.readWholeResource(resource),
                                     JsonObject.class
                             );
+
+                            // strip extension
                             String pth = location.getPath();
                             if (pth.endsWith(".json"))
                                 pth = pth.substring(0, pth.length() - ".json".length());
+
                             TemplateStruct struct = new TemplateStruct(
                                     new ResourceLocation(
                                             location.getNamespace(),
                                             pth
                                     )
                             );
+
                             struct.parse(obj);
                             structs.add(struct);
                         } catch (Throwable err) {
                             LOGGER.warn("Failed to parse shader template " + location.toString(), err);
                         }
                     });
-                    return structs;
+                    return Pair.of(v, structs);
                 })
                 // await preparation completion
                 .barrier()
                 // load shaders
                 .apply("paco_load_template_shaders", (result) -> {
-                    templateManager.preload(result);
+                    templateManager.preload(result.getFirst(), result.getSecond());
                 });
     }
 

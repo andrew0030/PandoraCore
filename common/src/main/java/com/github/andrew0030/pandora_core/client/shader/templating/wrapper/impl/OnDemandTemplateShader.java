@@ -2,7 +2,6 @@ package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 
@@ -43,5 +42,10 @@ public class OnDemandTemplateShader extends TemplatedShader {
         TemplatedShader sdr = getDirect();
         if (sdr != null) return sdr.getUniform(name, type, count);
         return ABSTRACT_INST;
+    }
+
+    @Override
+    public boolean hasDirect() {
+        return false;
     }
 }

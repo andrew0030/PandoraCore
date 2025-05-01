@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.V
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.iris.IrisTemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
@@ -14,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TemplateManager {
     public static final Gson GSON = new GsonBuilder().setLenient().create();
@@ -26,10 +28,13 @@ public class TemplateManager {
      * @return the corresponding template shader instance
      */
     public static ShaderWrapper getWrapper(ResourceLocation resource) {
-        return WRAPPERS.get(new ResourceLocation(
-                resource.getNamespace(),
-                resource.getPath()
-        ));
+        ShaderWrapper wrapper = WRAPPERS.get(resource);
+
+        if (wrapper == null) {
+            wrapper = new ShaderWrapper(resource);
+            WRAPPERS.put(resource, wrapper);
+        }
+        return wrapper;
     }
 
     private static final ArrayList<TemplateLoader> LOADERS = new ArrayList<>();
@@ -56,37 +61,46 @@ public class TemplateManager {
     }
 
     public static void writeF3(List<String> list) {
-        // TODO: update
-//        int loaded = 0;
-//        HashMap<TemplateLoader, Integer> counts = new HashMap<>();
-//        for (TemplatedShaderInstance value : TEMPLATED.values()) {
-//            TemplatedShader direct = value.getDirect();
-//            if (!(direct instanceof OnDemandTemplateShader)) {
-//                loaded++;
-//
-//                int v = counts.getOrDefault(direct.getLoader(), 0);
-//                counts.put(direct.getLoader(), v + 1);
-//            }
-//        }
-//
-//        list.add("Loaded templates: " + (loaded + " / " + WRAPPERS.size()));
-//        list.add("Template Loaders:");
-//        int index = 0;
-//        for (TemplateLoader loader : LOADERS) {
-//            list.add(index++ + " -> " + loader.name() + ": " + counts.getOrDefault(loader, 0));
-//        }
-//        list.add("Unloaded: " + (TEMPLATED.size() - loaded));
+        list.add("Wrappers: " + WRAPPERS.size());
+        for (TemplateLoader loader : LOADERS) {
+            loader.debug(list);
+        }
+    }
+
+    public static void reloadTemplate(TemplateLoader instance, String s) {
     }
 
     public void beginReload() {
-        // TODO:
+        for (TemplateLoader loader : LOADERS) {
+            loader.beginReload();
+        }
     }
 
     public List<TemplateLoader> allLoaders() {
         return ImmutableList.copyOf(LOADERS);
     }
 
-    public void preload(List<TemplateShaderResourceLoader.TemplateStruct> result) {
-        // TODO
+    public void preload(Map<String, TemplateTransformation> transformations, List<TemplateShaderResourceLoader.TemplateStruct> result) {
+        LoadManager manager = new LoadManager();
+        for (TemplateShaderResourceLoader.TemplateStruct struct : result) {
+            for (TemplateLoader loader : LOADERS) {
+                // shaders may fail to preload
+                // that is fine, and completely expected
+                loader.preload(
+                        manager,
+                        struct,
+                        transformations::get
+                );
+            }
+        }
+    }
+
+    public class LoadManager {
+        public void load(TemplatedShader vanillaTemplatedShader) {
+        }
+
+        public TemplatedShader reload(TemplateShaderResourceLoader.TemplateStruct transformation) {
+            throw new RuntimeException("TODO");
+        }
     }
 }

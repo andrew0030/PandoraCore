@@ -34,7 +34,7 @@ public class TemplatedProgram extends BaseProgram {
         id = GL20.glCreateProgram();
 
         for (ShaderAttachment attachment : attachments) {
-            GL20.glAttachShader(id, attachment.id);
+            GL20.glAttachShader(id, attachment.getId());
         }
     }
 

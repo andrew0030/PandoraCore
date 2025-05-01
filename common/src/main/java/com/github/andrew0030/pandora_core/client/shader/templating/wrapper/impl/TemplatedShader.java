@@ -60,4 +60,8 @@ public abstract class TemplatedShader {
     public abstract AbstractUniform getUniform(String name, int type, int count);
 
     public static final AbstractUniform ABSTRACT_INST = new AbstractUniform();
+
+    public boolean hasDirect() {
+        return true;
+    }
 }

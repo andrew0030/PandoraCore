@@ -116,36 +116,40 @@ public class PaCoCreativeModeTabs {
 
         // Insert existing item test
         //TODO fix this one
-//        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
-//                .add(Items.CANDLE)
-//                .insertBefore(Blocks.YELLOW_BED)
-//                .apply();
-//        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
-//                .add(Items.CARROT)
-//                .insertAfter(Items.CANDLE)
-//                .apply();
-//        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
-//                .add(Items.APPLE)
-//                .insertBefore(Items.CANDLE)
-//                .apply();
-//        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
-//                .add(Items.MELON_SLICE)
-//                .insertBefore(Blocks.LIME_BED)
-//                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
+                .add(Items.CANDLE)
+                .insertBefore(Blocks.YELLOW_BED)
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
+                .add(Items.CARROT)
+                .insertAfter(Items.CANDLE)
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
+                .add(Items.APPLE)
+                .insertBefore(Items.CANDLE)
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
+                .add(Items.MELON_SLICE)
+                .insertBefore(Blocks.LIME_BED)
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
+                .add(Items.GOLDEN_APPLE)
+                .insertAfter(Items.ORANGE_CANDLE)
+                .apply();
 
         // Inserting same item twice
         //TODO fix this one
-//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-//                .add(PaCoBlocks.TEST.get())
-//                .insertAfter(Blocks.DRAGON_EGG)
-//                .apply();
-//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-//                .add(PaCoBlocks.TEST.get())
-//                .insertAfter(Items.ENDER_EYE)
-//                .apply();
-//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-//                .add(PaCoItems.FUNK.get())
-//                .insertAfter(PaCoBlocks.TEST.get())
-//                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+                .add(PaCoBlocks.TEST.get())
+                .insertAfter(Blocks.DRAGON_EGG)
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+                .add(PaCoBlocks.TEST.get())
+                .insertAfter(Items.ENDER_EYE)
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+                .add(PaCoItems.FUNK.get())
+                .insertAfter(PaCoBlocks.TEST.get())
+                .apply();
     }
 }

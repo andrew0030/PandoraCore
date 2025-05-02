@@ -1,7 +1,6 @@
 package com.github.andrew0030.pandora_core.tab;
 
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -11,28 +10,22 @@ import java.util.List;
  * Use {@link PaCoTabManager#insertionBuilder(ResourceKey)} to create a {@link TabInsertion}.
  */
 public class TabInsertion {
-    private final ResourceKey<CreativeModeTab> tab;
-    private final Action action;
+    private final List<ItemStack> stacks;
     private final TabVisibility visibility;
     @Nullable private final ItemStack target;
+    private final boolean insertBefore;
     private final boolean targetsInsertion;
-    private final List<ItemStack> insertedStacks;
 
-    TabInsertion(ResourceKey<CreativeModeTab> tab, Action action, TabVisibility visibility, ItemStack target, boolean targetsInsertion, List<ItemStack> insertedStacks) {
-        this.tab = tab;
-        this.action = action;
+    TabInsertion(List<ItemStack> stacks, TabVisibility visibility, @Nullable ItemStack target, boolean insertBefore, boolean targetsInsertion) {
+        this.stacks = stacks;
         this.visibility = visibility;
         this.target = target;
+        this.insertBefore = insertBefore;
         this.targetsInsertion = targetsInsertion;
-        this.insertedStacks = insertedStacks;
     }
 
-    public ResourceKey<CreativeModeTab> getTab() {
-        return this.tab;
-    }
-
-    public Action getAction() {
-        return this.action;
+    public List<ItemStack> getStacks() {
+        return this.stacks;
     }
 
     public TabVisibility getVisibility() {
@@ -48,12 +41,12 @@ public class TabInsertion {
         return this.target != null;
     }
 
-    public boolean isTargetingInsertion() {
-        return this.targetsInsertion;
+    public boolean isInsertBefore() {
+        return this.insertBefore;
     }
 
-    public List<ItemStack> getInsertedStacks() {
-        return this.insertedStacks;
+    public boolean isTargetingInsertion() {
+        return this.targetsInsertion;
     }
 
     /**
@@ -67,7 +60,7 @@ public class TabInsertion {
         // If the target is null we can quickly say that "no this insertion does not have that target"
         if (target == null) return false;
         // If the target wasn't null we go through the inserted stacks and compare them with the target
-        for (ItemStack stack : this.insertedStacks) {
+        for (ItemStack stack : this.stacks) {
             if (target.hasTag()) {
                 if (ItemStack.matches(stack, target))
                     return true;
@@ -77,10 +70,5 @@ public class TabInsertion {
             }
         }
         return false;
-    }
-
-    @FunctionalInterface
-    public interface Action {
-        void apply(List<ItemStack> list);
     }
 }

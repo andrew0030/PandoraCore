@@ -8,7 +8,6 @@ import net.minecraft.world.level.ItemLike;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ListIterator;
 
 /**
  * A builder class for constructing and applying {@link TabInsertion} instances.
@@ -21,8 +20,8 @@ public class TabInsertionBuilder {
     private final List<ItemStack> stacks = new ArrayList<>();
     private TabVisibility visibility = TabVisibility.PARENT_AND_SEARCH_TABS;
     private ItemStack target;
-    private boolean targetsInsertion;
     private boolean insertBefore;
+    private boolean targetsInsertion;
 
     /**
      * Constructs a new builder for the given {@link CreativeModeTab}.
@@ -135,45 +134,10 @@ public class TabInsertionBuilder {
     /**
      * Applies the configured {@link TabInsertion} to the tab's insertion list.
      */
+    @SuppressWarnings("deprecation")
     public void apply() {
-        PaCoTabManager.TAB_INSERTIONS
+        TabInsertionManager.TAB_INSERTIONS
                 .computeIfAbsent(this.tab, k -> new ArrayList<>())
-                .add(new TabInsertion(tab, this::insert, this.visibility, this.target, this.targetsInsertion, this.stacks));
-    }
-
-    /**
-     * Inserts the {@link ItemStack ItemStacks} into the given list according to the builder's rules.
-     * <p>
-     * If a target item was specified and found, the stacks will be inserted either before or after (depending on configuration).
-     * If no target is specified or found, the stacks are simply appended to the end of the list.
-     * </p>
-     *
-     * @param list The list of {@link ItemStack ItemStacks} to modify.
-     */
-    private void insert(List<ItemStack> list) {
-        // If there is no target we simply insert the stacks at the end of the tab
-        if (this.target == null) {
-            list.addAll(this.stacks);
-            return;
-        }
-        // Inserts the stacks into the list if the list contains the target
-        ListIterator<ItemStack> iterator = this.insertBefore
-                ? list.listIterator(0)            // Start at beginning when inserting BEFORE
-                : list.listIterator(list.size()); // Start at end when inserting AFTER
-        while (this.insertBefore ? iterator.hasNext() : iterator.hasPrevious()) {
-            ItemStack current = this.insertBefore ? iterator.next() : iterator.previous();
-            boolean isMatching = this.target.hasTag() ? ItemStack.matches(current, this.target) : current.is(this.target.getItem());
-            if (isMatching) {
-                if (this.insertBefore) {
-                    iterator.previous(); // Step back when inserting before
-                } else {
-                    iterator.next(); // Step forward when inserting after
-                }
-                this.stacks.forEach(iterator::add);
-                return;
-            }
-        }
-        // If the target wasn't in the list we insert the stacks at the end of the tab
-        list.addAll(this.stacks);
+                .add(new TabInsertion(this.stacks, this.visibility, this.target, this.insertBefore, this.targetsInsertion));
     }
 }

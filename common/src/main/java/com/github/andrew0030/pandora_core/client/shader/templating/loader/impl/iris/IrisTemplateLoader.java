@@ -190,7 +190,14 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     @Override
     public void _beginReload() {
         sources.clear();
+        instances.clear();
         deferredLoad.clear();
+    }
+
+    @Override
+    public void dumpShaders() {
+        super.dumpShaders();
+        _beginReload();
     }
 
     @Override

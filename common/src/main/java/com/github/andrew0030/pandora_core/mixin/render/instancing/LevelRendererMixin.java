@@ -1,17 +1,14 @@
 package com.github.andrew0030.pandora_core.mixin.render.instancing;
 
-import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.client.render.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.client.render.instancing.engine.PacoInstancingLevel;
 import com.github.andrew0030.pandora_core.client.render.renderers.backend.BlockEntityTypeAttachments;
 import com.github.andrew0030.pandora_core.client.render.renderers.backend.InstancingResults;
-import com.github.andrew0030.pandora_core.client.render.renderers.backend.sodium.RenderListAttachments;
 import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
-import com.mojang.blaze3d.shaders.FogShape;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
@@ -37,6 +34,11 @@ public class LevelRendererMixin {
 
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
     public void preRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
+        Lighting.setupLevel(RenderSystem.getModelViewMatrix());
+        RenderSystem.setupShaderLights(
+                GameRenderer.getRendertypeEntitySolidShader()
+        );
+
         RenderSystem.getModelViewStack().pushPose();
         RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
         RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());

@@ -7,10 +7,9 @@ import com.github.andrew0030.pandora_core.client.render.renderers.backend.Instan
 import com.github.andrew0030.pandora_core.client.render.renderers.backend.sodium.RenderListAttachments;
 import com.github.andrew0030.pandora_core.client.render.renderers.backend.sodium.SodiumRendererAccessor;
 import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
-import com.mojang.blaze3d.shaders.FogShape;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import me.jellysquid.mods.sodium.client.render.chunk.lists.ChunkRenderList;
@@ -21,11 +20,10 @@ import net.irisshaders.iris.mixin.LevelRendererAccessor;
 import net.irisshaders.iris.shadows.ShadowRenderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,7 +33,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Iterator;
-import java.util.SortedSet;
 
 @Mixin(value = ShadowRenderer.class, remap = false)
 public abstract class ShadowPassMixin {
@@ -59,6 +56,11 @@ public abstract class ShadowPassMixin {
     @Inject(at = @At(value = "INVOKE", target = "Lnet/irisshaders/iris/shadows/ShadowRenderingState;renderBlockEntities(Lnet/irisshaders/iris/shadows/ShadowRenderer;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;DDDFZZ)I", shift = At.Shift.AFTER), method = "renderShadows")
     public void preRenderBEs(LevelRendererAccessor levelRenderer, Camera playerCamera, CallbackInfo ci) {
         SodiumWorldRenderer renderer = ((WorldRendererExtended) levelRenderer).sodium$getWorldRenderer();
+
+        Lighting.setupLevel(RenderSystem.getModelViewMatrix());
+        RenderSystem.setupShaderLights(
+                GameRenderer.getRendertypeEntitySolidShader()
+        );
 
         PacoInstancingLevel instancingLevel = (PacoInstancingLevel) getLevel();
         InstanceManager manager = instancingLevel.getManager();

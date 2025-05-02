@@ -122,6 +122,7 @@ public class TabInsertionManager {
     @Deprecated(forRemoval = false)
     public static void applyAllInsertions(List<ItemStack> list, List<TabInsertion> insertions) {
         List<ItemStack> result = new ArrayList<>(list.size() + insertions.size());
+        Set<ItemKey> presentItems = new HashSet<>(); // To keep track of existing items
         Map<ItemKey, Integer> preciseIndex = new HashMap<>(); // For exact item+nbt targeting
         Map<Item, Integer> firstIndex = new HashMap<>(); // First occurrence of item (ignoring NBT)
         Map<Item, Integer> lastIndex = new HashMap<>();  // Last occurrence of item (ignoring NBT)
@@ -131,18 +132,22 @@ public class TabInsertionManager {
             ItemStack stack = list.get(i);
             result.add(stack);
 
-            if (stack.hasTag())
-                preciseIndex.putIfAbsent(ItemKey.of(stack), i);
-
             Item item = stack.getItem();
             firstIndex.putIfAbsent(item, i);
             lastIndex.put(item, i);
+
+            ItemKey key = ItemKey.of(stack);
+            presentItems.add(key);
+            if (stack.hasTag())
+                preciseIndex.putIfAbsent(key, i);
         }
 
         // Loops over all insertions and adds the items to the list, based on the target index of the insertion
         // Following that the index maps are updated with the inserted items
         for (TabInsertion insertion : insertions) {
-            List<ItemStack> stacks = insertion.getStacks();
+            List<ItemStack> stacks = insertion.getStacks().stream()
+                    .filter(stack -> presentItems.add(ItemKey.of(stack)))
+                    .toList();
             // If no stacks need to be inserted we return early, no need to run more logic...
             if (stacks.isEmpty()) continue;
             // Determines where to insert items, and then inserts them
@@ -154,12 +159,12 @@ public class TabInsertionManager {
                 ItemStack stack = stacks.get(i);
                 int absolutePos = insertPos + i;
 
-                if (stack.hasTag())
-                    preciseIndex.putIfAbsent(ItemKey.of(stack), absolutePos);
-
                 Item item = stack.getItem();
                 firstIndex.putIfAbsent(item, absolutePos);
                 lastIndex.put(item, absolutePos);
+
+                if (stack.hasTag())
+                    preciseIndex.putIfAbsent(ItemKey.of(stack), absolutePos);
             }
         }
 

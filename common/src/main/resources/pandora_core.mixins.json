@@ -6,11 +6,11 @@
   "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginCommon",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "tab.CreativeModeTabMixin",
     "level.LevelMixin",
     "level.ServerLevelMixin",
     "player.PlayerMixin",
-    "player.ServerPlayerMixin"
+    "player.ServerPlayerMixin",
+    "tab.CreativeModeTabMixin"
   ],
   "client": [
     "camera.CameraMixin",
@@ -27,6 +27,7 @@
     "compat.shader.vanilla.ProgramMixin",
     "compat.shader.vanilla.ShaderInstance_CacheShadersMixin",
     "compat.shader.vanilla.ShaderInstance_CacheSrc_CondBindableMixin",
+    "compat.shader.vanilla.ShaderLoaderDeferenceMixin",
     "gui.AbstractWidgetMixin",
     "gui.EditBoxMixin",
     "gui.ScreenMixin",

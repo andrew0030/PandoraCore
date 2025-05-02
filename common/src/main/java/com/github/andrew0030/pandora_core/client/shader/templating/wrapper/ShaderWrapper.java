@@ -1,6 +1,9 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper;
 
+import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
+import com.github.andrew0030.pandora_core.client.shader.templating.loader.ShaderCapabilities;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.ShaderCapability;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import me.jellysquid.mods.sodium.client.gl.shader.ShaderLoader;
 import net.minecraft.resources.ResourceLocation;
 
@@ -9,46 +12,81 @@ import java.util.Map;
 
 public class ShaderWrapper {
     ResourceLocation location;
-    Map<ShaderLoader, TemplatedShaderInstance> instances = new HashMap<>();
+    Map<ShaderLoader, TemplatedShader> instances = new HashMap<>();
 
     public ShaderWrapper(ResourceLocation location) {
         this.location = location;
     }
 
     // cache these two as they are the likely two to be used
-    TemplatedShaderInstance UI_DRAW;
-    TemplatedShaderInstance ALL_DRAW;
+    TemplatedShader UI_DRAW;
+    TemplatedShader WORLD_DRAW;
+    TemplatedShader WORLD_SHADOW_DRAW;
 
-    public TemplatedShaderInstance unwrap(
+    TemplatedShader activeUnwrap;
+
+    public TemplatedShader unwrap(
             ShaderCapability... requestedCapabilities
     ) {
-        return null;
-//        if (requestedCapabilities.length == 1) {
-//            if (requestedCapabilities[0].equals(ShaderCapabilities.UI_DRAW)) {
-//                if (UI_DRAW == null) {
-//                    UI_DRAW = TemplateManager.choose(
-//                            requestedCapabilities, instances, location
-//                    );
-//                }
-//
-//                return UI_DRAW;
-//            }
-//        }
-//
-//        TemplateManager.choose(
-//                requestedCapabilities, instances, location
-//        );
+        if (requestedCapabilities.length == 1) {
+            if (requestedCapabilities[0].equals(ShaderCapabilities.UI_DRAW)) {
+                if (UI_DRAW == null) {
+                    UI_DRAW = TemplateManager.choose(
+                            requestedCapabilities, instances, location
+                    );
+                }
+
+                return UI_DRAW;
+            } else if (requestedCapabilities[0].equals(ShaderCapabilities.WORLD_DRAW)) {
+                if (WORLD_DRAW == null) {
+                    WORLD_DRAW = TemplateManager.choose(
+                            requestedCapabilities, instances, location
+                    );
+                }
+
+                return WORLD_DRAW;
+            }
+        } else if (requestedCapabilities.length == 2) {
+            if (
+                    (requestedCapabilities[0].equals(ShaderCapabilities.WORLD_DRAW) &&
+                            requestedCapabilities[1].equals(ShaderCapabilities.SHADOW_DRAW)) ||
+                            (requestedCapabilities[0].equals(ShaderCapabilities.SHADOW_DRAW) &&
+                                    requestedCapabilities[1].equals(ShaderCapabilities.WORLD_DRAW))
+            ) {
+                if (WORLD_SHADOW_DRAW == null) {
+                    WORLD_SHADOW_DRAW = TemplateManager.choose(
+                            requestedCapabilities, instances, location
+                    );
+                }
+
+                return WORLD_SHADOW_DRAW;
+            }
+        }
+
+        return TemplateManager.choose(
+                requestedCapabilities, instances, location
+        );
     }
 
     public void apply() {
-        // TODO
+        activeUnwrap = unwrap();
+        activeUnwrap.apply();
     }
 
     public void upload() {
-        // TODO
+        if (activeUnwrap == null)
+            throw new RuntimeException("Must apply before uploading uniforms");
+        activeUnwrap.upload();
     }
 
     public void clear() {
-        // TODO
+        if (activeUnwrap != null) activeUnwrap.clear();
+    }
+
+    public void clearCache() {
+        instances.clear();
+        UI_DRAW = null;
+        WORLD_DRAW = null;
+        WORLD_SHADOW_DRAW = null;
     }
 }

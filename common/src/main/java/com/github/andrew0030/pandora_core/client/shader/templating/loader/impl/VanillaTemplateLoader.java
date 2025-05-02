@@ -43,6 +43,10 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 
     private static VanillaTemplateLoader INSTANCE;
 
+    public static VanillaTemplateLoader getInstance() {
+        return INSTANCE;
+    }
+
     public VanillaTemplateLoader() {
         super(ShaderCapabilities.CAPABILITIES_ALL_VANILLA);
         if (INSTANCE != null)
@@ -94,8 +98,8 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 
     public static void bindShader(String $$1, ShaderInstance shaderInstance) {
         instances.put($$1, shaderInstance);
-        if (!forceLoad)
-            TemplateManager.reloadTemplate(INSTANCE, $$1);
+//        if (!forceLoad)
+//            TemplateManager.reloadTemplate(INSTANCE, $$1);
     }
 
     public static void unbindShader(String pandoraCore$cacheName, ShaderInstance instance) {
@@ -217,7 +221,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
             if (specifiers[0] == null || specifiers[1] == null || instance == null)
                 return LoadResult.UNCACHED;
 
-            manager.load(new VanillaTemplatedShader(
+            super.load(manager, new VanillaTemplatedShader(
                     this, this,
                     transformers, transformations,
                     struct, processor,
@@ -261,5 +265,10 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     public void _beginReload() {
         sources.clear();
         shaderJsons.clear();
+    }
+
+    @Override
+    public void preload(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations) {
+        // no operation; resources aren't loaded at this time
     }
 }

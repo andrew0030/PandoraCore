@@ -12,12 +12,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class IrisPipelineMixin {
     @Inject(at = @At("TAIL"), method = "<init>")
     public void postInit(ProgramSet programSet, CallbackInfo ci) {
-//        TemplateManager.reloadAll();
-        IrisTemplateLoader.doLoad();
+//        IrisTemplateLoader.doLoad();
+        IrisTemplateLoader.getInstance().performReload();
     }
 
-//    @Inject(at = @At("HEAD"), method = "destroyShaders")
-//    public void preDestroyShaders(CallbackInfo ci) {
-//
-//    }
+    @Inject(at = @At("HEAD"), method = "destroyShaders", remap = false)
+    public void preDestroyShaders(CallbackInfo ci) {
+        IrisTemplateLoader.getInstance().dumpShaders();
+    }
 }

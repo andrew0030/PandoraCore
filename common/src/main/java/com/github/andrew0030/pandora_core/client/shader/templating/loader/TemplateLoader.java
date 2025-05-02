@@ -4,7 +4,6 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManag
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -26,7 +25,6 @@ public abstract class TemplateLoader {
      *
      * @param struct          a representation of the transformation's json
      * @param transformations a map containing the files for the template transformation
-     * @param transformers    a function which provides the template transformation to load the shader using
      * @return a result indicating how the load went
      * {@link LoadResult#UNCACHED} indicates that the shader couldn't be loaded because the source hasn't been cached yet
      * in this event, an OnDemandTemplateShader will be loaded
@@ -44,7 +42,6 @@ public abstract class TemplateLoader {
      *
      * @param struct          a representation of the transformation's json
      * @param transformations a map containing the files for the template transformation
-     * @param transformers    a function which provides the template transformation to load the shader using
      * @return whether the loader was able to successfully load the shader
      * ideally, this never returns false, but that's probably not going to happen
      */
@@ -54,14 +51,12 @@ public abstract class TemplateLoader {
 
     public abstract String name();
 
-    private Map<ResourceLocation, TemplatedShaderInstance> loadedShaders = new HashMap<>();
-
     protected abstract void _beginReload();
 
     public final void beginReload() {
-        for (TemplatedShaderInstance value : loadedShaders.values()) {
+        for (TemplatedShader value : loadedShaders.values()) {
             if (value.hasDirect())
-                value.getDirect().destroy();
+                value.destroy();
         }
         loadedShaders.clear();
         _beginReload();
@@ -80,10 +75,6 @@ public abstract class TemplateLoader {
      */
     public abstract void prepare(ResourceManager manager);
 
-    protected void loadShader(ResourceLocation location, TemplatedShaderInstance instance) {
-        loadedShaders.put(location, instance);
-    }
-
     public void preload(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations) {
         attempt(manager, struct, transformations);
     }
@@ -91,6 +82,34 @@ public abstract class TemplateLoader {
     public void debug(List<String> list) {
         list.add(loadedShaders.size() + " loaded " + name() + " templates");
         list.add("Capabilities: " + capabilities.debugString());
+    }
+
+    private Map<ResourceLocation, TemplatedShader> loadedShaders = new HashMap<>();
+
+    protected void loadShader(ResourceLocation location, TemplatedShader instance) {
+        loadedShaders.put(location, instance);
+    }
+
+    public TemplatedShader getShader(ResourceLocation location) {
+        return loadedShaders.get(location);
+    }
+
+    protected void load(TemplateManager.LoadManager manager, TemplatedShader templateShader) {
+        loadShader(templateShader.location(), templateShader);
+        manager.loaded(templateShader.location());
+    }
+
+    public void performReload() {
+        TemplateManager.reloadLoader(this);
+    }
+
+    public void dumpShaders() {
+        loadedShaders.forEach((k, v) -> {
+            TemplateManager.invalidateShader(k);
+            if (v.hasDirect())
+                v.destroy();
+        });
+        loadedShaders.clear();
     }
 
     public enum LoadResult {

@@ -42,6 +42,10 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
 
     private static IrisTemplateLoader INSTANCE;
 
+    public static IrisTemplateLoader getInstance() {
+        return INSTANCE;
+    }
+
     public IrisTemplateLoader() {
         super(ShaderCapabilities.CAPABILITIES_WORLD_SHADOW);
         if (INSTANCE != null)
@@ -174,7 +178,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
                 }
             }
 
-            manager.load(new IrisTemplatedShader(
+            super.load(manager, new IrisTemplatedShader(
                     this, this,
                     transformers, transformations,
                     struct, processor,
@@ -225,15 +229,15 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         return NameMapper.toIris(proposedType, name);
     }
 
-    public static void doLoad() {
-        for (String s : deferredLoad) {
-            // shadow passes aren't valid as bases
-            if (s.startsWith("shadow_")) continue;
-
-            TemplateManager.reloadTemplate(INSTANCE, s);
-        }
-        deferredLoad.clear();
-    }
+//    public static void doLoad() {
+//        for (String s : deferredLoad) {
+//            // shadow passes aren't valid as bases
+//            if (s.startsWith("shadow_")) continue;
+//
+//            TemplateManager.reloadTemplate(INSTANCE, s);
+//        }
+//        deferredLoad.clear();
+//    }
 
     @Override
     public void prepare(ResourceManager manager) {

@@ -7,7 +7,7 @@ import com.github.andrew0030.pandora_core.client.render.renderers.backend.Instan
 import com.github.andrew0030.pandora_core.client.render.renderers.backend.sodium.RenderListAttachments;
 import com.github.andrew0030.pandora_core.client.render.renderers.backend.sodium.SodiumRendererAccessor;
 import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
-import com.mojang.blaze3d.shaders.FogShape;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -16,13 +16,11 @@ import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
 import me.jellysquid.mods.sodium.client.render.chunk.lists.ChunkRenderList;
 import me.jellysquid.mods.sodium.client.render.chunk.lists.SortedRenderLists;
-import me.jellysquid.mods.sodium.client.render.chunk.region.RenderRegion;
 import me.jellysquid.mods.sodium.client.util.iterator.ByteIterator;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -46,6 +44,11 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
     public void preRenderBEs(PoseStack matrices, RenderBuffers bufferBuilders, Long2ObjectMap<SortedSet<BlockDestructionProgress>> blockBreakingProgressions, Camera camera, float tickDelta, CallbackInfo ci) {
         PacoInstancingLevel instancingLevel = (PacoInstancingLevel) world;
         InstanceManager manager = instancingLevel.getManager();
+
+        Lighting.setupLevel(RenderSystem.getModelViewMatrix());
+        RenderSystem.setupShaderLights(
+                GameRenderer.getRendertypeEntitySolidShader()
+        );
 
         RenderSystem.getModelViewStack().pushPose();
         RenderSystem.getModelViewStack().last().pose().mul(matrices.last().pose());

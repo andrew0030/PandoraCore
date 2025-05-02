@@ -5,7 +5,6 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.Templa
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.VanillaTemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.iris.IrisTemplateLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.TemplatedShaderInstance;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.blackhole.VoidShader;
 import com.github.andrew0030.pandora_core.platform.Services;
@@ -40,8 +39,9 @@ public class TemplateManager {
     }
 
     /**
-     * Gets a {@link TemplatedShaderInstance}
-     * This instance may arbitrarily switch between shader loaders, including without reloading resources/shaders
+     * Gets a {@link ShaderWrapper}
+     * This shader wrapper may represent multiple shaders at a time
+     * For instance, with iris, vanilla core shaders are used for UI while iris shaders are used for the world
      *
      * @param resource a {@link ResourceLocation} pointing to the template's glsl file
      * @return the corresponding template shader instance
@@ -86,9 +86,15 @@ public class TemplateManager {
         }
     }
 
-//    public static void reloadTemplate(TemplateLoader instance, String s) {
-//    }
-
+    /**
+     * Selects a templated shader based on teh requested capabilities
+     * If none are applicable, use the vanilla shader
+     *
+     * @param requestedCapabilities the required shader capabilities
+     * @param instances             the internal cache of the shader, loader->templated shader
+     * @param location              the location of teh template shader
+     * @return the templated shader to use for the active render context
+     */
     public static TemplatedShader choose(ShaderCapability[] requestedCapabilities, Map<ShaderLoader, TemplatedShader> instances, ResourceLocation location) {
         for (TemplateLoader loader : LOADERS) {
             if (loader.supports(requestedCapabilities)) {
@@ -110,8 +116,15 @@ public class TemplateManager {
         return fallback;
     }
 
-    public static void invalidateShader(ResourceLocation k) {
-        ShaderWrapper wrapper = WRAPPERS.get(k);
+    /**
+     * Invalidates a shader's internal cache
+     * This should be called whenever shaders load/unload on the fly
+     * For an example, see the iris shader loader
+     *
+     * @param location the resource location of the templated shader
+     */
+    public static void invalidateShader(ResourceLocation location) {
+        ShaderWrapper wrapper = WRAPPERS.get(location);
         if (wrapper != null) wrapper.clearCache();
     }
 
@@ -160,10 +173,6 @@ public class TemplateManager {
     // the point of this is to be accessible, but not instantiable to external code
     @SuppressWarnings("InnerClassMayBeStatic")
     public class LoadManager {
-        public TemplatedShader reload(TemplateShaderResourceLoader.TemplateStruct transformation) {
-            throw new RuntimeException("TODO");
-        }
-
         public void loaded(ResourceLocation location) {
             ShaderWrapper wrapper = WRAPPERS.get(location);
             if (wrapper != null) wrapper.clearCache();

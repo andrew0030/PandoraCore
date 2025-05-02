@@ -11,7 +11,6 @@ import com.github.andrew0030.pandora_core.client.shader.templating.transformer.T
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.IrisTemplatedShader;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment.AttachmentSpecifier;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment.AttachmentType;
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
@@ -19,7 +18,6 @@ import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import net.irisshaders.iris.pipeline.programs.ShaderKey;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
@@ -123,25 +121,6 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         );
     }
 
-    @Override
-    public boolean matches(TemplatedShader direct, String shader, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
-        TemplateShaderResourceLoader.TemplateStruct transformation = direct.transformation();
-        String plate = transformation.getTemplate("iris");
-        if (plate == null)
-            return false;
-
-        ResourceLocation loc = new ResourceLocation(shader);
-        String mod = loc.getNamespace();
-        String active = loc.getPath();
-
-        if (mod.equals("minecraft") && active.equals(plate)) {
-//            if (direct instanceof VanillaTemplatedShader vts)
-//                return vts.matches("minecraft", plate + ".fsh");
-            return true;
-        }
-        return false;
-    }
-
     public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Function<String, TemplateTransformation> transformations) {
         Map<String, String> transformers = struct.getTransformers();
         String template = struct.getTemplate("iris");
@@ -196,11 +175,6 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     @Override
     public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Function<String, TemplateTransformation> transformations) {
         return attempt(manager, transformation, false, transformations);
-    }
-
-    @Override
-    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Function<String, TemplateTransformation> transformations) {
-        return attempt(manager, transformation, true, transformations) == LoadResult.LOADED;
     }
 
     @Override

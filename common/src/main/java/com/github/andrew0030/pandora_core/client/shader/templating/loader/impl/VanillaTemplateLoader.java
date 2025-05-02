@@ -9,7 +9,6 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.Templa
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.VanillaTemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment.AttachmentSpecifier;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment.AttachmentType;
@@ -104,35 +103,6 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 
     public static void unbindShader(String pandoraCore$cacheName, ShaderInstance instance) {
         instances.remove(pandoraCore$cacheName, instance);
-    }
-
-    @Override
-    public boolean matches(TemplatedShader direct, String shader, Map<String, String> transformers, Function<String, TemplateTransformation> transformations) {
-        TemplateShaderResourceLoader.TemplateStruct transformation = direct.transformation();
-        String plate = transformation.getTemplate("vanilla");
-        if (plate == null)
-            return false;
-
-        ResourceLocation loc = new ResourceLocation(shader);
-        String mod = loc.getNamespace();
-        String active = loc.getPath();
-
-        if (!plate.equals(mod + ":" + active))
-            return false;
-
-        if (direct instanceof VanillaTemplatedShader vts) {
-//            JsonObject obj = shaderJsons.get(new ResourceLocation(plate + ".json"));
-//            if (obj == null)
-//                return false;
-//
-//            String vsh = obj.getAsJsonPrimitive("vertex").getAsString();
-//            String fsh = obj.getAsJsonPrimitive("fragment").getAsString();
-//
-//            return vts.matches(mod, vsh) ||
-//                    vts.matches(mod, fsh);
-            return true;
-        }
-        return false;
     }
 
     private void getVertex(ResourceLocation template, boolean complete, AttachmentSpecifier[] specifiers) {
@@ -244,11 +214,6 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     @Override
     public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Function<String, TemplateTransformation> transformations) {
         return attempt(manager, transformation, false, transformations);
-    }
-
-    @Override
-    public boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct transformation, Function<String, TemplateTransformation> transformations) {
-        return attempt(manager, transformation, true, transformations) == LoadResult.LOADED;
     }
 
     @Override

@@ -34,19 +34,6 @@ public abstract class TemplateLoader {
      */
     public abstract LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations);
 
-    /**
-     * Attempts to load the shader from the defined template transformation
-     * This should run more or less the same code as {@link TemplateLoader#attempt(TemplateManager.LoadManager, TemplateShaderResourceLoader.TemplateStruct, Map, Function)}
-     * However, unlike attempt, this should also make an effort to force the shader's source into the cache if it's not already present
-     * If this returns false, {@link TemplateManager#loadTemplate(TemplateTransformation, boolean)}} continues onto the next loader
-     *
-     * @param struct          a representation of the transformation's json
-     * @param transformations a map containing the files for the template transformation
-     * @return whether the loader was able to successfully load the shader
-     * ideally, this never returns false, but that's probably not going to happen
-     */
-    public abstract boolean attemptComplete(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations);
-
     public abstract TransformationProcessor processor();
 
     public abstract String name();
@@ -61,8 +48,6 @@ public abstract class TemplateLoader {
         loadedShaders.clear();
         _beginReload();
     }
-
-    public abstract boolean matches(TemplatedShader direct, String shader, Map<String, String> transformers, Function<String, TemplateTransformation> transformations);
 
     public boolean supports(ShaderCapability[] requestedCapabilities) {
         return capabilities.supports(requestedCapabilities);

@@ -17,7 +17,10 @@ public class BufferBuilderUtils {
      * @return the buffer builder
      */
     public static BufferBuilder enforceExtended(BufferBuilder builder, VertexFormat.Mode mode, VertexFormat format) {
-        if (Services.PLATFORM.isModLoaded("iris")) {
+        if (
+                Services.PLATFORM.isModLoaded("iris") ||
+                Services.PLATFORM.isModLoaded("oculus")
+        ) {
             boolean usingExtended = WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat();
             WorldRenderingSettings.INSTANCE.setUseExtendedVertexFormat(true);
             builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);

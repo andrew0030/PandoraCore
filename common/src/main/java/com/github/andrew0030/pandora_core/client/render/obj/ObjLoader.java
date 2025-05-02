@@ -55,11 +55,11 @@ public class ObjLoader implements PacoResourceManager {
                 }
             });
             if (disp == null) disp = dispatcher.prepare("paco_load_objs_" + path, ()->{
-                reload.add(r::run);
+                reload.add(() -> postReload.accept(this));
                 r.run();
             });
             else disp = disp.prepare("paco_load_objs_" + path, (v) -> {
-                reload.add(r::run);
+                reload.add(() -> postReload.accept(this));
                 r.run();
             });
         }

@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(PipelineManager.class)
 public class IrisPipelinePreparationMixin {
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;allChanged()V", shift = At.Shift.AFTER), method = "preparePipeline")
+//    @Inject(at = @At(value = "TAIL"), method = "preparePipeline", remap = false)
     public void preChangeAll(NamespacedId currentDimension, CallbackInfoReturnable<WorldRenderingPipeline> cir) {
         ObjLoader.forceReload();
     }

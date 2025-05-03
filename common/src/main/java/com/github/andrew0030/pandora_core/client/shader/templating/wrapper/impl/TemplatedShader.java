@@ -30,9 +30,6 @@ public abstract class TemplatedShader {
                 Uniform.glBindAttribLocation(id, index, vertexAttribute);
             }
         }
-        // TODO: remove this bit of hardcoding
-        Uniform.glBindAttribLocation(id, 11, "paco_Inject_Translation");
-        Uniform.glBindAttribLocation(id, 12, "paco_Inject_Orientation");
     }
 
     public abstract void apply();

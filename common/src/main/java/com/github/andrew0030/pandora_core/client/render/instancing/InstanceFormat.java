@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.render.instancing;
 
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
 import com.github.andrew0030.pandora_core.utils.collection.CyclicStack;
 import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -37,7 +38,7 @@ public class InstanceFormat {
         throw new RuntimeException("Element not found.");
     }
 
-    public void setupState(VertexFormat format) {
+    public void setupState(VertexFormat format, ShaderWrapper wrapper) {
         int attribute = format.getElements().size();
         attribute = 11;
         int offset = 0;

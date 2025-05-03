@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 public class PaCoRenderTypes {
-    private static final ShaderWrapper shader = TemplateManager.getWrapper(new ResourceLocation("pandora_core:shaders/paco/templated/entity_instanced"));
+    public static final ShaderWrapper shader = TemplateManager.getWrapper(new ResourceLocation("pandora_core:shaders/paco/templated/entity_instanced"));
 
     public static final PaCoShaderStateShard shaderStateShard = new PaCoShaderStateShard(shader);
 

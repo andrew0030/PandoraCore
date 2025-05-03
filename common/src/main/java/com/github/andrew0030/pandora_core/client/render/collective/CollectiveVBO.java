@@ -3,12 +3,13 @@ package com.github.andrew0030.pandora_core.client.render.collective;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceData;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstancedVBO;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
 import com.github.andrew0030.pandora_core.mixin_interfaces.render.IPaCoAccessibleVBO;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL33C;
 
 import java.util.Map;
 
@@ -38,12 +39,13 @@ public class CollectiveVBO extends InstancedVBO {
     CollectiveDrawData data;
     Object2ObjectArrayMap<CollectiveBufferBuilder.MeshRange, Pair<InstanceData, Integer>> datas = new Object2ObjectArrayMap<>();
 
-    public void setupData(CollectiveDrawData data) {
+    public void setupData(CollectiveDrawData data, ShaderWrapper wrapper) {
         this.data = data;
         datas.clear();
         data.active.forEach((k, v) -> {
             datas.put(k, Pair.of(v, v.drawCount()));
         });
+        this.wrapper = wrapper;
     }
 
     @Override

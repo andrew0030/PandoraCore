@@ -58,7 +58,7 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
         ));
         RenderType type = PaCoRenderTypes.type;
         type.setupRenderState();
-        vbo.setupData(data);
+        vbo.setupData(data, PaCoRenderTypes.shader);
         RenderSystem.getShader().apply();
         data.upload();
         vbo.bind();

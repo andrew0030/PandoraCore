@@ -51,8 +51,11 @@ public class TemplatedProgram extends BaseProgram {
         for (String elementAttributeName : vanilla.getVertexFormat().getElementAttributeNames()) {
             Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
         }
-        TemplatedShader.bindAttributes(id, index, transformation);
+        // TODO: remove this bit of hardcoding
+        Uniform.glBindAttribLocation(id, 11, "paco_Inject_Translation");
+        Uniform.glBindAttribLocation(id, 12, "paco_Inject_Orientation");
         GL20.glLinkProgram(id);
+        TemplatedShader.bindAttributes(id, index, transformation);
     }
 
     public void bind() {

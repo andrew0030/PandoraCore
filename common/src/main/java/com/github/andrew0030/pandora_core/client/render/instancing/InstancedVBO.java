@@ -1,9 +1,11 @@
 package com.github.andrew0030.pandora_core.client.render.instancing;
 
 import com.github.andrew0030.pandora_core.client.render.AcceleratedVBO;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
 import com.github.andrew0030.pandora_core.mixin_interfaces.render.IPaCoAccessibleVBO;
 import com.mojang.blaze3d.platform.GlStateManager;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31C;
 
 public class InstancedVBO extends AcceleratedVBO {
     InstanceFormat format;
@@ -21,12 +23,15 @@ public class InstancedVBO extends AcceleratedVBO {
     InstanceData data;
     int count = 0;
 
+    protected ShaderWrapper wrapper;
+
     public void bindData(InstanceData data) {
         boolean wasData = data == this.data;
         this.data = data;
         GlStateManager._glBindBuffer(GL30.GL_ARRAY_BUFFER, data.glBuffer);
         // TODO: I'm pretty sure this is how this works, but I'm not actually sure
-        if (!wasData) format.setupState(this.getFormat());
+//        if (!wasData)
+            format.setupState(this.getFormat(), wrapper);
     }
 
     public void setDrawCount(int count) {

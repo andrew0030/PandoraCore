@@ -60,7 +60,7 @@ public class VanillaTemplatedShader extends TemplatedShader {
                 vanilla,
                 attachments
         );
-        program.link(vanilla, mapper, struct);
+        program.link(this, vanilla, mapper, struct);
         for (ShaderAttachment attachment : attachments) attachment.delete();
 
         // log error

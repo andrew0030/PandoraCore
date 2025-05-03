@@ -8,10 +8,14 @@ import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class TemplatedShader {
     protected final TemplateLoader loader;
     protected final TemplateShaderResourceLoader.TemplateStruct transformation;
     protected final String template;
+    private Map<String, Integer> attributeLocations = new HashMap<>();
 
     public TemplatedShader(
             TemplateLoader loader,
@@ -23,12 +27,13 @@ public abstract class TemplatedShader {
         this.template = template;
     }
 
-    public static void bindAttributes(int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
+    public static void bindAttributes(TemplatedShader shader, int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
         for (String vertexAttribute : transformation.getVertexAttributes()) {
             int aid = GL32.glGetAttribLocation(id, vertexAttribute);
             if (aid != -1) {
                 Uniform.glBindAttribLocation(id, index, vertexAttribute);
             }
+            shader.attributeLocations.put(vertexAttribute, aid);
         }
     }
 
@@ -60,5 +65,9 @@ public abstract class TemplatedShader {
 
     public boolean hasDirect() {
         return true;
+    }
+
+    public int getAttributeLocation(String name) {
+        return attributeLocations.get(name);
     }
 }

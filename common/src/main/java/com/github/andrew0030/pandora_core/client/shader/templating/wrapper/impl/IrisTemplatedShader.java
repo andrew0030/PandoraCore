@@ -62,7 +62,7 @@ public class IrisTemplatedShader extends TemplatedShader {
                     vanilla,
                     attachments
             );
-            program.link(vanilla, mapper, struct);
+            program.link(this, vanilla, mapper, struct);
             for (ShaderAttachment attachment : attachments) attachment.delete();
 
             // log error
@@ -93,7 +93,7 @@ public class IrisTemplatedShader extends TemplatedShader {
                     vanillaShadow,
                     attachments
             );
-            programShadow.link(vanillaShadow, mapper, struct);
+            programShadow.link(this, vanillaShadow, mapper, struct);
             for (ShaderAttachment attachment : attachments) attachment.delete();
 
             // log error

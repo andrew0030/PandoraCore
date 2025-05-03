@@ -46,7 +46,7 @@ public class TemplatedProgram extends BaseProgram {
         }
     }
 
-    public void link(ShaderInstance vanilla, VariableMapper mapper, TemplateShaderResourceLoader.TemplateStruct transformation) {
+    public void link(TemplatedShader shader, ShaderInstance vanilla, VariableMapper mapper, TemplateShaderResourceLoader.TemplateStruct transformation) {
         int index = 0;
         for (String elementAttributeName : vanilla.getVertexFormat().getElementAttributeNames()) {
             Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
@@ -55,7 +55,7 @@ public class TemplatedProgram extends BaseProgram {
         Uniform.glBindAttribLocation(id, 11, "paco_Inject_Translation");
         Uniform.glBindAttribLocation(id, 12, "paco_Inject_Orientation");
         GL20.glLinkProgram(id);
-        TemplatedShader.bindAttributes(id, index, transformation);
+        TemplatedShader.bindAttributes(shader, id, index, transformation);
     }
 
     public void bind() {

@@ -42,10 +42,12 @@ public class CreativeModeTabMixin {
 
         TabInsertionManager.reorderTabInsertions(tabKey);
         List<TabInsertion> insertions = TabInsertionManager.getInsertionsFor(tabKey);
-        List<TabInsertion> parentInsertions = insertions.stream().filter(i -> i.getVisibility() != TabVisibility.SEARCH_TAB_ONLY).toList();
-        List<TabInsertion> searchInsertions = insertions.stream().filter(i -> i.getVisibility() != TabVisibility.PARENT_TAB_ONLY).toList();
-        TabInsertionManager.applyAllInsertions(mutableDisplayItems, parentInsertions);
-        TabInsertionManager.applyAllInsertions(mutableDisplayItemsSearchTab, searchInsertions);
+//        List<TabInsertion> parentInsertions = insertions.stream().filter(i -> i.getVisibility() != TabVisibility.SEARCH_TAB_ONLY).toList();
+//        List<TabInsertion> searchInsertions = insertions.stream().filter(i -> i.getVisibility() != TabVisibility.PARENT_TAB_ONLY).toList();
+//        TabInsertionManager.applyAllInsertions(mutableDisplayItems, parentInsertions);
+//        TabInsertionManager.applyAllInsertions(mutableDisplayItemsSearchTab, searchInsertions);
+        TabInsertionManager.applyAllInsertions(mutableDisplayItems, insertions);
+        TabInsertionManager.applyAllInsertions(mutableDisplayItemsSearchTab, insertions);
 
         this.displayItems.clear();
         this.displayItems.addAll(mutableDisplayItems);

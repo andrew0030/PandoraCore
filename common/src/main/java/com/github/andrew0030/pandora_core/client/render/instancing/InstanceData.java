@@ -137,8 +137,13 @@ public class InstanceData {
     }
 
     public InstanceData finishInstance() {
-        if (buffer.position() != (endWrite + 1) * format.stride)
-            throw new RuntimeException("Instance not filled.");
+        if (buffer.position() != (endWrite + 1) * format.stride) {
+            if (buffer.position() < (endWrite + 1) * format.stride) {
+                throw new RuntimeException("Instance not filled.");
+            } else {
+                throw new RuntimeException("Instance is overfilled.");
+            }
+        }
         endWrite++;
 
         if ((endWrite + 1) * format.stride > buffer.capacity()) {

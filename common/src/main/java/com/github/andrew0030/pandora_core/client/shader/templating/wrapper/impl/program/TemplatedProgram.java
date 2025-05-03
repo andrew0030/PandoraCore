@@ -52,8 +52,8 @@ public class TemplatedProgram extends BaseProgram {
             Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
         }
         // TODO: remove this bit of hardcoding
-        Uniform.glBindAttribLocation(id, 11, "paco_Inject_Translation");
-        Uniform.glBindAttribLocation(id, 12, "paco_Inject_Orientation");
+//        Uniform.glBindAttribLocation(id, 11, "paco_Inject_Translation");
+//        Uniform.glBindAttribLocation(id, 12, "paco_Inject_Orientation");
         GL20.glLinkProgram(id);
         TemplatedShader.bindAttributes(shader, id, index, transformation);
     }

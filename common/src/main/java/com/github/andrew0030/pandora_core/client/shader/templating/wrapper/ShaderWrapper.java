@@ -89,4 +89,8 @@ public class ShaderWrapper {
         WORLD_DRAW = null;
         WORLD_SHADOW_DRAW = null;
     }
+
+    public int getAttributeLocation(String name) {
+        return activeUnwrap.getAttributeLocation(name);
+    }
 }

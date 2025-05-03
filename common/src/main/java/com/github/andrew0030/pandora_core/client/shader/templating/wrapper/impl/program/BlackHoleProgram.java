@@ -81,4 +81,9 @@ public class BlackHoleProgram extends BaseProgram {
     public AbstractUniform getUniform(String name, int type, int count) {
         return TemplatedShader.ABSTRACT_INST;
     }
+
+    @Override
+    public int getAttributeLocation(String name) {
+        return -1;
+    }
 }

@@ -60,7 +60,7 @@ public class VanillaTemplatedShader extends TemplatedShader {
                 vanilla,
                 attachments
         );
-        program.link(this, vanilla, mapper, struct);
+        program.link(vanilla, mapper, struct);
         for (ShaderAttachment attachment : attachments) attachment.delete();
 
         // log error
@@ -111,5 +111,10 @@ public class VanillaTemplatedShader extends TemplatedShader {
     @Override
     public AbstractUniform getUniform(String name, int type, int count) {
         return program.getUniform(name, type, count);
+    }
+
+    @Override
+    public int getAttributeLocation(String name) {
+        return program.getAttributeLocation(name);
     }
 }

@@ -20,6 +20,8 @@ public class VBOAccessorMixin implements IPaCoAccessibleVBO {
 
     @Shadow @Final private VertexBuffer.Usage usage;
 
+    @Shadow private int vertexBufferId;
+
     @Override
     public VertexFormat.Mode pandoraCore$mode() {
         return mode;
@@ -38,5 +40,10 @@ public class VBOAccessorMixin implements IPaCoAccessibleVBO {
     @Override
     public VertexBuffer.Usage pandoraCore$usage() {
         return usage;
+    }
+
+    @Override
+    public int pandoraCore$vertexId() {
+        return vertexBufferId;
     }
 }

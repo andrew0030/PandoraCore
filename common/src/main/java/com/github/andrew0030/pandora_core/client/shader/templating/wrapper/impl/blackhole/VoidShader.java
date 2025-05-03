@@ -34,4 +34,9 @@ public class VoidShader extends TemplatedShader {
     public AbstractUniform getUniform(String name, int type, int count) {
         return program.getUniform(name, type, count);
     }
+
+    @Override
+    public int getAttributeLocation(String name) {
+        return -1;
+    }
 }

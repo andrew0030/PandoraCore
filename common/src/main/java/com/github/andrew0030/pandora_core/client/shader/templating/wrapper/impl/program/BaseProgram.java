@@ -12,4 +12,6 @@ public abstract class BaseProgram {
     public abstract void upload();
 
     public abstract AbstractUniform getUniform(String name, int type, int count);
+
+    public abstract int getAttributeLocation(String name);
 }

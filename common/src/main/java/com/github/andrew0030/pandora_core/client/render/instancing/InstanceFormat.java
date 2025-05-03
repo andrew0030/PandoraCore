@@ -7,6 +7,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import org.lwjgl.opengl.GL33;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InstanceFormat {
     public final CyclicStack<InstanceDataElement> elements;
     public final int stride;
@@ -38,27 +41,33 @@ public class InstanceFormat {
         throw new RuntimeException("Element not found.");
     }
 
-    public void setupState(VertexFormat format, ShaderWrapper wrapper) {
-        int attribute = format.getElements().size();
-        attribute = 11;
+    public List<Integer> setupState(VertexFormat format, ShaderWrapper wrapper) {
+        List<Integer> clientState = new ArrayList<>();
         int offset = 0;
         for (InstanceDataElement element : elements) {
-//            int attribute = wrapper.getAttributeLocation(element.name);
-            for (int i = 0; i < element.components; i++) {
-                GlStateManager._enableVertexAttribArray(attribute);
-                if (NumericPrimitive.BYTE.isFloating()) {
-                    GlStateManager._vertexAttribPointer(attribute, element.size, element.type.glPrim, element.normalize, stride, offset);
-                } else {
-                    GlStateManager._vertexAttribIPointer(attribute, element.size, element.type.glPrim, stride, offset);
+            int attribute = wrapper.getAttributeLocation(element.name);
+            if (attribute != -1) {
+//                attribute += element.components;
+                for (int i = 0; i < element.components; i++) {
+                    clientState.add(attribute);
+                    GlStateManager._enableVertexAttribArray(attribute);
+                    if (NumericPrimitive.BYTE.isFloating()) {
+                        GlStateManager._vertexAttribPointer(attribute, element.size, element.type.glPrim, element.normalize, stride, offset);
+                    } else {
+                        GlStateManager._vertexAttribIPointer(attribute, element.size, element.type.glPrim, stride, offset);
+                    }
+                    // TODO: apparently, vertexAttribDivisor is in a newer version of OpenGL than MC uses
+                    //       a fallback uniform based implementation will be necessary
+                    GL33.glVertexAttribDivisor(
+                            attribute, 1
+                    );
+                    attribute++;
+                    offset += element.bytes() / element.components;
                 }
-                // TODO: apparently, vertexAttribDivisor is in a newer version of OpenGL than MC uses
-                //       a fallback uniform based implementation will be necessary
-                GL33.glVertexAttribDivisor(
-                        attribute, 1
-                );
-                attribute++;
-                offset += element.bytes() / element.components;
+            } else {
+                offset += element.bytes();
             }
         }
+        return clientState;
     }
 }

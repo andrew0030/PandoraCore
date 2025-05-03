@@ -62,7 +62,7 @@ public class IrisTemplatedShader extends TemplatedShader {
                     vanilla,
                     attachments
             );
-            program.link(this, vanilla, mapper, struct);
+            program.link(vanilla, mapper, struct);
             for (ShaderAttachment attachment : attachments) attachment.delete();
 
             // log error
@@ -93,7 +93,7 @@ public class IrisTemplatedShader extends TemplatedShader {
                     vanillaShadow,
                     attachments
             );
-            programShadow.link(this, vanillaShadow, mapper, struct);
+            programShadow.link(vanillaShadow, mapper, struct);
             for (ShaderAttachment attachment : attachments) attachment.delete();
 
             // log error
@@ -155,6 +155,15 @@ public class IrisTemplatedShader extends TemplatedShader {
             return programShadow.getUniform(name, type, count);
         } else {
             return program.getUniform(name, type, count);
+        }
+    }
+
+    @Override
+    public int getAttributeLocation(String name) {
+        if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+            return programShadow.getAttributeLocation(name);
+        } else {
+            return program.getAttributeLocation(name);
         }
     }
 }

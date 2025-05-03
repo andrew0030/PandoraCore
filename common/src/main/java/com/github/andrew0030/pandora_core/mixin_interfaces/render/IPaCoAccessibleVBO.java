@@ -8,4 +8,5 @@ public interface IPaCoAccessibleVBO {
     int pandoraCore$indexCount();
     VertexFormat.IndexType pandoraCore$indexType();
     VertexBuffer.Usage pandoraCore$usage();
+    int pandoraCore$vertexId();
 }

@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.TemplateLoader;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.TemplatedProgram;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL20;
@@ -26,12 +27,9 @@ public abstract class TemplatedShader {
         this.template = template;
     }
 
-    public static void bindAttributes(TemplatedShader shader, int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
+    public static void bindAttributes(TemplatedProgram shader, int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
         for (String vertexAttribute : transformation.getInstanceData()) {
             int aid = GL32.glGetAttribLocation(id, vertexAttribute);
-//            if (aid != -1) {
-//                Uniform.glBindAttribLocation(id, index, vertexAttribute);
-//            }
             shader.attributeLocations.put(vertexAttribute, aid);
         }
     }
@@ -66,7 +64,5 @@ public abstract class TemplatedShader {
         return true;
     }
 
-    public int getAttributeLocation(String name) {
-        return attributeLocations.getOrDefault(name, -1);
-    }
+    public abstract int getAttributeLocation(String name);
 }

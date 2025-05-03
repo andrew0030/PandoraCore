@@ -7,6 +7,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31C;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InstancedVBO extends AcceleratedVBO {
     InstanceFormat format;
 
@@ -25,13 +28,22 @@ public class InstancedVBO extends AcceleratedVBO {
 
     protected ShaderWrapper wrapper;
 
+    List<Integer> clientState = new ArrayList<>();
+
     public void bindData(InstanceData data) {
+        for (Integer i : clientState) {
+            GlStateManager._disableVertexAttribArray(i);
+        }
+
+        GlStateManager._glBindBuffer(34962, ((IPaCoAccessibleVBO) this).pandoraCore$vertexId());
+        this.getFormat().setupBufferState();
+
         boolean wasData = data == this.data;
         this.data = data;
         GlStateManager._glBindBuffer(GL30.GL_ARRAY_BUFFER, data.glBuffer);
         // TODO: I'm pretty sure this is how this works, but I'm not actually sure
 //        if (!wasData)
-            format.setupState(this.getFormat(), wrapper);
+        clientState = format.setupState(this.getFormat(), wrapper);
     }
 
     public void setDrawCount(int count) {

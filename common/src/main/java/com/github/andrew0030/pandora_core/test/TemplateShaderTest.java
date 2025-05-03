@@ -17,14 +17,10 @@ import net.minecraft.resources.ResourceLocation;
 
 public class TemplateShaderTest {
     public static final InstanceDataElement POSITION = new InstanceDataElement("paco_Inject_Translation", NumericPrimitive.FLOAT, 3);
-    public static final InstanceDataElement ORIENTATION0 = new InstanceDataElement("paco_Inject_Orientation", NumericPrimitive.FLOAT, 3);
-    public static final InstanceDataElement ORIENTATION1 = new InstanceDataElement("paco_Inject_Orientation", NumericPrimitive.FLOAT, 3);
-    public static final InstanceDataElement ORIENTATION2 = new InstanceDataElement("paco_Inject_Orientation", NumericPrimitive.FLOAT, 3);
+    public static final InstanceDataElement ORIENTATION0 = new InstanceDataElement("paco_Inject_Orientation", NumericPrimitive.FLOAT, 3, 3);
     public static final InstanceFormat FORMAT = new InstanceFormat(
             POSITION,
-            ORIENTATION0,
-            ORIENTATION1,
-            ORIENTATION2
+            ORIENTATION0
     );
     private static final int CUBE_COUNT = 100_000;
     protected static final CollectiveDrawData data = new CollectiveDrawData(FORMAT, CUBE_COUNT, VertexBuffer.Usage.STATIC);

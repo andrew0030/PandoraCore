@@ -17,6 +17,7 @@ import org.lwjgl.opengl.GL20;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import static com.github.andrew0030.pandora_core.client.shader.templating.wrappe
 
 public class TemplatedProgram extends BaseProgram {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Templated Vanilla/Iris");
+    public Map<String, Integer> attributeLocations = new HashMap<>();
 
     ShaderInstance from;
     int id;
@@ -46,16 +48,13 @@ public class TemplatedProgram extends BaseProgram {
         }
     }
 
-    public void link(TemplatedShader shader, ShaderInstance vanilla, VariableMapper mapper, TemplateShaderResourceLoader.TemplateStruct transformation) {
+    public void link(ShaderInstance vanilla, VariableMapper mapper, TemplateShaderResourceLoader.TemplateStruct transformation) {
         int index = 0;
         for (String elementAttributeName : vanilla.getVertexFormat().getElementAttributeNames()) {
             Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
         }
-        // TODO: remove this bit of hardcoding
-        Uniform.glBindAttribLocation(id, 11, "paco_Inject_Translation");
-        Uniform.glBindAttribLocation(id, 12, "paco_Inject_Orientation");
         GL20.glLinkProgram(id);
-        TemplatedShader.bindAttributes(shader, id, index, transformation);
+        TemplatedShader.bindAttributes(this, id, index, transformation);
     }
 
     public void bind() {
@@ -111,5 +110,9 @@ public class TemplatedProgram extends BaseProgram {
             }
         } catch (Throwable err) {
         }
+    }
+
+    public int getAttributeLocation(String name) {
+        return attributeLocations.getOrDefault(name, -1);
     }
 }

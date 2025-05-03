@@ -126,6 +126,8 @@ public class TabInsertionManager {
         Map<ItemKey, Integer> preciseIndex = new HashMap<>(); // For exact item+nbt targeting
         Map<Item, Integer> firstIndex = new HashMap<>(); // First occurrence of item (ignoring NBT)
         Map<Item, Integer> lastIndex = new HashMap<>();  // Last occurrence of item (ignoring NBT)
+        // key = base index, value = how many items were inserted at/after that index
+        TreeMap<Integer, Integer> indexOffsets = new TreeMap<>();
 
         // Copies the original list and builds the index maps
         for (int i = 0; i < list.size(); i++) {
@@ -150,27 +152,39 @@ public class TabInsertionManager {
                     .toList();
             // If no stacks need to be inserted we return early, no need to run more logic...
             if (stacks.isEmpty()) continue;
-            // Determines where to insert items, and then inserts them
-            int insertPos = TabInsertionManager.determineInsertionPosition(insertion, preciseIndex, firstIndex, lastIndex, result.size());
-            result.addAll(insertPos, stacks);
+            // Determines the base index
+            int baseIndex = TabInsertionManager.determineInsertionPosition(insertion, preciseIndex, firstIndex, lastIndex, result.size());
+            // Gets the cumulative offset so far
+            int offset = TabInsertionManager.getOffsetForIndex(baseIndex, indexOffsets);
+            int finalInsertPos = baseIndex + offset;
+            // Records how many items were inserted at this index
+            if (finalInsertPos < result.size()) // If we insert at the end there is nothing that needs offsetting
+                indexOffsets.merge(finalInsertPos, stacks.size(), Integer::sum);
+            // Inserts new stacks into result
+            result.addAll(finalInsertPos, stacks);
 
             // Updates the index maps for each inserted stack
             for (int i = 0; i < stacks.size(); i++) {
                 ItemStack stack = stacks.get(i);
-                int absolutePos = insertPos + i;
+                int absolutePos = finalInsertPos + i;
 
                 Item item = stack.getItem();
                 firstIndex.putIfAbsent(item, absolutePos);
                 lastIndex.put(item, absolutePos);
 
                 if (stack.hasTag())
-                    preciseIndex.putIfAbsent(ItemKey.of(stack), absolutePos);
+                    preciseIndex.put(ItemKey.of(stack), absolutePos);
             }
         }
 
         // Overwrites original list
         list.clear();
         list.addAll(result);
+    }
+
+    /** Sums all offsets for insertions that occurred at or before a given base index. */
+    private static int getOffsetForIndex(int index, TreeMap<Integer, Integer> offsetMap) {
+        return offsetMap.headMap(index, true).values().stream().mapToInt(Integer::intValue).sum();
     }
 
     /**

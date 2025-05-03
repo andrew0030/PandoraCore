@@ -2,7 +2,6 @@ package com.github.andrew0030.pandora_core.registry;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.tab.PaCoTabManager;
-import com.github.andrew0030.pandora_core.tab.TabVisibility;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -29,36 +28,36 @@ public class PaCoCreativeModeTabs {
 
     public static void insertItems() {
         // Target stack with NBT data
-        ItemStack target = new ItemStack(Items.PAINTING);
-        target.getOrCreateTagElement("EntityTag").putString("variant", "minecraft:aztec");
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-                .add(Items.GREEN_DYE)
-                .insertBefore(target)
-                .apply();
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-                .add(Items.YELLOW_DYE)
-                .insertBefore(target)
-                .apply();
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-                .add(Items.RED_DYE)
-                .insertBefore(target)
-                .apply();
+//        ItemStack target = new ItemStack(Items.PAINTING);
+//        target.getOrCreateTagElement("EntityTag").putString("variant", "minecraft:aztec");
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+//                .add(Items.GREEN_DYE)
+//                .insertBefore(target)
+//                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+//                .add(Items.YELLOW_DYE)
+//                .insertBefore(target)
+//                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+//                .add(Items.RED_DYE)
+//                .insertBefore(target)
+//                .apply();
 
         // Before and after check
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.INGREDIENTS)
-                .add(PaCoBlocks.INSTANCING_TEST.get())
-                .insertAfter(Items.ENCHANTED_BOOK)
-                .apply();
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.INGREDIENTS)
-                .add(PaCoBlocks.TEST.get())
-                .insertBefore(Items.ENCHANTED_BOOK)
-                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.INGREDIENTS)
+//                .add(PaCoBlocks.INSTANCING_TEST.get())
+//                .insertAfter(Items.ENCHANTED_BOOK)
+//                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.INGREDIENTS)
+//                .add(PaCoBlocks.TEST.get())
+//                .insertBefore(Items.ENCHANTED_BOOK)
+//                .apply();
 
         // Missing target stack
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.NATURAL_BLOCKS)
-                .add(PaCoBlocks.TEST.get())
-                .insertBefore(Blocks.REDSTONE_TORCH)
-                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.NATURAL_BLOCKS)
+//                .add(PaCoBlocks.TEST.get())
+//                .insertBefore(Blocks.REDSTONE_TORCH)
+//                .apply();
 
         // Anti infinite loop check
         PaCoTabManager.insertionBuilder(CreativeModeTabs.REDSTONE_BLOCKS)
@@ -103,19 +102,18 @@ public class PaCoCreativeModeTabs {
 //        }
 
         // Visibility tests
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.BUILDING_BLOCKS)
-                .add(PaCoBlocks.TEST.get())
-                .insertBefore(Blocks.OAK_DOOR)
-                .visibility(TabVisibility.PARENT_TAB_ONLY)
-                .apply();
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.BUILDING_BLOCKS)
-                .add(PaCoBlocks.INSTANCING_TEST.get())
-                .insertAfter(Blocks.OAK_DOOR)
-                .visibility(TabVisibility.SEARCH_TAB_ONLY)
-                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.BUILDING_BLOCKS)
+//                .add(PaCoBlocks.TEST.get())
+//                .insertBefore(Blocks.OAK_DOOR)
+//                .visibility(TabVisibility.PARENT_TAB_ONLY)
+//                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.BUILDING_BLOCKS)
+//                .add(PaCoBlocks.INSTANCING_TEST.get())
+//                .insertAfter(Blocks.OAK_DOOR)
+//                .visibility(TabVisibility.SEARCH_TAB_ONLY)
+//                .apply();
 
         // Insert existing item test
-        //TODO fix this one
         PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
                 .add(Items.CANDLE)
                 .insertBefore(Blocks.YELLOW_BED)
@@ -136,20 +134,28 @@ public class PaCoCreativeModeTabs {
                 .add(Items.GOLDEN_APPLE)
                 .insertAfter(Items.ORANGE_CANDLE)
                 .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
+                .add(Items.GOLDEN_CARROT)
+                .insertAfter(Items.CANDLE)
+                .apply();
+        PaCoTabManager.insertionBuilder(CreativeModeTabs.COLORED_BLOCKS)
+                .add(Items.COOKIE)
+                .insertBefore(Items.CANDLE)
+                .apply();
 
         // Inserting same item twice
         //TODO fix this one
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-                .add(PaCoBlocks.TEST.get())
-                .insertAfter(Blocks.DRAGON_EGG)
-                .apply();
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-                .add(PaCoBlocks.TEST.get())
-                .insertAfter(Items.ENDER_EYE)
-                .apply();
-        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-                .add(PaCoItems.FUNK.get())
-                .insertAfter(PaCoBlocks.TEST.get())
-                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+//                .add(PaCoBlocks.TEST.get())
+//                .insertAfter(Blocks.DRAGON_EGG)
+//                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+//                .add(PaCoBlocks.TEST.get())
+//                .insertAfter(Items.ENDER_EYE)
+//                .apply();
+//        PaCoTabManager.insertionBuilder(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+//                .add(PaCoItems.FUNK.get())
+//                .insertAfter(PaCoBlocks.TEST.get())
+//                .apply();
     }
 }

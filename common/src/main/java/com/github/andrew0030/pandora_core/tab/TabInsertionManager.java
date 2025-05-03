@@ -144,47 +144,66 @@ public class TabInsertionManager {
                 preciseIndex.putIfAbsent(key, i);
         }
 
-        // Loops over all insertions and adds the items to the list, based on the target index of the insertion
-        // Following that the index maps are updated with the inserted items
+        // Loops over all insertions and adds the items to the list based on the target
         for (TabInsertion insertion : insertions) {
             List<ItemStack> stacks = insertion.getStacks().stream()
                     .filter(stack -> presentItems.add(ItemKey.of(stack)))
                     .toList();
             // If no stacks need to be inserted we return early, no need to run more logic...
             if (stacks.isEmpty()) continue;
-            // Determines the base index
-            int baseIndex = TabInsertionManager.determineInsertionPosition(insertion, preciseIndex, firstIndex, lastIndex, result.size());
-            // Gets the cumulative offset so far
-            int offset = TabInsertionManager.getOffsetForIndex(baseIndex, indexOffsets);
-            int finalInsertPos = baseIndex + offset;
-            // Records how many items were inserted at this index
-            if (finalInsertPos < result.size()) // If we insert at the end there is nothing that needs offsetting
-                indexOffsets.merge(finalInsertPos, stacks.size(), Integer::sum);
-            // Inserts new stacks into result
-            result.addAll(finalInsertPos, stacks);
+            // If the insertion has no target we simply add the items to the end
+            if (!insertion.hasTarget()) {
+                result.addAll(stacks);
+                continue;
+            }
 
-            // Updates the index maps for each inserted stack
-            for (int i = 0; i < stacks.size(); i++) {
-                ItemStack stack = stacks.get(i);
-                int absolutePos = finalInsertPos + i;
+            ItemStack target = insertion.getTarget();
+            ItemKey targetKey = ItemKey.of(target);
+            if (target.hasTag() ? preciseIndex.containsKey(targetKey) : firstIndex.containsKey(target.getItem())) {
+                // For existing targets in the tab, we use index maps as they are fast and efficient.
+                // The only "downside" is that these index maps need to be treated in an immutable way.
+                // Meaning insertions that target items of other insertions need to use a different system.
+                int baseIndex = TabInsertionManager.determineInsertionPosition(insertion, target, targetKey, preciseIndex, firstIndex, lastIndex, result.size());
+                int offset = indexOffsets.headMap(baseIndex, true).values().stream().mapToInt(Integer::intValue).sum();
+                int finalInsertPos = baseIndex + offset;
+                // Records how many items were inserted at this index
+                if (finalInsertPos < result.size()) // If we insert at the end there is nothing that needs offsetting
+                    indexOffsets.merge(finalInsertPos, stacks.size(), Integer::sum);
+                result.addAll(finalInsertPos, stacks);
+            } else if (presentItems.contains(targetKey)) {
+                // If the target is in the tab, but it's an item that was inserted later
+                // we use an iterator approach for precision. Iterators are a lot slower,
+                // however since this shouldn't happen often it is fine.
+                boolean insertBefore = insertion.isInsertBefore();
+                ListIterator<ItemStack> iterator = insertBefore
+                        ? result.listIterator(0)              // Start at beginning when inserting BEFORE
+                        : result.listIterator(result.size()); // Start at end when inserting AFTER
+                boolean inserted = false;
+                while (insertBefore ? iterator.hasNext() : iterator.hasPrevious()) {
+                    ItemStack current = insertBefore ? iterator.next() : iterator.previous();
+                    boolean isMatching = target.hasTag() ? ItemStack.matches(current, target) : current.is(target.getItem());
+                    if (isMatching) {
+                        // Moves the cursor backwards or forwards, to point to correct insertion index
+                        if (insertBefore) iterator.previous();
+                        else iterator.next();
 
-                Item item = stack.getItem();
-                firstIndex.putIfAbsent(item, absolutePos);
-                lastIndex.put(item, absolutePos);
-
-                if (stack.hasTag())
-                    preciseIndex.put(ItemKey.of(stack), absolutePos);
+                        int insertIndex = iterator.nextIndex();
+                        result.addAll(insertIndex, stacks);
+                        inserted = true;
+                        break;
+                    }
+                }
+                // If we reach here, the iterator did not find the target — likely due to self-insertion
+                if (!inserted)
+                    result.addAll(stacks);
+            } else {
+                // If the target isn't in the tab we skip iteration
+                result.addAll(stacks);
             }
         }
-
         // Overwrites original list
         list.clear();
         list.addAll(result);
-    }
-
-    /** Sums all offsets for insertions that occurred at or before a given base index. */
-    private static int getOffsetForIndex(int index, TreeMap<Integer, Integer> offsetMap) {
-        return offsetMap.headMap(index, true).values().stream().mapToInt(Integer::intValue).sum();
     }
 
     /**
@@ -192,18 +211,17 @@ public class TabInsertionManager {
      * based on its target and insertion direction (before/after).
      *
      * @param insertion        The {@link TabInsertion} to evaluate.
+     * @param target           The {@link ItemStack} to insert next to.
+     * @param targetKey        The {@code target} as an {@link ItemKey}.
      * @param preciseIndex     Map containing the index of each item with nbt.
      * @param firstIndex       Map of the first index of each item in the tab.
      * @param lastIndex        Map of the last index of each item in the tab.
-     * @param fallbackPosition The fallback position to use if the target is not found.
+     * @param fallbackPosition The index to use if the target isn't found.
      * @return The index at which the insertion's items should be inserted.
      */
-    private static int determineInsertionPosition(TabInsertion insertion, Map<ItemKey, Integer> preciseIndex, Map<Item, Integer> firstIndex, Map<Item, Integer> lastIndex, int fallbackPosition) {
-        if (!insertion.hasTarget())
-            return fallbackPosition;
-        ItemStack target = insertion.getTarget();
+    private static int determineInsertionPosition(TabInsertion insertion, ItemStack target, ItemKey targetKey, Map<ItemKey, Integer> preciseIndex, Map<Item, Integer> firstIndex, Map<Item, Integer> lastIndex, int fallbackPosition) {
         if (target.hasTag()) {
-            Integer pos = preciseIndex.get(ItemKey.of(target));
+            Integer pos = preciseIndex.get(targetKey);
             return (pos != null)
                     ? (insertion.isInsertBefore() ? pos : pos + 1)
                     : fallbackPosition;

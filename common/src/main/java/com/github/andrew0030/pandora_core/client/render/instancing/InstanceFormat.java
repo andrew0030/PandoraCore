@@ -39,11 +39,11 @@ public class InstanceFormat {
     }
 
     public void setupState(VertexFormat format, ShaderWrapper wrapper) {
-//        int attribute = format.getElements().size();
-//        attribute = 11;
+        int attribute = format.getElements().size();
+        attribute = 11;
         int offset = 0;
         for (InstanceDataElement element : elements) {
-            int attribute = wrapper.getAttributeLocation(element.name);
+//            int attribute = wrapper.getAttributeLocation(element.name);
             for (int i = 0; i < element.components; i++) {
                 GlStateManager._enableVertexAttribArray(attribute);
                 if (NumericPrimitive.BYTE.isFloating()) {

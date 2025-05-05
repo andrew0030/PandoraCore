@@ -28,6 +28,9 @@ public class CollectiveDrawData {
         active.clear();
     }
 
+    /**
+     * Marks the current mesh range as active, to be rendered
+     */
     public void activateData() {
         active.put(activeRange, writing);
     }

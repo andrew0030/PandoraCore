@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.mixin.compat.shader.vanilla;
 
-import com.github.andrew0030.pandora_core.PandoraCoreClient;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.VanillaTemplateLoader;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.mojang.blaze3d.shaders.Program;
@@ -31,19 +30,10 @@ public class ShaderInstance_CacheSrc_CondBindableMixin implements IPaCoCondition
     private static void preGetOrCreate(ResourceProvider pResourceProvider, Program.Type pProgramType, String pName, CallbackInfoReturnable<Program> cir) {
         try {
             ResourceLocation loc = new ResourceLocation(pName);
-            // TODO: this is ugly and dumb
-            //       redo!
-            if (loc.getPath().startsWith(PandoraCoreClient.SHADER_PATH_PREFIX)) {
-                VanillaTemplateLoader.activeFile(
-                        loc.getNamespace(),
-                        loc.getPath() + pProgramType.getExtension()
-                );
-            } else {
-                VanillaTemplateLoader.activeFile(
-                        loc.getNamespace(),
-                        PandoraCoreClient.SHADER_PATH_PREFIX + loc.getPath() + pProgramType.getExtension()
-                );
-            }
+            VanillaTemplateLoader.activeFile(
+                    loc.getNamespace(),
+                    loc.getPath() + pProgramType.getExtension()
+            );
         } catch (Throwable err) {
             VanillaTemplateLoader.activeFile("unknown", pName);
         }

@@ -48,7 +48,7 @@ Systems TODO:
   - [ ] Create more registry classes or a util class, to allow registering event based stuff (model layers, particles, e.t.c)
   - [ ] Maybe look into abstracting custom Registry registration
 - Random Render Stuff
-  - [ ] Create abstraction for BEWLERs
+  - [x] Create abstraction for BEWLERs
 - Sounds
   - [x] Get sounds to play
   - [x] Figure out looped sounds

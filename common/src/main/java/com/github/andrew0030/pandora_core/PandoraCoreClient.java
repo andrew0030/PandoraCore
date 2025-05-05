@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core;
 
+import com.github.andrew0030.pandora_core.client.PaCoClientManager;
 import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
 import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.client.registry.PaCoModelLayers;
@@ -8,7 +9,9 @@ import com.github.andrew0030.pandora_core.client.render.renderers.registry.Insta
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.registry.PaCoBlockEntities;
+import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
 import com.github.andrew0030.pandora_core.test.InstancingTestBlockEntityRenderer;
+import com.github.andrew0030.pandora_core.test.block_entities.TestBEWLR;
 import com.github.andrew0030.pandora_core.utils.LogicalSide;
 
 import java.util.List;
@@ -36,6 +39,8 @@ public class PandoraCoreClient {
     /** Client Init */
     public static void init() {
         PaCoPostShaders.init();
+        //TODO remove when done testing
+        PaCoClientManager.registerItemBEWLR(PaCoBlocks.TEST.get(), TestBEWLR.INSTANCE);
     }
 
     /** Thread Safe Client Init */

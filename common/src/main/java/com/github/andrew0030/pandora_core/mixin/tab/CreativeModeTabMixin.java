@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.mixin.tab;
 
-import com.github.andrew0030.pandora_core.tab.PaCoTabManager;
 import com.github.andrew0030.pandora_core.tab.TabInsertion;
 import com.github.andrew0030.pandora_core.tab.TabInsertionManager;
 import com.github.andrew0030.pandora_core.tab.TabVisibility;
@@ -15,8 +14,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /* For the targets and how to modify tabs with a mixin, I took reference from: */
 /* https://github.com/FabricMC/fabric/blob/1.20.1/fabric-item-group-api-v1/src/main/java/net/fabricmc/fabric/mixin/itemgroup/ItemGroupMixin.java */
@@ -42,12 +43,10 @@ public class CreativeModeTabMixin {
 
         TabInsertionManager.reorderTabInsertions(tabKey);
         List<TabInsertion> insertions = TabInsertionManager.getInsertionsFor(tabKey);
-//        List<TabInsertion> parentInsertions = insertions.stream().filter(i -> i.getVisibility() != TabVisibility.SEARCH_TAB_ONLY).toList();
-//        List<TabInsertion> searchInsertions = insertions.stream().filter(i -> i.getVisibility() != TabVisibility.PARENT_TAB_ONLY).toList();
-//        TabInsertionManager.applyAllInsertions(mutableDisplayItems, parentInsertions);
-//        TabInsertionManager.applyAllInsertions(mutableDisplayItemsSearchTab, searchInsertions);
-        TabInsertionManager.applyAllInsertions(mutableDisplayItems, insertions);
-        TabInsertionManager.applyAllInsertions(mutableDisplayItemsSearchTab, insertions);
+        List<TabInsertion> parentInsertions = insertions.stream().filter(i -> i.getVisibility() != TabVisibility.SEARCH_TAB_ONLY).toList();
+        List<TabInsertion> searchInsertions = insertions.stream().filter(i -> i.getVisibility() != TabVisibility.PARENT_TAB_ONLY).toList();
+        TabInsertionManager.applyAllInsertions(mutableDisplayItems, parentInsertions);
+        TabInsertionManager.applyAllInsertions(mutableDisplayItemsSearchTab, searchInsertions);
 
         this.displayItems.clear();
         this.displayItems.addAll(mutableDisplayItems);

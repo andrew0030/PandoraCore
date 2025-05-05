@@ -16,6 +16,7 @@ import java.util.List;
 public class PandoraCoreClient {
     public static final TemplateShaderResourceLoader templateShaderLoader = new TemplateShaderResourceLoader();
     public static final PaCoCoreShaders coreShaders = new PaCoCoreShaders();
+    public static final String SHADER_PATH_PREFIX = Services.PLATFORM.getPlatformName().equals("forge") ? "" : "shaders/core/";
 
     /** Early Client Init (Mod Construction) **/
     public static void earlyInit() {

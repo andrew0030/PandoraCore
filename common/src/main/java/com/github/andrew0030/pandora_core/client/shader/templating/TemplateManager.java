@@ -142,6 +142,9 @@ public class TemplateManager {
     List<TemplateShaderResourceLoader.TemplateStruct> structs;
 
     public static void reloadLoader(TemplateLoader templateLoader) {
+        if (INSTANCE.structs == null)
+            return;
+
         LoadManager manager = INSTANCE.new LoadManager();
         for (TemplateShaderResourceLoader.TemplateStruct struct : INSTANCE.structs) {
             templateLoader.attempt(

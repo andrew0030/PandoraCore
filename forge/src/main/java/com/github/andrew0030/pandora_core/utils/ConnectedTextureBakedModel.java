@@ -13,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
@@ -24,6 +25,7 @@ import java.util.*;
 public class ConnectedTextureBakedModel implements BakedModel {
     private final BakedModel originalModel;
     public static final ModelProperty<Map<Direction, EnumSet<FaceAdjacency>>> FACE_CONNECTIONS = new ModelProperty<>();
+    private static final List<Direction> ALL_DIRECTIONS = List.of(Direction.values());
     public static final Map<Integer, Integer> CTM_LOOKUP = Map.ofEntries(
             Map.entry(0, 0),     // No connections (isolated)
             // Horizontal
@@ -103,70 +105,47 @@ public class ConnectedTextureBakedModel implements BakedModel {
 
     @Override
     public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
+        // A map of directions and all their relevant adjacent blocks
         Map<Direction, EnumSet<FaceAdjacency>> faceConnections = new EnumMap<>(Direction.class);
+        Block selfBlock = state.getBlock();
 
-        for (Direction face : Direction.values()) {
+        for (Direction faceDirection : ALL_DIRECTIONS) {
+            BlockState outerFaceBlock = level.getBlockState(pos.relative(faceDirection));
+            if (outerFaceBlock.is(selfBlock)) continue; // Face fully blocked
+
             EnumSet<FaceAdjacency> set = EnumSet.noneOf(FaceAdjacency.class);
-            EnumSet<FaceAdjacency> directConnections = EnumSet.noneOf(FaceAdjacency.class); // Store axis-aligned only
 
-            for (FaceAdjacency adj : FaceAdjacency.values()) {
-                BlockPos offset = projectRelative(face, adj.dx, adj.dy);
-                if (level.getBlockState(pos.offset(offset)).is(state.getBlock())) {
-
-                    BlockPos faceOffsetPos = pos.offset(offset).relative(face);
-                    BlockState faceBlock = level.getBlockState(faceOffsetPos);
-                    // Skip this face entirely if it's blocked by the same type
-                    if (faceBlock.is(state.getBlock()))
-                        continue;
-
-                    // Save direct connections immediately
-                    if (adj.axisAligned) {
+            for (FaceAdjacency adj : FaceAdjacency.axisAlignedValues()) {
+                BlockPos offsetPos = pos.offset(FaceAdjacency.getOffset(faceDirection, adj));
+                if (level.getBlockState(offsetPos).is(selfBlock)) {
+                    BlockState faceBlock = level.getBlockState(offsetPos.relative(faceDirection));
+                    if (!faceBlock.is(selfBlock)) {
                         set.add(adj);
-                        directConnections.add(adj);
                     }
                 }
             }
 
-            // Now recheck diagonals
-            for (FaceAdjacency adj : FaceAdjacency.values()) {
-                if (adj.diagonal) {
-                    FaceAdjacency dir1 = FaceAdjacency.fromOffsets(adj.dx, 0);
-                    FaceAdjacency dir2 = FaceAdjacency.fromOffsets(0, adj.dy);
-                    if (directConnections.contains(dir1) && directConnections.contains(dir2)) {
-                        BlockPos offset = projectRelative(face, adj.dx, adj.dy);
-                        if (level.getBlockState(pos.offset(offset)).is(state.getBlock())) {
+            for (FaceAdjacency adj : FaceAdjacency.diagonalValues()) {
+                // If the axis-aligned blocks next to the diagonal blocks are missing we skip
+                if (!set.containsAll(FaceAdjacency.getDiagonalDependencies(adj))) continue;
 
-                            BlockPos faceOffsetPos = pos.offset(offset).relative(face);
-                            BlockState faceBlock = level.getBlockState(faceOffsetPos);
-                            // Skip this face entirely if it's blocked by the same type
-                            if (faceBlock.is(state.getBlock()))
-                                continue;
-
-                            set.add(adj);
-                        }
+                BlockPos offsetPos = pos.offset(FaceAdjacency.getOffset(faceDirection, adj));
+                if (level.getBlockState(offsetPos).is(selfBlock)) {
+                    BlockState faceBlock = level.getBlockState(offsetPos.relative(faceDirection));
+                    if (!faceBlock.is(selfBlock)) {
+                        set.add(adj);
                     }
                 }
             }
 
-            faceConnections.put(face, set);
+            faceConnections.put(faceDirection, set);
         }
 
         return ModelData.builder().with(FACE_CONNECTIONS, faceConnections).build();
     }
 
-    public static BlockPos projectRelative(Direction face, int dx, int dy) {
-        return switch (face) {
-            case NORTH -> new BlockPos(dx, dy, 0);
-            case SOUTH -> new BlockPos(-dx, dy, 0);
-            case EAST  -> new BlockPos(0, dy, dx);
-            case WEST  -> new BlockPos(0, dy, -dx);
-            case UP    -> new BlockPos(-dx, 0, -dy);
-            case DOWN  -> new BlockPos(-dx, 0, dy);
-        };
-    }
-
     @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand, ModelData data, RenderType renderType) {
+    public @NotNull List<BakedQuad> getQuads(BlockState state, Direction side, @NotNull RandomSource rand, @NotNull ModelData data, RenderType renderType) {
         if (state == null || side == null) {
             return originalModel.getQuads(state, side, rand, data, renderType);
         }
@@ -179,9 +158,12 @@ public class ConnectedTextureBakedModel implements BakedModel {
                 .getSprite(new ResourceLocation("pandora_core:block/connected_block_sheet"));
 
         int mask = 0;
-        EnumSet<FaceAdjacency> faceSet = data.get(FACE_CONNECTIONS).getOrDefault(side, EnumSet.noneOf(FaceAdjacency.class));
-        for (FaceAdjacency adj : faceSet) {
-            mask |= FACE_ADJACENCY_TO_BIT.get(adj);
+        Map<Direction, EnumSet<FaceAdjacency>> set = data.get(FACE_CONNECTIONS);
+        if (set != null) {
+            EnumSet<FaceAdjacency> faceSet = set.getOrDefault(side, EnumSet.noneOf(FaceAdjacency.class));
+            for (FaceAdjacency adj : faceSet) {
+                mask |= FACE_ADJACENCY_TO_BIT.get(adj);
+            }
         }
         int tileIndex = CTM_LOOKUP.getOrDefault(mask, 0);
 
@@ -231,7 +213,7 @@ public class ConnectedTextureBakedModel implements BakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource random) {
+    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource random) {
         return getQuads(state, side, random, ModelData.EMPTY, null);
     }
 
@@ -240,33 +222,74 @@ public class ConnectedTextureBakedModel implements BakedModel {
     @Override public boolean isGui3d() { return originalModel.isGui3d(); }
     @Override public boolean usesBlockLight() { return originalModel.usesBlockLight(); }
     @Override public boolean isCustomRenderer() { return originalModel.isCustomRenderer(); }
-    @Override public TextureAtlasSprite getParticleIcon() { return originalModel.getParticleIcon(); }
-    @Override public ItemTransforms getTransforms() { return originalModel.getTransforms(); }
-    @Override public ItemOverrides getOverrides() { return originalModel.getOverrides(); }
+    @Override public @NotNull TextureAtlasSprite getParticleIcon() { return originalModel.getParticleIcon(); }
+    @Override public @NotNull ItemTransforms getTransforms() { return originalModel.getTransforms(); }
+    @Override public @NotNull ItemOverrides getOverrides() { return originalModel.getOverrides(); }
 
+    /**
+     * Represents the relative position of neighboring blocks around a face in a 3x3 grid layout,
+     * used for Connected Texture Mapping (CTM) logic.
+     * <p>
+     * Each enum constant corresponds to a direction in the 2D plane surrounding a face:
+     * <pre>
+     * Bit layout:
+     *
+     *  1   2   4      // TOP_LEFT, TOP, TOP_RIGHT
+     *  8   x  16      // LEFT,     x,   RIGHT
+     * 32  64 128      // BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT
+     * </pre>
+     * <p>
+     * These bit values are used to compute unique connection keys for texture lookup,
+     * allowing combinations of adjacent block presence to be compactly encoded and decoded.
+     * <p>
+     * Each enum entry also stores its relative offset (dx, dy).
+     */
     public enum FaceAdjacency {
-        TOP_LEFT(1, 1, false, true),
-        TOP(0, 1, true, false),
-        TOP_RIGHT(-1, 1, false, true),
-        LEFT(1, 0, true, false),
-        RIGHT(-1, 0, true, false),
-        BOTTOM_LEFT(1, -1, false, true),
-        BOTTOM(0, -1, true, false),
-        BOTTOM_RIGHT(-1, -1, false, true);
+        TOP_LEFT(1, 1),
+        TOP(0, 1),
+        TOP_RIGHT(-1, 1),
+        LEFT(1, 0),
+        RIGHT(-1, 0),
+        BOTTOM_LEFT(1, -1),
+        BOTTOM(0, -1),
+        BOTTOM_RIGHT(-1, -1);
 
-        public static final EnumSet<FaceAdjacency> AXIS_ALIGNED = EnumSet.of(TOP, LEFT, RIGHT, BOTTOM);
-        public static final EnumSet<FaceAdjacency> DIAGONAL = EnumSet.of(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT);
-        public final int dx, dy;
-        public final boolean axisAligned, diagonal;
+        private static final EnumSet<FaceAdjacency> AXIS_ALIGNED = EnumSet.of(TOP, LEFT, RIGHT, BOTTOM);
+        private static final EnumSet<FaceAdjacency> DIAGONAL = EnumSet.of(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT);
+        private static final Map<FaceAdjacency, EnumSet<FaceAdjacency>> DIAGONAL_DEPENDENCIES = Map.of(
+                TOP_LEFT, EnumSet.of(TOP, LEFT),
+                TOP_RIGHT, EnumSet.of(TOP, RIGHT),
+                BOTTOM_LEFT, EnumSet.of(BOTTOM, LEFT),
+                BOTTOM_RIGHT, EnumSet.of(BOTTOM, RIGHT)
+            );
+        private static final EnumMap<Direction, EnumMap<FaceAdjacency, BlockPos>> OFFSET_MAP = new EnumMap<>(Direction.class);
+        private final int dx, dy;
 
-        FaceAdjacency(int dx, int dy, boolean axisAligned, boolean diagonal) {
-            this.dx = dx;
-            this.dy = dy;
-            this.axisAligned = axisAligned;
-            this.diagonal = diagonal;
+        static {
+            // Computes and caches all offsets based on all directions
+            for (Direction dir : Direction.values()) {
+                EnumMap<FaceAdjacency, BlockPos> faceMap = new EnumMap<>(FaceAdjacency.class);
+                for (FaceAdjacency adj : FaceAdjacency.values())
+                    faceMap.put(adj, computeOffset(adj, dir));
+                OFFSET_MAP.put(dir, faceMap);
+            }
         }
 
-        public BlockPos getOffset(Direction face) {
+        FaceAdjacency(int dx, int dy) {
+            this.dx = dx;
+            this.dy = dy;
+        }
+
+        /**
+         * Computes the relative {@link BlockPos} offset for a given face direction and adjacency.
+         *
+         * @param adj  The {@link FaceAdjacency} being transformed.
+         * @param face The direction of the face from which the offset is projected.
+         * @return A new {@link BlockPos} representing the 3D offset.
+         */
+        private static BlockPos computeOffset(FaceAdjacency adj, Direction face) {
+            int dx = adj.dx;
+            int dy = adj.dy;
             return switch (face) {
                 case NORTH -> new BlockPos(dx, dy, 0);
                 case SOUTH -> new BlockPos(-dx, dy, 0);
@@ -277,19 +300,38 @@ public class ConnectedTextureBakedModel implements BakedModel {
             };
         }
 
-        public static FaceAdjacency fromOffsets(int dx, int dy) {
-            for (FaceAdjacency a : values()) {
-                if (a.dx == dx && a.dy == dy) return a;
-            }
-            return null;
+        /**
+         * Returns a cached {@link BlockPos} offset for the specified {@link Direction} and {@link FaceAdjacency}.
+         *
+         * @param face The direction of the face being queried.
+         * @param adj  The adjacency direction relative to the face.
+         * @return A precomputed {@link BlockPos} representing the 3D offset.
+         *
+         * @implNote All offsets are precomputed and cached for performance.
+         */
+        public static BlockPos getOffset(Direction face, FaceAdjacency adj) {
+            return OFFSET_MAP.get(face).get(adj);
         }
 
+        /**
+         * @return A cached {@link EnumSet} of all axis-aligned {@link FaceAdjacency} values.
+         */
         public static EnumSet<FaceAdjacency> axisAlignedValues() {
             return AXIS_ALIGNED;
         }
 
+        /**
+         * @return A cached {@link EnumSet} of all diagonal {@link FaceAdjacency} values.
+         */
         public static EnumSet<FaceAdjacency> diagonalValues() {
             return DIAGONAL;
+        }
+
+        /**
+         * @return A cached {@link EnumSet} containing all diagonal {@link FaceAdjacency} dependencies.
+         */
+        public static EnumSet<FaceAdjacency> getDiagonalDependencies(FaceAdjacency diagonal) {
+            return DIAGONAL_DEPENDENCIES.getOrDefault(diagonal, EnumSet.noneOf(FaceAdjacency.class));
         }
     }
 }

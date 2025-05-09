@@ -107,37 +107,48 @@ public class ConnectedTextureBakedModel implements BakedModel {
     public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
         // A map of directions and all their relevant adjacent blocks
         Map<Direction, EnumSet<FaceAdjacency>> faceConnections = new EnumMap<>(Direction.class);
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
         Block selfBlock = state.getBlock();
 
         for (Direction faceDirection : ALL_DIRECTIONS) {
-            BlockState outerFaceBlock = level.getBlockState(pos.relative(faceDirection));
-            if (outerFaceBlock.is(selfBlock)) continue; // Face fully blocked
+            // If there is a block in front of the face we skip
+            mutablePos.set(pos).move(faceDirection);
+            if (level.getBlockState(mutablePos).is(selfBlock)) continue;
 
             EnumSet<FaceAdjacency> set = EnumSet.noneOf(FaceAdjacency.class);
 
+            // We check all axis-aligned blocks
             for (FaceAdjacency adj : FaceAdjacency.axisAlignedValues()) {
-                BlockPos offsetPos = pos.offset(FaceAdjacency.getOffset(faceDirection, adj));
-                if (level.getBlockState(offsetPos).is(selfBlock)) {
-                    BlockState faceBlock = level.getBlockState(offsetPos.relative(faceDirection));
-                    if (!faceBlock.is(selfBlock)) {
+                BlockPos offset = FaceAdjacency.getOffset(faceDirection, adj);
+                // Checks if there is a block adjacent
+                mutablePos.set(pos).move(offset);
+                if (level.getBlockState(mutablePos).is(selfBlock)) {
+                    // Ensures the block isn't covered by another
+                    mutablePos.move(faceDirection);
+                    if (!level.getBlockState(mutablePos).is(selfBlock)) {
                         set.add(adj);
                     }
                 }
             }
 
+            // We check all diagonal blocks
             for (FaceAdjacency adj : FaceAdjacency.diagonalValues()) {
-                // If the axis-aligned blocks next to the diagonal blocks are missing we skip
+                // If the axis-aligned blocks next to the diagonal block are missing we skip
                 if (!set.containsAll(FaceAdjacency.getDiagonalDependencies(adj))) continue;
 
-                BlockPos offsetPos = pos.offset(FaceAdjacency.getOffset(faceDirection, adj));
-                if (level.getBlockState(offsetPos).is(selfBlock)) {
-                    BlockState faceBlock = level.getBlockState(offsetPos.relative(faceDirection));
-                    if (!faceBlock.is(selfBlock)) {
+                BlockPos offset = FaceAdjacency.getOffset(faceDirection, adj);
+                // Checks if there is a block adjacent (diagonally)
+                mutablePos.set(pos).move(offset);
+                if (level.getBlockState(mutablePos).is(selfBlock)) {
+                    // Ensures the block isn't covered by another
+                    mutablePos.move(faceDirection);
+                    if (!level.getBlockState(mutablePos).is(selfBlock)) {
                         set.add(adj);
                     }
                 }
             }
 
+            // Lastly we store each face direction and its valid adjacent blocks
             faceConnections.put(faceDirection, set);
         }
 

@@ -53,12 +53,18 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
         INSTANCE = this;
     }
 
+    List<ResourceLocation> notCore = new ArrayList<>();
+
     @Override
     public void prepare(ResourceManager manager) {
         manager.listResources(
                 "shaders/core",
                 (location) -> location.getPath().endsWith(".json")
         ).forEach((location, resource) -> {
+            if (manager.getResourceStack(location).size() != 1) {
+                notCore.add(location);
+            }
+
             StringBuilder builder = new StringBuilder();
             try (BufferedReader reader = resource.openAsReader()) {
                 reader.lines().forEach(line -> builder.append(line).append("\n"));
@@ -163,7 +169,11 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete,  Function<String, TemplateTransformation> transformations) {
         Map<String, String> transformers = struct.getTransformers();
 
-        String template = struct.getTemplate("vanilla");
+        String template = struct.getTemplate("core");
+        String templateVanilla = struct.getTemplate("vanilla");
+        if (notCore.contains(new ResourceLocation(templateVanilla + ".json"))) {
+            template = templateVanilla;
+        }
         if (template == null)
             return LoadResult.FAILED;
         String templateJson = template + ".json";
@@ -228,6 +238,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 
     @Override
     public void _beginReload() {
+        notCore.clear();
         sources.clear();
         shaderJsons.clear();
     }

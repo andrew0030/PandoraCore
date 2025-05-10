@@ -16,6 +16,7 @@ public class PaCoCoreShaders implements PacoResourceManager {
     // TODO think of a way to abstract this.
     @Nullable
     public static ShaderInstance positionColorTexFullAlphaShader;
+    public static ShaderInstance chessPiece;
 
     public static ShaderInstance getPositionColorTexFullAlphaShader() {
         return Objects.requireNonNull(PaCoCoreShaders.positionColorTexFullAlphaShader, "Attempted to call getPositionColorTexFullAlphaShader before shaders have finished loading.");
@@ -28,6 +29,14 @@ public class PaCoCoreShaders implements PacoResourceManager {
                 PaCoCoreShaders.positionColorTexFullAlphaShader.close();
             try {
                 PaCoCoreShaders.positionColorTexFullAlphaShader = new ShaderInstance(manager, PandoraCore.MOD_ID + ":position_color_tex_full_alpha", DefaultVertexFormat.POSITION_COLOR_TEX);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (PaCoCoreShaders.chessPiece != null)
+                PaCoCoreShaders.chessPiece.close();
+            try {
+                PaCoCoreShaders.chessPiece = new ShaderInstance(manager, PandoraCore.MOD_ID + ":chess", DefaultVertexFormat.NEW_ENTITY);
             } catch (IOException e) {
                 e.printStackTrace();
             }

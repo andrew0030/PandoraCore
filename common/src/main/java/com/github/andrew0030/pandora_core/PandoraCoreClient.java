@@ -6,6 +6,7 @@ import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.client.registry.PaCoModelLayers;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.render.renderers.registry.InstancedBERendererRegistry;
+import com.github.andrew0030.pandora_core.client.shader.compute.ComputeLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.registry.PaCoBlockEntities;
@@ -18,8 +19,8 @@ import java.util.List;
 
 public class PandoraCoreClient {
     public static final TemplateShaderResourceLoader templateShaderLoader = new TemplateShaderResourceLoader();
+    public static final ComputeLoader computeShaderLoader = new ComputeLoader();
     public static final PaCoCoreShaders coreShaders = new PaCoCoreShaders();
-    public static final String SHADER_PATH_PREFIX = Services.PLATFORM.getPlatformName().equals("forge") ? "" : "shaders/core/";
 
     /** Early Client Init (Mod Construction) **/
     public static void earlyInit() {
@@ -32,7 +33,7 @@ public class PandoraCoreClient {
 
         Services.RELOAD_LISTENER.registerResourceLoader((side) -> {
             if (side == LogicalSide.CLIENT) {
-                return List.of(templateShaderLoader, coreShaders);
+                return List.of(templateShaderLoader, computeShaderLoader, coreShaders);
             } else return null;
         });
     }

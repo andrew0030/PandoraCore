@@ -13,4 +13,9 @@ public class ShaderLoaderDeferenceMixin {
     public void postReload(CallbackInfo ci) {
         VanillaTemplateLoader.getInstance().performReload();
     }
+
+    @Inject(at = @At("HEAD"), method = {"lambda$reloadResourcePacks$23", "lambda$reloadResourcePacks$27"})
+    public void postReload1(CallbackInfo ci) {
+        VanillaTemplateLoader.getInstance().performReload();
+    }
 }

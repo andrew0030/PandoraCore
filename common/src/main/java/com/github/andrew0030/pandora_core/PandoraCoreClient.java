@@ -41,7 +41,6 @@ public class PandoraCoreClient {
     /** Client Init */
     public static void init() {
         PaCoPostShaders.init();
-        //TODO remove when done testing
     }
 
     /** Thread Safe Client Init */

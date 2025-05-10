@@ -23,6 +23,7 @@ public class PaCoCreativeModeTabs {
             output.accept(PaCoItems.FUNK.get());
             output.accept(PaCoBlocks.TEST.get());
             output.accept(PaCoBlocks.INSTANCING_TEST.get());
+            output.accept(PaCoBlocks.CONNECTED_BLOCK.get());
         })
         .build()
     );

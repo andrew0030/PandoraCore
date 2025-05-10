@@ -1,0 +1,8 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "pandora_core:block/connected_block_sheet"
+    }
+  ]
+}

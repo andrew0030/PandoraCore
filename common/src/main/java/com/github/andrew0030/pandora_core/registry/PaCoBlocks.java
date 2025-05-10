@@ -17,6 +17,7 @@ public class PaCoBlocks {
 
     public static final Supplier<Block> TEST            = PaCoBlocks.createBlock("test", TestBlock::new);
     public static final Supplier<Block> INSTANCING_TEST = PaCoBlocks.createBlock("instancing_test", () -> new InstancingTestBlock(BlockBehaviour.Properties.copy(Blocks.STONE).forceSolidOff().noOcclusion().noCollission()));
+    public static final Supplier<Block> CONNECTED_BLOCK = PaCoBlocks.createBlock("connected_block", () -> new Block(BlockBehaviour.Properties.of()));
 
     private static Supplier<Block> createBlock(String name, Supplier<Block> supplier) {
         Supplier<Block> block = BLOCKS.add(name, supplier);

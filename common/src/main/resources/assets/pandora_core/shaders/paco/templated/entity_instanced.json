@@ -1,7 +1,7 @@
 {
   "template": {
     "vanilla": "minecraft:shaders/core/rendertype_entity_solid",
-    "core": "pandora_core:shaders/core/rendertype_entity_solid",
+    "core": "pandora_core:shaders/core/chess",
     "iris": "entities_solid"
   },
   "transformer": {

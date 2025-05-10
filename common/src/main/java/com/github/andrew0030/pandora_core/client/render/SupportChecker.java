@@ -14,24 +14,29 @@ public class SupportChecker {
     // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glMultiDrawElementsIndirect.xhtml
     public static final boolean SUPPORT_MULTIDRAW_INDIRECT;
     public static final boolean SUPPORT_BLACKHOLE;
+    public static final boolean SUPPORT_COMPUTE;
 
     static {
         int num = GL11.glGetInteger(GL32.GL_NUM_EXTENSIONS);
         boolean lockArrays = false;
         boolean multidrawIndirect = false;
         boolean blackhole = false;
+        boolean compute = false;
         for (int index = 0; index < num; index++) {
             String ext = GL32.glGetStringi(GL32.GL_EXTENSIONS, index);
             if (ext.equals("GL_EXT_compiled_vertex_array"))
                 lockArrays = true;
             else if (ext.equals("GL_ARB_draw_indirect"))
                 multidrawIndirect = true;
-            else if (ext.equals("INTEL_blackhole_render"))
+            else if (ext.equals("GL_INTEL_blackhole_render"))
                 blackhole = true;
+            else if (ext.equals("GL_ARB_compute_shader"))
+                compute = true;
         }
 
         SUPPORT_LOCKED_ARRAYS = lockArrays;
         SUPPORT_MULTIDRAW_INDIRECT = multidrawIndirect;
         SUPPORT_BLACKHOLE = blackhole;
+        SUPPORT_COMPUTE = compute;
     }
 }

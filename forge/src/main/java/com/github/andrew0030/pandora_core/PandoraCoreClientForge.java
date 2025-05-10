@@ -1,9 +1,9 @@
 package com.github.andrew0030.pandora_core;
 
+import com.github.andrew0030.pandora_core.client.ctm.CTModelForge;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.events.ForgeClientTickEvent;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
-import com.github.andrew0030.pandora_core.utils.ConnectedTextureBakedModel;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
@@ -55,7 +55,7 @@ public class PandoraCoreClientForge {
             ResourceLocation id = entry.getKey();
             if (id.getNamespace().equals(PandoraCore.MOD_ID) && id.getPath().equals("connected_block")) {
                 BakedModel original = entry.getValue();
-                ConnectedTextureBakedModel wrapped = new ConnectedTextureBakedModel(original);
+                CTModelForge wrapped = new CTModelForge(original);
                 event.getModels().put(id, wrapped);
             }
         }

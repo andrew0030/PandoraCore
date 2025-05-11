@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core;
 
-import com.github.andrew0030.pandora_core.client.ctm.CTModelForge;
+import com.github.andrew0030.pandora_core.client.ctm.ForgeCTModel;
+import com.github.andrew0030.pandora_core.client.ctm.PaCoModelData;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.events.ForgeClientTickEvent;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
@@ -53,10 +54,9 @@ public class PandoraCoreClientForge {
     private static void onModelBake(ModelEvent.ModifyBakingResult event) {
         for (Map.Entry<ResourceLocation, BakedModel> entry : event.getModels().entrySet()) {
             ResourceLocation id = entry.getKey();
-            if (id.getNamespace().equals(PandoraCore.MOD_ID) && id.getPath().equals("connected_block")) {
+            if (PaCoModelData.hasCTM(id) && !id.toString().endsWith("#inventory")) {
                 BakedModel original = entry.getValue();
-                CTModelForge wrapped = new CTModelForge(original);
-                event.getModels().put(id, wrapped);
+                event.getModels().put(id, new ForgeCTModel(original));
             }
         }
     }

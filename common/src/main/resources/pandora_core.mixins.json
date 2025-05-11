@@ -28,6 +28,7 @@
     "compat.shader.vanilla.ShaderInstance_CacheShadersMixin",
     "compat.shader.vanilla.ShaderInstance_CacheSrc_CondBindableMixin",
     "compat.shader.vanilla.ShaderLoaderDeferenceMixin",
+    "ctm.ModelBakeryMixin",
     "gui.AbstractWidgetMixin",
     "gui.EditBoxMixin",
     "gui.ScreenMixin",

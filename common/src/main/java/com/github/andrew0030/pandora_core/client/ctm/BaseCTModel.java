@@ -12,11 +12,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 
 public abstract class BaseCTModel implements BakedModel {
-    private static final List<Direction> ALL_DIRECTIONS = List.of(Direction.values());
+    private static final Direction[] ALL_DIRECTIONS = { Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST };
     protected final BakedModel model;
 
     //TODO eventually this should be determined/provided by the CTM type

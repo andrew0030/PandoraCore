@@ -9,7 +9,7 @@ public class PaCoModelLoadingPlugin implements ModelLoadingPlugin {
     public void onInitializeModelLoader(Context context) {
         context.modifyModelAfterBake().register((original, contextData) -> {
             ResourceLocation id = contextData.id();
-            if (id.getNamespace().equals("pandora_core") && id.getPath().equals("block/connected_block")) {
+            if (PaCoModelData.hasCTM(id) && !id.toString().endsWith("#inventory")) {
                 return new FabricCTModel(original);
             }
             return original;

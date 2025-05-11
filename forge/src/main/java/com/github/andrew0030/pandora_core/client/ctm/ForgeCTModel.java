@@ -22,10 +22,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-public class CTModelForge extends BaseCTModel {
+public class ForgeCTModel extends BaseCTModel {
     public static final ModelProperty<Map<Direction, EnumSet<FaceAdjacency>>> FACE_CONNECTIONS = new ModelProperty<>();
 
-    public CTModelForge(BakedModel model) {
+    public ForgeCTModel(BakedModel model) {
         super(model);
     }
 

@@ -14,7 +14,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 
-public abstract class BaseCTModel implements BakedModel {
+public abstract class BaseCTMModel implements BakedModel {
     private static final Direction[] ALL_DIRECTIONS = { Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST };
     protected final BakedModel model;
 
@@ -82,7 +82,7 @@ public abstract class BaseCTModel implements BakedModel {
             Map.entry(90, 46)     // Cross
     );
 
-    public BaseCTModel(BakedModel model) {
+    public BaseCTMModel(BakedModel model) {
         this.model = model;
     }
 

@@ -1,11 +1,15 @@
 package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.ctm.BaseCTMModel;
+import com.github.andrew0030.pandora_core.client.ctm.CTMSpriteResolver;
+import com.github.andrew0030.pandora_core.client.ctm.ForgeCTMModel;
 import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
 import com.github.andrew0030.pandora_core.utils.data_holders.ForgeModDataHolder;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -83,5 +87,10 @@ public class ForgePlatformHelper implements IPlatformHelper {
             holders.add(new ForgeModDataHolder(modInfo));
         });
         return holders;
+    }
+
+    @Override
+    public BaseCTMModel getCTMModel(BakedModel model, CTMSpriteResolver spriteResolver) {
+        return new ForgeCTMModel(model, spriteResolver);
     }
 }

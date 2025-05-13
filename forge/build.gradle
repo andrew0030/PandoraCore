@@ -103,6 +103,8 @@ dependencies {
     shade "com.electronwill.night-config:core:3.8.1"
     shade "com.electronwill.night-config:toml:3.8.1"
 
+    // Atlas Viewer (Atlas Stitch Monitoring)
+    runtimeOnly fg.deobf("curse.maven:atlasviewer-633577:4882554") // AtlasViewer
     // Performance Monitoring
     runtimeOnly fg.deobf("curse.maven:spark-361579:4738952") // Spark
     // Render Mods To Test Shader Patcher

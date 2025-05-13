@@ -1,7 +1,9 @@
 {
-  "variants":{"":{"model":"pandora_core:block/connected_block"}},
+  "variants":{"":{
+    "model":"pandora_core:block/connected_block"
+  }},
   "pandora_core:ctm":true,
   "pandora_core:overwrite":{
-    "all": "pandora_core:block/connected_block_sheet"
+    "pandora_core:block/connected_block": "pandora_core:block/connected_block_sheet"
   }
 }

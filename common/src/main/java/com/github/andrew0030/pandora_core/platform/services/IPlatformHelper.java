@@ -1,7 +1,10 @@
 package com.github.andrew0030.pandora_core.platform.services;
 
+import com.github.andrew0030.pandora_core.client.ctm.BaseCTMModel;
+import com.github.andrew0030.pandora_core.client.ctm.CTMSpriteResolver;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.resources.model.BakedModel;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -58,4 +61,13 @@ public interface IPlatformHelper {
 
     /** Creates a {@link List} with a {@link ModDataHolder} for each loaded mod. */
     List<ModDataHolder> getModDataHolders();
+
+    /**
+     * Creates and returns a new loader specific CTMModel.
+     *
+     * @param model          The original {@link BakedModel}
+     * @param spriteResolver The {@link CTMSpriteResolver} containing the sprites the {@code model} will use
+     * @return A new CTMModel
+     */
+    BaseCTMModel getCTMModel(BakedModel model, CTMSpriteResolver spriteResolver);
 }

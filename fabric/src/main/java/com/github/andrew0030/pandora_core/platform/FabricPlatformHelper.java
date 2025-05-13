@@ -1,6 +1,9 @@
 package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.ctm.BaseCTMModel;
+import com.github.andrew0030.pandora_core.client.ctm.CTMSpriteResolver;
+import com.github.andrew0030.pandora_core.client.ctm.FabricCTMModel;
 import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
 import com.github.andrew0030.pandora_core.utils.data_holders.FabricModDataHolder;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
@@ -9,6 +12,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.minecraft.client.resources.model.BakedModel;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -84,5 +88,10 @@ public class FabricPlatformHelper implements IPlatformHelper {
             holders.add(new FabricModDataHolder(metadata));
         });
         return holders;
+    }
+
+    @Override
+    public BaseCTMModel getCTMModel(BakedModel model, CTMSpriteResolver spriteResolver) {
+        return new FabricCTMModel(model, spriteResolver);
     }
 }

@@ -1,14 +1,11 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,11 +19,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-public class ForgeCTModel extends BaseCTModel {
-    public static final ModelProperty<Map<Direction, EnumSet<FaceAdjacency>>> FACE_CONNECTIONS = new ModelProperty<>();
+public class ForgeCTMModel extends BaseCTMModel {
+    private static final ModelProperty<Map<Direction, EnumSet<FaceAdjacency>>> FACE_CONNECTIONS = new ModelProperty<>();
+    private final CTMSpriteResolver spriteResolver;
 
-    public ForgeCTModel(BakedModel model) {
+    public ForgeCTMModel(BakedModel model, CTMSpriteResolver spriteResolver) {
         super(model);
+        this.spriteResolver = spriteResolver;
     }
 
     @Override
@@ -37,42 +36,41 @@ public class ForgeCTModel extends BaseCTModel {
 
     @Override
     public @NotNull List<BakedQuad> getQuads(BlockState state, Direction side, @NotNull RandomSource rand, @NotNull ModelData data, RenderType renderType) {
-        if (state == null || side == null) {
-            return this.model.getQuads(state, side, rand, data, renderType);
-        }
+        if (state == null)
+            return this.model.getQuads(null, side, rand, data, renderType);
 
-        // fetch base quads and sheet sprite
         List<BakedQuad> base = this.model.getQuads(state, side, rand, data, renderType);
-        TextureAtlasSprite sheet = Minecraft.getInstance()
-                .getModelManager()
-                .getAtlas(TextureAtlas.LOCATION_BLOCKS)
-                .getSprite(new ResourceLocation("pandora_core:block/connected_block_sheet"));
-
-        int mask = 0;
-        Map<Direction, EnumSet<FaceAdjacency>> set = data.get(FACE_CONNECTIONS);
-        if (set != null) {
-            EnumSet<FaceAdjacency> faceSet = set.getOrDefault(side, EnumSet.noneOf(FaceAdjacency.class));
-            for (FaceAdjacency adj : faceSet) {
-                mask |= adj.getBit();
-            }
-        }
-        int tileIndex = CTM_LOOKUP.getOrDefault(mask, 0);
-
-        // computes U/V offsets for a 12×4 grid
-        // TODO make this a thing provided by the CTM type
-        final int cols = 12, rows = 4;
-        float uSize = (sheet.getU1() - sheet.getU0()) / cols;
-        float vSize = (sheet.getV1() - sheet.getV0()) / rows;
-
-        int row = tileIndex / cols;
-        int col = tileIndex % cols;
-
-        float uOffset = sheet.getU0() + col * uSize;
-        float vOffset = sheet.getV0() + row * vSize;
-
-        // remaps each quad into that cell
         List<BakedQuad> out = new ArrayList<>(base.size());
         for (BakedQuad quad : base) {
+            // Gets the replacement texture, or returns early if there is none
+            CTMSpriteResolver.SpriteResultHolder result = this.spriteResolver.get(quad.getSprite());
+            if (result == null) {
+                out.add(quad);
+                continue; // If there is no texture to be replaced, we return the original and skip further logic
+            }
+            TextureAtlasSprite sheet = result.get();
+
+            // Calculates the texture index based on the quad's direction and the adjacent values
+            int mask = 0;
+            Map<Direction, EnumSet<FaceAdjacency>> map = data.get(FACE_CONNECTIONS);
+            if (map != null && map.containsKey(quad.getDirection()))
+                for (FaceAdjacency adj : map.get(quad.getDirection()))
+                    mask |= adj.getBit();
+            int tileIndex = CTM_LOOKUP.getOrDefault(mask, 0);
+
+            // Computes U/V offsets for a 12×4 grid
+            // TODO make this a thing provided by the CTM type
+            final int cols = result.isMissing() ? 1 : 12;
+            final int rows = result.isMissing() ? 1 : 4;
+            float uSize = (sheet.getU1() - sheet.getU0()) / cols;
+            float vSize = (sheet.getV1() - sheet.getV0()) / rows;
+
+            int row = result.isMissing() ? 0 : (tileIndex / cols);
+            int col = result.isMissing() ? 0 : (tileIndex % cols);
+
+            float uOffset = sheet.getU0() + col * uSize;
+            float vOffset = sheet.getV0() + row * vSize;
+
             out.add(remapToCell(quad, sheet, uOffset, vOffset, uSize, vSize));
         }
         return out;

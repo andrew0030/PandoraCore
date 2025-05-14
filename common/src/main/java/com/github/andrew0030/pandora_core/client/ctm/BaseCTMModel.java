@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
+import com.github.andrew0030.pandora_core.utils.collection.EnumMapUtils;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -149,6 +150,22 @@ public abstract class BaseCTMModel implements BakedModel {
             // Lastly we store each face direction and its valid adjacent blocks
             faceConnections.put(faceDirection, set);
         }
+
+
+        EnumMap<Direction, FaceAdjacency.Mutation> mutations = EnumMapUtils.enumMap(Direction.class, EnumMapUtils.entry(Direction.NORTH, FaceAdjacency.Mutation.INVERTED));
+
+        if (!mutations.isEmpty()) {
+            EnumSet<FaceAdjacency> tempSet = EnumSet.noneOf(FaceAdjacency.class);
+            for (Direction direction : mutations.keySet()) {
+                FaceAdjacency.Mutation mutation = mutations.get(direction);
+                EnumSet<FaceAdjacency> adjSet = faceConnections.get(direction);
+                tempSet.clear();
+                for (FaceAdjacency adj : adjSet)
+                    tempSet.add(adj.transform(mutation));
+                faceConnections.put(direction, tempSet);
+            }
+        }
+
         return faceConnections;
     }
 

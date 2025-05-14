@@ -23,14 +23,12 @@ public class ModelBakeryMixin {
 
     @Inject(method = "loadTopLevel", at = @At("HEAD"))
     public void injectLoadTopLevel(ModelResourceLocation id, CallbackInfo ci) {
-        if (id.equals(ModelBakery.MISSING_MODEL_LOCATION)) {
+        if (id.equals(ModelBakery.MISSING_MODEL_LOCATION))
             CTMJsonHelper.setBlockStateJsonSupplier(blockStateResources::get);
-        }
     }
 
     @ModifyVariable(method = "cacheAndQueueDependencies", at = @At("HEAD"), argsOnly = true)
     public UnbakedModel modifyGetModel(UnbakedModel model, ResourceLocation id) {
-        System.out.println(id.toString());
         if (CTMJsonHelper.hasCTM(id) && !id.toString().endsWith("#inventory"))
             return new CTMUnbakedModel(model);
         return model;

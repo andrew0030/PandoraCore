@@ -1,11 +1,11 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
+import com.github.andrew0030.pandora_core.utils.collection.EnumMapUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.Map;
 
 /**
  * Represents the relative position of neighboring blocks around a face in a 3x3 grid layout,
@@ -37,16 +37,45 @@ public enum FaceAdjacency {
 
     private static final EnumSet<FaceAdjacency> AXIS_ALIGNED = EnumSet.of(TOP, LEFT, RIGHT, BOTTOM);
     private static final EnumSet<FaceAdjacency> DIAGONAL = EnumSet.of(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT);
-    private static final Map<FaceAdjacency, EnumSet<FaceAdjacency>> DIAGONAL_DEPENDENCIES = Map.of(
-            TOP_LEFT, EnumSet.of(TOP, LEFT),
-            TOP_RIGHT, EnumSet.of(TOP, RIGHT),
-            BOTTOM_LEFT, EnumSet.of(BOTTOM, LEFT),
-            BOTTOM_RIGHT, EnumSet.of(BOTTOM, RIGHT)
-    );
+    private static final FaceAdjacency[][] ROTATIONS = new FaceAdjacency[3][8];
     private static final EnumMap<Direction, EnumMap<FaceAdjacency, BlockPos>> OFFSET_MAP = new EnumMap<>(Direction.class);
+    private static final EnumMap<FaceAdjacency, EnumSet<FaceAdjacency>> DIAGONAL_DEPENDENCIES = EnumMapUtils.enumMap(FaceAdjacency.class,
+            EnumMapUtils.entry(TOP_LEFT, EnumSet.of(TOP, LEFT)),
+            EnumMapUtils.entry(TOP_RIGHT, EnumSet.of(TOP, RIGHT)),
+            EnumMapUtils.entry(BOTTOM_LEFT, EnumSet.of(BOTTOM, LEFT)),
+            EnumMapUtils.entry(BOTTOM_RIGHT, EnumSet.of(BOTTOM, RIGHT))
+    );
     private final int dx, dy, bit;
 
     static {
+        // CLOCKWISE
+        ROTATIONS[0][0] = BOTTOM_LEFT;
+        ROTATIONS[0][1] = LEFT;
+        ROTATIONS[0][2] = TOP_LEFT;
+        ROTATIONS[0][3] = BOTTOM;
+        ROTATIONS[0][4] = TOP;
+        ROTATIONS[0][5] = BOTTOM_RIGHT;
+        ROTATIONS[0][6] = RIGHT;
+        ROTATIONS[0][7] = TOP_RIGHT;
+        // INVERTED (180°)
+        ROTATIONS[1][0] = BOTTOM_RIGHT;
+        ROTATIONS[1][1] = BOTTOM;
+        ROTATIONS[1][2] = BOTTOM_LEFT;
+        ROTATIONS[1][3] = RIGHT;
+        ROTATIONS[1][4] = LEFT;
+        ROTATIONS[1][5] = TOP_RIGHT;
+        ROTATIONS[1][6] = TOP;
+        ROTATIONS[1][7] = TOP_LEFT;
+        // COUNTER_CLOCKWISE
+        ROTATIONS[2][0] = TOP_RIGHT;
+        ROTATIONS[2][1] = RIGHT;
+        ROTATIONS[2][2] = BOTTOM_RIGHT;
+        ROTATIONS[2][3] = TOP;
+        ROTATIONS[2][4] = BOTTOM;
+        ROTATIONS[2][5] = TOP_LEFT;
+        ROTATIONS[2][6] = LEFT;
+        ROTATIONS[2][7] = BOTTOM_LEFT;
+
         // Computes and caches all offsets based on all directions
         for (Direction dir : Direction.values()) {
             EnumMap<FaceAdjacency, BlockPos> faceMap = new EnumMap<>(FaceAdjacency.class);
@@ -67,6 +96,24 @@ public enum FaceAdjacency {
      */
     public int getBit() {
         return this.bit;
+    }
+
+    /**
+     * Returns the transformed variant of this {@link FaceAdjacency} based on the specified {@link Mutation}.
+     * <p>
+     * This is used to transform adjacency direction checks according to rotation or mirroring operations
+     * (e.g., when a block face is rotated 90°, mirrored, or flipped).
+     * <p>
+     * Internally uses a precomputed lookup table for high performance.
+     *
+     * @param mutation The rotation or transformation to apply.
+     * @return The resulting {@link FaceAdjacency} after applying the mutation.
+     */
+    // TODO maybe add flipping?
+    public FaceAdjacency transform(Mutation mutation) {
+        if (mutation == Mutation.NONE)
+            return this;
+        return ROTATIONS[mutation.ordinal()][this.ordinal()];
     }
 
     /**
@@ -121,5 +168,23 @@ public enum FaceAdjacency {
      */
     public static EnumSet<FaceAdjacency> getDiagonalDependencies(FaceAdjacency diagonal) {
         return DIAGONAL_DEPENDENCIES.getOrDefault(diagonal, EnumSet.noneOf(FaceAdjacency.class));
+    }
+
+    /**
+     * Represents directional mutations applied to a {@link FaceAdjacency}, used in
+     * rotating or mirroring face connection detection.
+     * <ul>
+     *   <li>{@link #ROT_CW}   – Detection logic is rotated 90° clockwise.</li>
+     *   <li>{@link #INVERTED} – Detection logic is rotated 180° (upside down).</li>
+     *   <li>{@link #ROT_CCW}  – Detection logic is rotated 90° counter-clockwise.</li>
+     *   <li>{@link #NONE}     – Detection logic is kept as-is.</li>
+     * </ul>
+     */
+    // TODO maybe add flipping?
+    public enum Mutation {
+        ROT_CW,
+        INVERTED,
+        ROT_CCW,
+        NONE;
     }
 }

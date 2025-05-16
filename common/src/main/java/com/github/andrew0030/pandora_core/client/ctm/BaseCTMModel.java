@@ -8,7 +8,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
@@ -18,6 +18,8 @@ import java.util.Map;
 public abstract class BaseCTMModel implements BakedModel {
     private static final Direction[] ALL_DIRECTIONS = { Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST };
     protected final BakedModel model;
+    protected final CTMSpriteResolver spriteResolver;
+    protected final CTMDataResolver dataResolver;
 
     //TODO eventually this should be determined/provided by the CTM type
     protected static final Map<Integer, Integer> CTM_LOOKUP = Map.ofEntries(
@@ -83,8 +85,10 @@ public abstract class BaseCTMModel implements BakedModel {
             Map.entry(90, 46)     // Cross
     );
 
-    public BaseCTMModel(BakedModel model) {
+    public BaseCTMModel(BakedModel model, CTMSpriteResolver spriteResolver, CTMDataResolver dataResolver) {
         this.model = model;
+        this.spriteResolver = spriteResolver;
+        this.dataResolver = dataResolver;
     }
 
     /**
@@ -101,30 +105,33 @@ public abstract class BaseCTMModel implements BakedModel {
      *
      * @param level     The {@link BlockAndTintGetter} (level) in which the block resides
      * @param pos       The position of the current block
-     * @param selfBlock The block type of the current block
+     * @param state     The block state of the current block
      * @return A map of {@link Direction Directions} and all their relevant {@link FaceAdjacency} values
      */
-    public Map<Direction, EnumSet<FaceAdjacency>> computeFaceConnections(BlockAndTintGetter level, BlockPos pos, Block selfBlock) {
+    public Map<Direction, EnumSet<FaceAdjacency>> computeFaceConnections(BlockAndTintGetter level, BlockPos pos, BlockState state) {
         // A map of directions and all their relevant adjacent blocks
         Map<Direction, EnumSet<FaceAdjacency>> faceConnections = new EnumMap<>(Direction.class);
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
         for (Direction faceDirection : ALL_DIRECTIONS) {
+            EnumSet<FaceAdjacency> set = EnumSet.noneOf(FaceAdjacency.class);
+
             // If there is a block in front of the face we skip
             mutablePos.set(pos).move(faceDirection);
-            if (level.getBlockState(mutablePos).is(selfBlock)) continue;
-
-            EnumSet<FaceAdjacency> set = EnumSet.noneOf(FaceAdjacency.class);
+            if (this.dataResolver.canConnectWith(level, mutablePos, state)) {
+                faceConnections.put(faceDirection, set);
+                continue;
+            }
 
             // We check all axis-aligned blocks
             for (FaceAdjacency adj : FaceAdjacency.axisAlignedValues()) {
                 BlockPos offset = FaceAdjacency.getOffset(faceDirection, adj);
                 // Checks if there is a block adjacent
                 mutablePos.set(pos).move(offset);
-                if (level.getBlockState(mutablePos).is(selfBlock)) {
+                if (this.dataResolver.canConnectWith(level, mutablePos, state)) {
                     // Ensures the block isn't covered by another
                     mutablePos.move(faceDirection);
-                    if (!level.getBlockState(mutablePos).is(selfBlock)) {
+                    if (!this.dataResolver.canConnectWith(level, mutablePos, state)) {
                         set.add(adj);
                     }
                 }
@@ -138,10 +145,10 @@ public abstract class BaseCTMModel implements BakedModel {
                 BlockPos offset = FaceAdjacency.getOffset(faceDirection, adj);
                 // Checks if there is a block adjacent (diagonally)
                 mutablePos.set(pos).move(offset);
-                if (level.getBlockState(mutablePos).is(selfBlock)) {
+                if (this.dataResolver.canConnectWith(level, mutablePos, state)) {
                     // Ensures the block isn't covered by another
                     mutablePos.move(faceDirection);
-                    if (!level.getBlockState(mutablePos).is(selfBlock)) {
+                    if (!this.dataResolver.canConnectWith(level, mutablePos, state)) {
                         set.add(adj);
                     }
                 }
@@ -152,7 +159,13 @@ public abstract class BaseCTMModel implements BakedModel {
         }
 
 
-        EnumMap<Direction, FaceAdjacency.Mutation> mutations = EnumMapUtils.enumMap(Direction.class, EnumMapUtils.entry(Direction.NORTH, FaceAdjacency.Mutation.INVERTED));
+        // TODO remove once mutators are data driven
+        EnumMap<Direction, FaceAdjacency.Mutation> mutations = EnumMapUtils.enumMap(Direction.class
+//                EnumMapUtils.entry(Direction.NORTH, FaceAdjacency.Mutation.INVERTED),
+//                EnumMapUtils.entry(Direction.WEST, FaceAdjacency.Mutation.ROT_CCW),
+//                EnumMapUtils.entry(Direction.DOWN, FaceAdjacency.Mutation.INVERTED),
+//                EnumMapUtils.entry(Direction.EAST, FaceAdjacency.Mutation.ROT_CW)
+        );
 
         if (!mutations.isEmpty()) {
             EnumSet<FaceAdjacency> tempSet = EnumSet.noneOf(FaceAdjacency.class);
@@ -162,7 +175,9 @@ public abstract class BaseCTMModel implements BakedModel {
                 tempSet.clear();
                 for (FaceAdjacency adj : adjSet)
                     tempSet.add(adj.transform(mutation));
-                faceConnections.put(direction, tempSet);
+                adjSet.clear();
+                adjSet.addAll(tempSet);
+                faceConnections.put(direction, adjSet);
             }
         }
 

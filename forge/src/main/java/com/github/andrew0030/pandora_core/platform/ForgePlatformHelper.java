@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.ctm.BaseCTMModel;
+import com.github.andrew0030.pandora_core.client.ctm.CTMDataResolver;
 import com.github.andrew0030.pandora_core.client.ctm.CTMSpriteResolver;
 import com.github.andrew0030.pandora_core.client.ctm.ForgeCTMModel;
 import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
@@ -90,7 +91,7 @@ public class ForgePlatformHelper implements IPlatformHelper {
     }
 
     @Override
-    public BaseCTMModel getCTMModel(BakedModel model, CTMSpriteResolver spriteResolver) {
-        return new ForgeCTMModel(model, spriteResolver);
+    public BaseCTMModel getCTMModel(BakedModel model, CTMSpriteResolver spriteResolver, CTMDataResolver dataResolver) {
+        return new ForgeCTMModel(model, spriteResolver, dataResolver);
     }
 }

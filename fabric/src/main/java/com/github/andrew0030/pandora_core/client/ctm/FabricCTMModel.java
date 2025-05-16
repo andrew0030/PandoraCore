@@ -22,11 +22,9 @@ import java.util.function.Supplier;
 
 public class FabricCTMModel extends BaseCTMModel {
     private static final EnumSet<FaceAdjacency> EMPTY_SET = EnumSet.noneOf(FaceAdjacency.class);
-    private final CTMSpriteResolver spriteResolver;
 
-    public FabricCTMModel(BakedModel model, CTMSpriteResolver spriteResolver) {
-        super(model);
-        this.spriteResolver = spriteResolver;
+    public FabricCTMModel(BakedModel model, CTMSpriteResolver spriteResolver, CTMDataResolver dataResolver) {
+        super(model, spriteResolver, dataResolver);
     }
 
     @Override
@@ -36,7 +34,7 @@ public class FabricCTMModel extends BaseCTMModel {
 
     @Override
     public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        Map<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state.getBlock());
+        Map<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state);
         SpriteFinder spriteFinder = SpriteFinder.get(Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS));
         context.pushTransform(quad -> {
             // Gets the replacement texture, or returns early if there is none
@@ -47,7 +45,7 @@ public class FabricCTMModel extends BaseCTMModel {
             TextureAtlasSprite sheet = result.get();
 
             // Gets the relevant adjacency set based on the quad's light face
-            EnumSet<FaceAdjacency> set = faceConnections.getOrDefault(quad.lightFace(), EMPTY_SET);
+            EnumSet<FaceAdjacency> set = faceConnections.get(quad.lightFace());
 
             // Calculates the texture index based on the quad's direction and the adjacent values
             int mask = 0;

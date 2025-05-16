@@ -8,6 +8,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 import java.util.function.Supplier;
@@ -17,7 +18,7 @@ public class PaCoBlocks {
 
     public static final Supplier<Block> TEST            = PaCoBlocks.createBlock("test", TestBlock::new);
     public static final Supplier<Block> INSTANCING_TEST = PaCoBlocks.createBlock("instancing_test", () -> new InstancingTestBlock(BlockBehaviour.Properties.copy(Blocks.STONE).forceSolidOff().noOcclusion().noCollission()));
-    public static final Supplier<Block> CONNECTED_BLOCK = PaCoBlocks.createBlock("connected_block", () -> new Block(BlockBehaviour.Properties.of()));
+    public static final Supplier<Block> CONNECTED_BLOCK = PaCoBlocks.createBlock("connected_block", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of()));
 
     private static Supplier<Block> createBlock(String name, Supplier<Block> supplier) {
         Supplier<Block> block = BLOCKS.add(name, supplier);

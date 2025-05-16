@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.platform.services;
 
 import com.github.andrew0030.pandora_core.client.ctm.BaseCTMModel;
+import com.github.andrew0030.pandora_core.client.ctm.CTMDataResolver;
 import com.github.andrew0030.pandora_core.client.ctm.CTMSpriteResolver;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -67,7 +68,8 @@ public interface IPlatformHelper {
      *
      * @param model          The original {@link BakedModel}
      * @param spriteResolver The {@link CTMSpriteResolver} containing the sprites the {@code model} will use
+     * @param dataResolver   The {@link CTMDataResolver} various information the {@code model} will use
      * @return A new CTMModel
      */
-    BaseCTMModel getCTMModel(BakedModel model, CTMSpriteResolver spriteResolver);
+    BaseCTMModel getCTMModel(BakedModel model, CTMSpriteResolver spriteResolver, CTMDataResolver dataResolver);
 }

@@ -21,16 +21,14 @@ import java.util.Map;
 
 public class ForgeCTMModel extends BaseCTMModel {
     private static final ModelProperty<Map<Direction, EnumSet<FaceAdjacency>>> FACE_CONNECTIONS = new ModelProperty<>();
-    private final CTMSpriteResolver spriteResolver;
 
-    public ForgeCTMModel(BakedModel model, CTMSpriteResolver spriteResolver) {
-        super(model);
-        this.spriteResolver = spriteResolver;
+    public ForgeCTMModel(BakedModel model, CTMSpriteResolver spriteResolver, CTMDataResolver dataResolver) {
+        super(model, spriteResolver, dataResolver);
     }
 
     @Override
     public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
-        Map<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state.getBlock());
+        Map<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state);
         return ModelData.builder().with(FACE_CONNECTIONS, faceConnections).build();
     }
 
@@ -53,7 +51,7 @@ public class ForgeCTMModel extends BaseCTMModel {
             // Calculates the texture index based on the quad's direction and the adjacent values
             int mask = 0;
             Map<Direction, EnumSet<FaceAdjacency>> map = data.get(FACE_CONNECTIONS);
-            if (map != null && map.containsKey(quad.getDirection()))
+            if (map != null)
                 for (FaceAdjacency adj : map.get(quad.getDirection()))
                     mask |= adj.getBit();
             int tileIndex = CTM_LOOKUP.getOrDefault(mask, 0);

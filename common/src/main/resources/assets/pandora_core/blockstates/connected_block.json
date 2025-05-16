@@ -1,10 +1,31 @@
 {
-  "variants":{"":{
-    "model":"pandora_core:block/connected_block",
-    "x": 90
-  }},
   "pandora_core:ctm":true,
-  "pandora_core:overwrite":{
+  "pandora_core:connect": [
+    "pandora_core:connected_block",
+    "oak_log"
+  ],
+  "pandora_core:properties": "axis",
+  "pandora_core:overwrite": {
     "pandora_core:block/connected_block": "pandora_core:block/connected_block_sheet"
+  },
+  "variants": {
+    "axis=x": {
+      "model": "pandora_core:block/connected_block",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "pandora_core:block/connected_block"
+    },
+    "axis=z": {
+      "model": "pandora_core:block/connected_block",
+      "x": 90,
+      "pandora_core:mutators":{
+        "north": "inverted",
+        "west": "rot_ccw",
+        "down": "inverted",
+        "east": "rot_cw"
+      }
+    }
   }
 }

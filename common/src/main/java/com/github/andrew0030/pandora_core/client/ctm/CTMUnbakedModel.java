@@ -31,6 +31,7 @@ public class CTMUnbakedModel implements UnbakedModel {
     public BakedModel bake(@NotNull ModelBaker baker, @NotNull Function<Material, TextureAtlasSprite> spriteGetter, @NotNull ModelState state, @NotNull ResourceLocation location) {
         BakedModel model = this.unbakedModel.bake(baker, spriteGetter, state, location);
         CTMSpriteResolver spriteResolver = CTMSpriteResolver.from(spriteGetter, location);
-        return Services.PLATFORM.getCTMModel(model, spriteResolver);
+        CTMDataResolver dataResolver = CTMDataResolver.from(location);
+        return Services.PLATFORM.getCTMModel(model, spriteResolver, dataResolver);
     }
 }

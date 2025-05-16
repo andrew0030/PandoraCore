@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -8,6 +9,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 
+import javax.annotation.Nullable;
+import java.util.EnumMap;
 import java.util.Objects;
 import java.util.Set;
 
@@ -21,6 +24,7 @@ import java.util.Set;
 public class CTMDataResolver {
     private HolderSet<Block> connectingBlocks;
     private Set<Property<?>> properties;
+    private EnumMap<Direction, FaceAdjacency.Mutation> mutations;
 
     private CTMDataResolver() {}
 
@@ -28,6 +32,7 @@ public class CTMDataResolver {
         CTMDataResolver dataResolver = new CTMDataResolver();
         dataResolver.connectingBlocks = CTMJsonHelper.getConnectsWith(modelId);
         dataResolver.properties = CTMJsonHelper.getPropertiesToCheck(modelId);
+        dataResolver.mutations = CTMJsonHelper.getMutations(modelId);
 
         return dataResolver;
     }
@@ -60,5 +65,25 @@ public class CTMDataResolver {
         }
 
         return true;
+    }
+
+    /**
+     * Checks whether any face adjacency mutations are defined.
+     *
+     * @return {@code true} if the mutations map is non-null and contains at least one entry;
+     *         {@code false} otherwise.
+     */
+    public boolean hasMutations() {
+        return this.mutations != null && !this.mutations.isEmpty();
+    }
+
+    /**
+     * Returns the map of directional mutations to apply for face adjacency transformation.
+     *
+     * @return an {@link EnumMap} of {@link Direction} to {@link FaceAdjacency.Mutation} if defined,
+     *         or {@code null} if no mutations are present.
+     */
+    public @Nullable EnumMap<Direction, FaceAdjacency.Mutation> getMutations() {
+        return this.mutations;
     }
 }

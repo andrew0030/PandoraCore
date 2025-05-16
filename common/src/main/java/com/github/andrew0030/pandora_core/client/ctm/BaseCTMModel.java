@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
-import com.github.andrew0030.pandora_core.utils.collection.EnumMapUtils;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -158,16 +157,9 @@ public abstract class BaseCTMModel implements BakedModel {
             faceConnections.put(faceDirection, set);
         }
 
-
-        // TODO remove once mutators are data driven
-        EnumMap<Direction, FaceAdjacency.Mutation> mutations = EnumMapUtils.enumMap(Direction.class
-//                EnumMapUtils.entry(Direction.NORTH, FaceAdjacency.Mutation.INVERTED),
-//                EnumMapUtils.entry(Direction.WEST, FaceAdjacency.Mutation.ROT_CCW),
-//                EnumMapUtils.entry(Direction.DOWN, FaceAdjacency.Mutation.INVERTED),
-//                EnumMapUtils.entry(Direction.EAST, FaceAdjacency.Mutation.ROT_CW)
-        );
-
-        if (!mutations.isEmpty()) {
+        // If there are any mutations for this variant we apply them.
+        if (this.dataResolver.hasMutations()) {
+            EnumMap<Direction, FaceAdjacency.Mutation> mutations = this.dataResolver.getMutations();
             EnumSet<FaceAdjacency> tempSet = EnumSet.noneOf(FaceAdjacency.class);
             for (Direction direction : mutations.keySet()) {
                 FaceAdjacency.Mutation mutation = mutations.get(direction);

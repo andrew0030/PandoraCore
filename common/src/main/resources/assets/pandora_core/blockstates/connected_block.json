@@ -12,7 +12,13 @@
     "axis=x": {
       "model": "pandora_core:block/connected_block",
       "x": 90,
-      "y": 90
+      "y": 90,
+      "pandora_core:mutators":{
+        "north": "rot_ccw",
+        "up": "rot_cw",
+        "south": "rot_cw",
+        "down": "rot_cw"
+      }
     },
     "axis=y": {
       "model": "pandora_core:block/connected_block"

@@ -20,7 +20,7 @@ public class CTMSpriteResolver {
         CTMSpriteResolver spriteResolver = new CTMSpriteResolver();
         spriteResolver.missingResult = new SpriteResultHolder(spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS, MissingTextureAtlasSprite.getLocation())), true);
 
-        CTMJsonHelper.getCTMTextureOverrides(modelId).forEach((key, value) -> {
+        CTMJsonHelper.getTextureOverrides(modelId).forEach((key, value) -> {
             Material matFrom = new Material(InventoryMenu.BLOCK_ATLAS, key);
             Material matTo = new Material(InventoryMenu.BLOCK_ATLAS, value);
 

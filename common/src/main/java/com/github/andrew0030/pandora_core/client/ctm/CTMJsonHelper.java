@@ -3,6 +3,8 @@ package com.github.andrew0030.pandora_core.client.ctm;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -48,7 +50,7 @@ public class CTMJsonHelper {
         return false;
     }
 
-    public static Map<ResourceLocation, ResourceLocation> getCTMTextureOverrides(ResourceLocation modelId) {
+    public static Map<ResourceLocation, ResourceLocation> getTextureOverrides(ResourceLocation modelId) {
         Map<ResourceLocation, ResourceLocation> map = new HashMap<>();
         if (CTMJsonHelper.blockStateJsonSupplier == null) return map;
         List<ModelBakery.LoadedJson> jsons = CTMJsonHelper.blockStateJsonSupplier.apply(CTMJsonHelper.convertModelIdToBlockStatePath(modelId));
@@ -80,12 +82,16 @@ public class CTMJsonHelper {
             if (!(json.data() instanceof JsonObject obj)) continue;
             if (!obj.has("pandora_core:properties")) continue;
             JsonElement properties = obj.get("pandora_core:properties");
+
+            // Gets the block we are working with, this should technically not fail, but better safe than sorry
             Optional<Block> optionalBlock = BuiltInRegistries.BLOCK.getOptional(new ResourceLocation(modelId.getNamespace(), modelId.getPath()));
             if (optionalBlock.isEmpty()) continue;
 
+            // Grabs all the properties the block has
             Collection<Property<?>> allProps = optionalBlock.get().defaultBlockState().getProperties();
             Set<String> names = new HashSet<>();
 
+            // Grabs all the property strings specified to be checked
             if (properties.isJsonPrimitive()) {
                 names.add(properties.getAsString());
             } else if (properties.isJsonArray()) {
@@ -94,8 +100,45 @@ public class CTMJsonHelper {
                         names.add(el.getAsString());
             }
 
+            // If any strings were found, we check if the block's properties contain them, by comparing them to the names
             if (!names.isEmpty())
                 return allProps.stream().filter(prop -> names.contains(prop.getName())).collect(Collectors.toSet());
+        }
+
+        return null;
+    }
+
+    public static @Nullable EnumMap<Direction, FaceAdjacency.Mutation> getMutations(ResourceLocation modelId) {
+        if (CTMJsonHelper.blockStateJsonSupplier == null) return null;
+        List<ModelBakery.LoadedJson> jsons = CTMJsonHelper.blockStateJsonSupplier.apply(CTMJsonHelper.convertModelIdToBlockStatePath(modelId));
+        if (jsons == null) return null;
+
+        // Grabs the variant if the ResourceLocation is a ModelResourceLocation
+        String variant = "";
+        if (modelId instanceof ModelResourceLocation mrl)
+            variant = mrl.getVariant();
+
+        for (ModelBakery.LoadedJson json : jsons) {
+            if (!(json.data() instanceof JsonObject obj)) continue;
+            JsonObject variants = GsonHelper.getAsJsonObject(obj, "variants", null);
+            if (variants == null) continue;
+
+            // Tries to find the matching variant
+            JsonObject variantObj = variants.getAsJsonObject(variant);
+            if (variantObj == null) continue;
+
+            // Tries to parse the mutations
+            JsonObject mutators = GsonHelper.getAsJsonObject(variantObj, "pandora_core:mutators", null);
+            if (mutators == null) continue;
+            EnumMap<Direction, FaceAdjacency.Mutation> result = new EnumMap<>(Direction.class);
+            for (Map.Entry<String, JsonElement> entry : mutators.entrySet()) {
+                try {
+                    Direction direction = Direction.valueOf(entry.getKey().toUpperCase(Locale.ROOT));
+                    FaceAdjacency.Mutation mutation = FaceAdjacency.Mutation.valueOf(entry.getValue().getAsString().toUpperCase(Locale.ROOT));
+                    result.put(direction, mutation);
+                } catch (IllegalArgumentException ignored) {}
+            }
+            return result.isEmpty() ? null : result;
         }
 
         return null;
@@ -132,6 +175,8 @@ public class CTMJsonHelper {
                     if (el.isJsonPrimitive())
                         CTMJsonHelper.addBlockIfValid(el.getAsString(), uniqueBlocks);
             }
+
+            // Creates a HolderSet by getting the registry Reference for each block
             if (!uniqueBlocks.isEmpty()) {
                 return HolderSet.direct(uniqueBlocks.stream()
                         .map(Block::builtInRegistryHolder)
@@ -142,6 +187,13 @@ public class CTMJsonHelper {
         return null;
     }
 
+    /**
+     * Checks if a block with the given name exists in the {@code BLOCKS} registry.
+     * If the block was found, it ensures the block isn't air, before adding it to the given {@link Set}.
+     *
+     * @param name         The name of the block (used to create a {@link ResourceLocation}).
+     * @param uniqueBlocks A {@link Set}, the block will be added to if found.
+     */
     private static void addBlockIfValid(String name, Set<Block> uniqueBlocks) {
         try {
             ResourceLocation id = new ResourceLocation(name);

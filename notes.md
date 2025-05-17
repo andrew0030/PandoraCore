@@ -64,7 +64,7 @@ Systems TODO:
   - [x] Make system that can create custom baked models that swap textures based on neighbors
   - [x] Add missing texture if the tile-atlas is missing
   - [x] Make system json driven
-  - [ ] Add texture folder support (automatically load all textures in a folder that are titled 0, 1, 2, 3...)
+  - [x] Add texture folder support (automatically load all textures in a folder that are titled 0, 1, 2, 3...)
   - [ ] Add different types of ctm
 - Shader Patcher
   - I dont understand enough about this system to write TODOs

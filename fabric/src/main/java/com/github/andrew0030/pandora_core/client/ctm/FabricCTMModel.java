@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -34,16 +35,9 @@ public class FabricCTMModel extends BaseCTMModel {
 
     @Override
     public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        Map<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state);
+        EnumMap<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state);
         SpriteFinder spriteFinder = SpriteFinder.get(Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS));
         context.pushTransform(quad -> {
-            // Gets the replacement texture, or returns early if there is none
-            TextureAtlasSprite original = spriteFinder.find(quad);
-            CTMSpriteResolver.SpriteResultHolder result = this.spriteResolver.get(original);
-            if (result == null)
-                return true; // If there is no texture to be replaced, we don't mutate the quad and skip further logic
-            TextureAtlasSprite sheet = result.get();
-
             // Gets the relevant adjacency set based on the quad's light face
             EnumSet<FaceAdjacency> set = faceConnections.get(quad.lightFace());
 
@@ -53,15 +47,23 @@ public class FabricCTMModel extends BaseCTMModel {
                 mask |= adj.getBit();
             int tileIndex = CTM_LOOKUP.getOrDefault(mask, 0);
 
+            // Gets the replacement texture, or returns early if there is none
+            TextureAtlasSprite original = spriteFinder.find(quad);
+            CTMSpriteResolver.SpriteResultHolder result = this.spriteResolver.get(original, tileIndex);
+            if (result == null)
+                return true; // If there is no texture to be replaced, we don't mutate the quad and skip further logic
+            TextureAtlasSprite sheet = result.get();
+
             // Computes U/V offsets for a 12×4 grid
+            boolean isSingleSprite = result.isMissing() || this.spriteResolver.usesMultipleSprites(original);
             // TODO make this a thing provided by the CTM type
-            final int cols = result.isMissing() ? 1 : 12;
-            final int rows = result.isMissing() ? 1 : 4;
+            final int cols = isSingleSprite ? 1 : 12;
+            final int rows = isSingleSprite ? 1 : 4;
             float uSize = (sheet.getU1() - sheet.getU0()) / cols;
             float vSize = (sheet.getV1() - sheet.getV0()) / rows;
 
-            int row = result.isMissing() ? 0 : (tileIndex / cols);
-            int col = result.isMissing() ? 0 : (tileIndex % cols);
+            int row = isSingleSprite ? 0 : (tileIndex / cols);
+            int col = isSingleSprite ? 0 : (tileIndex % cols);
 
             float uOffset = sheet.getU0() + col * uSize;
             float vOffset = sheet.getV0() + row * vSize;

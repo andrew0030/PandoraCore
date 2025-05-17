@@ -6,7 +6,7 @@
   ],
   "pandora_core:properties": "axis",
   "pandora_core:overwrite": {
-    "pandora_core:block/connected_block": "pandora_core:block/connected_block_sheet"
+    "pandora_core:block/connected_block": "pandora_core:block/connected_block/"
   },
   "variants": {
     "axis=x": {

@@ -14,13 +14,10 @@ import net.minecraftforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ForgeCTMModel extends BaseCTMModel {
-    private static final ModelProperty<Map<Direction, EnumSet<FaceAdjacency>>> FACE_CONNECTIONS = new ModelProperty<>();
+    private static final ModelProperty<EnumMap<Direction, EnumSet<FaceAdjacency>>> FACE_CONNECTIONS = new ModelProperty<>();
 
     public ForgeCTMModel(BakedModel model, CTMSpriteResolver spriteResolver, CTMDataResolver dataResolver) {
         super(model, spriteResolver, dataResolver);
@@ -28,7 +25,7 @@ public class ForgeCTMModel extends BaseCTMModel {
 
     @Override
     public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
-        Map<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state);
+        EnumMap<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state);
         return ModelData.builder().with(FACE_CONNECTIONS, faceConnections).build();
     }
 
@@ -40,31 +37,32 @@ public class ForgeCTMModel extends BaseCTMModel {
         List<BakedQuad> base = this.model.getQuads(state, side, rand, data, renderType);
         List<BakedQuad> out = new ArrayList<>(base.size());
         for (BakedQuad quad : base) {
+            // Calculates the texture index based on the quad's direction and the adjacent values
+            int mask = 0;
+            EnumMap<Direction, EnumSet<FaceAdjacency>> map = data.get(FACE_CONNECTIONS);
+            if (map != null)
+                for (FaceAdjacency adj : map.get(quad.getDirection()))
+                    mask |= adj.getBit();
+            int tileIndex = CTM_LOOKUP.getOrDefault(mask, 0);
+
             // Gets the replacement texture, or returns early if there is none
-            CTMSpriteResolver.SpriteResultHolder result = this.spriteResolver.get(quad.getSprite());
+            CTMSpriteResolver.SpriteResultHolder result = this.spriteResolver.get(quad.getSprite(), tileIndex);
             if (result == null) {
                 out.add(quad);
                 continue; // If there is no texture to be replaced, we return the original and skip further logic
             }
             TextureAtlasSprite sheet = result.get();
 
-            // Calculates the texture index based on the quad's direction and the adjacent values
-            int mask = 0;
-            Map<Direction, EnumSet<FaceAdjacency>> map = data.get(FACE_CONNECTIONS);
-            if (map != null)
-                for (FaceAdjacency adj : map.get(quad.getDirection()))
-                    mask |= adj.getBit();
-            int tileIndex = CTM_LOOKUP.getOrDefault(mask, 0);
-
             // Computes U/V offsets for a 12×4 grid
+            boolean isSingleSprite = result.isMissing() || this.spriteResolver.usesMultipleSprites(quad.getSprite());
             // TODO make this a thing provided by the CTM type
-            final int cols = result.isMissing() ? 1 : 12;
-            final int rows = result.isMissing() ? 1 : 4;
+            final int cols = isSingleSprite ? 1 : 12;
+            final int rows = isSingleSprite ? 1 : 4;
             float uSize = (sheet.getU1() - sheet.getU0()) / cols;
             float vSize = (sheet.getV1() - sheet.getV0()) / rows;
 
-            int row = result.isMissing() ? 0 : (tileIndex / cols);
-            int col = result.isMissing() ? 0 : (tileIndex % cols);
+            int row = isSingleSprite ? 0 : (tileIndex / cols);
+            int col = isSingleSprite ? 0 : (tileIndex % cols);
 
             float uOffset = sheet.getU0() + col * uSize;
             float vOffset = sheet.getV0() + row * vSize;

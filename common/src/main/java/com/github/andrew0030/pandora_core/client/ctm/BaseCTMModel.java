@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -105,11 +106,11 @@ public abstract class BaseCTMModel implements BakedModel {
      * @param level     The {@link BlockAndTintGetter} (level) in which the block resides
      * @param pos       The position of the current block
      * @param state     The block state of the current block
-     * @return A map of {@link Direction Directions} and all their relevant {@link FaceAdjacency} values
+     * @return An {@link EnumMap} of {@link Direction Directions} and all their relevant {@link FaceAdjacency} values
      */
-    public Map<Direction, EnumSet<FaceAdjacency>> computeFaceConnections(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+    public EnumMap<Direction, EnumSet<FaceAdjacency>> computeFaceConnections(BlockAndTintGetter level, BlockPos pos, BlockState state) {
         // A map of directions and all their relevant adjacent blocks
-        Map<Direction, EnumSet<FaceAdjacency>> faceConnections = new EnumMap<>(Direction.class);
+        EnumMap<Direction, EnumSet<FaceAdjacency>> faceConnections = new EnumMap<>(Direction.class);
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
         for (Direction faceDirection : ALL_DIRECTIONS) {

@@ -1,5 +1,5 @@
 {
-  "pandora_core:ctm":true,
+  "pandora_core:ctm": true,
   "pandora_core:connect": [
     "pandora_core:connected_block",
     "oak_log"

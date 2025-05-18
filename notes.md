@@ -34,7 +34,7 @@ Systems TODO:
   - Not sure yet how I want to make this...
 - PaCo Screen
   - [ ] Add something into the "no mod selected" section (probably a general summary of found updates and such)
-  - [ ] Replace PaCo's placeholder icon
+  - [x] Replace PaCo's placeholder icon
   - [ ] Replace PaCo's placeholder background
   - [ ] Maybe add banner support
 - PaCo Config Screen
@@ -66,5 +66,7 @@ Systems TODO:
   - [x] Make system json driven
   - [x] Add texture folder support (automatically load all textures in a folder that are titled 0, 1, 2, 3...)
   - [ ] Add different types of ctm
+  - [ ] Add json option to toggle "in front of" checks
+  - [ ] Optimize ctm even more (this will involve some hacky stuff, so it should be the last step)
 - Shader Patcher
   - I dont understand enough about this system to write TODOs

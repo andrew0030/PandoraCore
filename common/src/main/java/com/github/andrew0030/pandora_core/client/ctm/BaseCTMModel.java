@@ -109,6 +109,9 @@ public abstract class BaseCTMModel implements BakedModel {
      * @return An {@link EnumMap} of {@link Direction Directions} and all their relevant {@link FaceAdjacency} values
      */
     public EnumMap<Direction, EnumSet<FaceAdjacency>> computeFaceConnections(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+
+        // TODO: Add a config option to disable CTM, and an option to disable "in front of" checks
+
         // A map of directions and all their relevant adjacent blocks
         EnumMap<Direction, EnumSet<FaceAdjacency>> faceConnections = new EnumMap<>(Direction.class);
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();

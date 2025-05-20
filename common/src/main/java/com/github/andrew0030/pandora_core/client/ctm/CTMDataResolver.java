@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
+import com.github.andrew0030.pandora_core.client.ctm.types.BaseCTMType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderSet;
@@ -15,13 +16,10 @@ import java.util.Objects;
 import java.util.Set;
 
 //TODO The things "CTMDataResolver" should be able to do:
-// - Parse "connects" or smt like that, it should allow blocks/tags to be used to specify which blocks this one connects with.
-// - Parse "state" or smt like that, which should allow specifying which state properties need to match e.g. "facing" or "direction".
-// Internally this will require some sort of [String -> Property] logic? Maybe do this with a function so adding new properties to the list is easy?
-// - Parse "mutators" or something like that, this will be (optionally) specified per block variant, allowing to "mutate" block face connection detection.
-// - Maybe deal with CTM types inside this class?
+// - Add option to toggle "in front of" checks
 
 public class CTMDataResolver {
+    private BaseCTMType ctmType;
     private HolderSet<Block> connectingBlocks;
     private Set<Property<?>> properties;
     private EnumMap<Direction, FaceAdjacency.Mutation> mutations;
@@ -30,11 +28,16 @@ public class CTMDataResolver {
 
     public static CTMDataResolver from(ResourceLocation modelId) {
         CTMDataResolver dataResolver = new CTMDataResolver();
+        dataResolver.ctmType = CTMJsonHelper.getCTMType(modelId);
         dataResolver.connectingBlocks = CTMJsonHelper.getConnectsWith(modelId);
         dataResolver.properties = CTMJsonHelper.getPropertiesToCheck(modelId);
         dataResolver.mutations = CTMJsonHelper.getMutations(modelId);
 
         return dataResolver;
+    }
+
+    public @Nullable BaseCTMType getCTMType() {
+        return this.ctmType;
     }
 
     /**

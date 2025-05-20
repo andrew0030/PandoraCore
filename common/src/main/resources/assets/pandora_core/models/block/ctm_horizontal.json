@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "block/gray_concrete",
+    "side": "pandora_core:block/ctm_horizontal"
+  }
+}

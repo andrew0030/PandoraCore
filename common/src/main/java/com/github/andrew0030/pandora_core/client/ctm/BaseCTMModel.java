@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
-import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import com.github.andrew0030.pandora_core.client.ctm.types.BaseCTMType;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -13,77 +13,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.Map;
 
 public abstract class BaseCTMModel implements BakedModel {
     private static final Direction[] ALL_DIRECTIONS = { Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST };
     protected final BakedModel model;
     protected final CTMSpriteResolver spriteResolver;
     protected final CTMDataResolver dataResolver;
-
-    //TODO eventually this should be determined/provided by the CTM type
-    protected static final Map<Integer, Integer> CTM_LOOKUP = Map.ofEntries(
-            Map.entry(0, 0),     // No connections (isolated)
-            // Horizontal
-            Map.entry(16, 1),    // Right
-            Map.entry(24, 2),    // Left + Right
-            Map.entry(8, 3),     // Left
-            // Vertical
-            Map.entry(64, 12),   // Bottom
-            Map.entry(66, 24),   // Top + Bottom
-            Map.entry(2, 36),    // Top
-            // Two sides one diagonal
-            Map.entry(208, 13),  // Right + Bottom + Bottom-right
-            Map.entry(104, 15),  // Left + Bottom + Bottom-left
-            Map.entry(22, 37),   // Right + Top + Top-right
-            Map.entry(11, 39),   // Left + Top + Top-left
-            // Two sides no diagonals
-            Map.entry(80, 4),    // Right + Bottom
-            Map.entry(72, 5),    // Left + Bottom
-            Map.entry(18, 16),   // Right + Top
-            Map.entry(10, 17),   // Left + Top
-            // Three sides no diagonals
-            Map.entry(26, 18),   // Left + Top + Right
-            Map.entry(88, 7),    // Left + Bottom + Right
-            Map.entry(74, 19),   // Top + Left + Bottom
-            Map.entry(82, 6),    // Top + Right + Bottom
-            // Three sides one diagonal
-            Map.entry(27, 42),   // Left + Top + Right + Top-left
-            Map.entry(30, 40),   // Left + Top + Right + Top-right
-            Map.entry(120, 29),  // Left + Bottom + Right + Bottom-left
-            Map.entry(216, 31),  // Left + Bottom + Right + Bottom-right
-            Map.entry(75, 41),   // Top + Left + Bottom + Top-left
-            Map.entry(106, 43),  // Top + Left + Bottom + Bottom-left
-            Map.entry(86, 30),   // Top + Right + Bottom + Top-right
-            Map.entry(210, 28),  // Top + Right + Bottom + Bottom-right
-            // Three sides two diagonals
-            Map.entry(31, 38),   // Left + Top + Right + Top-left + Top-right
-            Map.entry(248, 14),  // Left + Bottom + Right + Bottom-left + Bottom-right
-            Map.entry(107, 27),  // Top + Left + Bottom + Top-left + Bottom-left
-            Map.entry(214, 25),  // Top + Right + Bottom + Top-right + Bottom-right
-            // Four sides one diagonal
-            Map.entry(91, 20),   // Cross + Top-left
-            Map.entry(94, 8),    // Cross + Top-right
-            Map.entry(122, 21),  // Cross + Bottom-left
-            Map.entry(218, 9),   // Cross + Bottom-right
-            // Four sides two diagonals touching
-            Map.entry(95, 11),   // Cross + Top-left + Top-right
-            Map.entry(222, 23),  // Cross + Top-right + Bottom-right
-            Map.entry(250, 22),  // Cross + Bottom-left + Bottom-right
-            Map.entry(123, 10),  // Cross + Top-left + Bottom-left
-            // Four sides two diagonals across
-            Map.entry(126, 34),   // Cross + Top-right + Bottom-left
-            Map.entry(219, 35),   // Cross + Top-left + Bottom-right
-            // Four sides three diagonals
-            Map.entry(254, 45),   // All except Top-left
-            Map.entry(251, 44),   // All except Top-right
-            Map.entry(127, 32),   // All except Bottom-right
-            Map.entry(223, 33),   // All except Bottom-left
-            // Four sides four diagonals
-            Map.entry(255, 26),   // All neighbors
-            // Four sides no diagonals
-            Map.entry(90, 46)     // Cross
-    );
 
     public BaseCTMModel(BakedModel model, CTMSpriteResolver spriteResolver, CTMDataResolver dataResolver) {
         this.model = model;
@@ -109,8 +44,12 @@ public abstract class BaseCTMModel implements BakedModel {
      * @return An {@link EnumMap} of {@link Direction Directions} and all their relevant {@link FaceAdjacency} values
      */
     public EnumMap<Direction, EnumSet<FaceAdjacency>> computeFaceConnections(BlockAndTintGetter level, BlockPos pos, BlockState state) {
-
         // TODO: Add a config option to disable CTM, and an option to disable "in front of" checks
+
+
+        // If the CTM type isn't valid we don't perform any logic.
+        if (this.dataResolver.getCTMType() == null) return null;
+        BaseCTMType type = this.dataResolver.getCTMType();
 
         // A map of directions and all their relevant adjacent blocks
         EnumMap<Direction, EnumSet<FaceAdjacency>> faceConnections = new EnumMap<>(Direction.class);

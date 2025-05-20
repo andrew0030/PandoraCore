@@ -24,6 +24,10 @@ public class PaCoCreativeModeTabs {
             output.accept(PaCoBlocks.TEST.get());
             output.accept(PaCoBlocks.INSTANCING_TEST.get());
             output.accept(PaCoBlocks.CONNECTED_BLOCK.get());
+            output.accept(PaCoBlocks.CTM_HORIZONTAL.get());
+            output.accept(PaCoBlocks.CTM_VERTICAL.get());
+            output.accept(PaCoBlocks.CTM_RANDOM.get());
+            output.accept(PaCoBlocks.CTM_REPEAT.get());
         })
         .build()
     );

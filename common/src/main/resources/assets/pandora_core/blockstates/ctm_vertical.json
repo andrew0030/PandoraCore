@@ -1,0 +1,36 @@
+{
+  "pandora_core:ctm": "vertical",
+  "pandora_core:connect": "pandora_core:ctm_vertical",
+  "pandora_core:properties": [
+    "axis"
+  ],
+  "pandora_core:overwrite": {
+    "pandora_core:block/ctm_vertical": "pandora_core:block/ctm_vertical_sheet"
+  },
+  "variants": {
+    "axis=x": {
+      "model": "pandora_core:block/ctm_vertical",
+      "x": 90,
+      "y": 90,
+      "pandora_core:mutators":{
+        "down": "rot_cw",
+        "up": "rot_cw",
+        "north": "rot_ccw",
+        "south": "rot_cw"
+      }
+    },
+    "axis=y": {
+      "model": "pandora_core:block/ctm_vertical"
+    },
+    "axis=z": {
+      "model": "pandora_core:block/ctm_vertical",
+      "x": 90,
+      "pandora_core:mutators":{
+        "down": "inverted",
+        "north": "inverted",
+        "west": "rot_ccw",
+        "east": "rot_cw"
+      }
+    }
+  }
+}

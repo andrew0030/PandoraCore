@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
+import com.github.andrew0030.pandora_core.client.ctm.types.BaseCTMType;
 import net.fabricmc.fabric.api.renderer.v1.model.SpriteFinder;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.client.Minecraft;
@@ -18,11 +19,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class FabricCTMModel extends BaseCTMModel {
-    private static final EnumSet<FaceAdjacency> EMPTY_SET = EnumSet.noneOf(FaceAdjacency.class);
 
     public FabricCTMModel(BakedModel model, CTMSpriteResolver spriteResolver, CTMDataResolver dataResolver) {
         super(model, spriteResolver, dataResolver);
@@ -38,14 +37,22 @@ public class FabricCTMModel extends BaseCTMModel {
         EnumMap<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state);
         SpriteFinder spriteFinder = SpriteFinder.get(Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS));
         context.pushTransform(quad -> {
+            // If the state or ctm type don't exist we skip transforming logic
+            if (state == null || this.dataResolver.getCTMType() == null)
+                return true;
+
+            // Gets the CTMType we are working with
+            BaseCTMType ctmType = this.dataResolver.getCTMType();
+
             // Gets the relevant adjacency set based on the quad's light face
             EnumSet<FaceAdjacency> set = faceConnections.get(quad.lightFace());
 
             // Calculates the texture index based on the quad's direction and the adjacent values
             int mask = 0;
             for (FaceAdjacency adj : set)
-                mask |= adj.getBit();
-            int tileIndex = CTM_LOOKUP.getOrDefault(mask, 0);
+                if (ctmType.isRelevantAdjacency(adj))
+                    mask |= adj.getBit();
+            int tileIndex = ctmType.getTileIndex(mask, state, pos, quad.lightFace(), randomSupplier.get());
 
             // Gets the replacement texture, or returns early if there is none
             TextureAtlasSprite original = spriteFinder.find(quad);
@@ -56,9 +63,8 @@ public class FabricCTMModel extends BaseCTMModel {
 
             // Computes U/V offsets for a 12×4 grid
             boolean isSingleSprite = result.isMissing() || this.spriteResolver.usesMultipleSprites(original);
-            // TODO make this a thing provided by the CTM type
-            final int cols = isSingleSprite ? 1 : 12;
-            final int rows = isSingleSprite ? 1 : 4;
+            final int cols = isSingleSprite ? 1 : ctmType.getColumns();
+            final int rows = isSingleSprite ? 1 : ctmType.getRows();
             float uSize = (sheet.getU1() - sheet.getU0()) / cols;
             float vSize = (sheet.getV1() - sheet.getV0()) / rows;
 

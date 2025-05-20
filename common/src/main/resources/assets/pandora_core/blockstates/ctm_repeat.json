@@ -1,0 +1,15 @@
+{
+  "pandora_core:ctm": {
+    "type": "repeat",
+    "width": 4,
+    "height": 4
+  },
+  "pandora_core:overwrite": {
+    "pandora_core:block/ctm_repeat": "pandora_core:block/ctm_repeat_sheet"
+  },
+  "variants": {
+    "": {
+      "model": "pandora_core:block/ctm_repeat"
+    }
+  }
+}

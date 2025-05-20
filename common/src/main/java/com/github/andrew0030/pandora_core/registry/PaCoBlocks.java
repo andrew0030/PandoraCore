@@ -19,6 +19,10 @@ public class PaCoBlocks {
     public static final Supplier<Block> TEST            = PaCoBlocks.createBlock("test", TestBlock::new);
     public static final Supplier<Block> INSTANCING_TEST = PaCoBlocks.createBlock("instancing_test", () -> new InstancingTestBlock(BlockBehaviour.Properties.copy(Blocks.STONE).forceSolidOff().noOcclusion().noCollission()));
     public static final Supplier<Block> CONNECTED_BLOCK = PaCoBlocks.createBlock("connected_block", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of()));
+    public static final Supplier<Block> CTM_HORIZONTAL  = PaCoBlocks.createBlock("ctm_horizontal", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of()));
+    public static final Supplier<Block> CTM_VERTICAL    = PaCoBlocks.createBlock("ctm_vertical", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of()));
+    public static final Supplier<Block> CTM_RANDOM      = PaCoBlocks.createBlock("ctm_random", () -> new Block(BlockBehaviour.Properties.of()));
+    public static final Supplier<Block> CTM_REPEAT      = PaCoBlocks.createBlock("ctm_repeat", () -> new Block(BlockBehaviour.Properties.of()));
 
     private static Supplier<Block> createBlock(String name, Supplier<Block> supplier) {
         Supplier<Block> block = BLOCKS.add(name, supplier);

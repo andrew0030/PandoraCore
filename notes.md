@@ -65,7 +65,7 @@ Systems TODO:
   - [x] Add missing texture if the tile-atlas is missing
   - [x] Make system json driven
   - [x] Add texture folder support (automatically load all textures in a folder that are titled 0, 1, 2, 3...)
-  - [ ] Add different types of ctm
+  - [x] Add different types of ctm
   - [ ] Add json option to toggle "in front of" checks
   - [ ] Optimize ctm even more (this will involve some hacky stuff, so it should be the last step)
 - Shader Patcher

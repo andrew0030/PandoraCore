@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
+import com.github.andrew0030.pandora_core.client.ctm.types.BaseCTMType;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -14,10 +15,14 @@ import net.minecraftforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
 
 public class ForgeCTMModel extends BaseCTMModel {
     private static final ModelProperty<EnumMap<Direction, EnumSet<FaceAdjacency>>> FACE_CONNECTIONS = new ModelProperty<>();
+    private static final ModelProperty<BlockPos> POSITION = new ModelProperty<>();
 
     public ForgeCTMModel(BakedModel model, CTMSpriteResolver spriteResolver, CTMDataResolver dataResolver) {
         super(model, spriteResolver, dataResolver);
@@ -26,24 +31,30 @@ public class ForgeCTMModel extends BaseCTMModel {
     @Override
     public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
         EnumMap<Direction, EnumSet<FaceAdjacency>> faceConnections = this.computeFaceConnections(level, pos, state);
-        return ModelData.builder().with(FACE_CONNECTIONS, faceConnections).build();
+        return ModelData.builder().with(FACE_CONNECTIONS, faceConnections).with(POSITION, pos).build();
     }
 
+    // TODO figure out how to use "side" to skip unneeded checks
     @Override
     public @NotNull List<BakedQuad> getQuads(BlockState state, Direction side, @NotNull RandomSource rand, @NotNull ModelData data, RenderType renderType) {
-        if (state == null)
-            return this.model.getQuads(null, side, rand, data, renderType);
+        if (state == null || this.dataResolver.getCTMType() == null)
+            return this.model.getQuads(state, side, rand, data, renderType);
 
+
+
+        BaseCTMType ctmType = this.dataResolver.getCTMType();
         List<BakedQuad> base = this.model.getQuads(state, side, rand, data, renderType);
         List<BakedQuad> out = new ArrayList<>(base.size());
+        EnumMap<Direction, EnumSet<FaceAdjacency>> map = data.get(FACE_CONNECTIONS);
+        BlockPos pos = data.get(POSITION);
         for (BakedQuad quad : base) {
             // Calculates the texture index based on the quad's direction and the adjacent values
             int mask = 0;
-            EnumMap<Direction, EnumSet<FaceAdjacency>> map = data.get(FACE_CONNECTIONS);
             if (map != null)
                 for (FaceAdjacency adj : map.get(quad.getDirection()))
-                    mask |= adj.getBit();
-            int tileIndex = CTM_LOOKUP.getOrDefault(mask, 0);
+                    if (ctmType.isRelevantAdjacency(adj))
+                        mask |= adj.getBit();
+            int tileIndex = ctmType.getTileIndex(mask, state, pos, quad.getDirection(), rand);
 
             // Gets the replacement texture, or returns early if there is none
             CTMSpriteResolver.SpriteResultHolder result = this.spriteResolver.get(quad.getSprite(), tileIndex);
@@ -55,9 +66,8 @@ public class ForgeCTMModel extends BaseCTMModel {
 
             // Computes U/V offsets for a 12×4 grid
             boolean isSingleSprite = result.isMissing() || this.spriteResolver.usesMultipleSprites(quad.getSprite());
-            // TODO make this a thing provided by the CTM type
-            final int cols = isSingleSprite ? 1 : 12;
-            final int rows = isSingleSprite ? 1 : 4;
+            final int cols = isSingleSprite ? 1 : ctmType.getColumns();
+            final int rows = isSingleSprite ? 1 : ctmType.getRows();
             float uSize = (sheet.getU1() - sheet.getU0()) / cols;
             float vSize = (sheet.getV1() - sheet.getV0()) / rows;
 

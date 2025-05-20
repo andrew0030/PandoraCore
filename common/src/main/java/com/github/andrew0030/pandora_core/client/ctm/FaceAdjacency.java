@@ -26,14 +26,14 @@ import java.util.EnumSet;
  * Each enum entry also stores its relative offset (dx, dy).
  */
 public enum FaceAdjacency {
-    TOP_LEFT     ( 1,  1,   1),
-    TOP          ( 0,  1,   2),
-    TOP_RIGHT    (-1,  1,   4),
-    LEFT         ( 1,  0,   8),
-    RIGHT        (-1,  0,  16),
-    BOTTOM_LEFT  ( 1, -1,  32),
-    BOTTOM       ( 0, -1,  64),
-    BOTTOM_RIGHT (-1, -1, 128);
+    TOP_LEFT     ( 1,  1,   1, false),
+    TOP          ( 0,  1,   2, true ),
+    TOP_RIGHT    (-1,  1,   4, false),
+    LEFT         ( 1,  0,   8, true ),
+    RIGHT        (-1,  0,  16, true ),
+    BOTTOM_LEFT  ( 1, -1,  32, false),
+    BOTTOM       ( 0, -1,  64, true ),
+    BOTTOM_RIGHT (-1, -1, 128, false);
 
     private static final EnumSet<FaceAdjacency> AXIS_ALIGNED = EnumSet.of(TOP, LEFT, RIGHT, BOTTOM);
     private static final EnumSet<FaceAdjacency> DIAGONAL = EnumSet.of(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -46,6 +46,7 @@ public enum FaceAdjacency {
             EnumMapUtils.entry(BOTTOM_RIGHT, EnumSet.of(BOTTOM, RIGHT))
     );
     private final int dx, dy, bit;
+    private final boolean isAxisAligned;
 
     static {
         // CLOCKWISE
@@ -85,10 +86,11 @@ public enum FaceAdjacency {
         }
     }
 
-    FaceAdjacency(int dx, int dy, int bit) {
+    FaceAdjacency(int dx, int dy, int bit, boolean isAxisAligned) {
         this.dx = dx;
         this.dy = dy;
         this.bit = bit;
+        this.isAxisAligned = isAxisAligned;
     }
 
     /**
@@ -96,6 +98,10 @@ public enum FaceAdjacency {
      */
     public int getBit() {
         return this.bit;
+    }
+
+    public boolean isAxisAligned() {
+        return this.isAxisAligned;
     }
 
     /**

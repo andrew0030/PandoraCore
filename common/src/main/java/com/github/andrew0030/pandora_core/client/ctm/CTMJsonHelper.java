@@ -1,5 +1,8 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
+import com.github.andrew0030.pandora_core.client.ctm.types.BaseCTMType;
+import com.github.andrew0030.pandora_core.client.ctm.types.RandomCTMType;
+import com.github.andrew0030.pandora_core.client.ctm.types.RepeatCTMType;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -39,15 +42,51 @@ public class CTMJsonHelper {
         List<ModelBakery.LoadedJson> jsons = CTMJsonHelper.blockStateJsonSupplier.apply(CTMJsonHelper.convertModelIdToBlockStatePath(modelId));
         if (jsons == null) return false;
 
-        // TODO maybe expand this to handle some CTM types?
         for (ModelBakery.LoadedJson json : jsons) {
-            if (json.data() instanceof JsonObject object) {
-                if (GsonHelper.getAsBoolean(object, "pandora_core:ctm", false)) {
-                    return true;
+            if (!(json.data() instanceof JsonObject obj)) continue;
+            return obj.has("pandora_core:ctm");
+        }
+        return false;
+    }
+
+    public static @Nullable BaseCTMType getCTMType(ResourceLocation modelId) {
+        if (CTMJsonHelper.blockStateJsonSupplier == null) return null;
+        List<ModelBakery.LoadedJson> jsons = CTMJsonHelper.blockStateJsonSupplier.apply(CTMJsonHelper.convertModelIdToBlockStatePath(modelId));
+        if (jsons == null) return null;
+
+        for (ModelBakery.LoadedJson json : jsons) {
+            if (!(json.data() instanceof JsonObject obj)) continue;
+            if (!obj.has("pandora_core:ctm")) continue;
+            JsonElement type = obj.get("pandora_core:ctm");
+
+            if (type.isJsonPrimitive()) {
+                return CTMTypeManager.getCTMType(type.getAsString());
+            } else if (type.isJsonObject()) {
+                JsonObject typeObj = type.getAsJsonObject();
+                JsonElement innerType = typeObj.get("type");
+
+                int width = GsonHelper.getAsInt(typeObj, "width", 1);
+                int height = GsonHelper.getAsInt(typeObj, "height", 1);
+
+                if (innerType != null && innerType.isJsonPrimitive()) {
+                    String typeString = innerType.getAsString();
+                    // Random
+                    if (typeString.equals("random")) {
+                        RandomCTMType randomCTMType = new RandomCTMType();
+                        randomCTMType.setDimensions(width, height);
+                        return randomCTMType;
+                    }
+                    // Repeating
+                    if (typeString.equals("repeat")) {
+                        RepeatCTMType repeatCTMType = new RepeatCTMType();
+                        repeatCTMType.setDimensions(width, height);
+                        return repeatCTMType;
+                    }
                 }
             }
         }
-        return false;
+
+        return null;
     }
 
     public static Map<ResourceLocation, ResourceLocation> getTextureOverrides(ResourceLocation modelId) {

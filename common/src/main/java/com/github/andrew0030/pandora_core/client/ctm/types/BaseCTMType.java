@@ -22,6 +22,12 @@ public abstract class BaseCTMType {
      */
     public abstract int getRows();
 
+    /** @return Whether to check axis-aligned connections for this type. */
+    public abstract boolean requiresAxisAligned();
+
+    /** @return Whether to check diagonal connections for this type. */
+    public abstract boolean requiresDiagonal();
+
     public abstract boolean isRelevantAdjacency(FaceAdjacency adjacency);
 
     public abstract int getTileIndex(int bit, BlockState state, @Nullable BlockPos pos, Direction side, RandomSource rand);

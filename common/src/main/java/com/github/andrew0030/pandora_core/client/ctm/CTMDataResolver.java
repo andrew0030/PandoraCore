@@ -63,7 +63,7 @@ public class CTMDataResolver {
 
         // We check if the block states have the properties and if their values match
         for (Property<?> property : this.properties) {
-            if (!self.hasProperty(property) || !target.hasProperty(property)) return false;
+            if (!target.hasProperty(property)) return false;
             if (!Objects.equals(self.getValue(property), target.getValue(property))) return false;
         }
 

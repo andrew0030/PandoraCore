@@ -20,6 +20,16 @@ public class RepeatCTMType extends BaseCTMType {
         return this.rows;
     }
 
+    @Override
+    public boolean requiresAxisAligned() {
+        return false;
+    }
+
+    @Override
+    public boolean requiresDiagonal() {
+        return false;
+    }
+
     public void setDimensions(int columns, int rows) {
         this.columns = columns;
         this.rows = rows;

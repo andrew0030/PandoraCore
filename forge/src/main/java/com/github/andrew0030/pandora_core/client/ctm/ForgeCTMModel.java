@@ -34,13 +34,10 @@ public class ForgeCTMModel extends BaseCTMModel {
         return ModelData.builder().with(FACE_CONNECTIONS, faceConnections).with(POSITION, pos).build();
     }
 
-    // TODO figure out how to use "side" to skip unneeded checks
     @Override
     public @NotNull List<BakedQuad> getQuads(BlockState state, Direction side, @NotNull RandomSource rand, @NotNull ModelData data, RenderType renderType) {
         if (state == null || this.dataResolver.getCTMType() == null)
             return this.model.getQuads(state, side, rand, data, renderType);
-
-
 
         BaseCTMType ctmType = this.dataResolver.getCTMType();
         List<BakedQuad> base = this.model.getQuads(state, side, rand, data, renderType);

@@ -39,12 +39,7 @@ public enum FaceAdjacency {
     private static final EnumSet<FaceAdjacency> DIAGONAL = EnumSet.of(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT);
     private static final FaceAdjacency[][] ROTATIONS = new FaceAdjacency[3][8];
     private static final EnumMap<Direction, EnumMap<FaceAdjacency, BlockPos>> OFFSET_MAP = new EnumMap<>(Direction.class);
-    private static final EnumMap<FaceAdjacency, EnumSet<FaceAdjacency>> DIAGONAL_DEPENDENCIES = EnumMapUtils.enumMap(FaceAdjacency.class,
-            EnumMapUtils.entry(TOP_LEFT, EnumSet.of(TOP, LEFT)),
-            EnumMapUtils.entry(TOP_RIGHT, EnumSet.of(TOP, RIGHT)),
-            EnumMapUtils.entry(BOTTOM_LEFT, EnumSet.of(BOTTOM, LEFT)),
-            EnumMapUtils.entry(BOTTOM_RIGHT, EnumSet.of(BOTTOM, RIGHT))
-    );
+    private EnumSet<FaceAdjacency> diagonalDependencies;
     private final int dx, dy, bit;
     private final boolean isAxisAligned;
 
@@ -170,10 +165,20 @@ public enum FaceAdjacency {
     }
 
     /**
-     * @return A cached {@link EnumSet} containing all diagonal {@link FaceAdjacency} dependencies.
+     * @return A lazily cached {@link EnumSet} containing all diagonal {@link FaceAdjacency} dependencies.
      */
     public static EnumSet<FaceAdjacency> getDiagonalDependencies(FaceAdjacency diagonal) {
-        return DIAGONAL_DEPENDENCIES.getOrDefault(diagonal, EnumSet.noneOf(FaceAdjacency.class));
+        if (diagonal.diagonalDependencies == null) {
+            switch (diagonal) {
+                case TOP_LEFT -> diagonal.diagonalDependencies = EnumSet.of(TOP, LEFT);
+                case TOP_RIGHT -> diagonal.diagonalDependencies = EnumSet.of(TOP, RIGHT);
+                case BOTTOM_LEFT -> diagonal.diagonalDependencies = EnumSet.of(BOTTOM, LEFT);
+                case BOTTOM_RIGHT -> diagonal.diagonalDependencies = EnumSet.of(BOTTOM, RIGHT);
+                default -> diagonal.diagonalDependencies = EnumSet.noneOf(FaceAdjacency.class);
+            }
+        }
+
+        return diagonal.diagonalDependencies;
     }
 
     /**

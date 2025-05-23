@@ -112,6 +112,20 @@ public class CTMJsonHelper {
         return map;
     }
 
+    public static boolean getInnerEdges(ResourceLocation modelId) {
+        if (CTMJsonHelper.blockStateJsonSupplier == null) return true;
+        List<ModelBakery.LoadedJson> jsons = CTMJsonHelper.blockStateJsonSupplier.apply(CTMJsonHelper.convertModelIdToBlockStatePath(modelId));
+        if (jsons == null) return true;
+
+        for (ModelBakery.LoadedJson json : jsons) {
+            if (!(json.data() instanceof JsonObject obj)) continue;
+            if (!obj.has("pandora_core:inner_edges")) continue;
+            return GsonHelper.getAsBoolean(obj, "pandora_core:inner_edges", true);
+        }
+
+        return true;
+    }
+
     public static @Nullable Set<Property<?>> getPropertiesToCheck(ResourceLocation modelId) {
         if (CTMJsonHelper.blockStateJsonSupplier == null) return null;
         List<ModelBakery.LoadedJson> jsons = CTMJsonHelper.blockStateJsonSupplier.apply(CTMJsonHelper.convertModelIdToBlockStatePath(modelId));

@@ -1,6 +1,7 @@
 {
   "pandora_core:ctm": "vertical",
   "pandora_core:connect": "pandora_core:ctm_vertical",
+  "pandora_core:inner_edges": true,
   "pandora_core:properties": [
     "axis"
   ],

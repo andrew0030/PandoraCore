@@ -23,6 +23,7 @@ public class CTMDataResolver {
     private HolderSet<Block> connectingBlocks;
     private Set<Property<?>> properties;
     private EnumMap<Direction, FaceAdjacency.Mutation> mutations;
+    private boolean checkInFront = true;
 
     private CTMDataResolver() {}
 
@@ -32,12 +33,17 @@ public class CTMDataResolver {
         dataResolver.connectingBlocks = CTMJsonHelper.getConnectsWith(modelId);
         dataResolver.properties = CTMJsonHelper.getPropertiesToCheck(modelId);
         dataResolver.mutations = CTMJsonHelper.getMutations(modelId);
+        dataResolver.checkInFront = CTMJsonHelper.getInnerEdges(modelId);
 
         return dataResolver;
     }
 
     public @Nullable BaseCTMType getCTMType() {
         return this.ctmType;
+    }
+
+    public boolean checkInFrontOf() {
+        return this.checkInFront;
     }
 
     /**

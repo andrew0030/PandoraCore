@@ -11,7 +11,9 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
 
 public abstract class BaseCTMModel implements BakedModel {
     private static final Direction[] ALL_DIRECTIONS = { Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST };
@@ -62,7 +64,7 @@ public abstract class BaseCTMModel implements BakedModel {
         EnumMap<Direction, EnumSet<FaceAdjacency>> faceConnections = new EnumMap<>(Direction.class);
 
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-        boolean checkInFront = true; // TODO add a dataResolver entry and config option
+        boolean checkInFront = dataResolver.checkInFrontOf();
 
         //   North Y: 1       North Y: 0         North Y: -1
         //  ____________    _______________    _______________

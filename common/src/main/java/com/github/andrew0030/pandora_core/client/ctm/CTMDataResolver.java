@@ -15,9 +15,6 @@ import java.util.EnumMap;
 import java.util.Objects;
 import java.util.Set;
 
-//TODO The things "CTMDataResolver" should be able to do:
-// - Add option to toggle "in front of" checks
-
 public class CTMDataResolver {
     private BaseCTMType ctmType;
     private HolderSet<Block> connectingBlocks;
@@ -27,6 +24,12 @@ public class CTMDataResolver {
 
     private CTMDataResolver() {}
 
+    /**
+     * Creates a new {@link CTMDataResolver} using data from the model's JSON definition.
+     *
+     * @param modelId the resource location of the block model.
+     * @return a configured {@link CTMDataResolver}.
+     */
     public static CTMDataResolver from(ResourceLocation modelId) {
         CTMDataResolver dataResolver = new CTMDataResolver();
         dataResolver.ctmType = CTMJsonHelper.getCTMType(modelId);
@@ -38,10 +41,12 @@ public class CTMDataResolver {
         return dataResolver;
     }
 
+    /** @return the CTM connection type associated with this model, or {@code null} if none is defined. */
     public @Nullable BaseCTMType getCTMType() {
         return this.ctmType;
     }
 
+    /** @return whether connections should also be considered in front of the faces. */
     public boolean checkInFrontOf() {
         return this.checkInFront;
     }

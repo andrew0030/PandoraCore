@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
 import com.github.andrew0030.pandora_core.client.ctm.types.BaseCTMType;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -66,80 +67,30 @@ public abstract class BaseCTMModel implements BakedModel {
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
         boolean checkInFront = dataResolver.checkInFrontOf();
 
-        //   North Y: 1       North Y: 0         North Y: -1
-        //  ____________    _______________    _______________
-        // | 0 | 1 | 2 |   | 9  | 10 | 11 |   | 17 | 18 | 19 |
-        // | 3 | 4 | 5 |   | 12 |    | 13 |   | 20 | 21 | 22 |  East
-        // | 6 | 7 | 8 |   | 14 | 15 | 16 |   | 23 | 24 | 25 |
-        // ------------    ---------------    ---------------
         int bits = 0;
         // Performs all required block checks and stores them in "bits" using bitwise operations
         if (type.requiresAxisAligned()) {
             // The standard 3D cross required for all basic CTM that check neighbors
-            mutablePos.set(pos).move(Direction.DOWN);
-            if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 21);
-            mutablePos.set(pos).move(Direction.UP);
-            if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 4);
-            mutablePos.set(pos).move(Direction.NORTH);
-            if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 10);
-            mutablePos.set(pos).move(Direction.SOUTH);
-            if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 15);
-            mutablePos.set(pos).move(Direction.WEST);
-            if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 12);
-            mutablePos.set(pos).move(Direction.EAST);
-            if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 13);
-
-            if (type.requiresDiagonal() || checkInFront) {
-                // If we need to check diagonals or "in front of" we need the blocks next to the cross
-                // Top Layer
-                mutablePos.set(pos).move(Direction.UP).move(Direction.NORTH);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 1);
-                mutablePos.set(pos).move(Direction.UP).move(Direction.SOUTH);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 7);
-                mutablePos.set(pos).move(Direction.UP).move(Direction.WEST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 3);
-                mutablePos.set(pos).move(Direction.UP).move(Direction.EAST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 5);
-                // Middle Layer
-                mutablePos.set(pos).move(Direction.NORTH).move(Direction.WEST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 9);
-                mutablePos.set(pos).move(Direction.NORTH).move(Direction.EAST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 11);
-                mutablePos.set(pos).move(Direction.SOUTH).move(Direction.WEST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 14);
-                mutablePos.set(pos).move(Direction.SOUTH).move(Direction.EAST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 16);
-                // Bottom Layer
-                mutablePos.set(pos).move(Direction.DOWN).move(Direction.NORTH);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 18);
-                mutablePos.set(pos).move(Direction.DOWN).move(Direction.SOUTH);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 24);
-                mutablePos.set(pos).move(Direction.DOWN).move(Direction.WEST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 20);
-                mutablePos.set(pos).move(Direction.DOWN).move(Direction.EAST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 22);
+            for (Int2ObjectMap.Entry<BlockPos> entry : FaceAdjacency.getCrossOffsets().int2ObjectEntrySet()) {
+                mutablePos.set(pos).move(entry.getValue());
+                if (this.dataResolver.canConnectWith(level, mutablePos, state))
+                    bits = this.setBit(bits, entry.getIntKey());
             }
-
+            // If we need to check diagonals or "in front of" we need the blocks next to the cross
+            if (type.requiresDiagonal() || checkInFront) {
+                for (Int2ObjectMap.Entry<BlockPos> entry : FaceAdjacency.getExtendedCrossOffsets().int2ObjectEntrySet()) {
+                    mutablePos.set(pos).move(entry.getValue());
+                    if (this.dataResolver.canConnectWith(level, mutablePos, state))
+                        bits = this.setBit(bits, entry.getIntKey());
+                }
+            }
+            // If we need to check "in front of" diagonals we require the outermost edge blocks
             if (type.requiresDiagonal() && checkInFront) {
-                // If we need to check "in front of" diagonals we require the outermost edge blocks
-                // Top Layer
-                mutablePos.set(pos).move(Direction.UP).move(Direction.NORTH).move(Direction.WEST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 0);
-                mutablePos.set(pos).move(Direction.UP).move(Direction.NORTH).move(Direction.EAST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 2);
-                mutablePos.set(pos).move(Direction.UP).move(Direction.SOUTH).move(Direction.WEST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 6);
-                mutablePos.set(pos).move(Direction.UP).move(Direction.SOUTH).move(Direction.EAST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 8);
-                // Bottom Layer
-                mutablePos.set(pos).move(Direction.DOWN).move(Direction.NORTH).move(Direction.WEST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 17);
-                mutablePos.set(pos).move(Direction.DOWN).move(Direction.NORTH).move(Direction.EAST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 19);
-                mutablePos.set(pos).move(Direction.DOWN).move(Direction.SOUTH).move(Direction.WEST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 23);
-                mutablePos.set(pos).move(Direction.DOWN).move(Direction.SOUTH).move(Direction.EAST);
-                if (this.dataResolver.canConnectWith(level, mutablePos, state)) bits = this.setBit(bits, 25);
+                for (Int2ObjectMap.Entry<BlockPos> entry : FaceAdjacency.getOutermostOffsets().int2ObjectEntrySet()) {
+                    mutablePos.set(pos).move(entry.getValue());
+                    if (this.dataResolver.canConnectWith(level, mutablePos, state))
+                        bits = this.setBit(bits, entry.getIntKey());
+                }
             }
         }
 
@@ -155,14 +106,10 @@ public abstract class BaseCTMModel implements BakedModel {
                         continue;
                     }
                     // Axis-aligned
-                    if (this.isBitSet(bits, 15) && (!checkInFront || !this.isBitSet(bits, 24)))
-                        set.add(FaceAdjacency.TOP);
-                    if (this.isBitSet(bits, 10) && (!checkInFront || !this.isBitSet(bits, 18)))
-                        set.add(FaceAdjacency.BOTTOM);
-                    if (this.isBitSet(bits, 12) && (!checkInFront || !this.isBitSet(bits, 20)))
-                        set.add(FaceAdjacency.LEFT);
-                    if (this.isBitSet(bits, 13) && (!checkInFront || !this.isBitSet(bits, 22)))
-                        set.add(FaceAdjacency.RIGHT);
+                    if (this.isBitSet(bits, 15) && (!checkInFront || !this.isBitSet(bits, 24))) set.add(FaceAdjacency.TOP);
+                    if (this.isBitSet(bits, 10) && (!checkInFront || !this.isBitSet(bits, 18))) set.add(FaceAdjacency.BOTTOM);
+                    if (this.isBitSet(bits, 12) && (!checkInFront || !this.isBitSet(bits, 20))) set.add(FaceAdjacency.LEFT);
+                    if (this.isBitSet(bits, 13) && (!checkInFront || !this.isBitSet(bits, 22))) set.add(FaceAdjacency.RIGHT);
                     // Diagonals
                     if (type.requiresDiagonal()) {
                         if (set.containsAll(FaceAdjacency.getDiagonalDependencies(FaceAdjacency.TOP_LEFT)))
@@ -183,14 +130,10 @@ public abstract class BaseCTMModel implements BakedModel {
                         continue;
                     }
                     // Axis-aligned
-                    if (this.isBitSet(bits, 10) && (!checkInFront || !this.isBitSet(bits, 1)))
-                        set.add(FaceAdjacency.TOP);
-                    if (this.isBitSet(bits, 15) && (!checkInFront || !this.isBitSet(bits, 7)))
-                        set.add(FaceAdjacency.BOTTOM);
-                    if (this.isBitSet(bits, 12) && (!checkInFront || !this.isBitSet(bits, 3)))
-                        set.add(FaceAdjacency.LEFT);
-                    if (this.isBitSet(bits, 13) && (!checkInFront || !this.isBitSet(bits, 5)))
-                        set.add(FaceAdjacency.RIGHT);
+                    if (this.isBitSet(bits, 10) && (!checkInFront || !this.isBitSet(bits, 1))) set.add(FaceAdjacency.TOP);
+                    if (this.isBitSet(bits, 15) && (!checkInFront || !this.isBitSet(bits, 7))) set.add(FaceAdjacency.BOTTOM);
+                    if (this.isBitSet(bits, 12) && (!checkInFront || !this.isBitSet(bits, 3))) set.add(FaceAdjacency.LEFT);
+                    if (this.isBitSet(bits, 13) && (!checkInFront || !this.isBitSet(bits, 5))) set.add(FaceAdjacency.RIGHT);
                     // Diagonals
                     if (type.requiresDiagonal()) {
                         if (set.containsAll(FaceAdjacency.getDiagonalDependencies(FaceAdjacency.TOP_LEFT)))
@@ -210,14 +153,10 @@ public abstract class BaseCTMModel implements BakedModel {
                         continue;
                     }
                     // Axis-aligned
-                    if (this.isBitSet(bits, 4) && (!checkInFront || !this.isBitSet(bits, 1)))
-                        set.add(FaceAdjacency.TOP);
-                    if (this.isBitSet(bits, 21) && (!checkInFront || !this.isBitSet(bits, 18)))
-                        set.add(FaceAdjacency.BOTTOM);
-                    if (this.isBitSet(bits, 13) && (!checkInFront || !this.isBitSet(bits, 11)))
-                        set.add(FaceAdjacency.LEFT);
-                    if (this.isBitSet(bits, 12) && (!checkInFront || !this.isBitSet(bits, 9)))
-                        set.add(FaceAdjacency.RIGHT);
+                    if (this.isBitSet(bits, 4) && (!checkInFront || !this.isBitSet(bits, 1))) set.add(FaceAdjacency.TOP);
+                    if (this.isBitSet(bits, 21) && (!checkInFront || !this.isBitSet(bits, 18))) set.add(FaceAdjacency.BOTTOM);
+                    if (this.isBitSet(bits, 13) && (!checkInFront || !this.isBitSet(bits, 11))) set.add(FaceAdjacency.LEFT);
+                    if (this.isBitSet(bits, 12) && (!checkInFront || !this.isBitSet(bits, 9))) set.add(FaceAdjacency.RIGHT);
                     // Diagonals
                     if (type.requiresDiagonal()) {
                         if (set.containsAll(FaceAdjacency.getDiagonalDependencies(FaceAdjacency.TOP_LEFT)))
@@ -238,14 +177,10 @@ public abstract class BaseCTMModel implements BakedModel {
                         continue;
                     }
                     // Axis-aligned
-                    if (this.isBitSet(bits, 4) && (!checkInFront || !this.isBitSet(bits, 7)))
-                        set.add(FaceAdjacency.TOP);
-                    if (this.isBitSet(bits, 21) && (!checkInFront || !this.isBitSet(bits, 24)))
-                        set.add(FaceAdjacency.BOTTOM);
-                    if (this.isBitSet(bits, 12) && (!checkInFront || !this.isBitSet(bits, 14)))
-                        set.add(FaceAdjacency.LEFT);
-                    if (this.isBitSet(bits, 13) && (!checkInFront || !this.isBitSet(bits, 16)))
-                        set.add(FaceAdjacency.RIGHT);
+                    if (this.isBitSet(bits, 4) && (!checkInFront || !this.isBitSet(bits, 7))) set.add(FaceAdjacency.TOP);
+                    if (this.isBitSet(bits, 21) && (!checkInFront || !this.isBitSet(bits, 24))) set.add(FaceAdjacency.BOTTOM);
+                    if (this.isBitSet(bits, 12) && (!checkInFront || !this.isBitSet(bits, 14))) set.add(FaceAdjacency.LEFT);
+                    if (this.isBitSet(bits, 13) && (!checkInFront || !this.isBitSet(bits, 16))) set.add(FaceAdjacency.RIGHT);
                     // Diagonals
                     if (type.requiresDiagonal()) {
                         if (set.containsAll(FaceAdjacency.getDiagonalDependencies(FaceAdjacency.TOP_LEFT)))
@@ -266,14 +201,10 @@ public abstract class BaseCTMModel implements BakedModel {
                         continue;
                     }
                     // Axis-aligned
-                    if (this.isBitSet(bits, 4) && (!checkInFront || !this.isBitSet(bits, 3)))
-                        set.add(FaceAdjacency.TOP);
-                    if (this.isBitSet(bits, 21) && (!checkInFront || !this.isBitSet(bits, 20)))
-                        set.add(FaceAdjacency.BOTTOM);
-                    if (this.isBitSet(bits, 10) && (!checkInFront || !this.isBitSet(bits, 9)))
-                        set.add(FaceAdjacency.LEFT);
-                    if (this.isBitSet(bits, 15) && (!checkInFront || !this.isBitSet(bits, 14)))
-                        set.add(FaceAdjacency.RIGHT);
+                    if (this.isBitSet(bits, 4) && (!checkInFront || !this.isBitSet(bits, 3))) set.add(FaceAdjacency.TOP);
+                    if (this.isBitSet(bits, 21) && (!checkInFront || !this.isBitSet(bits, 20))) set.add(FaceAdjacency.BOTTOM);
+                    if (this.isBitSet(bits, 10) && (!checkInFront || !this.isBitSet(bits, 9))) set.add(FaceAdjacency.LEFT);
+                    if (this.isBitSet(bits, 15) && (!checkInFront || !this.isBitSet(bits, 14))) set.add(FaceAdjacency.RIGHT);
                     // Diagonals
                     if (type.requiresDiagonal()) {
                         if (set.containsAll(FaceAdjacency.getDiagonalDependencies(FaceAdjacency.TOP_LEFT)))
@@ -294,14 +225,10 @@ public abstract class BaseCTMModel implements BakedModel {
                         continue;
                     }
                     // Axis-aligned
-                    if (this.isBitSet(bits, 4) && (!checkInFront || !this.isBitSet(bits, 5)))
-                        set.add(FaceAdjacency.TOP);
-                    if (this.isBitSet(bits, 21) && (!checkInFront || !this.isBitSet(bits, 22)))
-                        set.add(FaceAdjacency.BOTTOM);
-                    if (this.isBitSet(bits, 15) && (!checkInFront || !this.isBitSet(bits, 16)))
-                        set.add(FaceAdjacency.LEFT);
-                    if (this.isBitSet(bits, 10) && (!checkInFront || !this.isBitSet(bits, 11)))
-                        set.add(FaceAdjacency.RIGHT);
+                    if (this.isBitSet(bits, 4) && (!checkInFront || !this.isBitSet(bits, 5))) set.add(FaceAdjacency.TOP);
+                    if (this.isBitSet(bits, 21) && (!checkInFront || !this.isBitSet(bits, 22))) set.add(FaceAdjacency.BOTTOM);
+                    if (this.isBitSet(bits, 15) && (!checkInFront || !this.isBitSet(bits, 16))) set.add(FaceAdjacency.LEFT);
+                    if (this.isBitSet(bits, 10) && (!checkInFront || !this.isBitSet(bits, 11))) set.add(FaceAdjacency.RIGHT);
                     // Diagonals
                     if (type.requiresDiagonal()) {
                         if (set.containsAll(FaceAdjacency.getDiagonalDependencies(FaceAdjacency.TOP_LEFT)))

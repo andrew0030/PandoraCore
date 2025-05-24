@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
+import com.github.andrew0030.pandora_core.client.ctm.types.BaseCTMType;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
@@ -17,8 +18,16 @@ public class CTMSpriteResolver {
     private final Map<TextureAtlasSprite, Int2ObjectMap<SpriteResultHolder>> sprites = new HashMap<>();
     private SpriteResultHolder missingResult;
 
+
     private CTMSpriteResolver() {}
 
+    /**
+     * Creates a new {@link CTMSpriteResolver} instance based on a model's texture overrides.
+     *
+     * @param spriteGetter a function for retrieving {@link TextureAtlasSprite} from {@link Material}.
+     * @param modelId the resource location of the model whose overrides are to be loaded.
+     * @return a configured {@link CTMSpriteResolver}
+     */
     public static CTMSpriteResolver from(Function<Material, TextureAtlasSprite> spriteGetter, ResourceLocation modelId) {
         CTMSpriteResolver spriteResolver = new CTMSpriteResolver();
         spriteResolver.missingResult = new SpriteResultHolder(spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS, MissingTextureAtlasSprite.getLocation())), true);
@@ -54,6 +63,13 @@ public class CTMSpriteResolver {
         return spriteResolver;
     }
 
+    /**
+     * Retrieves a resolved texture override for a given sprite and tile index.
+     *
+     * @param sprite the base texture of the block model.
+     * @param index the tile index to retrieve (differs based on {@link BaseCTMType}).
+     * @return a {@link SpriteResultHolder}, or {@code null} if no override exists.
+     */
     public @Nullable SpriteResultHolder get(TextureAtlasSprite sprite, int index) {
         Int2ObjectMap<SpriteResultHolder> holders = this.sprites.get(sprite);
         if (holders == null) return null;
@@ -64,12 +80,21 @@ public class CTMSpriteResolver {
         return holders.get(index);
     }
 
-    /** @return Whether there is multiple {@link SpriteResultHolder} instances. */
+    /**
+     * Checks whether a given sprite has multiple tile overrides (it's not a sheet).
+     *
+     * @param sprite the base texture to check.
+     * @return {@code true} if multiple tiles are registered; {@code false} otherwise.
+     */
     public boolean usesMultipleSprites(TextureAtlasSprite sprite) {
         Int2ObjectMap<SpriteResultHolder> holders = this.sprites.get(sprite);
         return holders != null && holders.size() > 1;
     }
 
+    /**
+     * Holds a texture override result, along with metadata
+     * indicating whether it represents a missing texture.
+     */
     public static class SpriteResultHolder {
         private final TextureAtlasSprite sprite;
         private final boolean missing;
@@ -79,10 +104,12 @@ public class CTMSpriteResolver {
             this.missing = missing;
         }
 
+        /** @return {@code true} if this sprite is missing or invalid. */
         public boolean isMissing() {
             return this.missing;
         }
 
+        /** @return the actual resolved {@link TextureAtlasSprite}. */
         public TextureAtlasSprite get() {
             return this.sprite;
         }

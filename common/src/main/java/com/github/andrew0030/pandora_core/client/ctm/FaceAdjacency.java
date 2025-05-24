@@ -1,10 +1,10 @@
 package com.github.andrew0030.pandora_core.client.ctm;
 
-import com.github.andrew0030.pandora_core.utils.collection.EnumMapUtils;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
-import java.util.EnumMap;
 import java.util.EnumSet;
 
 /**
@@ -22,26 +22,23 @@ import java.util.EnumSet;
  * <p>
  * These bit values are used to compute unique connection keys for texture lookup,
  * allowing combinations of adjacent block presence to be compactly encoded and decoded.
- * <p>
- * Each enum entry also stores its relative offset (dx, dy).
  */
 public enum FaceAdjacency {
-    TOP_LEFT     ( 1,  1,   1, false),
-    TOP          ( 0,  1,   2, true ),
-    TOP_RIGHT    (-1,  1,   4, false),
-    LEFT         ( 1,  0,   8, true ),
-    RIGHT        (-1,  0,  16, true ),
-    BOTTOM_LEFT  ( 1, -1,  32, false),
-    BOTTOM       ( 0, -1,  64, true ),
-    BOTTOM_RIGHT (-1, -1, 128, false);
+    TOP_LEFT     (  1),
+    TOP          (  2),
+    TOP_RIGHT    (  4),
+    LEFT         (  8),
+    RIGHT        ( 16),
+    BOTTOM_LEFT  ( 32),
+    BOTTOM       ( 64),
+    BOTTOM_RIGHT (128);
 
-    private static final EnumSet<FaceAdjacency> AXIS_ALIGNED = EnumSet.of(TOP, LEFT, RIGHT, BOTTOM);
-    private static final EnumSet<FaceAdjacency> DIAGONAL = EnumSet.of(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT);
     private static final FaceAdjacency[][] ROTATIONS = new FaceAdjacency[3][8];
-    private static final EnumMap<Direction, EnumMap<FaceAdjacency, BlockPos>> OFFSET_MAP = new EnumMap<>(Direction.class);
+    private static final Int2ObjectMap<BlockPos> CROSS_OFFSET_MAP = new Int2ObjectArrayMap<>();
+    private static final Int2ObjectMap<BlockPos> EXTENDED_CROSS_OFFSET_MAP = new Int2ObjectArrayMap<>();
+    private static final Int2ObjectMap<BlockPos> OUTERMOST_OFFSET_MAP = new Int2ObjectArrayMap<>();
     private EnumSet<FaceAdjacency> diagonalDependencies;
-    private final int dx, dy, bit;
-    private final boolean isAxisAligned;
+    private final int bit;
 
     static {
         // CLOCKWISE
@@ -72,31 +69,59 @@ public enum FaceAdjacency {
         ROTATIONS[2][6] = LEFT;
         ROTATIONS[2][7] = BOTTOM_LEFT;
 
-        // Computes and caches all offsets based on all directions
-        for (Direction dir : Direction.values()) {
-            EnumMap<FaceAdjacency, BlockPos> faceMap = new EnumMap<>(FaceAdjacency.class);
-            for (FaceAdjacency adj : FaceAdjacency.values())
-                faceMap.put(adj, computeOffset(adj, dir));
-            OFFSET_MAP.put(dir, faceMap);
-        }
+        //   North Y: 1       North Y: 0         North Y: -1
+        //  ____________    _______________    _______________
+        // | 0 | 1 | 2 |   | 9  | 10 | 11 |   | 17 | 18 | 19 |
+        // | 3 | 4 | 5 |   | 12 |    | 13 |   | 20 | 21 | 22 |  East
+        // | 6 | 7 | 8 |   | 14 | 15 | 16 |   | 23 | 24 | 25 |
+        // ------------    ---------------    ---------------
+        //
+        // Computes and caches all offsets
+        BlockPos pos = new BlockPos(0, 0, 0);
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+        // The standard 3D cross required for all basic CTM that check neighbors
+        CROSS_OFFSET_MAP.put(21, mutablePos.set(pos).move(Direction.DOWN).immutable());
+        CROSS_OFFSET_MAP.put(4,  mutablePos.set(pos).move(Direction.UP).immutable());
+        CROSS_OFFSET_MAP.put(10, mutablePos.set(pos).move(Direction.NORTH).immutable());
+        CROSS_OFFSET_MAP.put(15, mutablePos.set(pos).move(Direction.SOUTH).immutable());
+        CROSS_OFFSET_MAP.put(12, mutablePos.set(pos).move(Direction.WEST).immutable());
+        CROSS_OFFSET_MAP.put(13, mutablePos.set(pos).move(Direction.EAST).immutable());
+        // If we need to check diagonals or "in front of" we need the blocks next to the cross
+        // Top Layer
+        EXTENDED_CROSS_OFFSET_MAP.put(1,  mutablePos.set(pos).move(Direction.UP).move(Direction.NORTH).immutable());
+        EXTENDED_CROSS_OFFSET_MAP.put(7,  mutablePos.set(pos).move(Direction.UP).move(Direction.SOUTH).immutable());
+        EXTENDED_CROSS_OFFSET_MAP.put(3,  mutablePos.set(pos).move(Direction.UP).move(Direction.WEST).immutable());
+        EXTENDED_CROSS_OFFSET_MAP.put(5,  mutablePos.set(pos).move(Direction.UP).move(Direction.EAST).immutable());
+        // Middle Layer
+        EXTENDED_CROSS_OFFSET_MAP.put(9,  mutablePos.set(pos).move(Direction.NORTH).move(Direction.WEST).immutable());
+        EXTENDED_CROSS_OFFSET_MAP.put(11, mutablePos.set(pos).move(Direction.NORTH).move(Direction.EAST).immutable());
+        EXTENDED_CROSS_OFFSET_MAP.put(14, mutablePos.set(pos).move(Direction.SOUTH).move(Direction.WEST).immutable());
+        EXTENDED_CROSS_OFFSET_MAP.put(16, mutablePos.set(pos).move(Direction.SOUTH).move(Direction.EAST).immutable());
+        // Bottom Layer
+        EXTENDED_CROSS_OFFSET_MAP.put(18, mutablePos.set(pos).move(Direction.DOWN).move(Direction.NORTH).immutable());
+        EXTENDED_CROSS_OFFSET_MAP.put(24, mutablePos.set(pos).move(Direction.DOWN).move(Direction.SOUTH).immutable());
+        EXTENDED_CROSS_OFFSET_MAP.put(20, mutablePos.set(pos).move(Direction.DOWN).move(Direction.WEST).immutable());
+        EXTENDED_CROSS_OFFSET_MAP.put(22, mutablePos.set(pos).move(Direction.DOWN).move(Direction.EAST).immutable());
+        // If we need to check "in front of" diagonals we require the outermost edge blocks
+        // Top Layer
+        OUTERMOST_OFFSET_MAP.put(0,  mutablePos.set(pos).move(Direction.UP).move(Direction.NORTH).move(Direction.WEST).immutable());
+        OUTERMOST_OFFSET_MAP.put(2,  mutablePos.set(pos).move(Direction.UP).move(Direction.NORTH).move(Direction.EAST).immutable());
+        OUTERMOST_OFFSET_MAP.put(6,  mutablePos.set(pos).move(Direction.UP).move(Direction.SOUTH).move(Direction.WEST).immutable());
+        OUTERMOST_OFFSET_MAP.put(8,  mutablePos.set(pos).move(Direction.UP).move(Direction.SOUTH).move(Direction.EAST).immutable());
+        // Bottom Layer
+        OUTERMOST_OFFSET_MAP.put(17, mutablePos.set(pos).move(Direction.DOWN).move(Direction.NORTH).move(Direction.WEST).immutable());
+        OUTERMOST_OFFSET_MAP.put(19, mutablePos.set(pos).move(Direction.DOWN).move(Direction.NORTH).move(Direction.EAST).immutable());
+        OUTERMOST_OFFSET_MAP.put(23, mutablePos.set(pos).move(Direction.DOWN).move(Direction.SOUTH).move(Direction.WEST).immutable());
+        OUTERMOST_OFFSET_MAP.put(25, mutablePos.set(pos).move(Direction.DOWN).move(Direction.SOUTH).move(Direction.EAST).immutable());
     }
 
-    FaceAdjacency(int dx, int dy, int bit, boolean isAxisAligned) {
-        this.dx = dx;
-        this.dy = dy;
+    FaceAdjacency(int bit) {
         this.bit = bit;
-        this.isAxisAligned = isAxisAligned;
     }
 
-    /**
-     * @return The bit value.
-     */
+    /** @return The bit value. */
     public int getBit() {
         return this.bit;
-    }
-
-    public boolean isAxisAligned() {
-        return this.isAxisAligned;
     }
 
     /**
@@ -118,50 +143,27 @@ public enum FaceAdjacency {
     }
 
     /**
-     * Computes the relative {@link BlockPos} offset for a given face direction and adjacency.
-     *
-     * @param adj  The {@link FaceAdjacency} being transformed.
-     * @param face The direction of the face from which the offset is projected.
-     * @return A new {@link BlockPos} representing the 3D offset.
+     * A map used to check blocks in a 3D cross pattern around the block.
+     * @return An {@link Int2ObjectMap} containing {@link BlockPos} offsets.
      */
-    private static BlockPos computeOffset(FaceAdjacency adj, Direction face) {
-        int dx = adj.dx;
-        int dy = adj.dy;
-        return switch (face) {
-            case NORTH -> new BlockPos(dx, dy, 0);
-            case SOUTH -> new BlockPos(-dx, dy, 0);
-            case EAST  -> new BlockPos(0, dy, dx);
-            case WEST  -> new BlockPos(0, dy, -dx);
-            case UP    -> new BlockPos(-dx, 0, -dy);
-            case DOWN  -> new BlockPos(-dx, 0, dy);
-        };
+    public static Int2ObjectMap<BlockPos> getCrossOffsets() {
+        return CROSS_OFFSET_MAP;
     }
 
     /**
-     * Returns a cached {@link BlockPos} offset for the specified {@link Direction} and {@link FaceAdjacency}.
-     *
-     * @param face The direction of the face being queried.
-     * @param adj  The adjacency direction relative to the face.
-     * @return A precomputed {@link BlockPos} representing the 3D offset.
-     *
-     * @implNote All offsets are precomputed and cached for performance.
+     * A map used to check blocks adjacent to a 3D cross pattern around the block.
+     * @return An {@link Int2ObjectMap} containing {@link BlockPos} offsets.
      */
-    public static BlockPos getOffset(Direction face, FaceAdjacency adj) {
-        return OFFSET_MAP.get(face).get(adj);
+    public static Int2ObjectMap<BlockPos> getExtendedCrossOffsets() {
+        return EXTENDED_CROSS_OFFSET_MAP;
     }
 
     /**
-     * @return A cached {@link EnumSet} of all axis-aligned {@link FaceAdjacency} values.
+     * A map used to check the outermost blocks around the block.
+     * @return An {@link Int2ObjectMap} containing {@link BlockPos} offsets.
      */
-    public static EnumSet<FaceAdjacency> axisAlignedValues() {
-        return AXIS_ALIGNED;
-    }
-
-    /**
-     * @return A cached {@link EnumSet} of all diagonal {@link FaceAdjacency} values.
-     */
-    public static EnumSet<FaceAdjacency> diagonalValues() {
-        return DIAGONAL;
+    public static Int2ObjectMap<BlockPos> getOutermostOffsets() {
+        return OUTERMOST_OFFSET_MAP;
     }
 
     /**

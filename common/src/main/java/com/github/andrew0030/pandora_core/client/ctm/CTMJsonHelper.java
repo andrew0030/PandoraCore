@@ -60,7 +60,7 @@ public class CTMJsonHelper {
             JsonElement type = obj.get("pandora_core:ctm");
 
             if (type.isJsonPrimitive()) {
-                return CTMTypeManager.getCTMType(type.getAsString());
+                return CTMTypeManager.get(type.getAsString());
             } else if (type.isJsonObject()) {
                 JsonObject typeObj = type.getAsJsonObject();
                 JsonElement innerType = typeObj.get("type");

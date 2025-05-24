@@ -28,7 +28,9 @@ public abstract class BaseCTMType {
     /** @return Whether to check diagonal connections for this type. */
     public abstract boolean requiresDiagonal();
 
+    /** @return Whether the given adjacency should be considered for determining the tile index. */
     public abstract boolean isRelevantAdjacency(FaceAdjacency adjacency);
 
+    /** @return The texture index to use based on the given bits. */
     public abstract int getTileIndex(int bit, BlockState state, @Nullable BlockPos pos, Direction side, RandomSource rand);
 }

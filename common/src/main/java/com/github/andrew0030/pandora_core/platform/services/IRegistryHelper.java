@@ -1,11 +1,13 @@
 package com.github.andrew0030.pandora_core.platform.services;
 
+import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.core.Registry;
+import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 import java.util.Map;
@@ -17,4 +19,6 @@ public interface IRegistryHelper {
     void registerKeyMappings(List<Pair<KeyMapping, Runnable>> keyMappings);
 
     void registerModelLayers(Map<ModelLayerLocation, Supplier<LayerDefinition>> modelLayers);
+
+    void registerFlammableBlocks(Map<Block, PaCoFlammableBlockRegistry.Entry> flammables);
 }

@@ -1,12 +1,16 @@
 package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
+import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.core.Registry;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FireBlock;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -59,5 +63,16 @@ public class ForgeRegistryHelper implements IRegistryHelper {
         modEventBus.addListener((EntityRenderersEvent.RegisterLayerDefinitions event) -> {
             modelLayers.forEach(event::registerLayerDefinition);
         });
+    }
+
+    @Override
+    public void registerFlammableBlocks(Map<Block, PaCoFlammableBlockRegistry.Entry> flammables) {
+        FireBlock fireblock = (FireBlock) Blocks.FIRE;
+        for (Map.Entry<Block, PaCoFlammableBlockRegistry.Entry> entry : flammables.entrySet()) {
+            Block block = entry.getKey();
+            int igniteOdds = entry.getValue().igniteOdds();
+            int burnOdds = entry.getValue().burnOdds();
+            fireblock.setFlammable(block, igniteOdds, burnOdds);
+        }
     }
 }

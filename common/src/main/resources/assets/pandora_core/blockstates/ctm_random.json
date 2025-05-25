@@ -2,7 +2,8 @@
   "pandora_core:ctm": {
     "type": "random",
     "width": 4,
-    "height": 2
+    "height": 2,
+    "tiles": 8
   },
   "pandora_core:overwrite": {
     "pandora_core:block/ctm_random": "pandora_core:block/ctm_random_sheet"

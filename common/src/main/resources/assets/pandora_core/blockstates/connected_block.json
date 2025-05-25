@@ -9,8 +9,29 @@
     "pandora_core:block/connected_block": "pandora_core:block/connected_block_sheet"
   },
   "variants": {
-    "": {
+    "axis=x": {
+      "model": "pandora_core:block/connected_block",
+      "x": 90,
+      "y": 90,
+      "pandora_core:mutators":{
+        "down": "rot_cw",
+        "up": "rot_cw",
+        "north": "rot_ccw",
+        "south": "rot_cw"
+      }
+    },
+    "axis=y": {
       "model": "pandora_core:block/connected_block"
+    },
+    "axis=z": {
+      "model": "pandora_core:block/connected_block",
+      "x": 90,
+      "pandora_core:mutators":{
+        "down": "inverted",
+        "north": "inverted",
+        "west": "rot_ccw",
+        "east": "rot_cw"
+      }
     }
   }
 }

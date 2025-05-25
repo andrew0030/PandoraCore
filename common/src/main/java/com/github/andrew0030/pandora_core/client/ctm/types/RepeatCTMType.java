@@ -58,6 +58,11 @@ public class RepeatCTMType extends BaseCTMType {
         };
     }
 
+    @Override
+    public int totalTiles() {
+        return this.columns * this.rows;
+    }
+
     private int calculateTile(int a, int b, boolean flipA, boolean flipB) {
         if (flipA) a = -a;
         if (flipB) b = -b;

@@ -33,4 +33,7 @@ public abstract class BaseCTMType {
 
     /** @return The texture index to use based on the given bits. */
     public abstract int getTileIndex(int bit, BlockState state, @Nullable BlockPos pos, Direction side, RandomSource rand);
+
+    /** @return How many texture tiles this ctm type has in total. */
+    public abstract int totalTiles();
 }

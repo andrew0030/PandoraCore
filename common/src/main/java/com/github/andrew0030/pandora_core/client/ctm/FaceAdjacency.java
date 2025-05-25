@@ -33,7 +33,7 @@ public enum FaceAdjacency {
     BOTTOM       ( 64),
     BOTTOM_RIGHT (128);
 
-    private static final FaceAdjacency[][] ROTATIONS = new FaceAdjacency[3][8];
+    private static final FaceAdjacency[][] TRANSFORMS = new FaceAdjacency[5][8];
     private static final Int2ObjectMap<BlockPos> CROSS_OFFSET_MAP = new Int2ObjectArrayMap<>();
     private static final Int2ObjectMap<BlockPos> EXTENDED_CROSS_OFFSET_MAP = new Int2ObjectArrayMap<>();
     private static final Int2ObjectMap<BlockPos> OUTERMOST_OFFSET_MAP = new Int2ObjectArrayMap<>();
@@ -42,32 +42,50 @@ public enum FaceAdjacency {
 
     static {
         // CLOCKWISE
-        ROTATIONS[0][0] = BOTTOM_LEFT;
-        ROTATIONS[0][1] = LEFT;
-        ROTATIONS[0][2] = TOP_LEFT;
-        ROTATIONS[0][3] = BOTTOM;
-        ROTATIONS[0][4] = TOP;
-        ROTATIONS[0][5] = BOTTOM_RIGHT;
-        ROTATIONS[0][6] = RIGHT;
-        ROTATIONS[0][7] = TOP_RIGHT;
+        TRANSFORMS[0][0] = BOTTOM_LEFT;
+        TRANSFORMS[0][1] = LEFT;
+        TRANSFORMS[0][2] = TOP_LEFT;
+        TRANSFORMS[0][3] = BOTTOM;
+        TRANSFORMS[0][4] = TOP;
+        TRANSFORMS[0][5] = BOTTOM_RIGHT;
+        TRANSFORMS[0][6] = RIGHT;
+        TRANSFORMS[0][7] = TOP_RIGHT;
         // INVERTED (180°)
-        ROTATIONS[1][0] = BOTTOM_RIGHT;
-        ROTATIONS[1][1] = BOTTOM;
-        ROTATIONS[1][2] = BOTTOM_LEFT;
-        ROTATIONS[1][3] = RIGHT;
-        ROTATIONS[1][4] = LEFT;
-        ROTATIONS[1][5] = TOP_RIGHT;
-        ROTATIONS[1][6] = TOP;
-        ROTATIONS[1][7] = TOP_LEFT;
-        // COUNTER_CLOCKWISE
-        ROTATIONS[2][0] = TOP_RIGHT;
-        ROTATIONS[2][1] = RIGHT;
-        ROTATIONS[2][2] = BOTTOM_RIGHT;
-        ROTATIONS[2][3] = TOP;
-        ROTATIONS[2][4] = BOTTOM;
-        ROTATIONS[2][5] = TOP_LEFT;
-        ROTATIONS[2][6] = LEFT;
-        ROTATIONS[2][7] = BOTTOM_LEFT;
+        TRANSFORMS[1][0] = BOTTOM_RIGHT;
+        TRANSFORMS[1][1] = BOTTOM;
+        TRANSFORMS[1][2] = BOTTOM_LEFT;
+        TRANSFORMS[1][3] = RIGHT;
+        TRANSFORMS[1][4] = LEFT;
+        TRANSFORMS[1][5] = TOP_RIGHT;
+        TRANSFORMS[1][6] = TOP;
+        TRANSFORMS[1][7] = TOP_LEFT;
+        // COUNTER CLOCKWISE
+        TRANSFORMS[2][0] = TOP_RIGHT;
+        TRANSFORMS[2][1] = RIGHT;
+        TRANSFORMS[2][2] = BOTTOM_RIGHT;
+        TRANSFORMS[2][3] = TOP;
+        TRANSFORMS[2][4] = BOTTOM;
+        TRANSFORMS[2][5] = TOP_LEFT;
+        TRANSFORMS[2][6] = LEFT;
+        TRANSFORMS[2][7] = BOTTOM_LEFT;
+        // FLIP HORIZONTALLY
+        TRANSFORMS[3][0] = TOP_RIGHT;
+        TRANSFORMS[3][1] = TOP;
+        TRANSFORMS[3][2] = TOP_LEFT;
+        TRANSFORMS[3][3] = RIGHT;
+        TRANSFORMS[3][4] = LEFT;
+        TRANSFORMS[3][5] = BOTTOM_RIGHT;
+        TRANSFORMS[3][6] = BOTTOM;
+        TRANSFORMS[3][7] = BOTTOM_LEFT;
+        // FLIP VERTICALLY
+        TRANSFORMS[4][0] = BOTTOM_LEFT;
+        TRANSFORMS[4][1] = BOTTOM;
+        TRANSFORMS[4][2] = BOTTOM_RIGHT;
+        TRANSFORMS[4][3] = LEFT;
+        TRANSFORMS[4][4] = RIGHT;
+        TRANSFORMS[4][5] = TOP_LEFT;
+        TRANSFORMS[4][6] = TOP;
+        TRANSFORMS[4][7] = TOP_RIGHT;
 
         //   North Y: 1       North Y: 0         North Y: -1
         //  ____________    _______________    _______________
@@ -135,11 +153,10 @@ public enum FaceAdjacency {
      * @param mutation The rotation or transformation to apply.
      * @return The resulting {@link FaceAdjacency} after applying the mutation.
      */
-    // TODO maybe add flipping?
     public FaceAdjacency transform(Mutation mutation) {
         if (mutation == Mutation.NONE)
             return this;
-        return ROTATIONS[mutation.ordinal()][this.ordinal()];
+        return TRANSFORMS[mutation.ordinal()][this.ordinal()];
     }
 
     /**
@@ -190,14 +207,17 @@ public enum FaceAdjacency {
      *   <li>{@link #ROT_CW}   – Detection logic is rotated 90° clockwise.</li>
      *   <li>{@link #INVERTED} – Detection logic is rotated 180° (upside down).</li>
      *   <li>{@link #ROT_CCW}  – Detection logic is rotated 90° counter-clockwise.</li>
+     *   <li>{@link #FLIP_HOR} – Detection logic is flipped horizontally.</li>
+     *   <li>{@link #FLIP_VER} – Detection logic is flipped vertically.</li>
      *   <li>{@link #NONE}     – Detection logic is kept as-is.</li>
      * </ul>
      */
-    // TODO maybe add flipping?
     public enum Mutation {
         ROT_CW,
         INVERTED,
         ROT_CCW,
+        FLIP_HOR,
+        FLIP_VER,
         NONE;
     }
 }

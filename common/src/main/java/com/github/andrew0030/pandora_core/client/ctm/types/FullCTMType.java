@@ -106,4 +106,9 @@ public class FullCTMType extends BaseCTMType {
         if (bit > 255 || bit < 0) return 47;
         return CTM_LOOKUP[Math.floorMod(bit, CTM_LOOKUP.length)];
     }
+
+    @Override
+    public int totalTiles() {
+        return 47;
+    }
 }

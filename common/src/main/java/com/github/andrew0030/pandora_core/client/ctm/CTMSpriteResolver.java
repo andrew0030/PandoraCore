@@ -32,6 +32,8 @@ public class CTMSpriteResolver {
         CTMSpriteResolver spriteResolver = new CTMSpriteResolver();
         spriteResolver.missingResult = new SpriteResultHolder(spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS, MissingTextureAtlasSprite.getLocation())), true);
 
+        BaseCTMType type = CTMJsonHelper.getCTMType(modelId);
+        int tiles = type == null ? 0 : type.totalTiles();
         CTMJsonHelper.getTextureOverrides(modelId).forEach((key, value) -> {
             Material matFrom = new Material(InventoryMenu.BLOCK_ATLAS, key);
             TextureAtlasSprite from = spriteGetter.apply(matFrom);
@@ -44,7 +46,7 @@ public class CTMSpriteResolver {
             Int2ObjectMap<SpriteResultHolder> results = new Int2ObjectOpenHashMap<>();
             if (value.toString().endsWith("/")) {
                 // TODO probably modify this to take into account CTM type
-                for (int i = 0; i < 47; i++) {
+                for (int i = 0; i < tiles; i++) {
                     Material matTo = new Material(InventoryMenu.BLOCK_ATLAS, new ResourceLocation(value.toString() + i));
                     TextureAtlasSprite to = spriteGetter.apply(matTo);
                     boolean missing = to == spriteResolver.missingResult.get();

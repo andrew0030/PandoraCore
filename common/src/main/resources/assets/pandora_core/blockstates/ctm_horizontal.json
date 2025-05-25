@@ -6,7 +6,7 @@
     "axis"
   ],
   "pandora_core:overwrite": {
-    "pandora_core:block/ctm_horizontal": "pandora_core:block/ctm_horizontal_sheet"
+    "pandora_core:block/ctm_horizontal": "pandora_core:block/ctm_horizontal/"
   },
   "variants": {
     "axis=x": {

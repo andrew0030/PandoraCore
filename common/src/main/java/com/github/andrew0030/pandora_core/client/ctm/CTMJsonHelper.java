@@ -65,8 +65,8 @@ public class CTMJsonHelper {
                 JsonObject typeObj = type.getAsJsonObject();
                 JsonElement innerType = typeObj.get("type");
 
-                int width = GsonHelper.getAsInt(typeObj, "width", 1);
-                int height = GsonHelper.getAsInt(typeObj, "height", 1);
+                int width = Math.max(GsonHelper.getAsInt(typeObj, "width", 1), 1);
+                int height = Math.max(GsonHelper.getAsInt(typeObj, "height", 1), 1);
 
                 if (innerType != null && innerType.isJsonPrimitive()) {
                     String typeString = innerType.getAsString();
@@ -74,6 +74,7 @@ public class CTMJsonHelper {
                     if (typeString.equals("random")) {
                         RandomCTMType randomCTMType = new RandomCTMType();
                         randomCTMType.setDimensions(width, height);
+                        randomCTMType.setTiles(Math.max(GsonHelper.getAsInt(typeObj, "tiles", 0), 0));
                         return randomCTMType;
                     }
                     // Repeating

@@ -52,4 +52,9 @@ public class VerticalCTMType extends BaseCTMType {
     public int getTileIndex(int bit, BlockState state, BlockPos pos, Direction side, RandomSource rand) {
         return CTM_LOOKUP[Math.floorMod(bit, CTM_LOOKUP.length)];
     }
+
+    @Override
+    public int totalTiles() {
+        return 4;
+    }
 }

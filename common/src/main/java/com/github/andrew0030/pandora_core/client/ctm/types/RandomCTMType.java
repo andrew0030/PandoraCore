@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class RandomCTMType extends BaseCTMType {
     private int columns = 1;
     private int rows = 1;
+    private int tiles = 0;
 
     @Override
     public int getColumns() {
@@ -35,6 +36,10 @@ public class RandomCTMType extends BaseCTMType {
         this.rows = rows;
     }
 
+    public void setTiles(int tiles) {
+        this.tiles = tiles;
+    }
+
     @Override
     public boolean isRelevantAdjacency(FaceAdjacency adjacency) {
         return false;
@@ -44,6 +49,13 @@ public class RandomCTMType extends BaseCTMType {
     public int getTileIndex(int bit, BlockState state, BlockPos pos, Direction side, RandomSource rand) {
         if (pos == null) return 0;
         rand.setSeed(state.getSeed(pos));
-        return rand.nextInt(this.columns * this.rows);
+        return rand.nextInt(this.totalTiles());
+    }
+
+    @Override
+    public int totalTiles() {
+        if (this.tiles != 0)
+            return this.tiles;
+        return this.columns * this.rows;
     }
 }

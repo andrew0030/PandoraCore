@@ -55,6 +55,7 @@ dependencies {
     // Performance Monitoring
     modRuntimeOnly "curse.maven:spark-361579:4738953" // Spark
     // Render Mods To Test Shader Patcher
+//    modRuntimeOnly "curse.maven:indium-459496:6237037" // Indium
     modCompileOnly "curse.maven:sodium-394468:6260639" // Sodium
     modCompileOnly "curse.maven:irisshaders-455508:6258195" // Iris
 

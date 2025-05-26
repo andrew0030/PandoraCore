@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class ForgeModDataHolder extends ModDataHolder {
     private final IModInfo modInfo;
@@ -18,7 +19,7 @@ public class ForgeModDataHolder extends ModDataHolder {
     private Optional<Boolean> blurIcon = Optional.empty();
     private final List<String> backgrounds = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
-    private final List<Component> modWarnings = new ArrayList<>();
+    private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
     private final List<String> credits = new ArrayList<>();
 
@@ -45,7 +46,7 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .ifPresent(factoryClass -> {
-                    this.modWarnings.addAll(this.loadWarningsFromFactory(factoryClass));
+                    this.modWarnings = this.loadWarningsFromFactory(factoryClass);
                 });
         // Catalogue
         Optional.ofNullable(this.modInfo.getModProperties().get("catalogueImageIcon"))
@@ -125,6 +126,7 @@ public class ForgeModDataHolder extends ModDataHolder {
 
     @Override
     public List<Component> getModWarnings() {
-        return this.modWarnings;
+        if (this.modWarnings == null) return NO_WARNINGS;
+        return this.modWarnings.get();
     }
 }

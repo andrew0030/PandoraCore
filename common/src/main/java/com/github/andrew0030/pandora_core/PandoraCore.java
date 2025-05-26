@@ -10,6 +10,7 @@ import com.github.andrew0030.pandora_core.registry.PaCoItems;
 import com.github.andrew0030.pandora_core.test.PaCoFlammables;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -33,6 +34,7 @@ public class PandoraCore {
     /** Common Init */
     public static void init() {
         Services.PLATFORM.getModDataHolders().forEach(holder -> PandoraCore.MOD_HOLDERS.put(holder.getModId(), holder));
+        ModWarningFactory.init();
 
         // Configs
         PaCoConfigManager.register(PaCoMainConfig.class);

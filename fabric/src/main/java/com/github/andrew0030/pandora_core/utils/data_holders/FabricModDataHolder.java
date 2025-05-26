@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class FabricModDataHolder extends ModDataHolder {
     private final ModMetadata metadata;
@@ -19,7 +20,7 @@ public class FabricModDataHolder extends ModDataHolder {
     private Optional<Boolean> blurIcon = Optional.empty();
     private final List<String> backgrounds = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
-    private final List<Component> modWarnings = new ArrayList<>();
+    private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
     private final List<String> credits = new ArrayList<>();
 
@@ -51,7 +52,7 @@ public class FabricModDataHolder extends ModDataHolder {
                             .filter(factoryVal -> factoryVal.getType() == CustomValue.CvType.STRING)
                             .map(CustomValue::getAsString)
                             .ifPresent(factoryClass -> {
-                                this.modWarnings.addAll(this.loadWarningsFromFactory(factoryClass));
+                                this.modWarnings = this.loadWarningsFromFactory(factoryClass);
                             });
                     // Because its handy I also check for all other paco properties here
                     // Update URL
@@ -154,6 +155,7 @@ public class FabricModDataHolder extends ModDataHolder {
 
     @Override
     public List<Component> getModWarnings() {
-        return this.modWarnings;
+        if (this.modWarnings == null) return NO_WARNINGS;
+        return this.modWarnings.get();
     }
 }

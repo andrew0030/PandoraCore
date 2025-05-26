@@ -6,11 +6,14 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /** Holder class to store mod data. */
 public abstract class ModDataHolder {
+    protected static final List<Component> NO_WARNINGS = new ArrayList<>();
     private Optional<UpdateChecker.Status> status = Optional.empty();
 
     /** @return The mod id. */
@@ -83,7 +86,7 @@ public abstract class ModDataHolder {
     }
 
     @ApiStatus.Internal
-    protected List<Component> loadWarningsFromFactory(String className) {
+    protected Supplier<List<Component>> loadWarningsFromFactory(String className) {
         try {
             Class<?> factoryClass = Class.forName(className);
             // Ensures the class implements ModWarningProvider

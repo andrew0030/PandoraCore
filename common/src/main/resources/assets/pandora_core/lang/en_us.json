@@ -21,5 +21,6 @@
   "gui.pandora_core.paco.content.mod.contributors.key": "Contributor(s):",
   "gui.pandora_core.paco.content.mod.license.key": "License:",
 
-  "warnings.pandora_core.opti_fine.post_shader": "[OptiFine] Detected, post shaders have been disabled!"
+  "warnings.pandora_core.opti_fine.post_shader": "[OptiFine] detected, post shaders have been disabled!",
+  "warnings.pandora_core.sodium.indium": "[Sodium] detected and [Indium] is missing, CTM has been disabled!"
 }

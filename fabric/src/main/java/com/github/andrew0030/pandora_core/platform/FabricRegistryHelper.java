@@ -6,13 +6,17 @@ import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
@@ -58,5 +62,15 @@ public class FabricRegistryHelper implements IRegistryHelper {
             int burnOdds = entry.getValue().burnOdds();
             FlammableBlockRegistry.getDefaultInstance().add(block, igniteOdds, burnOdds);
         }
+    }
+
+    @Override
+    public void registerColorHandlers(Map<Supplier<Block>, BlockColor> blockColors, Map<Supplier<? extends ItemLike>, ItemColor> itemColors) {
+        // Registers Block Color Handlers
+        for (Map.Entry<Supplier<Block>, BlockColor> entry : blockColors.entrySet())
+            ColorProviderRegistry.BLOCK.register(entry.getValue(), entry.getKey().get());
+        // Registers ItemLike Color Handlers
+        for (Map.Entry<Supplier<? extends ItemLike>, ItemColor> entry : itemColors.entrySet())
+            ColorProviderRegistry.ITEM.register(entry.getValue(), entry.getKey().get());
     }
 }

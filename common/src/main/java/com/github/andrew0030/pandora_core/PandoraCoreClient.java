@@ -12,6 +12,7 @@ import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.registry.PaCoBlockEntities;
 import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
 import com.github.andrew0030.pandora_core.test.InstancingTestBlockEntityRenderer;
+import com.github.andrew0030.pandora_core.test.PaCoColorHandlers;
 import com.github.andrew0030.pandora_core.test.block_entities.TestBEWLR;
 import com.github.andrew0030.pandora_core.utils.LogicalSide;
 
@@ -28,6 +29,8 @@ public class PandoraCoreClient {
         PaCoKeyMappings.KEY_MAPPINGS.register();
         // Registers the PaCo ModelLayers
         PaCoModelLayers.MODEL_LAYERS.register();
+        // Registers the PaCo ColorHandlers
+        PaCoColorHandlers.COLOR_HANDLERS.register();
 
         PaCoTesting.testInitClient();
 

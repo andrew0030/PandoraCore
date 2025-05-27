@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 import java.util.function.Supplier;
@@ -23,6 +24,7 @@ public class PaCoBlocks {
     public static final Supplier<Block> CTM_VERTICAL    = PaCoBlocks.createBlock("ctm_vertical", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of()));
     public static final Supplier<Block> CTM_RANDOM      = PaCoBlocks.createBlock("ctm_random", () -> new Block(BlockBehaviour.Properties.of()));
     public static final Supplier<Block> CTM_REPEAT      = PaCoBlocks.createBlock("ctm_repeat", () -> new Block(BlockBehaviour.Properties.of()));
+    public static final Supplier<Block> FOLIAGE_TEST    = PaCoBlocks.createBlock("foliage_test", () -> new Block(BlockBehaviour.Properties.of().sound(SoundType.GRASS)));
 
     private static Supplier<Block> createBlock(String name, Supplier<Block> supplier) {
         Supplier<Block> block = BLOCKS.add(name, supplier);

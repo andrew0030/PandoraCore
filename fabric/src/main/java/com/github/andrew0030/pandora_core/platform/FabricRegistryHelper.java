@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
 import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
@@ -14,6 +15,7 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
@@ -72,5 +74,12 @@ public class FabricRegistryHelper implements IRegistryHelper {
         // Registers ItemLike Color Handlers
         for (Map.Entry<Supplier<? extends ItemLike>, ItemColor> entry : itemColors.entrySet())
             ColorProviderRegistry.ITEM.register(entry.getValue(), entry.getKey().get());
+    }
+
+    @Override
+    public void registerBlockRenderTypes(Map<Supplier<Block>, RenderType> renderTypes) {
+        // Registers Block Render Types.
+        for (Map.Entry<Supplier<Block>, RenderType> entry : renderTypes.entrySet())
+            BlockRenderLayerMap.INSTANCE.putBlock(entry.getKey().get(), entry.getValue());
     }
 }

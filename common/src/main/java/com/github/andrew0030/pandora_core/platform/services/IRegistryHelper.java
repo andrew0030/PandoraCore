@@ -8,6 +8,7 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -26,4 +27,6 @@ public interface IRegistryHelper {
     void registerFlammableBlocks(Map<Block, PaCoFlammableBlockRegistry.Entry> flammables);
 
     void registerColorHandlers(Map<Supplier<Block>, BlockColor> blockColors, Map<Supplier<? extends ItemLike>, ItemColor> itemColors);
+
+    void registerBlockRenderTypes(Map<Supplier<Block>, RenderType> renderTypes);
 }

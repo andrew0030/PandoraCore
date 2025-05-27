@@ -9,6 +9,8 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -93,6 +95,17 @@ public class ForgeRegistryHelper implements IRegistryHelper {
         modEventBus.addListener((RegisterColorHandlersEvent.Item event) -> {
             for (Map.Entry<Supplier<? extends ItemLike>, ItemColor> entry : itemColors.entrySet())
                 event.register(entry.getValue(), entry.getKey().get());
+        });
+    }
+
+    @Override
+    public void registerBlockRenderTypes(Map<Supplier<Block>, RenderType> renderTypes) {
+        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        // Registers Block Render Types.
+        modEventBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> {
+            for (Map.Entry<Supplier<Block>, RenderType> entry : renderTypes.entrySet())
+                ItemBlockRenderTypes.setRenderLayer(entry.getKey().get(), entry.getValue());
         });
     }
 }

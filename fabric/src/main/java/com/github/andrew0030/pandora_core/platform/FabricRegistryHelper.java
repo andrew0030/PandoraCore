@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.platform;
 
+import com.github.andrew0030.pandora_core.client.registry.PaCoParticleProviderRegistry;
 import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
 import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
@@ -7,6 +8,7 @@ import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
@@ -15,8 +17,11 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -81,5 +86,24 @@ public class FabricRegistryHelper implements IRegistryHelper {
         // Registers Block Render Types.
         for (Map.Entry<Supplier<Block>, RenderType> entry : renderTypes.entrySet())
             BlockRenderLayerMap.INSTANCE.putBlock(entry.getKey().get(), entry.getValue());
+    }
+
+    @Override
+    public void registerParticleProviders(Map<ParticleType<?>, ParticleProvider<?>> particleProviders, Map<ParticleType<?>, PaCoParticleProviderRegistry.PendingParticleProvider<?>> pendingParticleProviders) {
+        // Registers Particle Providers.
+        for (Map.Entry<ParticleType<?>, ParticleProvider<?>> entry : particleProviders.entrySet())
+            FabricRegistryHelper.registerParticleProvider(entry.getKey(), entry.getValue());
+        for (Map.Entry<ParticleType<?>, PaCoParticleProviderRegistry.PendingParticleProvider<?>> entry : pendingParticleProviders.entrySet())
+            FabricRegistryHelper.registerPendingParticleProvider(entry.getKey(), entry.getValue());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends ParticleOptions> void registerParticleProvider(ParticleType<?> type, ParticleProvider<?> provider) {
+        ParticleFactoryRegistry.getInstance().register((ParticleType<T>) type, (ParticleProvider<T>) provider);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends ParticleOptions> void registerPendingParticleProvider(ParticleType<?> type, PaCoParticleProviderRegistry.PendingParticleProvider<?> pendingProvider) {
+        ParticleFactoryRegistry.getInstance().register((ParticleType<T>) type, spriteSet -> (ParticleProvider<T>) pendingProvider.create(spriteSet));
     }
 }

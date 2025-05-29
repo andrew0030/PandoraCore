@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.platform;
 
+import com.github.andrew0030.pandora_core.client.registry.PaCoParticleProviderRegistry;
 import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
 import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
@@ -9,9 +10,12 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -19,6 +23,7 @@ import net.minecraft.world.level.block.FireBlock;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -107,5 +112,28 @@ public class ForgeRegistryHelper implements IRegistryHelper {
             for (Map.Entry<Supplier<Block>, RenderType> entry : renderTypes.entrySet())
                 ItemBlockRenderTypes.setRenderLayer(entry.getKey().get(), entry.getValue());
         });
+    }
+
+    @Override
+    public void registerParticleProviders(Map<ParticleType<?>, ParticleProvider<?>> particleProviders, Map<ParticleType<?>, PaCoParticleProviderRegistry.PendingParticleProvider<?>> pendingParticleProviders) {
+        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        // Registers Particle Providers.
+        modEventBus.addListener((RegisterParticleProvidersEvent event) -> {
+            for (Map.Entry<ParticleType<?>, ParticleProvider<?>> entry : particleProviders.entrySet())
+                ForgeRegistryHelper.registerParticleProvider(event, entry.getKey(), entry.getValue());
+            for (Map.Entry<ParticleType<?>, PaCoParticleProviderRegistry.PendingParticleProvider<?>> entry : pendingParticleProviders.entrySet())
+                ForgeRegistryHelper.registerPendingParticleProvider(event, entry.getKey(), entry.getValue());
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends ParticleOptions> void registerParticleProvider(RegisterParticleProvidersEvent event, ParticleType<?> type, ParticleProvider<?> provider) {
+        event.registerSpecial((ParticleType<T>) type, (ParticleProvider<T>) provider);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends ParticleOptions> void registerPendingParticleProvider(RegisterParticleProvidersEvent event, ParticleType<?> type, PaCoParticleProviderRegistry.PendingParticleProvider<?> pendingProvider) {
+        event.registerSpriteSet((ParticleType<T>) type, spriteSet -> (ParticleProvider<T>) pendingProvider.create(spriteSet));
     }
 }

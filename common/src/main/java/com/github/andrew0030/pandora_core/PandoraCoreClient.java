@@ -15,6 +15,7 @@ import com.github.andrew0030.pandora_core.test.InstancingTestBlockEntityRenderer
 import com.github.andrew0030.pandora_core.test.PaCoBlockRenderTypes;
 import com.github.andrew0030.pandora_core.test.PaCoColorHandlers;
 import com.github.andrew0030.pandora_core.test.block_entities.TestBEWLR;
+import com.github.andrew0030.pandora_core.test.particle.PaCoParticleProviders;
 import com.github.andrew0030.pandora_core.utils.LogicalSide;
 
 import java.util.List;
@@ -34,6 +35,8 @@ public class PandoraCoreClient {
         PaCoColorHandlers.COLOR_HANDLERS.register();
         // Registers the PaCo BlockRenderTypes
         PaCoBlockRenderTypes.RENDER_TYPES.register();
+        // Registers the PaCo ParticleProviders
+        PaCoParticleProviders.PARTICLE_PROVIDERS.register();
 
         PaCoTesting.testInitClient();
 

@@ -8,6 +8,7 @@ import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
 import com.github.andrew0030.pandora_core.registry.PaCoCreativeModeTabs;
 import com.github.andrew0030.pandora_core.registry.PaCoItems;
 import com.github.andrew0030.pandora_core.test.PaCoFlammables;
+import com.github.andrew0030.pandora_core.test.particle.PaCoParticles;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory;
@@ -28,6 +29,7 @@ public class PandoraCore {
         PaCoBlocks.BLOCKS.register();
         PaCoItems.ITEMS.register();
         PaCoBlockEntities.BLOCK_ENTITY_TYPES.register();
+        PaCoParticles.PARTICLE_TYPES.register();
         PaCoCreativeModeTabs.CREATIVE_MODE_TABS.register();
     }
 

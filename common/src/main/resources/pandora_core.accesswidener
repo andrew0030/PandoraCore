@@ -40,6 +40,10 @@ accessible field net/minecraft/world/item/CreativeModeTabs OP_BLOCKS Lnet/minecr
 # this public, so in order to access it we need to add an AW.
 accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers register (Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/client/renderer/blockentity/BlockEntityRendererProvider;)V
 
+# Used to make the SimpleParticleType constructor accessible so we can use it like on forge.
+accessible method net/minecraft/core/particles/SimpleParticleType <init> (Z)V # SimpleParticleType
+
+
 #=================================================================================================================
 # Shader Patcher Stuff, this is all dark magic to me so I moved it down for now to keep a clear seperation ~andrew
 #=================================================================================================================
@@ -57,6 +61,7 @@ accessible field net/minecraft/client/renderer/RenderStateShard OVERLAY Lnet/min
 accessible field net/minecraft/client/renderer/RenderStateShard ITEM_ENTITY_TARGET Lnet/minecraft/client/renderer/RenderStateShard$OutputStateShard;
 
 accessible method net/minecraft/client/renderer/ShaderInstance getOrCreate (Lnet/minecraft/server/packs/resources/ResourceProvider;Lcom/mojang/blaze3d/shaders/Program$Type;Ljava/lang/String;)Lcom/mojang/blaze3d/shaders/Program;
+
 
 #=================================================================================================================
 # Instancing Engine

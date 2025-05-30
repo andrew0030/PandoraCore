@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.client.registry.PaCoParticleProviderRegistry;
 import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
+import com.github.andrew0030.pandora_core.registry.PaCoBrewingRecipeRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
@@ -16,6 +17,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -25,10 +30,13 @@ import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -135,5 +143,34 @@ public class ForgeRegistryHelper implements IRegistryHelper {
     @SuppressWarnings("unchecked")
     private static <T extends ParticleOptions> void registerPendingParticleProvider(RegisterParticleProvidersEvent event, ParticleType<?> type, PaCoParticleProviderRegistry.PendingParticleProvider<?> pendingProvider) {
         event.registerSpriteSet((ParticleType<T>) type, spriteSet -> (ParticleProvider<T>) pendingProvider.create(spriteSet));
+    }
+
+    @Override
+    public void registerBrewingRecipes(List<PaCoBrewingRecipeRegistry.Entry> brewingRecipes) {
+        // Registers Brewing Recipes.
+        for (PaCoBrewingRecipeRegistry.Entry entry : brewingRecipes)
+            BrewingRecipeRegistry.addRecipe(new PaCoBrewingRecipe(entry.input(), entry.ingredient(), entry.output()));
+    }
+
+    /** A small helper record to make registering Potions easier */
+    private record PaCoBrewingRecipe(Potion input, Item ingredient, Potion output) implements IBrewingRecipe {
+
+        @Override
+        public boolean isInput(@NotNull ItemStack input) {
+            return PotionUtils.getPotion(input) == this.input;
+        }
+
+        @Override
+        public boolean isIngredient(@NotNull ItemStack ingredient) {
+            return ingredient.getItem() == this.ingredient;
+        }
+
+        @Override
+        public @NotNull ItemStack getOutput(@NotNull ItemStack input, @NotNull ItemStack ingredient) {
+            if (!this.isInput(input) || !this.isIngredient(ingredient)) return ItemStack.EMPTY;
+            ItemStack itemStack = new ItemStack(input.getItem());
+            PotionUtils.setPotion(itemStack, this.output);
+            return itemStack;
+        }
     }
 }

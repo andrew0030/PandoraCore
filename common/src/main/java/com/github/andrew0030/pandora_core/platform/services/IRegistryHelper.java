@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.platform.services;
 
 import com.github.andrew0030.pandora_core.client.registry.PaCoParticleProviderRegistry;
+import com.github.andrew0030.pandora_core.registry.PaCoBrewingRecipeRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
@@ -34,4 +35,6 @@ public interface IRegistryHelper {
     void registerBlockRenderTypes(Map<Supplier<Block>, RenderType> renderTypes);
 
     void registerParticleProviders(Map<ParticleType<?>, ParticleProvider<?>> particleProviders, Map<ParticleType<?>, PaCoParticleProviderRegistry.PendingParticleProvider<?>> pendingParticleProviders);
+
+    void registerBrewingRecipes(List<PaCoBrewingRecipeRegistry.Entry> brewingRecipes);
 }

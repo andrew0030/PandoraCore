@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.client.registry.PaCoParticleProviderRegistry;
 import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
+import com.github.andrew0030.pandora_core.registry.PaCoBrewingRecipeRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
@@ -23,6 +24,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 
@@ -105,5 +107,12 @@ public class FabricRegistryHelper implements IRegistryHelper {
     @SuppressWarnings("unchecked")
     private static <T extends ParticleOptions> void registerPendingParticleProvider(ParticleType<?> type, PaCoParticleProviderRegistry.PendingParticleProvider<?> pendingProvider) {
         ParticleFactoryRegistry.getInstance().register((ParticleType<T>) type, spriteSet -> (ParticleProvider<T>) pendingProvider.create(spriteSet));
+    }
+
+    @Override
+    public void registerBrewingRecipes(List<PaCoBrewingRecipeRegistry.Entry> brewingRecipes) {
+        // Registers Brewing Recipes.
+        for (PaCoBrewingRecipeRegistry.Entry entry : brewingRecipes)
+            PotionBrewing.addMix(entry.input(), entry.ingredient(), entry.output());
     }
 }

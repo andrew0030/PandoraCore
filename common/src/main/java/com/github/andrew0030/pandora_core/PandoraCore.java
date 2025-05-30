@@ -7,6 +7,7 @@ import com.github.andrew0030.pandora_core.registry.PaCoBlockEntities;
 import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
 import com.github.andrew0030.pandora_core.registry.PaCoCreativeModeTabs;
 import com.github.andrew0030.pandora_core.registry.PaCoItems;
+import com.github.andrew0030.pandora_core.test.PaCoBrewingRecipes;
 import com.github.andrew0030.pandora_core.test.PaCoFlammables;
 import com.github.andrew0030.pandora_core.test.particle.PaCoParticles;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
@@ -53,6 +54,7 @@ public class PandoraCore {
     public static void initThreadSafe() {
         // TODO remove when done testing
         PaCoFlammables.FLAMMABLES.register();
+        PaCoBrewingRecipes.BREWING_RECIPES.register();
     }
 
     /** A {@link Collection} containing a {@link ModDataHolder} for each loaded mod. */

@@ -17,6 +17,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
@@ -33,6 +36,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -172,5 +176,16 @@ public class ForgeRegistryHelper implements IRegistryHelper {
             PotionUtils.setPotion(itemStack, this.output);
             return itemStack;
         }
+    }
+
+    @Override
+    public void registerEntityAttributes(Map<Supplier<? extends EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier>> entityAttributes) {
+        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        // Registers Entity Attributes.
+        modEventBus.addListener((EntityAttributeCreationEvent event) -> {
+            for (Map.Entry<Supplier<? extends EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier>> entry : entityAttributes.entrySet())
+                event.put(entry.getKey().get(), entry.getValue().get());
+        });
     }
 }

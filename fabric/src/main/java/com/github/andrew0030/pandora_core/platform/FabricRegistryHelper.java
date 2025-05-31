@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.color.block.BlockColor;
@@ -24,6 +25,9 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -114,5 +118,12 @@ public class FabricRegistryHelper implements IRegistryHelper {
         // Registers Brewing Recipes.
         for (PaCoBrewingRecipeRegistry.Entry entry : brewingRecipes)
             PotionBrewing.addMix(entry.input(), entry.ingredient(), entry.output());
+    }
+
+    @Override
+    public void registerEntityAttributes(Map<Supplier<? extends EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier>> entityAttributes) {
+        // Registers Entity Attributes.
+        for (Map.Entry<Supplier<? extends EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier>> entry : entityAttributes.entrySet())
+            FabricDefaultAttributeRegistry.register(entry.getKey().get(), entry.getValue().get());
     }
 }

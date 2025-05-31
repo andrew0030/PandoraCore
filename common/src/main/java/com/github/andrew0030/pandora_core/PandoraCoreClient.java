@@ -15,6 +15,7 @@ import com.github.andrew0030.pandora_core.test.InstancingTestBlockEntityRenderer
 import com.github.andrew0030.pandora_core.test.PaCoBlockRenderTypes;
 import com.github.andrew0030.pandora_core.test.PaCoColorHandlers;
 import com.github.andrew0030.pandora_core.test.block_entities.TestBEWLR;
+import com.github.andrew0030.pandora_core.test.entity.PaCoEntities;
 import com.github.andrew0030.pandora_core.test.particle.PaCoParticleProviders;
 import com.github.andrew0030.pandora_core.utils.LogicalSide;
 
@@ -60,5 +61,8 @@ public class PandoraCoreClient {
         PaCoBlockEntities.registerBlockEntityRenderers();
         // Instanced Rendering
         InstancedBERendererRegistry.register(PaCoBlockEntities.INSTANCING_TEST.get(), new InstancingTestBlockEntityRenderer());
+
+        // Entities
+        PaCoEntities.registerEntityRenderers();
     }
 }

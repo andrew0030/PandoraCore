@@ -45,7 +45,7 @@ Systems TODO:
   - [ ] Add automatic Modrinth update checker using modrinth's API (similar to what modmenu does)
 - Registries
   - [x] Create PaCoRegistry to abstract all Object registration
-  - [ ] Create more registry classes or a util class, to allow registering event based stuff (model layers, particles, e.t.c)
+  - [x] Create more registry classes or a util class, to allow registering event based stuff (model layers, particles, e.t.c)
   - [ ] Maybe look into abstracting custom Registry registration
 - Random Render Stuff
   - [x] Create abstraction for BEWLERs

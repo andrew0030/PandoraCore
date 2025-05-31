@@ -9,6 +9,8 @@ import com.github.andrew0030.pandora_core.registry.PaCoCreativeModeTabs;
 import com.github.andrew0030.pandora_core.registry.PaCoItems;
 import com.github.andrew0030.pandora_core.test.PaCoBrewingRecipes;
 import com.github.andrew0030.pandora_core.test.PaCoFlammables;
+import com.github.andrew0030.pandora_core.test.entity.PaCoEntities;
+import com.github.andrew0030.pandora_core.test.entity.PaCoEntityAttributes;
 import com.github.andrew0030.pandora_core.test.particle.PaCoParticles;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
@@ -29,9 +31,12 @@ public class PandoraCore {
     public static void earlyInit() {
         PaCoBlocks.BLOCKS.register();
         PaCoItems.ITEMS.register();
+        PaCoEntities.ENTITY_TYPES.register();
         PaCoBlockEntities.BLOCK_ENTITY_TYPES.register();
         PaCoParticles.PARTICLE_TYPES.register();
         PaCoCreativeModeTabs.CREATIVE_MODE_TABS.register();
+
+        PaCoEntityAttributes.ENTITY_ATTRIBUTES.register();
     }
 
     /** Common Init */

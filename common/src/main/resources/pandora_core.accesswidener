@@ -36,12 +36,16 @@ accessible field net/minecraft/world/item/CreativeModeTabs INGREDIENTS Lnet/mine
 accessible field net/minecraft/world/item/CreativeModeTabs SPAWN_EGGS Lnet/minecraft/resources/ResourceKey;
 accessible field net/minecraft/world/item/CreativeModeTabs OP_BLOCKS Lnet/minecraft/resources/ResourceKey;
 
-# Used to access BlockEntityRenderers.render, both loaders make
+# Used to access BlockEntityRenderers.register, both loaders make
 # this public, so in order to access it we need to add an AW.
 accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers register (Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/client/renderer/blockentity/BlockEntityRendererProvider;)V
 
 # Used to make the SimpleParticleType constructor accessible so we can use it like on forge.
 accessible method net/minecraft/core/particles/SimpleParticleType <init> (Z)V # SimpleParticleType
+
+# Used to access EntityRenderers.register, forge makes this public,
+# so in order to access it in common and fabric we need to add an AW.
+accessible method net/minecraft/client/renderer/entity/EntityRenderers register (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/client/renderer/entity/EntityRendererProvider;)V
 
 
 #=================================================================================================================

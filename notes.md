@@ -21,7 +21,12 @@ Systems TODO:
   - [ ] Maybe add some sort of wrapper for forge's config system
   - [ ] Maybe add support for custom Objects? (Probably dont need this tbh)
 - NetworkSystem
-  - Need to look into it more before I can add TODOs...
+  - [x] Implement network system made by GiantLuigi4
+  - [ ] Swap to platform services instead of self mixin
+  - [ ] Get Fabric to work
+  - [ ] Add more "send types"
+  - [ ] Any other tweaks that would make it fit better into PaCo
+  - [ ] Test the response system
 - Animation System
   - [ ] Copy all the code from Table Top Craft / Pandoras Creatures
   - [ ] Create better Animation State (make it a standalone class and add chainable methods to toggle which animations should start/stop)

@@ -22,11 +22,11 @@ Systems TODO:
   - [ ] Maybe add support for custom Objects? (Probably dont need this tbh)
 - NetworkSystem
   - [x] Implement network system made by GiantLuigi4
-  - [ ] Swap to platform services instead of self mixin
+  - [x] Swap to platform services instead of self mixin
   - [ ] Get Fabric to work
   - [ ] Add more "send types"
   - [ ] Any other tweaks that would make it fit better into PaCo
-  - [ ] Test the response system
+  - [x] Test the response system
 - Animation System
   - [ ] Copy all the code from Table Top Craft / Pandoras Creatures
   - [ ] Create better Animation State (make it a standalone class and add chainable methods to toggle which animations should start/stop)

@@ -19,7 +19,7 @@ public abstract class PacketRegister {
         return Services.NETWORK.getPacketRegistry(name, networkVersion, clientChecker, serverChecker);
     }
 
-    public abstract net.minecraft.network.protocol.Packet<?> toVanillaPacket(Packet wrapperPacket, NetworkDirection toClient);
+//    public abstract net.minecraft.network.protocol.Packet<?> toVanillaPacket(Packet wrapperPacket, NetworkDirection toClient);
 
     public abstract <T extends Packet> void registerMessage(int index, Class<T> clazz, BiConsumer<Packet, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<Packet, NetCtx> handler);
 
@@ -28,4 +28,18 @@ public abstract class PacketRegister {
     public abstract int getId(Packet packet);
 
     public abstract FriendlyByteBuf encode(Packet packet);
+
+    protected static class PacketEntry<T extends Packet> {
+        Class<T> clazz;
+        BiConsumer<Packet, FriendlyByteBuf> writer;
+        Function<FriendlyByteBuf, T> fabricator;
+        BiConsumer<Packet, NetCtx> handler;
+
+        public PacketEntry(Class<T> clazz, BiConsumer<Packet, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<Packet, NetCtx> handler) {
+            this.clazz = clazz;
+            this.writer = writer;
+            this.fabricator = fabricator;
+            this.handler = handler;
+        }
+    }
 }

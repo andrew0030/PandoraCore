@@ -2,12 +2,8 @@ package com.github.andrew0030.pandora_core.network;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import io.netty.buffer.Unpooled;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.PacketListener;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
@@ -18,8 +14,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ForgePacketRegister extends PacketRegister {
-    Int2ObjectOpenHashMap<PacketEntry<?>> entries = new Int2ObjectOpenHashMap<>();
-    Object2IntOpenHashMap<Class<? extends Packet>> class2IdMap = new Object2IntOpenHashMap<>();
     public final SimpleChannel channel;
 
     public ForgePacketRegister(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
@@ -31,25 +25,16 @@ public class ForgePacketRegister extends PacketRegister {
         );
     }
 
-    private void handlePacket(PacketListener handler, FriendlyByteBuf buf, PacketSender responseSender, ServerPlayer player, NetworkDirection direction, NetworkEvent.Context context) {
-        int id = buf.readByte();
-        PacketEntry<?> entry = entries.get(id);
-        Packet packet = entry.fabricator.apply(buf);
-        packet.handle(new ForgeNetCtx(handler, responseSender, player, direction, context));
-    }
-
-    @Override
-    public net.minecraft.network.protocol.Packet<?> toVanillaPacket(Packet wrapperPacket, NetworkDirection toClient) {
-        return switch (toClient) {
-            case TO_CLIENT -> this.channel.toVanillaPacket(wrapperPacket, net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT);
-            case TO_SERVER -> this.channel.toVanillaPacket(wrapperPacket, net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER);
-        };
-    }
+//    @Override
+//    public net.minecraft.network.protocol.Packet<?> toVanillaPacket(Packet wrapperPacket, NetworkDirection toClient) {
+//        return switch (toClient) {
+//            case TO_CLIENT -> this.channel.toVanillaPacket(wrapperPacket, net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT);
+//            case TO_SERVER -> this.channel.toVanillaPacket(wrapperPacket, net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER);
+//        };
+//    }
 
     @Override
     public <T extends Packet> void registerMessage(int index, Class<T> clazz, BiConsumer<Packet, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<Packet, NetCtx> handler) {
-        this.entries.put(index, new PacketEntry<>(clazz, writer, fabricator, handler));
-        this.class2IdMap.put(clazz, index);
 
         this.channel.registerMessage(
             index,
@@ -89,7 +74,7 @@ public class ForgePacketRegister extends PacketRegister {
 
     @Override
     public int getId(Packet packet) {
-        return this.class2IdMap.getInt(packet.getClass());
+        return 0;
     }
 
     @Override
@@ -97,19 +82,5 @@ public class ForgePacketRegister extends PacketRegister {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         this.channel.encodeMessage(packet, buf);
         return buf;
-    }
-
-    private static class PacketEntry<T extends Packet> {
-        Class<T> clazz;
-        BiConsumer<Packet, FriendlyByteBuf> writer;
-        Function<FriendlyByteBuf, T> fabricator;
-        BiConsumer<Packet, NetCtx> handler;
-
-        public PacketEntry(Class<T> clazz, BiConsumer<Packet, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<Packet, NetCtx> handler) {
-            this.clazz = clazz;
-            this.writer = writer;
-            this.fabricator = fabricator;
-            this.handler = handler;
-        }
     }
 }

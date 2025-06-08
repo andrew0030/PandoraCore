@@ -23,7 +23,7 @@ Systems TODO:
 - NetworkSystem
   - [x] Implement network system made by GiantLuigi4
   - [x] Swap to platform services instead of self mixin
-  - [ ] Get Fabric to work
+  - [x] Get Fabric to work
   - [ ] Add more "send types"
   - [ ] Any other tweaks that would make it fit better into PaCo
   - [x] Test the response system
@@ -41,6 +41,10 @@ Systems TODO:
   - [ ] Add something into the "no mod selected" section (probably a general summary of found updates and such)
   - [x] Replace PaCo's placeholder icon
   - [ ] Replace PaCo's placeholder background
+  - [ ] Replace Minecraft's placeholder background
+  - [ ] Add a description to Minecraft on fabric
+  - [ ] Replace Fabric's placeholder background
+  - [ ] Replace Forge's placeholder background
   - [ ] Maybe add banner support
 - PaCo Config Screen
   - [ ] Create config screen that can take any number of components and dynamically adjust to it

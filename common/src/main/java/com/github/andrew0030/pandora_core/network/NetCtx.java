@@ -34,7 +34,7 @@ public abstract class NetCtx {
 
     public abstract void enqueueWork(Runnable runnable);
 
-    public abstract void setPacketHandled(boolean b);
+    public void setPacketHandled(boolean b) {}
 
     public boolean checkClient() {
         return this.direction.equals(NetworkDirection.TO_CLIENT);

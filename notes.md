@@ -24,7 +24,7 @@ Systems TODO:
   - [x] Implement network system made by GiantLuigi4
   - [x] Swap to platform services instead of self mixin
   - [x] Get Fabric to work
-  - [ ] Add more "send types"
+  - [x] Add more "send types"
   - [ ] Any other tweaks that would make it fit better into PaCo
   - [x] Test the response system
 - Animation System

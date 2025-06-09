@@ -4,7 +4,6 @@ import com.github.andrew0030.pandora_core.network.ForgePacketRegister;
 import com.github.andrew0030.pandora_core.network.PacketRegister;
 import com.github.andrew0030.pandora_core.network.PacketTarget;
 import com.github.andrew0030.pandora_core.platform.services.INetworkHelper;
-import net.minecraft.network.Connection;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,7 +12,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.network.PacketDistributor;
 
-import java.util.List;
 import java.util.function.Predicate;
 
 public class ForgeNetworkHelper implements INetworkHelper {
@@ -41,6 +39,14 @@ public class ForgeNetworkHelper implements INetworkHelper {
     public PacketTarget sendToDimension(ResourceKey<Level> dimension) {
         return new PacketTarget((packet, register) -> {
             ((ForgePacketRegister) register).channel.send(PacketDistributor.DIMENSION.with(() -> dimension), packet);
+        });
+    }
+
+    @Override
+    public PacketTarget sendToNearby(PacketTarget.TargetPoint target) {
+        return new PacketTarget((packet, register) -> {
+            PacketDistributor.TargetPoint point = new PacketDistributor.TargetPoint(target.excluded, target.pos.x(), target.pos.y(), target.pos.z(), target.radius, target.key);
+            ((ForgePacketRegister) register).channel.send(PacketDistributor.NEAR.with(() -> point), packet);
         });
     }
 

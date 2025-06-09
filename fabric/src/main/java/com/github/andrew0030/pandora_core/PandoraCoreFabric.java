@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core;
 
+import com.github.andrew0030.pandora_core.events.FabricServerLifecycleEvents;
 import net.fabricmc.api.ModInitializer;
 
 public class PandoraCoreFabric implements ModInitializer {
@@ -12,6 +13,6 @@ public class PandoraCoreFabric implements ModInitializer {
         PandoraCore.initThreadSafe();
 
         // Loader Module Initialization.
-        // Nothing atm...
+        FabricServerLifecycleEvents.init();
     }
 }

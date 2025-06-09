@@ -21,6 +21,8 @@ public interface INetworkHelper {
 
     PacketTarget sendToDimension(ResourceKey<Level> dimension);
 
+    PacketTarget sendToNearby(PacketTarget.TargetPoint target);
+
     PacketTarget sendToAll();
 
     PacketTarget sendToTrackingEntity(Entity entity);

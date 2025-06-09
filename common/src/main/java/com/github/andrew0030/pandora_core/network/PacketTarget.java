@@ -1,12 +1,17 @@
 package com.github.andrew0030.pandora_core.network;
 
 import com.github.andrew0030.pandora_core.platform.Services;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 
 public class PacketTarget {
@@ -46,8 +51,13 @@ public class PacketTarget {
         return Services.NETWORK.sendToDimension(dimension);
     }
 
-    // TODO maybe add this one
-//    public static PacketTarget sendToNearby()
+    /**
+     * @param target the {@link TargetPoint} to check around of.
+     * @return a {@link PacketTarget} representing everyone within range of the target point.
+     */
+    public static PacketTarget sendToNearby(TargetPoint target) {
+        return Services.NETWORK.sendToNearby(target);
+    }
 
     /**
      * @return a {@link PacketTarget} representing all players.
@@ -79,5 +89,65 @@ public class PacketTarget {
      */
     public static PacketTarget sendToTrackingChunk(LevelChunk chunk) {
         return Services.NETWORK.sendToTrackingChunk(chunk);
+    }
+
+    public static class TargetPoint {
+        public final @Nullable ServerPlayer excluded;
+        public final ResourceKey<Level> key;
+        public final Vec3 pos;
+        public final double radius;
+
+        /**
+         * A target point with excluded entity.
+         *
+         * @param excluded the {@link ServerPlayer} to exclude
+         * @param key      the {@link ResourceKey} of the {@link Level} to check in
+         * @param pos      the position
+         * @param radius   the maximum distance from the position in blocks
+         */
+        public TargetPoint(@Nullable ServerPlayer excluded, @NotNull ResourceKey<Level> key, @NotNull Vec3 pos, double radius) {
+            this.excluded = excluded;
+            this.key = key;
+            this.pos = pos;
+            this.radius = radius;
+        }
+
+        /**
+         * A target point with excluded entity.
+         *
+         * @param excluded the {@link ServerPlayer} to exclude
+         * @param key      the {@link ResourceKey} of the {@link Level} to check in
+         * @param pos      the position (can be a {@link BlockPos})
+         * @param radius   the maximum distance from the position in blocks
+         * @implNote To target the center of a {@link BlockPos} use the {@link Vec3} constructor<br/>
+         *           and call {@link Vec3#atCenterOf(Vec3i)} passing the {@link BlockPos}.
+         */
+        public TargetPoint(@Nullable ServerPlayer excluded, @NotNull ResourceKey<Level> key, @NotNull Vec3i pos, double radius) {
+            this(excluded, key, new Vec3(pos.getX(), pos.getY(), pos.getZ()), radius);
+        }
+
+        /**
+         * A target point without excluded entity.
+         *
+         * @param key      the {@link ResourceKey} of the {@link Level} to check in
+         * @param pos      the position
+         * @param radius   the maximum distance from the position in blocks
+         */
+        public TargetPoint(@NotNull ResourceKey<Level> key, @NotNull Vec3 pos, double radius) {
+            this(null, key, pos, radius);
+        }
+
+        /**
+         * A target point without excluded entity.
+         *
+         * @param key    the {@link ResourceKey} of the {@link Level} to check in
+         * @param pos    the position (can be a {@link BlockPos})
+         * @param radius the maximum distance from the position in blocks
+         * @implNote To target the center of a {@link BlockPos} use the {@link Vec3} constructor<br/>
+         *           and call {@link Vec3#atCenterOf(Vec3i)} passing the {@link BlockPos}.
+         */
+        public TargetPoint(@NotNull ResourceKey<Level> key, @NotNull Vec3i pos, double radius) {
+            this(null, key, pos, radius);
+        }
     }
 }

@@ -15,6 +15,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class FabricModDataHolder extends ModDataHolder {
+    private static final List<String> MOJANG_STUDIOS = List.of("Mojang Studios");
+    private static final String MINECRAFT_EULA = "Minecraft EULA";
+    private static final String MINECRAFT_DESCRIPTION = "The base game.";
     private final ModMetadata metadata;
     private final List<String> icons = new ArrayList<>();
     private Optional<Boolean> blurIcon = Optional.empty();
@@ -110,11 +113,13 @@ public class FabricModDataHolder extends ModDataHolder {
 
     @Override
     public String getModDescription() {
+        if (this.getModId().equals("minecraft")) return MINECRAFT_DESCRIPTION;
         return this.metadata.getDescription();
     }
 
     @Override
     public List<String> getModAuthors() {
+        if (this.getModId().equals("minecraft")) return MOJANG_STUDIOS;
         return this.authors;
     }
 
@@ -125,6 +130,7 @@ public class FabricModDataHolder extends ModDataHolder {
 
     @Override
     public String getModLicense() {
+        if (this.getModId().equals("minecraft")) return MINECRAFT_EULA;
         return StringUtils.join(this.metadata.getLicense(), ", ");
     }
 

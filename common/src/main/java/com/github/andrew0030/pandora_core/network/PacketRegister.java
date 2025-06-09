@@ -9,37 +9,16 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public abstract class PacketRegister {
-    public final ResourceLocation channel;
-
-    protected PacketRegister(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
-        this.channel = name;
-    }
 
     public static PacketRegister of(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
         return Services.NETWORK.getPacketRegistry(name, networkVersion, clientChecker, serverChecker);
     }
 
-//    public abstract net.minecraft.network.protocol.Packet<?> toVanillaPacket(Packet wrapperPacket, NetworkDirection toClient);
-
     public abstract <T extends Packet> void registerMessage(int index, Class<T> clazz, BiConsumer<Packet, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<Packet, NetCtx> handler);
 
-    public abstract void send(PacketTarget target, Packet packet);
-
-    public abstract int getId(Packet packet);
+    public void send(PacketTarget target, Packet packet) {
+        target.send(packet, this);
+    }
 
     public abstract FriendlyByteBuf encode(Packet packet);
-
-    protected static class PacketEntry<T extends Packet> {
-        Class<T> clazz;
-        BiConsumer<Packet, FriendlyByteBuf> writer;
-        Function<FriendlyByteBuf, T> fabricator;
-        BiConsumer<Packet, NetCtx> handler;
-
-        public PacketEntry(Class<T> clazz, BiConsumer<Packet, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<Packet, NetCtx> handler) {
-            this.clazz = clazz;
-            this.writer = writer;
-            this.fabricator = fabricator;
-            this.handler = handler;
-        }
-    }
 }

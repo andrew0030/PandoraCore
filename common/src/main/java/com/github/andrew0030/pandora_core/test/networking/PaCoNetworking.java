@@ -2,7 +2,6 @@ package com.github.andrew0030.pandora_core.test.networking;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.network.NetworkEntry;
-import com.github.andrew0030.pandora_core.network.Packet;
 import com.github.andrew0030.pandora_core.network.PacketRegister;
 import com.github.andrew0030.pandora_core.test.networking.packet.c2s.KeyPressedPacket;
 import com.github.andrew0030.pandora_core.test.networking.packet.s2c.OpenTestGUIPacket;

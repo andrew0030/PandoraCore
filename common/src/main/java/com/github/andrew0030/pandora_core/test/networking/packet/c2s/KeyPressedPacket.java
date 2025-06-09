@@ -2,8 +2,6 @@ package com.github.andrew0030.pandora_core.test.networking.packet.c2s;
 
 import com.github.andrew0030.pandora_core.network.NetCtx;
 import com.github.andrew0030.pandora_core.network.Packet;
-import com.github.andrew0030.pandora_core.network.PacketTarget;
-import com.github.andrew0030.pandora_core.test.networking.PaCoNetworking;
 import com.github.andrew0030.pandora_core.test.networking.packet.s2c.OpenTestGUIPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;

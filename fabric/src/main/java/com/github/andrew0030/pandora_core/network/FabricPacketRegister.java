@@ -17,24 +17,25 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class FabricPacketRegister extends PacketRegister {
-    Int2ObjectOpenHashMap<PacketEntry<?>> entries = new Int2ObjectOpenHashMap<>();
-    Object2IntOpenHashMap<Class<? extends Packet>> class2IdMap = new Object2IntOpenHashMap<>();
+    public final ResourceLocation channel;
+    private final Int2ObjectOpenHashMap<PacketEntry<?>> entries = new Int2ObjectOpenHashMap<>();
+    private final Object2IntOpenHashMap<Class<? extends Packet>> class2IdMap = new Object2IntOpenHashMap<>();
 
     public FabricPacketRegister(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
-        super(name, networkVersion, clientChecker, serverChecker);
+        this.channel = name;
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             ClientPlayNetworking.registerGlobalReceiver(
                     name,
                     ((client, handler, buf, responseSender) -> {
-                        this.handlePacket(handler, buf, new PacketSender(this, (pkt) -> responseSender.sendPacket(name, encode(pkt))), null, NetworkDirection.TO_CLIENT);
+                        this.handlePacket(handler, buf, new PacketSender(this, (packet) -> responseSender.sendPacket(name, this.encode(packet))), null, NetworkDirection.TO_CLIENT);
                     })
             );
         }
         ServerPlayNetworking.registerGlobalReceiver(
                 name,
                 ((server, player, handler, buf, responseSender) -> {
-                    this.handlePacket(handler, buf, new PacketSender(this, (pkt) -> responseSender.sendPacket(name, encode(pkt))), player, NetworkDirection.TO_SERVER);
+                    this.handlePacket(handler, buf, new PacketSender(this, (packet) -> responseSender.sendPacket(name, this.encode(packet))), player, NetworkDirection.TO_SERVER);
                 })
         );
     }
@@ -46,40 +47,22 @@ public class FabricPacketRegister extends PacketRegister {
         packet.handle(new FabricNetCtx(handler, responseSender, player, direction));
     }
 
-//    @Override
-//    public net.minecraft.network.protocol.Packet<?> toVanillaPacket(Packet wrapperPacket, NetworkDirection toClient) {
-//        FriendlyByteBuf buf = this.encode(wrapperPacket);
-//        return switch (toClient) {
-//            case TO_CLIENT -> ServerPlayNetworking.createS2CPacket(this.channel, buf);
-//            case TO_SERVER -> ClientPlayNetworking.createC2SPacket(this.channel, buf);
-//        };
-//    }
-
     @Override
     public <T extends Packet> void registerMessage(int index, Class<T> clazz, BiConsumer<Packet, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<Packet, NetCtx> handler) {
-        entries.put(
-                index,
-                new PacketEntry<>(clazz, writer, fabricator, handler)
-        );
-        class2IdMap.put(clazz, index);
-    }
-
-    @Override
-    public void send(PacketTarget target, Packet packet) {
-        target.send(packet, this);
-    }
-
-    @Override
-    public int getId(Packet packet) {
-        return this.class2IdMap.getInt(packet.getClass());
+        this.entries.put(index, new PacketEntry<>(writer, fabricator));
+        this.class2IdMap.put(clazz, index);
     }
 
     @Override
     public FriendlyByteBuf encode(Packet packet) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        int id = getId(packet);
+        int id = this.class2IdMap.getInt(packet.getClass());
         buf.writeByte(id & 255);
-        entries.get(id).writer.accept(packet, buf);
+        this.entries.get(id).writer.accept(packet, buf);
         return buf;
+    }
+
+    private record PacketEntry<T extends Packet>(BiConsumer<Packet, FriendlyByteBuf> writer,
+                                                 Function<FriendlyByteBuf, T> fabricator) {
     }
 }

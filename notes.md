@@ -42,7 +42,7 @@ Systems TODO:
   - [x] Replace PaCo's placeholder icon
   - [ ] Replace PaCo's placeholder background
   - [ ] Replace Minecraft's placeholder background
-  - [ ] Add a description to Minecraft on fabric
+  - [x] Add a description to Minecraft on fabric
   - [ ] Replace Fabric's placeholder background
   - [ ] Replace Forge's placeholder background
   - [ ] Maybe add banner support

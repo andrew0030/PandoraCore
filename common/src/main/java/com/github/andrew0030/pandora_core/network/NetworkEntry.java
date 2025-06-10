@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.Function;
 
-public class NetworkEntry<T extends Packet> {
+public class NetworkEntry<T extends PaCoPacket> {
     private final Class<T> clazz;
     private final Function<FriendlyByteBuf, T> fabricator;
 
@@ -16,9 +16,9 @@ public class NetworkEntry<T extends Packet> {
     public void register(int index, PacketRegister channel) {
         channel.registerMessage(
                 index, this.clazz,
-                Packet::write,
+                PaCoPacket::write,
                 this.fabricator,
-                Packet::handle
+                PaCoPacket::handle
         );
     }
 }

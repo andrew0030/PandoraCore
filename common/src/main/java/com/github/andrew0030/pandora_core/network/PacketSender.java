@@ -4,14 +4,14 @@ import java.util.function.Consumer;
 
 public class PacketSender {
     PacketRegister registry;
-    Consumer<Packet> sender;
+    Consumer<PaCoPacket> sender;
 
-    public PacketSender(PacketRegister registry, Consumer<Packet> sender) {
+    public PacketSender(PacketRegister registry, Consumer<PaCoPacket> sender) {
         this.registry = registry;
         this.sender = sender;
     }
 
-    public void send(Packet packet) {
+    public void send(PaCoPacket packet) {
         sender.accept(packet);
     }
 }

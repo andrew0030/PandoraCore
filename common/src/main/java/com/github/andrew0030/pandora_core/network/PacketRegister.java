@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.network;
 
 import com.github.andrew0030.pandora_core.platform.Services;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -14,11 +15,13 @@ public abstract class PacketRegister {
         return Services.NETWORK.getPacketRegistry(name, networkVersion, clientChecker, serverChecker);
     }
 
-    public abstract <T extends Packet> void registerMessage(int index, Class<T> clazz, BiConsumer<Packet, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<Packet, NetCtx> handler);
+    public abstract Packet<?> toVanillaPacket(PaCoPacket wrapperPacket, NetworkDirection toClient);
 
-    public void send(PacketTarget target, Packet packet) {
+    public abstract <T extends PaCoPacket> void registerMessage(int index, Class<T> clazz, BiConsumer<PaCoPacket, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<PaCoPacket, NetCtx> handler);
+
+    public void send(PacketTarget target, PaCoPacket packet) {
         target.send(packet, this);
     }
 
-    public abstract FriendlyByteBuf encode(Packet packet);
+    public abstract FriendlyByteBuf encode(PaCoPacket packet);
 }

@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.test.networking.packet.c2s;
 
 import com.github.andrew0030.pandora_core.network.NetCtx;
-import com.github.andrew0030.pandora_core.network.Packet;
+import com.github.andrew0030.pandora_core.network.PaCoPacket;
 import com.github.andrew0030.pandora_core.test.networking.packet.s2c.OpenTestGUIPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.level.block.Blocks;
 
-public class KeyPressedPacket extends Packet {
+public class KeyPressedPacket extends PaCoPacket {
     private final int key;
 
     public KeyPressedPacket(int key) {

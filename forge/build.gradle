@@ -124,7 +124,7 @@ processResources {
 
 shadowJar {
     archiveClassifier.set("")
-    configurations = [project.configurations.shade]
+    configurations = [project.configurations.shade] // Limits shaded libs to what was specified by "shade"
     relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
     relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
     relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"

@@ -94,12 +94,14 @@ processResources {
 }
 
 shadowJar {
-    archiveClassifier.set("")
-    configurations = [project.configurations.shade]
+    configurations = [project.configurations.shade] // Limits shaded libs to what was specified by "shade"
+    archiveClassifier = tasks.named("jar").flatMap { jar -> jar.archiveClassifier } // Ensures JAR names match so remap works
+    destinationDirectory = tasks.named("jar").flatMap { jar -> jar.destinationDirectory } // Ensures output paths are consistent
     relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
     relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
     relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
 }
-// Makes sure that the assemble task depends on the shadowJar task.
-// This means that the shadow JAR will be built before the final assembly of the project.
-assemble.dependsOn shadowJar
+
+// Makes sure that the remapJar task depends on the shadowJar task.
+// This means that the shadow JAR will be built before the remapJar task.
+remapJar.dependsOn shadowJar

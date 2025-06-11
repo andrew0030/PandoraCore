@@ -47,7 +47,7 @@ public abstract class PaCoPacket {
     /**
      * Handles the logic for this packet when it is received.
      *
-     * @param context the network context representing the sender, receiver, and side
+     * @param context the {@link NetCtx} of the packet
      */
     public abstract void handle(NetCtx context);
 

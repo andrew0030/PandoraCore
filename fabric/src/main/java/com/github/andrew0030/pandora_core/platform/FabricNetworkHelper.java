@@ -2,7 +2,7 @@ package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.events.FabricServerLifecycleEvents;
 import com.github.andrew0030.pandora_core.network.FabricPacketRegister;
-import com.github.andrew0030.pandora_core.network.PacketRegister;
+import com.github.andrew0030.pandora_core.network.PaCoPacketChannel;
 import com.github.andrew0030.pandora_core.network.PacketTarget;
 import com.github.andrew0030.pandora_core.platform.services.INetworkHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 public class FabricNetworkHelper implements INetworkHelper {
 
     @Override
-    public PacketRegister getPacketRegistry(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
+    public PaCoPacketChannel getPacketRegistry(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
         return new FabricPacketRegister(name, networkVersion, clientChecker, serverChecker);
     }
 
@@ -53,6 +53,7 @@ public class FabricNetworkHelper implements INetworkHelper {
                     );
                 }
             } else {
+                // TODO remove the warnings if this never triggers
                 System.out.println("No Server!");
             }
         });

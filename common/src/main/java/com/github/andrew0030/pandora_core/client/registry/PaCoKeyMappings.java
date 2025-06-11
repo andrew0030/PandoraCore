@@ -37,7 +37,7 @@ public class PaCoKeyMappings {
             "category.pandora_core.pandora_core"
         ), () -> {
             KeyPressedPacket packet = new KeyPressedPacket(GLFW.GLFW_KEY_J);
-            PaCoNetworking.NETWORK_INSTANCE.send(PacketTarget.sendToServer(), packet);
+            PaCoNetworking.CHANNEL.send(PacketTarget.sendToServer(), packet);
         }
     );
 }

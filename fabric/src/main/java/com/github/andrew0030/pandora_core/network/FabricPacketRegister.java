@@ -17,7 +17,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class FabricPacketRegister extends PacketRegister {
+public class FabricPacketRegister extends PaCoPacketChannel {
     public final ResourceLocation channel;
     private final Int2ObjectOpenHashMap<PacketEntry<?>> entries = new Int2ObjectOpenHashMap<>();
     private final Object2IntOpenHashMap<Class<? extends PaCoPacket>> class2IdMap = new Object2IntOpenHashMap<>();

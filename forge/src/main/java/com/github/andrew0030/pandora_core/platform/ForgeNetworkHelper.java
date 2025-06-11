@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.network.ForgePacketRegister;
-import com.github.andrew0030.pandora_core.network.PacketRegister;
+import com.github.andrew0030.pandora_core.network.PaCoPacketChannel;
 import com.github.andrew0030.pandora_core.network.PacketTarget;
 import com.github.andrew0030.pandora_core.platform.services.INetworkHelper;
 import net.minecraft.resources.ResourceKey;
@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 public class ForgeNetworkHelper implements INetworkHelper {
 
     @Override
-    public PacketRegister getPacketRegistry(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
+    public PaCoPacketChannel getPacketRegistry(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
         return new ForgePacketRegister(name, networkVersion, clientChecker, serverChecker);
     }
 

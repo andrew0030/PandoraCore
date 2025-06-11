@@ -13,7 +13,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class ForgePacketRegister extends PacketRegister {
+public class ForgePacketRegister extends PaCoPacketChannel {
     public final SimpleChannel channel;
 
     public ForgePacketRegister(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
@@ -21,10 +21,10 @@ public class ForgePacketRegister extends PacketRegister {
     }
 
     @Override
-    public Packet<?> toVanillaPacket(PaCoPacket wrapperPacket, NetworkDirection toClient) {
-        return switch (toClient) {
-            case TO_CLIENT -> this.channel.toVanillaPacket(wrapperPacket, net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT);
-            case TO_SERVER -> this.channel.toVanillaPacket(wrapperPacket, net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER);
+    public Packet<?> toVanillaPacket(PaCoPacket packet, NetworkDirection direction) {
+        return switch (direction) {
+            case TO_CLIENT -> this.channel.toVanillaPacket(packet, net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT);
+            case TO_SERVER -> this.channel.toVanillaPacket(packet, net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER);
         };
     }
 

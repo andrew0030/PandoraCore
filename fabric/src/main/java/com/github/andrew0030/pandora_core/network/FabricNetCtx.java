@@ -18,14 +18,14 @@ public class FabricNetCtx extends NetCtx {
 
     @Override
     public void enqueueWork(Runnable runnable) {
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT && (sender == null || sender.level().isClientSide)) {
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT && (this.sender == null || this.sender.level().isClientSide)) {
             Minecraft.getInstance().tell(runnable);
         } else {
-            if (sender != null && sender.getServer() != null) {
-                sender.getServer().execute(runnable);
+            if (this.sender != null && this.sender.getServer() != null) {
+                this.sender.getServer().execute(runnable);
             } else {
                 runnable.run(); // whar
-                LOGGER.warn("A null sender or server on server???");
+                LOGGER.warn("A null server or sender, on the server???");
             }
         }
     }

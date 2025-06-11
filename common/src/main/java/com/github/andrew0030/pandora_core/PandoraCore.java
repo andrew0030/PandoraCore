@@ -39,7 +39,7 @@ public class PandoraCore {
 
         PaCoEntityAttributes.ENTITY_ATTRIBUTES.register();
 
-        PaCoNetworking.init();
+        PaCoNetworking.CHANNEL.register();
     }
 
     /** Common Init */

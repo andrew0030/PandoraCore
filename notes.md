@@ -25,7 +25,7 @@ Systems TODO:
   - [x] Swap to platform services instead of self mixin
   - [x] Get Fabric to work
   - [x] Add more "send types"
-  - [ ] Any other tweaks that would make it fit better into PaCo
+  - [x] Any other tweaks that would make it fit better into PaCo
   - [x] Test the response system
 - Animation System
   - [ ] Copy all the code from Table Top Craft / Pandoras Creatures

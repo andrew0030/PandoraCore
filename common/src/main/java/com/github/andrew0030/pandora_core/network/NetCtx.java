@@ -37,10 +37,14 @@ public abstract class NetCtx {
     /**
      * When available, gets the sender for packets that are sent from a client to the server.
      */
-    public @Nullable ServerPlayer getSender() {
+    @Nullable
+    public ServerPlayer getSender() {
         return this.sender;
     }
 
+    /**
+     * @return the side the current network context is running on.
+     */
     public NetworkDirection getDirection() {
         return this.direction;
     }

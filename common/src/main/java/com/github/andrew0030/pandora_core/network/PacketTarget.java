@@ -16,14 +16,21 @@ import java.util.function.BiConsumer;
 
 public class PacketTarget {
     private static final PacketTarget SERVER_TARGET = Services.NETWORK.sendToServer();
-    private final BiConsumer<PaCoPacket, PacketRegister> sender;
+    private final BiConsumer<PaCoPacket, PaCoPacketChannel> sender;
 
-    public PacketTarget(BiConsumer<PaCoPacket, PacketRegister> sender) {
+    public PacketTarget(BiConsumer<PaCoPacket, PaCoPacketChannel> sender) {
         this.sender = sender;
     }
 
-    public void send(PaCoPacket packet, PacketRegister register) {
-        this.sender.accept(packet, register);
+    /**
+     * Delivers the given {@link PaCoPacket} to this {@link PacketTarget}.
+     *
+     * @param packet  the packet to send
+     * @param channel the {@link PaCoPacketChannel} that performs the send action
+     * @apiNote use {@link PaCoPacketChannel#send(PacketTarget, PaCoPacket)} to send a packet
+     */
+    public void send(PaCoPacket packet, PaCoPacketChannel channel) {
+        this.sender.accept(packet, channel);
     }
 
     // ######### PaCoPacket Targets #########

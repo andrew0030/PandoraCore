@@ -4,12 +4,15 @@ Iris compat:
 <hr/>
 
 Jank:
-- starting a game of chess creates triangles
 - Investigate if spectator mode is broken (found on fabric). Basically looking diagonally and holding 'W' resulted in sideways movement instead of diagonal (maybe not a bug and just vanilla jank?).
-- sometimes crashes when switching iris shaders
-- crashes when disabling iris shaders
-- does not properly reload when enabling iris shaders
-- shader patcher does not like full F3+T with iris
+- ~~starting a game of chess creates triangles~~
+- ~~sometimes crashes when switching iris shaders~~
+- ~~crashes when disabling iris shaders~~
+- ~~does not properly reload when enabling iris shaders~~
+- shader patcher does not like full F3+T with ~~iris~~ fabric
+- apparently there is some kind of known memory leak that needs to be fixed
+- game crashes in production on fabric if iris is present (need to move a mixin into loader modules)
+- move black hole shader out of data
 
 <hr/>
 

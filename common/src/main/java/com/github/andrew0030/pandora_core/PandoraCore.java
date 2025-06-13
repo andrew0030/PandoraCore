@@ -16,6 +16,7 @@ import com.github.andrew0030.pandora_core.test.particle.PaCoParticles;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory;
+import com.github.andrew0030.pandora_core.utils.update_checker.PaCoUpdateChecker;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -45,6 +46,7 @@ public class PandoraCore {
     /** Common Init */
     public static void init() {
         Services.PLATFORM.getModDataHolders().forEach(holder -> PandoraCore.MOD_HOLDERS.put(holder.getModId(), holder));
+        PandoraCore.MOD_HOLDERS.values().forEach(PaCoUpdateChecker::checkForUpdate);
         ModWarningFactory.init();
 
         // Configs

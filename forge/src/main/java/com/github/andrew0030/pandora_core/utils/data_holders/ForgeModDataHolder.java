@@ -1,16 +1,19 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.loading.StringUtils;
 import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class ForgeModDataHolder extends ModDataHolder {
@@ -128,5 +131,25 @@ public class ForgeModDataHolder extends ModDataHolder {
     public List<Component> getModWarnings() {
         if (this.modWarnings == null) return NO_WARNINGS;
         return this.modWarnings.get();
+    }
+
+    @Nullable
+    @Override
+    public String getSha512Hash() {
+
+        // TODO: Make sure this works by somehow loading a mod jar, or by testing it in production.
+
+        Path path = this.modInfo.getOwningFile().getFile().getFilePath();
+        Optional<File> fileOptional = path.toString().toLowerCase(Locale.ROOT).endsWith(".jar") ? Optional.of(path.toFile()) : Optional.empty();
+        if (fileOptional.isEmpty()) return null;
+        File file = fileOptional.get();
+        if (file.isFile()) {
+            try {
+                return Files.asByteSource(file).hash(Hashing.sha512()).toString();
+            } catch (IOException e) {
+                return null;
+            }
+        }
+        return null;
     }
 }

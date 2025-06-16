@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
 
+import javax.annotation.Nullable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,4 +109,7 @@ public abstract class ModDataHolder {
             throw new RuntimeException("Failed to instantiate or invoke warning factory: " + className, e);
         }
     }
+
+    @Nullable
+    public abstract String getSha512Hash();
 }

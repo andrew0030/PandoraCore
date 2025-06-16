@@ -46,7 +46,7 @@ public class PandoraCore {
     /** Common Init */
     public static void init() {
         Services.PLATFORM.getModDataHolders().forEach(holder -> PandoraCore.MOD_HOLDERS.put(holder.getModId(), holder));
-        PandoraCore.MOD_HOLDERS.values().forEach(PaCoUpdateChecker::checkForUpdate);
+        PaCoUpdateChecker.checkForUpdates();
         ModWarningFactory.init();
 
         // Configs

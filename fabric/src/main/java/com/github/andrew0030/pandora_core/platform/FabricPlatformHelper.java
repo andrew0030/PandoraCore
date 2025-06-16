@@ -13,6 +13,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.fabricmc.loader.api.metadata.ModOrigin;
 import net.minecraft.client.resources.model.BakedModel;
 import org.slf4j.Logger;
 
@@ -86,7 +87,7 @@ public class FabricPlatformHelper implements IPlatformHelper {
             CustomValue generated = metadata.getCustomValue("fabric-loom:generated");
             if(generated != null && generated.getType() == CustomValue.CvType.BOOLEAN && generated.getAsBoolean())
                 return;
-            holders.add(new FabricModDataHolder(metadata));
+            holders.add(new FabricModDataHolder(modContainer));
         });
         return holders;
     }

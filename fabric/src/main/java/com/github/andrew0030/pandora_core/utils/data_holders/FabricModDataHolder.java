@@ -1,16 +1,25 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
+import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.fabricmc.loader.api.metadata.ModOrigin;
 import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -18,6 +27,7 @@ public class FabricModDataHolder extends ModDataHolder {
     private static final List<String> MOJANG_STUDIOS = List.of("Mojang Studios");
     private static final String MINECRAFT_EULA = "Minecraft EULA";
     private static final String MINECRAFT_DESCRIPTION = "The base game.";
+    private final ModContainer container;
     private final ModMetadata metadata;
     private final List<String> icons = new ArrayList<>();
     private Optional<Boolean> blurIcon = Optional.empty();
@@ -27,8 +37,9 @@ public class FabricModDataHolder extends ModDataHolder {
     private final List<String> authors = new ArrayList<>();
     private final List<String> credits = new ArrayList<>();
 
-    public FabricModDataHolder(ModMetadata metadata) {
-        this.metadata = metadata;
+    public FabricModDataHolder(ModContainer modContainer) {
+        this.container = modContainer;
+        this.metadata = modContainer.getMetadata();
         /* We check for all valid mod icons and add them to the list */
         // Pandora Core
         Optional.ofNullable(metadata.getCustomValue("pandoracore"))
@@ -163,5 +174,27 @@ public class FabricModDataHolder extends ModDataHolder {
     public List<Component> getModWarnings() {
         if (this.modWarnings == null) return NO_WARNINGS;
         return this.modWarnings.get();
+    }
+
+    @Nullable
+    @Override
+    public String getSha512Hash() {
+        if (this.container.getContainingMod().isPresent()) return null;
+        if (this.container.getOrigin().getKind() != ModOrigin.Kind.PATH) return null;
+
+        List<Path> paths = this.container.getOrigin().getPaths();
+        Optional<Path> optionalPath = paths.stream()
+                .filter(path -> path.toString().toLowerCase(Locale.ROOT).endsWith(".jar"))
+                .findFirst();
+        if (optionalPath.isEmpty()) return null;
+        File file = optionalPath.get().toFile();
+        if (file.isFile()) {
+            try {
+                return Files.asByteSource(file).hash(Hashing.sha512()).toString();
+            } catch (IOException e) {
+                return null;
+            }
+        }
+        return null;
     }
 }

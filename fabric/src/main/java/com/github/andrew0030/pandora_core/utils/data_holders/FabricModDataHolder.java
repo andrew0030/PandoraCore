@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
-import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import net.fabricmc.loader.api.ModContainer;
@@ -10,7 +9,6 @@ import net.fabricmc.loader.api.metadata.ModOrigin;
 import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,9 +105,6 @@ public class FabricModDataHolder extends ModDataHolder {
 
         this.authors.addAll(this.metadata.getAuthors().stream().map(Person::getName).toList());
         this.credits.addAll(this.metadata.getContributors().stream().map(Person::getName).toList());
-
-        // TODO add config option to disable update checking
-        UpdateChecker.checkForUpdate(this);
     }
 
     @Override
@@ -176,25 +171,28 @@ public class FabricModDataHolder extends ModDataHolder {
         return this.modWarnings.get();
     }
 
-    @Nullable
     @Override
-    public String getSha512Hash() {
-        if (this.container.getContainingMod().isPresent()) return null;
-        if (this.container.getOrigin().getKind() != ModOrigin.Kind.PATH) return null;
-
+    public Optional<String> getSha512Hash() {
+        // If the jar is part of a fatjar the user cant update it so there is no point in checking it
+        if (this.container.getContainingMod().isPresent()) return Optional.empty();;
+        // If the origin isn't a Path we can't check and return early
+        if (this.container.getOrigin().getKind() != ModOrigin.Kind.PATH) return Optional.empty();;
+        // After ensuring the origin is a Path we make sure it's a .jar and not a folder
         List<Path> paths = this.container.getOrigin().getPaths();
         Optional<Path> optionalPath = paths.stream()
                 .filter(path -> path.toString().toLowerCase(Locale.ROOT).endsWith(".jar"))
                 .findFirst();
-        if (optionalPath.isEmpty()) return null;
+        // If the path wasn't a jar or was invalid we return early
+        if (optionalPath.isEmpty()) return Optional.empty();;
+        // Lastly if the file is a valid file, we read it and hash it using SHA512
         File file = optionalPath.get().toFile();
         if (file.isFile()) {
             try {
-                return Files.asByteSource(file).hash(Hashing.sha512()).toString();
+                return Optional.of(Files.asByteSource(file).hash(Hashing.sha512()).toString());
             } catch (IOException e) {
-                return null;
+                return Optional.empty();
             }
         }
-        return null;
+        return Optional.empty();
     }
 }

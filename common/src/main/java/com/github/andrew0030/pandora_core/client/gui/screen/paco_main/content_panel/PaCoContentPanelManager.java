@@ -52,6 +52,16 @@ public class PaCoContentPanelManager {
         this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
         if (holder.hasModWarnings()) // We only add warnings if there are any
             this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_WARNING_KEY.getString(), holder.getModWarnings().stream().map(Component::getString).toList(), "• ").setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR));
+
+
+        // TODO: tweak this text
+        if (holder.isOutdated()) {
+            String value = "New version available:\n\n" + holder.getUpdateInfo().get().getChangelog();
+            this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, "Update Available:", value).setValueColor(PaCoColor.color(160, 160, 160)));
+        }
+
+
+
         this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_DESCRIPTION_KEY.getString(), holder.getModDescription()).setValueColor(PaCoColor.color(160, 160, 160)));
         if (holder.hasModAuthors()) // We only add the authors if there are any specified
             this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_AUTHORS_KEY.getString(), holder.getModAuthors()).setValueColor(PaCoColor.color(160, 160, 160)));

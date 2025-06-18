@@ -7,6 +7,7 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_pa
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
@@ -25,6 +26,8 @@ public class ModButton extends AbstractButton {
     public static final HashMap<String, ResourceLocation> MOD_ICONS = new HashMap<>();
     private final ModDataHolder modDataHolder;
     private final PaCoScreen screen;
+    private final boolean isOutdated;
+    private final int updateArrowU;
     private final int nameColor;
     private final int versionColor;
     private boolean selected;
@@ -38,8 +41,14 @@ public class ModButton extends AbstractButton {
         super(x, y, width, height, Component.literal(modDataHolder.getModName()));
         this.modDataHolder = modDataHolder;
         this.screen = screen;
+        this.isOutdated = this.modDataHolder.isOutdated();
+        this.updateArrowU = this.isOutdated ? this.modDataHolder.getUpdateInfo().get().getSource() == UpdateInfo.Source.MODRINTH ? 8 : 0 : 0;
         this.nameColor = this.modDataHolder.hasModWarnings() ? PaCoScreen.SOFT_RED_TEXT_COLOR : PaCoColor.WHITE;
-        this.versionColor = this.modDataHolder.isOutdated() ? PaCoColor.color(200, 150, 10) : PaCoColor.color(130, 130, 130);
+        this.versionColor = this.isOutdated ?
+                this.modDataHolder.getUpdateInfo().get().getSource() == UpdateInfo.Source.URL ?
+                        PaCoColor.color(200, 150, 10) :
+                        PaCoColor.color(10, 200, 90) :
+                PaCoColor.color(130, 130, 130);
     }
 
     @Override
@@ -82,7 +91,7 @@ public class ModButton extends AbstractButton {
             // Warning/Update Icons
             if (this.modDataHolder.hasModWarnings())
                 this.renderWarningIcon(graphics);
-            if (this.modDataHolder.isOutdated())
+            if (this.isOutdated)
                 this.renderUpdateIcon(graphics);
         }
     }
@@ -93,7 +102,7 @@ public class ModButton extends AbstractButton {
         int idx = Math.max(this.screen.filteredMods.indexOf(this.getModDataHolder()), 0);
         float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick() + idx * 2) * 0.16F));
         graphics.pose().translate(0F, offset, 0F);
-        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getHeight() + 2, this.getY() + 2, 8, 170, 8, 10);
+        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getHeight() + 2, this.getY() + 2, 16, 170, 8, 10);
         graphics.pose().popPose();
     }
 
@@ -103,7 +112,7 @@ public class ModButton extends AbstractButton {
         int idx = Math.max(this.screen.filteredMods.indexOf(this.getModDataHolder()), 0);
         float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick() + idx * 2) * 0.16F));
         graphics.pose().translate(0F, offset, 0F);
-        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getHeight() + 2, this.getY() + 13, 0, 170, 8, 10);
+        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getHeight() + 2, this.getY() + 13, this.updateArrowU, 170, 8, 10);
         graphics.pose().popPose();
     }
 

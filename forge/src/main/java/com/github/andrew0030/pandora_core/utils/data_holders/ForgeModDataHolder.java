@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
-import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import net.minecraft.network.chat.Component;
@@ -8,11 +7,9 @@ import net.minecraftforge.fml.loading.StringUtils;
 import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -66,9 +63,6 @@ public class ForgeModDataHolder extends ModDataHolder {
 
         ((ModInfo) modInfo).getConfigElement("authors").map(Object::toString).ifPresent(string -> this.authors.addAll(Arrays.stream(string.replaceAll(" (and|&) ", ",").split("(?<=:)|[,;]")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
         ((ModInfo) modInfo).getConfigElement("credits").map(Object::toString).ifPresent(string -> this.credits.addAll(Arrays.stream(string.replaceAll("^[\\r\\n]+|[\\r\\n]+$", "").split("\\n")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
-
-        // TODO add config option to disable update checking
-        UpdateChecker.checkForUpdate(this);
     }
 
     @Override
@@ -133,23 +127,25 @@ public class ForgeModDataHolder extends ModDataHolder {
         return this.modWarnings.get();
     }
 
-    @Nullable
     @Override
-    public String getSha512Hash() {
+    public Optional<String> getSha512Hash() {
+        File file = this.modInfo.getOwningFile().getFile().getFilePath().toFile();
+        // We make sure the file is a .jar and not a folder
+        if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".jar")) return Optional.empty();
+        // We make sure the file is a valid file
+        if (!file.isFile()) return Optional.empty();
 
-        // TODO: Make sure this works by somehow loading a mod jar, or by testing it in production.
+        // If the file contains multiple mods (it embeds mods), we compare the id of the current mod to
+        // the first entry. If the ids don't match the current mod is most likely embedded, so we skip it.
+        List<IModInfo> modsInFile = this.modInfo.getOwningFile().getMods();
+        if (modsInFile.size() > 1 && !modsInFile.get(0).getModId().equals(this.modInfo.getModId()))
+            return Optional.empty();
 
-        Path path = this.modInfo.getOwningFile().getFile().getFilePath();
-        Optional<File> fileOptional = path.toString().toLowerCase(Locale.ROOT).endsWith(".jar") ? Optional.of(path.toFile()) : Optional.empty();
-        if (fileOptional.isEmpty()) return null;
-        File file = fileOptional.get();
-        if (file.isFile()) {
-            try {
-                return Files.asByteSource(file).hash(Hashing.sha512()).toString();
-            } catch (IOException e) {
-                return null;
-            }
+        // Lastly we read the file and hash it using SHA512
+        try {
+            return Optional.of(Files.asByteSource(file).hash(Hashing.sha512()).toString());
+        } catch (IOException e) {
+            return Optional.empty();
         }
-        return null;
     }
 }

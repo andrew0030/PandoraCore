@@ -54,7 +54,7 @@ Systems TODO:
   - [ ] Hook mod config system into it
 - Update Checker
   - [ ] Swap CompletableFuture system to an Update Checker Thread
-  - [ ] Add automatic Modrinth update checker using modrinth's API (similar to what modmenu does)
+  - [x] Add automatic Modrinth update checker using modrinth's API (similar to what modmenu does)
 - Registries
   - [x] Create PaCoRegistry to abstract all Object registration
   - [x] Create more registry classes or a util class, to allow registering event based stuff (model layers, particles, e.t.c)

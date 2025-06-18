@@ -1,11 +1,10 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
 import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningProvider;
-import com.github.andrew0030.pandora_core.utils.update_checker.UpdateChecker;
+import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
 
-import javax.annotation.Nullable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.function.Supplier;
 /** Holder class to store mod data. */
 public abstract class ModDataHolder {
     protected static final List<Component> NO_WARNINGS = new ArrayList<>();
-    private Optional<UpdateChecker.Status> status = Optional.empty();
+    private Optional<UpdateInfo> info = Optional.empty();
 
     /** @return The mod id. */
     public abstract String getModId();
@@ -61,22 +60,23 @@ public abstract class ModDataHolder {
     public abstract Optional<URL> getUpdateURL();
 
     /**
-     * @return An {@link Optional} containing the {@link UpdateChecker.Status} of this mod.
+     * @return An {@link Optional} containing the {@link UpdateInfo} of this mod.
      * If no update URL is provided this will return an empty {@link Optional}.
-     * */
-    public Optional<UpdateChecker.Status> getUpdateStatus() {
-        return this.status;
+     */
+    public Optional<UpdateInfo> getUpdateInfo() {
+        return this.info;
     }
 
-    /** Used internally to update the "update status" of a mod. */
+    /** Used internally to update the {@link UpdateInfo} of a mod. */
     @ApiStatus.Internal
-    public void setUpdateStatus(UpdateChecker.Status status) {
-        this.status = Optional.ofNullable(status);
+    public void setUpdateInfo(UpdateInfo info) {
+        this.info = Optional.ofNullable(info);
     }
 
     /** @return Whether this mod is outdated, if no update URL is provided this defaults to false. */
     public boolean isOutdated() {
-        return this.getUpdateStatus().map(UpdateChecker.Status::isOutdated).orElse(false);
+        if (this.getUpdateInfo().isEmpty()) return false;
+        return this.getUpdateInfo().get().getStatus().isOutdated();
     }
 
     public abstract List<Component> getModWarnings();
@@ -110,6 +110,5 @@ public abstract class ModDataHolder {
         }
     }
 
-    @Nullable
-    public abstract String getSha512Hash();
+    public abstract Optional<String> getSha512Hash();
 }

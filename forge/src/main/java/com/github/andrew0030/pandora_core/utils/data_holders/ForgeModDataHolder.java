@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
+import com.github.andrew0030.pandora_core.platform.Services;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import net.minecraft.network.chat.Component;
@@ -129,6 +130,27 @@ public class ForgeModDataHolder extends ModDataHolder {
 
     @Override
     public Optional<String> getSha512Hash() {
+
+        // TODO: remove this
+        if (Services.PLATFORM.isDevelopmentEnvironment()) {
+            File libsDir = new File(Services.PLATFORM.getGameDirectory().toString().replaceAll("run", "libs"));
+            if (libsDir.exists() && libsDir.isDirectory()) {
+                File[] files = libsDir.listFiles();
+                if (files != null) {
+                    for (File libFile : files) {
+                        if (libFile.getName().contains(modInfo.getModId())) {
+                            try {
+                                return Optional.of(Files.asByteSource(libFile).hash(Hashing.sha512()).toString());
+                            } catch (IOException e) {
+                                return Optional.empty();
+                            }
+                        }
+                    }
+                }
+            }
+            return Optional.empty();
+        }
+
         File file = this.modInfo.getOwningFile().getFile().getFilePath().toFile();
         // We make sure the file is a .jar and not a folder
         if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".jar")) return Optional.empty();

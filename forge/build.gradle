@@ -67,6 +67,7 @@ configurations {
 }
 
 repositories {
+    flatDir { dirs 'libs' }
     maven { url "https://www.cursemaven.com" }
 //    maven { url 'https://jitpack.io' }
     maven {
@@ -110,6 +111,17 @@ dependencies {
     // Render Mods To Test Shader Patcher
     implementation fg.deobf("curse.maven:embeddium-908741:5681725") // Embeddium
     implementation fg.deobf("curse.maven:oculus-581495:6020952") // Oculus
+
+    // FlatDir
+    if (file("libs").exists()) {
+        for (File f : file("libs").listFiles()) {
+            String name = f.getName().replace(".jar", "")
+            String[] split = name.split("-", 2)
+            String lib = "flatdir.lib:" + split[0] + ":" + split[1]
+            System.out.println("| " + lib)
+            runtimeOnly fg.deobf(lib)
+        }
+    }
 
     compileOnly project(":common")
 }

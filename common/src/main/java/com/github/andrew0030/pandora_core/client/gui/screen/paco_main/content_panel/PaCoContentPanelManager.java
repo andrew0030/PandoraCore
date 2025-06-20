@@ -56,7 +56,7 @@ public class PaCoContentPanelManager {
 
         // TODO: tweak this text
         if (holder.isOutdated()) {
-            String value = "New version available:\n\n" + holder.getUpdateInfo().get().getChangelog();
+            String value = "New version available!";
             this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, "Update Available:", value).setValueColor(PaCoColor.color(160, 160, 160)));
         }
 

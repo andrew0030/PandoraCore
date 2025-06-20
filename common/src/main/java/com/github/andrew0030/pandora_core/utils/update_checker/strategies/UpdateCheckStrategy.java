@@ -21,7 +21,7 @@ public abstract class UpdateCheckStrategy {
         this.holders = holders;
     }
 
-    protected String buildUserAgent(ModDataHolder holder) {
+    protected String buildUserAgent() {
         // Initializes and caches the PaCo version
         if (PACO_VERSION == null) {
             ModDataHolder paco = PandoraCore.getModHolder("pandora_core");
@@ -31,10 +31,8 @@ public abstract class UpdateCheckStrategy {
         }
         // Builds and returns an user agent string
         return String.format(
-                "andrew0030/PandoraCore%s (https://github.com/andrew0030/PandoraCore) Mod/%s/%s (%s; Java/%s; %s)",
+                "andrew0030/PandoraCore%s (https://github.com/andrew0030/PandoraCore; loader=%s; Java=%s; OS=%s)",
                 PACO_VERSION.isEmpty() ? "" : "/" + PACO_VERSION,
-                holder.getModId(),
-                holder.getModVersion(),
                 Services.PLATFORM.getPlatformName(),
                 System.getProperty("java.version"),
                 System.getProperty("os.name")

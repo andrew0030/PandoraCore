@@ -10,11 +10,14 @@ import com.google.gson.*;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
 
 //TODO stuff that this probably needs:
 // - Add gzip support
@@ -23,8 +26,8 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
     private static final int INVALID_STATUS_CODE = 400;
     private static final int DEPRECATED_STATUS_CODE = 410;
     private static final String MODRINTH_API_VERSION = "v2";
-    public static final UpdateInfo FAILED = new UpdateInfo(UpdateInfo.Status.FAILED, UpdateInfo.Source.MODRINTH, null, null);
-    public static final UpdateInfo PENDING = new UpdateInfo(UpdateInfo.Status.PENDING, UpdateInfo.Source.MODRINTH, null, null);
+    public static final UpdateInfo FAILED = new UpdateInfo(UpdateInfo.Status.FAILED, UpdateInfo.Source.MODRINTH, null);
+    public static final UpdateInfo PENDING = new UpdateInfo(UpdateInfo.Status.PENDING, UpdateInfo.Source.MODRINTH, null);
     private static boolean isDeprecated;
     private final Map<String, ModDataHolder> modHashes = new HashMap<>();
 
@@ -58,8 +61,7 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
         // they all failed, we don't need to set the update status here
         if (this.modHashes.isEmpty()) return;
 
-        // TODO: modify the user agent to not include info about the mod, as there is no need in a bulk request
-        String userAgent = this.buildUserAgent(PandoraCore.getModHolder("pandora_core"));
+        String userAgent = this.buildUserAgent();
         String mcVersion = Services.PLATFORM.getMinecraftVersion();
         String loader = Services.PLATFORM.getPlatformName().replaceAll("[\\s_-]", "").toLowerCase(Locale.ROOT);
 
@@ -73,11 +75,12 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                 .uri(URI.create(String.format("https://api.modrinth.com/%s/version_files/update", MODRINTH_API_VERSION)))
                 .header("Content-Type", "application/json")
                 .header("User-Agent", userAgent)
+                .header("Accept-Encoding", "gzip")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
                 .build();
 
         try {
-            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<InputStream> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             // If the returned status code indicates that the API is deprecated we skip all further logic
             if (response.statusCode() == DEPRECATED_STATUS_CODE) {
@@ -94,8 +97,23 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                 return;
             }
 
-            // If the status code didn't present any issues we parse the response
-            JsonObject root = JsonParser.parseString(response.body()).getAsJsonObject();
+            // If the status code didn't present any issues we parse the response stream
+            JsonObject root;
+            Optional<String> encodingOpt = response.headers().firstValue("Content-Encoding");
+            try (InputStream rawStream = response.body();
+                 InputStream decodedStream = switch (encodingOpt.map(s -> s.toLowerCase(Locale.ROOT)).orElse("")) {
+                     case "" -> rawStream;
+                     case "gzip" -> new GZIPInputStream(rawStream);
+                     default -> throw new IOException("Modrinth update response contains unsupported Content-Encoding: " + encodingOpt.get());
+                 }) {
+                root = JsonParser.parseReader(new InputStreamReader(decodedStream)).getAsJsonObject();
+            } catch (IOException e) {
+                LOGGER.error("Failed to read Modrinth update response stream. Reason: {}", e.getMessage());
+                this.setHolderUpdateInfos(this.holders, FAILED);
+                return;
+            }
+
+            // Goes over all returned entries and checks if their versions are ahead
             for (Map.Entry<String, JsonElement> entry : root.entrySet()) {
                 String hash = entry.getKey();
                 JsonObject versionData = entry.getValue().getAsJsonObject();
@@ -103,33 +121,46 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                 // safety check
                 if (holder == null) continue;
 
-                ComparableVersion remoteVersion = new ComparableVersion(versionData.get("version_number").getAsString());
-                ComparableVersion localVersion = new ComparableVersion(holder.getModVersion());
-                // TODO: probably clean the changelog up as it may have markdown stuff in it that we don't want.
-                JsonElement changelogElement = versionData.get("changelog");
-                String changelog = (changelogElement != null && !changelogElement.isJsonNull()) ? changelogElement.getAsString() : null;
-
-                // Extracts download URL and constructs Modrinth page URL (if possible)
+                // Finds the primary file and checks if the hash matches the
+                // current file's hash, in which case it means its up-to-date
+                JsonArray files = versionData.getAsJsonArray("files");
+                String primaryHash = null;
                 URL downloadURL = null;
-                JsonArray filesArray = versionData.getAsJsonArray("files");
-                if (filesArray != null && !filesArray.isEmpty()) {
-                    JsonObject fileObj = filesArray.get(0).getAsJsonObject();
-                    JsonElement urlElement = fileObj.get("url");
-                    if (urlElement != null && !urlElement.isJsonNull()) {
-                        String rawUrl = urlElement.getAsString();
-                        try {
-                            URI uri = new URI(rawUrl);
-                            String[] parts = uri.getPath().split("/"); // path: /data/{project_id}/versions/{version_id}/{file}
-                            if (parts.length >= 6) {
-                                String projectId = parts[3];
-                                String versionId = parts[5];
-                                downloadURL = new URL("https://modrinth.com/mod/" + projectId + "/version/" + versionId);
-                            }
-                        } catch (Exception ignored) {}
+                // Locates the primary file
+                for (JsonElement fileElement : files) {
+                    JsonObject file = fileElement.getAsJsonObject();
+                    if (file.has("primary") && file.get("primary").getAsBoolean()) {
+                        // Gets the sha 512 hash of the primary file
+                        JsonObject hashes = file.getAsJsonObject("hashes");
+                        if (hashes.has("sha512"))
+                            primaryHash = hashes.get("sha512").getAsString();
+                        // Extracts the download URL, and constructs a Modrinth page URL (if possible)
+                        JsonElement urlElement = file.get("url");
+                        if (urlElement != null && !urlElement.isJsonNull()) {
+                            String rawUrl = urlElement.getAsString();
+                            try {
+                                URI uri = new URI(rawUrl);
+                                String[] parts = uri.getPath().split("/"); // path: /data/{project_id}/versions/{version_id}/{file}
+                                if (parts.length >= 6) {
+                                    String projectId = parts[3];
+                                    String versionId = parts[5];
+                                    downloadURL = new URL(String.format("https://modrinth.com/mod/%s/version/%s", projectId, versionId));
+                                }
+                            } catch (Exception ignored) {}
+                        }
+                        break; // If the primary file was found and data extracted we exit the loop
                     }
                 }
 
-                UpdateInfo info = new UpdateInfo(this.getUpdateStatus(remoteVersion, localVersion), UpdateInfo.Source.MODRINTH, changelog, downloadURL);
+                // If the hash of what we sent matches the primary file, we're up-to-date
+                if (hash.equals(primaryHash)) {
+                    holder.setUpdateInfo(new UpdateInfo(UpdateInfo.Status.UP_TO_DATE, UpdateInfo.Source.MODRINTH, downloadURL));
+                    continue;
+                }
+
+                ComparableVersion remoteVersion = new ComparableVersion(versionData.get("version_number").getAsString());
+                ComparableVersion localVersion = new ComparableVersion(holder.getModVersion());
+                UpdateInfo info = new UpdateInfo(this.getUpdateStatus(remoteVersion, localVersion), UpdateInfo.Source.MODRINTH, downloadURL);
                 holder.setUpdateInfo(info);
             }
 
@@ -139,7 +170,7 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                     .filter(entry -> !root.has(entry.getKey()))
                     .forEach(entry -> entry.getValue().setUpdateInfo(FAILED));
         } catch (IOException | InterruptedException e) {
-            LOGGER.error("Error processing modrinth updates response. Reason: {}", e.getMessage());
+            LOGGER.error("Error processing Modrinth updates response. Reason: {}", e.getMessage());
             this.setHolderUpdateInfos(this.holders, FAILED);
         }
     }

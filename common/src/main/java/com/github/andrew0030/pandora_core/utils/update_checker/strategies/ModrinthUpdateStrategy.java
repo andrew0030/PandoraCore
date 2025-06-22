@@ -108,7 +108,7 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                  }) {
                 root = JsonParser.parseReader(new InputStreamReader(decodedStream)).getAsJsonObject();
             } catch (IOException e) {
-                LOGGER.error("Failed to read Modrinth update response stream. Reason: {}", e.getMessage());
+                LOGGER.error("Failed to read Modrinth mod updates response stream. Reason: {}", e.getMessage());
                 this.setHolderUpdateInfos(this.holders, FAILED);
                 return;
             }
@@ -170,7 +170,7 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                     .filter(entry -> !root.has(entry.getKey()))
                     .forEach(entry -> entry.getValue().setUpdateInfo(FAILED));
         } catch (IOException | InterruptedException e) {
-            LOGGER.error("Error processing Modrinth updates response. Reason: {}", e.getMessage());
+            LOGGER.error("Error processing Modrinth mod updates response. Reason: {}", e.getMessage());
             this.setHolderUpdateInfos(this.holders, FAILED);
         }
     }

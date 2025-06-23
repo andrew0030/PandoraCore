@@ -17,7 +17,7 @@ public class PaCoLogger {
         StringBuilder builder = new StringBuilder();
         builder.append(string);
         for (String s : strings) {
-            builder.append(" | ");
+            builder.append("/");
             builder.append(s);
         }
         return LoggerFactory.getLogger(builder.toString());

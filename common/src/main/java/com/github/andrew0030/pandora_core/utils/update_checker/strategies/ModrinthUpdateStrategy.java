@@ -19,20 +19,19 @@ import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
-//TODO stuff that this probably needs:
-// - Add gzip support
 public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
-    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "ModrinthUpdateStrategy");
-    private static final int INVALID_STATUS_CODE = 400;
-    private static final int DEPRECATED_STATUS_CODE = 410;
-    private static final String MODRINTH_API_VERSION = "v2";
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "UpdateChecker", "Modrinth");
     public static final UpdateInfo FAILED = new UpdateInfo(UpdateInfo.Status.FAILED, UpdateInfo.Source.MODRINTH, null);
     public static final UpdateInfo PENDING = new UpdateInfo(UpdateInfo.Status.PENDING, UpdateInfo.Source.MODRINTH, null);
     private static boolean isDeprecated;
+    private static final int INVALID_STATUS_CODE = 400;
+    private static final int DEPRECATED_STATUS_CODE = 410;
+    private static final String MODRINTH_API_VERSION = "v2";
+    private final Set<ModDataHolder> holders;
     private final Map<String, ModDataHolder> modHashes = new HashMap<>();
 
     public ModrinthUpdateStrategy(Set<ModDataHolder> holders) {
-        super(holders);
+        this.holders = holders;
     }
 
     @Override
@@ -170,7 +169,7 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                     .filter(entry -> !root.has(entry.getKey()))
                     .forEach(entry -> entry.getValue().setUpdateInfo(FAILED));
         } catch (IOException | InterruptedException e) {
-            LOGGER.error("Error processing Modrinth mod updates response. Reason: {}", e.getMessage());
+            LOGGER.error("Error processing Modrinth mod updates. Reason: {}", e.getMessage());
             this.setHolderUpdateInfos(this.holders, FAILED);
         }
     }

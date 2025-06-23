@@ -6,7 +6,6 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
-import java.util.Set;
 
 public abstract class UpdateCheckStrategy {
     protected static final int HTTP_TIMEOUT_SECS = 15; // TODO: make this a config option
@@ -15,11 +14,6 @@ public abstract class UpdateCheckStrategy {
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
     private static String PACO_VERSION;
-    protected final Set<ModDataHolder> holders;
-
-    public UpdateCheckStrategy(Set<ModDataHolder> holders) {
-        this.holders = holders;
-    }
 
     protected String buildUserAgent() {
         // Initializes and caches the PaCo version

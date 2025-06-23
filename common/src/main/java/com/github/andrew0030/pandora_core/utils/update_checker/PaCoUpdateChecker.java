@@ -16,17 +16,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class PaCoUpdateChecker {
-    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "PaCoUpdateChecker");
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "UpdateChecker");
     private static final int MAX_THREADS = 5; // TODO add a config option for this
     private static final ThreadPoolExecutor EXECUTOR = new PaCoUpdateExecutor(MAX_THREADS, 10L, TimeUnit.SECONDS, r -> {
         Thread t = new Thread(r, "PaCoUpdateChecker");
         t.setDaemon(true);
         return t;
     });
-    private static final AtomicInteger TASKS_EXECUTED = new AtomicInteger(1);
 
     public static void checkForUpdates() {
         Set<ModDataHolder> modrinthHolders = new HashSet<>();
@@ -40,20 +38,11 @@ public class PaCoUpdateChecker {
         }
         LOGGER.info("Checking for updates ({} threads): {} Modrinth checks, {} URL-based checks", MAX_THREADS, modrinthHolders.size(), urlHolders.size());
         EXECUTOR.submit(() -> PaCoUpdateChecker.performCheck(new ModrinthUpdateStrategy(modrinthHolders)));
-        EXECUTOR.submit(() -> PaCoUpdateChecker.performCheck(new UrlUpdateStrategy(urlHolders)));
-
-        for (int i = 0; i < 20; i++) {
-            EXECUTOR.submit(() -> {
-                try {
-                    LOGGER.info("Finished Task: {} On Thread: {}", TASKS_EXECUTED.getAndIncrement(), Thread.currentThread().getName());
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            });
-        }
+        for (ModDataHolder holder : urlHolders)
+            EXECUTOR.submit(() -> PaCoUpdateChecker.performCheck(new UrlUpdateStrategy(holder)));
     }
 
+    /** Initializes the update check on the given {@link UpdateCheckStrategy} */
     private static void performCheck(UpdateCheckStrategy strategy) {
         strategy.performUpdateCheck();
     }

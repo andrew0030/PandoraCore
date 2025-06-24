@@ -6,16 +6,23 @@ import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PaCoContentPanelManager {
     // Content Panel | With Active Mod
     public static final Component MOD_VERSION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.version.key");
     public static final Component MOD_WARNING_KEY = Component.translatable("gui.pandora_core.paco.content.mod.warning.key");
+    public static final Component MOD_UPDATE_KEY = Component.translatable("gui.pandora_core.paco.content.mod.update.key");
+    public static final Component MOD_UPDATE_PAGE = Component.translatable("gui.pandora_core.paco.content.mod.update.page");
     public static final Component MOD_DESCRIPTION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.description.key");
     public static final Component MOD_AUTHORS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.authors.key");
     public static final Component MOD_CREDITS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.credits.key");
@@ -24,6 +31,7 @@ public class PaCoContentPanelManager {
     // Content Panel | No Active Mod
     // TODO
     private final List<BaseContentElement> elements = new ArrayList<>();
+    private final Set<ComponentElement> componentElements = new HashSet<>();
     private final PaCoScreen screen;
     private int posX;
     private final int posY;
@@ -52,16 +60,23 @@ public class PaCoContentPanelManager {
         this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
         if (holder.hasModWarnings()) // We only add warnings if there are any
             this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_WARNING_KEY.getString(), holder.getModWarnings().stream().map(Component::getString).toList(), "• ").setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR));
-
-
-        // TODO: tweak this text
         if (holder.isOutdated()) {
-            String value = "New version available!";
-            this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, "Update Available:", value).setValueColor(PaCoColor.color(160, 160, 160)));
+            UpdateInfo updateInfo = holder.getUpdateInfo().get();
+            String type = updateInfo.getType() != null ? updateInfo.getType().getDisplayName().getString() : "";
+            String value = String.format("%s → %s [%s]", holder.getModVersion(), updateInfo.getNewVersion(), type);
+            this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_UPDATE_KEY.getString(), value).setValueColor(PaCoColor.color(160, 160, 160)));
+            if (updateInfo.getDownloadURL() != null) {
+                Component clickable = MOD_UPDATE_PAGE.copy()
+                        .withStyle(style -> style
+                                .withColor(ChatFormatting.BLUE)
+                                .withUnderlined(true)
+                                .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, updateInfo.getDownloadURL().toString()))
+                        );
+                ComponentElement element = new ComponentElement(this, paddingX + 13, 0, clickable);
+                this.componentElements.add(element);
+                this.elements.add(element);
+            }
         }
-
-
-
         this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_DESCRIPTION_KEY.getString(), holder.getModDescription()).setValueColor(PaCoColor.color(160, 160, 160)));
         if (holder.hasModAuthors()) // We only add the authors if there are any specified
             this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_AUTHORS_KEY.getString(), holder.getModAuthors()).setValueColor(PaCoColor.color(160, 160, 160)));
@@ -94,6 +109,7 @@ public class PaCoContentPanelManager {
 
     public void clearElements() {
         this.elements.clear();
+        this.componentElements.clear();
         this.contentHeight = 0;
     }
 
@@ -144,5 +160,9 @@ public class PaCoContentPanelManager {
 
     public int getHeight() {
         return this.height;
+    }
+
+    public Set<ComponentElement> getComponentElements() {
+        return this.componentElements;
     }
 }

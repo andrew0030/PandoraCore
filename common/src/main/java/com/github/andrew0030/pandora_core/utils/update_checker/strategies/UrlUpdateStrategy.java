@@ -21,10 +21,11 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 
+// TODO maybe add a config option to disable "outdated" if the current version is on-paar/ahead of recommended, but behind latest
 public class UrlUpdateStrategy extends UpdateCheckStrategy {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "UpdateChecker", "URL");
-    public static final UpdateInfo FAILED = new UpdateInfo(UpdateInfo.Status.FAILED, UpdateInfo.Source.URL, null);
-    public static final UpdateInfo PENDING = new UpdateInfo(UpdateInfo.Status.PENDING, UpdateInfo.Source.URL, null);
+    public static final UpdateInfo FAILED = new UpdateInfo(UpdateInfo.Status.FAILED, UpdateInfo.Source.URL, null, null, null);
+    public static final UpdateInfo PENDING = new UpdateInfo(UpdateInfo.Status.PENDING, UpdateInfo.Source.URL, null, null, null);
     private final ModDataHolder holder;
 
     public UrlUpdateStrategy(ModDataHolder holder) {
@@ -96,17 +97,17 @@ public class UrlUpdateStrategy extends UpdateCheckStrategy {
             String mcVersion = Services.PLATFORM.getMinecraftVersion();
             String recommendedStr = promos.has(mcVersion + "-recommended") && promos.get(mcVersion + "-recommended").isJsonPrimitive() ? promos.get(mcVersion + "-recommended").getAsString() : null;
             String latestStr = promos.has(mcVersion + "-latest") && promos.get(mcVersion + "-latest").isJsonPrimitive() ? promos.get(mcVersion + "-latest").getAsString() : null;
-            UpdateInfo.Status status = this.determineStatus(recommendedStr, latestStr);
+            UpdateInfo updateInfo = this.getUpdateInfo(recommendedStr, latestStr, downloadURL);
 
-            // Updates the holder with the found update status and other information
-            this.holder.setUpdateInfo(new UpdateInfo(status, UpdateInfo.Source.URL, downloadURL));
+            // Updates the holder with the retrieved update info
+            this.holder.setUpdateInfo(updateInfo);
         } catch (IOException | InterruptedException e) {
             LOGGER.error("Error processing URL-based mod update for '{}'. Reason: {}", this.holder.getModId(), e.getMessage());
             this.holder.setUpdateInfo(FAILED);
         }
     }
 
-    private UpdateInfo.Status determineStatus(String recommendedStr, String latestStr) {
+    private UpdateInfo getUpdateInfo(String recommendedStr, String latestStr, URL downloadURL) {
         ComparableVersion current = new ComparableVersion(this.holder.getModVersion());
         ComparableVersion recommended = recommendedStr != null ? new ComparableVersion(recommendedStr) : null;
         ComparableVersion latest = latestStr != null ? new ComparableVersion(latestStr) : null;
@@ -115,26 +116,31 @@ public class UrlUpdateStrategy extends UpdateCheckStrategy {
         if (recommended != null) {
             int diff = recommended.compareTo(current);
             // If the current and recommended version are the same, it is up-to-date
-            if (diff == 0) return UpdateInfo.Status.UP_TO_DATE;
+            if (diff == 0) return new UpdateInfo(UpdateInfo.Status.UP_TO_DATE, UpdateInfo.Source.URL, null, null, downloadURL);
             // If the current version is greater than recommended
             if (diff < 0) {
                 if (latest != null && current.compareTo(latest) < 0) {
-                    return UpdateInfo.Status.OUTDATED; // If latest exists and is greater than current, it is outdated
+                    // If latest exists and is greater than current, it is outdated
+                    return new UpdateInfo(UpdateInfo.Status.OUTDATED, UpdateInfo.Source.URL, UpdateInfo.Type.LATEST, latestStr, downloadURL);
                 } else {
-                    return UpdateInfo.Status.AHEAD; // If latest doesn't exist current is ahead
+                    // If latest doesn't exist current is ahead
+                    return new UpdateInfo(UpdateInfo.Status.AHEAD, UpdateInfo.Source.URL, null, null, downloadURL);
                 }
             }
             // If current is older than recommended, it is outdated
-            return UpdateInfo.Status.OUTDATED;
+            return new UpdateInfo(UpdateInfo.Status.OUTDATED, UpdateInfo.Source.URL, UpdateInfo.Type.RECOMMENDED, recommendedStr, downloadURL);
         }
 
         // Checks if there is a latest version
         if (latest != null) {
             return current.compareTo(latest) < 0
-                    ? UpdateInfo.Status.BETA_OUTDATED // If latest is greater than current, it is beta-outdated
-                    : UpdateInfo.Status.BETA; // If current is greater or equal to latest its beta
+                    // If latest is greater than current, it is beta-outdated
+                    ? new UpdateInfo(UpdateInfo.Status.BETA_OUTDATED, UpdateInfo.Source.URL, UpdateInfo.Type.LATEST, latestStr, downloadURL)
+                    // If current is greater or equal to latest its beta
+                    : new UpdateInfo(UpdateInfo.Status.BETA, UpdateInfo.Source.URL, null, null, downloadURL);
         }
 
-        return UpdateInfo.Status.NO_PROMOS; // The default status if no promos were found
+        // The default status if no promos were found
+        return new UpdateInfo(UpdateInfo.Status.NO_PROMOS, UpdateInfo.Source.URL, null, null, downloadURL);
     }
 }

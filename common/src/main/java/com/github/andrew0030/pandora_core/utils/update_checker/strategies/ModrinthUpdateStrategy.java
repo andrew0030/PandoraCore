@@ -19,10 +19,11 @@ import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
+// TODO filter out alpha versions and add config option to toggle the filtering
 public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "UpdateChecker", "Modrinth");
-    public static final UpdateInfo FAILED = new UpdateInfo(UpdateInfo.Status.FAILED, UpdateInfo.Source.MODRINTH, null);
-    public static final UpdateInfo PENDING = new UpdateInfo(UpdateInfo.Status.PENDING, UpdateInfo.Source.MODRINTH, null);
+    public static final UpdateInfo FAILED = new UpdateInfo(UpdateInfo.Status.FAILED, UpdateInfo.Source.MODRINTH, null, null, null);
+    public static final UpdateInfo PENDING = new UpdateInfo(UpdateInfo.Status.PENDING, UpdateInfo.Source.MODRINTH, null, null, null);
     private static boolean isDeprecated;
     private static final int INVALID_STATUS_CODE = 400;
     private static final int DEPRECATED_STATUS_CODE = 410;
@@ -141,8 +142,8 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                                 URI uri = new URI(rawUrl);
                                 String[] parts = uri.getPath().split("/"); // path: /data/{project_id}/versions/{version_id}/{file}
                                 if (parts.length >= 6) {
-                                    String projectId = parts[3];
-                                    String versionId = parts[5];
+                                    String projectId = parts[2];
+                                    String versionId = parts[4];
                                     downloadURL = new URL(String.format("https://modrinth.com/mod/%s/version/%s", projectId, versionId));
                                 }
                             } catch (Exception ignored) {}
@@ -153,13 +154,15 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
 
                 // If the hash of what we sent matches the primary file, we're up-to-date
                 if (hash.equals(primaryHash)) {
-                    holder.setUpdateInfo(new UpdateInfo(UpdateInfo.Status.UP_TO_DATE, UpdateInfo.Source.MODRINTH, downloadURL));
+                    holder.setUpdateInfo(new UpdateInfo(UpdateInfo.Status.UP_TO_DATE, UpdateInfo.Source.MODRINTH, null, null, downloadURL));
                     continue;
                 }
 
-                ComparableVersion remoteVersion = new ComparableVersion(versionData.get("version_number").getAsString());
+                UpdateInfo.Type type = UpdateInfo.Type.valueOf(versionData.get("version_type").getAsString().toUpperCase(Locale.ROOT));
+                String remoteVersionStr = versionData.get("version_number").getAsString();
+                ComparableVersion remoteVersion = new ComparableVersion(remoteVersionStr);
                 ComparableVersion localVersion = new ComparableVersion(holder.getModVersion());
-                UpdateInfo info = new UpdateInfo(this.getUpdateStatus(remoteVersion, localVersion), UpdateInfo.Source.MODRINTH, downloadURL);
+                UpdateInfo info = new UpdateInfo(this.getUpdateStatus(remoteVersion, localVersion), UpdateInfo.Source.MODRINTH, type, remoteVersionStr, downloadURL);
                 holder.setUpdateInfo(info);
             }
 

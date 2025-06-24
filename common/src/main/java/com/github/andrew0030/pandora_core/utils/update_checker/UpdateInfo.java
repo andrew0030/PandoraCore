@@ -1,21 +1,23 @@
 package com.github.andrew0030.pandora_core.utils.update_checker;
 
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
 
-//TODO:
-// - Add version type (release | beta | alpha)
-// - Add latest version (to show a message like 1.2.0 -> 1.4.0)
 public class UpdateInfo {
     private final Status status;
     private final Source source;
+    private final Type type;
+    private final String newVersion;
     private final URL downloadURL;
 
-    public UpdateInfo(@NotNull Status status, @NotNull Source source, @Nullable URL downloadURL) {
+    public UpdateInfo(@NotNull Status status, @NotNull Source source, @Nullable Type type, @Nullable String newVersion, @Nullable URL downloadURL) {
         this.status = status;
         this.source = source;
+        this.type = type;
+        this.newVersion = newVersion;
         this.downloadURL = downloadURL;
     }
 
@@ -28,12 +30,18 @@ public class UpdateInfo {
     }
 
     @Nullable
-    public URL getDownloadURL() {
-        return this.downloadURL;
+    public Type getType() {
+        return this.type;
     }
 
-    public enum Source {
-        URL, MODRINTH;
+    @Nullable
+    public String getNewVersion() {
+        return this.newVersion;
+    }
+
+    @Nullable
+    public URL getDownloadURL() {
+        return this.downloadURL;
     }
 
     public enum Status {
@@ -54,6 +62,29 @@ public class UpdateInfo {
 
         public boolean isOutdated() {
             return this.outdated;
+        }
+    }
+
+    public enum Source {
+        URL,
+        MODRINTH;
+    }
+
+    public enum Type {
+        RECOMMENDED("gui.pandora_core.paco.content.mod.update.type.recommended"),
+        LATEST("gui.pandora_core.paco.content.mod.update.type.latest"),
+        ALPHA("gui.pandora_core.paco.content.mod.update.type.alpha"),
+        BETA("gui.pandora_core.paco.content.mod.update.type.beta"),
+        RELEASE("gui.pandora_core.paco.content.mod.update.type.release");
+
+        private final Component displayName;
+
+        Type(String name) {
+            this.displayName = Component.translatable(name);
+        }
+
+        public Component getDisplayName() {
+            return this.displayName;
         }
     }
 }

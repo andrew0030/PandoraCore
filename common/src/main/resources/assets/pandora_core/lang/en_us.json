@@ -15,11 +15,18 @@
 
   "gui.pandora_core.paco.content.mod.version.key": "Version:",
   "gui.pandora_core.paco.content.mod.warning.key": "Warning(s):",
+  "gui.pandora_core.paco.content.mod.update.key": "Update Available:",
+  "gui.pandora_core.paco.content.mod.update.page": "Open Download Page",
   "gui.pandora_core.paco.content.mod.description.key": "Description:",
   "gui.pandora_core.paco.content.mod.authors.key": "Author(s):",
   "gui.pandora_core.paco.content.mod.credits.key": "Credits:",
   "gui.pandora_core.paco.content.mod.contributors.key": "Contributor(s):",
   "gui.pandora_core.paco.content.mod.license.key": "License:",
+  "gui.pandora_core.paco.content.mod.update.type.recommended": "recommended",
+  "gui.pandora_core.paco.content.mod.update.type.latest": "latest",
+  "gui.pandora_core.paco.content.mod.update.type.alpha": "alpha",
+  "gui.pandora_core.paco.content.mod.update.type.beta": "beta",
+  "gui.pandora_core.paco.content.mod.update.type.release": "release",
 
   "warnings.pandora_core.opti_fine.post_shader": "[OptiFine] detected, post shaders have been disabled!",
   "warnings.pandora_core.sodium.indium": "[Sodium] detected and [Indium] is missing, CTM has been disabled!"

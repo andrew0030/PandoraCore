@@ -53,7 +53,7 @@ Systems TODO:
   - [ ] Create config screen that can take any number of components and dynamically adjust to it
   - [ ] Hook mod config system into it
 - Update Checker
-  - [ ] Swap CompletableFuture system to an Update Checker Thread
+  - [x] Swap CompletableFuture system to an Update Checker Thread
   - [x] Add automatic Modrinth update checker using modrinth's API (similar to what modmenu does)
 - Registries
   - [x] Create PaCoRegistry to abstract all Object registration

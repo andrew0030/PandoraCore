@@ -158,6 +158,9 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                     continue;
                 }
 
+                //TODO: probably filter out alpha versions right here if the config option is enabled
+                // ##################################################################################
+
                 UpdateInfo.Type type = UpdateInfo.Type.valueOf(versionData.get("version_type").getAsString().toUpperCase(Locale.ROOT));
                 String remoteVersionStr = versionData.get("version_number").getAsString();
                 ComparableVersion remoteVersion = new ComparableVersion(remoteVersionStr);

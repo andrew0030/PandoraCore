@@ -51,6 +51,7 @@ public class PaCoContentPanelManager {
             this.buildContentPanel(this.getScreen().selectedModButton.getModDataHolder());
     }
 
+    // TODO maybe add a "Link(s):" section that has a homepage/issue tracker entry that can be clicked to open the corresponding pages
     public void buildContentPanel(ModDataHolder holder) {
         this.clearElements();
         int paddingX = PaCoScreen.PADDING_FOUR;

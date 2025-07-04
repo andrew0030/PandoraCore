@@ -41,4 +41,9 @@ public abstract class ScreenShake {
      * @return The roll offset (barrel roll left/right) this {@link ScreenShake} should add to the {@link Camera}.
      */
     public abstract float getRollOffset(float partialTick);
+
+    /** @return Whether the {@link ScreenShake} should be constrained by the PaCo screen shaker config options. */
+    public boolean hasGeneralConstrains() {
+        return true;
+    }
 }

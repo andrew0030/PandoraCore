@@ -19,6 +19,8 @@ public class GameRenderer_CameraMixin {
     // Used to apply camera rotation (roll)
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.AFTER))
     private void applyPaCoCameraZRot(float partialTick, long finishTimeNano, PoseStack poseStack, CallbackInfo ci) {
+        poseStack.mulPose(Axis.XP.rotationDegrees(((IPaCoSetCameraRotation) this.mainCamera).pandoraCore$getXRot()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(((IPaCoSetCameraRotation) this.mainCamera).pandoraCore$getYRot()));
         poseStack.mulPose(Axis.ZP.rotationDegrees(((IPaCoSetCameraRotation) this.mainCamera).pandoraCore$getZRot()));
     }
 }

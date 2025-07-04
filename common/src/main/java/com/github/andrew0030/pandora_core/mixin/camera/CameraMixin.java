@@ -6,7 +6,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin implements IPaCoSetCameraRotation {
-
-    @Shadow public abstract void setRotation(float yRot, float xRot);
+    @Unique private float pandoraCore$xRot;
+    @Unique private float pandoraCore$yRot;
     @Unique private float pandoraCore$zRot;
 
     @Inject(method = "setup", at = @At("TAIL"))
@@ -24,9 +23,20 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     }
 
     @Override
-    public void pandoraCore$setRotation(float yaw, float pitch, float roll) {
-        this.pandoraCore$zRot = roll;
-        this.setRotation(yaw, pitch);
+    public void pandoraCore$setRotation(float xRot, float yRot, float zRot) {
+        this.pandoraCore$xRot = xRot;
+        this.pandoraCore$yRot = yRot;
+        this.pandoraCore$zRot = zRot;
+    }
+
+    @Override
+    public float pandoraCore$getXRot() {
+        return this.pandoraCore$xRot;
+    }
+
+    @Override
+    public float pandoraCore$getYRot() {
+        return pandoraCore$yRot;
     }
 
     @Override

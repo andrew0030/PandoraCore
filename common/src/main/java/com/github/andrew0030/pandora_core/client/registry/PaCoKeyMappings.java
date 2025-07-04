@@ -1,10 +1,12 @@
 package com.github.andrew0030.pandora_core.client.registry;
 
+import com.github.andrew0030.pandora_core.client.PaCoClientTicker;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.key.PaCoKeyMappingRegistry;
-import com.github.andrew0030.pandora_core.network.PacketTarget;
-import com.github.andrew0030.pandora_core.test.networking.PaCoNetworking;
-import com.github.andrew0030.pandora_core.test.networking.packet.c2s.KeyPressedPacket;
+import com.github.andrew0030.pandora_core.client.screen_shaker.ScreenShakeManager;
+import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.curve_shake.CurveScreenShake;
+import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.RollDirection;
+import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.manual_shake.ManualScreenShake;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -12,6 +14,11 @@ import org.lwjgl.glfw.GLFW;
 
 public class PaCoKeyMappings {
     public static final PaCoKeyMappingRegistry KEY_MAPPINGS = new PaCoKeyMappingRegistry();
+
+    public static final ManualScreenShake manualShake = new ManualScreenShake();
+    static {
+        ScreenShakeManager.addScreenShake(manualShake);
+    }
 
     public static final KeyMapping KEY_PACO = KEY_MAPPINGS.add(
         new KeyMapping(
@@ -36,8 +43,22 @@ public class PaCoKeyMappings {
             GLFW.GLFW_KEY_J,
             "category.pandora_core.pandora_core"
         ), () -> {
-            KeyPressedPacket packet = new KeyPressedPacket(GLFW.GLFW_KEY_J);
-            PaCoNetworking.CHANNEL.send(PacketTarget.sendToServer(), packet);
+//            KeyPressedPacket packet = new KeyPressedPacket(GLFW.GLFW_KEY_J);
+//            PaCoNetworking.CHANNEL.send(PacketTarget.sendToServer(), packet);
+            ScreenShakeManager.addScreenShake(new CurveScreenShake(10)
+                .setRoll(RollDirection.RIGHT, 20, 1)
+            );
+        }
+    );
+
+    public static final KeyMapping KEY_TEST_2 = KEY_MAPPINGS.add(
+        new KeyMapping(
+            "Test 2",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_K,
+            "category.pandora_core.pandora_core"
+        ), () -> {
+            manualShake.setRoll(manualShake.getRollOffset(PaCoClientTicker.getPartialTick()) + 20);
         }
     );
 }

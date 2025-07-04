@@ -12,26 +12,26 @@ import java.util.List;
 /** Helper class that allows playing ScreenShakes. */
 public class ScreenShakeManager {
     protected static final List<ScreenShake> ACTIVE_SHAKES = new ArrayList<>();
-    protected static float yawOffset;
     protected static float pitchOffset;
+    protected static float yawOffset;
     protected static float rollOffset;
 
     /** Updates the {@link Camera}, used to apply the total offset from all {@link ScreenShakeManager#ACTIVE_SHAKES}. */
     @ApiStatus.Internal
     public static void updateCamera(Camera camera, float partialTick) {
-        yawOffset = 0.0F;
         pitchOffset = 0.0F;
+        yawOffset = 0.0F;
         rollOffset = 0.0F;
 
         //TODO probably clamp shaking to a max value and have a global multiplier
         for (ScreenShake shake : ACTIVE_SHAKES) {
-            yawOffset += shake.getYawOffset(partialTick);
-            pitchOffset += shake.getPitchOffset(partialTick);
-            rollOffset += shake.getRollOffset(partialTick);
+            pitchOffset += shake.getPitchOffset(partialTick); // x-axis
+            yawOffset += shake.getYawOffset(partialTick);     // y-axis
+            rollOffset += shake.getRollOffset(partialTick);   // z-axis
         }
 
-        // TODO: probably add a getZRot so value can be modified and screen shake applied on top
-        ((IPaCoSetCameraRotation) camera).pandoraCore$setRotation(camera.getYRot() + yawOffset, camera.getXRot() + pitchOffset, rollOffset);
+        // Sets the camera's screen shaker offsets
+        ((IPaCoSetCameraRotation) camera).pandoraCore$setRotation(pitchOffset, yawOffset, rollOffset);
     }
 
     /**

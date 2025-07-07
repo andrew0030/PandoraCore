@@ -67,8 +67,8 @@ Systems TODO:
   - [x] ~~Maybe add some kind of system to adjust pitch/volume based on some value (e.g. distance to source).~~ One can use AbstractTickableSoundInstance to achieve this.
 - Screen Shaker
   - [x] Expand system to support manual/continuous camera offsets (useful for tilting while flying or perhaps a cinematic/cutscene camera)
-  - [ ] Add a limit to how much the screen can shake
-  - [ ] Add a multiplier that allows modifying the strength of constrained screen shakes
+  - [x] Add a limit to how much the screen can shake
+  - [x] Add a multiplier that allows modifying the strength of constrained screen shakes
   - [x] Maybe add a special override that allows bypassing the limit, ~~might be handy for a few very select "shakes"~~ this is now the case for "manual" screen shakes
 - Creative Tabs
   - [x] ~~Create builder pattern abstraction for creating creative tabs~~ The vanilla creative tab builder is fine (just needs a helper to create it more easily)

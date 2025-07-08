@@ -6,7 +6,9 @@ import com.github.andrew0030.pandora_core.client.key.PaCoKeyMappingRegistry;
 import com.github.andrew0030.pandora_core.client.screen_shaker.ScreenShakeManager;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.curve_shake.CurveScreenShake;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.EasingDirection;
+import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.PitchDirection;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.RollDirection;
+import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.YawDirection;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.manual_shake.ManualScreenShake;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -48,7 +50,7 @@ public class PaCoKeyMappings {
 //            KeyPressedPacket packet = new KeyPressedPacket(GLFW.GLFW_KEY_J);
 //            PaCoNetworking.CHANNEL.send(PacketTarget.sendToServer(), packet);
             ScreenShakeManager.addScreenShake(new CurveScreenShake(60)
-                .setRoll(RollDirection.RIGHT, 60, 6)
+                .setPitch(PitchDirection.UP, 60, 1)
             );
         }
     );
@@ -60,7 +62,7 @@ public class PaCoKeyMappings {
             GLFW.GLFW_KEY_K,
             "category.pandora_core.pandora_core"
         ), () -> {
-            manualShake.setRoll(manualShake.getRollOffset(PaCoClientTicker.getPartialTick()) + 20);
+            manualShake.setYaw(manualShake.getYawOffset(PaCoClientTicker.getPartialTick()) + 20);
         }
     );
 }

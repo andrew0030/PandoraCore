@@ -3,9 +3,17 @@ package com.github.andrew0030.pandora_core.mixin.camera;
 import com.github.andrew0030.pandora_core.client.screen_shaker.ScreenShakeManager;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoSetCameraRotation;
 import net.minecraft.client.Camera;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,6 +21,31 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin implements IPaCoSetCameraRotation {
+    @Shadow private Vec3 position;
+
+    @Shadow protected abstract void setPosition(double $$0, double $$1, double $$2);
+
+    @Shadow protected abstract void move(double $$0, double $$1, double $$2);
+
+    @Shadow @Final private BlockPos.MutableBlockPos blockPosition;
+
+    @Shadow public abstract void setRotation(float $$0, float $$1);
+
+    @Shadow private float xRot;
+    @Shadow private float yRot;
+    @Shadow @Final private Quaternionf rotation;
+    @Shadow @Final private Vector3f forwards;
+    @Shadow @Final private Vector3f up;
+    @Shadow @Final private Vector3f left;
+
+    @Shadow protected abstract double getMaxZoom(double $$0);
+
+    @Shadow private boolean detached;
+    @Shadow private BlockGetter level;
+
+    @Shadow protected abstract void setPosition(Vec3 $$0);
+
+    @Shadow private Entity entity;
     @Unique private float pandoraCore$xRot;
     @Unique private float pandoraCore$yRot;
     @Unique private float pandoraCore$zRot;
@@ -24,9 +57,50 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
 
     @Override
     public void pandoraCore$setRotation(float xRot, float yRot, float zRot) {
-        this.pandoraCore$xRot = xRot;
-        this.pandoraCore$yRot = yRot;
-        this.pandoraCore$zRot = zRot;
+//        this.pandoraCore$xRot = xRot;
+//        this.pandoraCore$yRot = yRot;
+//        this.pandoraCore$zRot = zRot;
+//        this.setRotation(this.yRot + yRot, this.xRot + xRot);
+
+//        this.setPosition(this.position.x() + xRot, this.position.y() + yRot, this.position.z() + zRot);
+//        this.move(xRot, yRot, zRot);
+
+        // Moves camera relative to rotation
+        this.move(
+                pandoraCore$getMaxZoom(xRot, this.forwards), // X is forwards/backwards
+                pandoraCore$getMaxZoom(yRot, this.up),       // Y is camera up/down
+                pandoraCore$getMaxZoom(zRot, this.left)      // Z is left/right
+        );
+    }
+
+    @Unique
+    private double pandoraCore$getMaxZoom(double offset, Vector3f axisDirection) {
+        if (offset == 0.0) return 0.0;
+
+        Vec3 direction = new Vec3(axisDirection.x(), axisDirection.y(), axisDirection.z()).normalize();
+        double finalDistance = offset;
+
+        float spacing = 0.1F;
+        for (int i = 0; i < 8; ++i) {
+            float fx = (float) ((i & 1) * 2 - 1) * spacing;
+            float fy = (float) (((i >> 1) & 1) * 2 - 1) * spacing;
+            float fz = (float) (((i >> 2) & 1) * 2 - 1) * spacing;
+
+            Vec3 offsetStart = this.position.add(fx, fy, fz);
+            Vec3 offsetEnd = offsetStart.add(direction.scale(offset));
+
+            ClipContext context = new ClipContext(offsetStart, offsetEnd, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, this.entity);
+            HitResult hit = this.level.clip(context);
+
+            if (hit.getType() != HitResult.Type.MISS) {
+                double distance = hit.getLocation().distanceTo(offsetStart);
+                if (distance < Math.abs(finalDistance)) {
+                    finalDistance = Math.copySign(distance, offset);
+                }
+            }
+        }
+
+        return finalDistance;
     }
 
     @Override

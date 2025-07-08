@@ -43,7 +43,7 @@ public class ScreenShakeManager {
         rollOffset  *= multiplier;
 
         // Soft limits each axis
-        float limit = 20F; // TODO: make this a config option, and prevent it from being called if the value is 0 because divided by zero...
+        float limit = 90F; // TODO: make this a config option, and prevent it from being called if the value is 0 because divided by zero...
         pitchOffset = ScreenShakeManager.softLimit(pitchOffset, limit);
         yawOffset   = ScreenShakeManager.softLimit(yawOffset, limit);
         rollOffset  = ScreenShakeManager.softLimit(rollOffset, limit);

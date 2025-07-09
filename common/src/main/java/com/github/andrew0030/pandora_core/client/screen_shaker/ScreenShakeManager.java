@@ -59,7 +59,7 @@ public class ScreenShakeManager {
         }
 
         // Sets the camera's screen shaker offsets
-        ((IPaCoSetCameraRotation) camera).pandoraCore$setRotation(pitchOffset, yawOffset, rollOffset);
+        ((IPaCoSetCameraRotation) camera).pandoraCore$setRotation(pitchOffset, yawOffset, rollOffset, partialTick);
     }
 
     /**

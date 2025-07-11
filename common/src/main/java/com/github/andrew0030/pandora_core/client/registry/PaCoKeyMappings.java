@@ -50,7 +50,9 @@ public class PaCoKeyMappings {
 //            KeyPressedPacket packet = new KeyPressedPacket(GLFW.GLFW_KEY_J);
 //            PaCoNetworking.CHANNEL.send(PacketTarget.sendToServer(), packet);
             ScreenShakeManager.addScreenShake(new CurveScreenShake(60)
-                .setPitch(PitchDirection.UP, 60, 1)
+                .setPitch(PitchDirection.DOWN, 10, 10)
+//                .setYaw(YawDirection.LEFT, 60, 1)
+                .setRoll(RollDirection.RIGHT, 60, 1)
             );
         }
     );

@@ -13,6 +13,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.lwjgl.system.MathUtil;
 import org.spongepowered.asm.mixin.Final;
@@ -54,6 +55,10 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     @Unique private float pandoraCore$yRot;
     @Unique private float pandoraCore$zRot;
 
+    @Unique private static final Vector3f WORLD_X = new Vector3f(1, 0, 0);
+    @Unique private static final Vector3f WORLD_Y = new Vector3f(0, 1, 0);
+    @Unique private static final Vector3f WORLD_Z = new Vector3f(0, 0, 1);
+
     @Inject(method = "setup", at = @At("TAIL"))
     public void cameraShaker(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
         ScreenShakeManager.updateCamera(((Camera)(Object) this), partialTick);
@@ -61,32 +66,38 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
 
     @Override
     public void pandoraCore$setRotation(float xRot, float yRot, float zRot, float partialTick) {
-//        this.pandoraCore$xRot = xRot;
-//        this.pandoraCore$yRot = yRot;
-        this.pandoraCore$zRot = zRot;
-        // This is a hack to make the game think the camera moved, as by default zRot doesn't trigger cull-frustum updates.
-        // There is probably a more "elegant" solution by doing some mixin jank, but for the sake of simplicity this will do.
-        if (zRot != 0.0F)
-            xRot += partialTick * 0.000001F;
-        this.setRotation(this.yRot + yRot, this.xRot + xRot);
+//        this.pandoraCore$zRot = zRot;
+//        // This is a hack to make the game think the camera moved, as by default zRot doesn't trigger cull-frustum updates.
+//        // There is probably a more "elegant" solution by doing some mixin jank, but for the sake of simplicity this will do.
+//        if (zRot != 0.0F)
+//            xRot += partialTick * 0.000001F;
+//        this.setRotation(this.yRot + yRot, this.xRot + xRot);
 
-//        this.setPosition(this.position.x() + xRot, this.position.y() + yRot, this.position.z() + zRot);
-//        this.move(xRot, yRot, zRot);
-
-        // Moves camera relative to rotation
+//        // Moves camera relatively
 //        this.move(
 //                pandoraCore$getMaxZoom(xRot, this.forwards), // X is forwards/backwards
 //                pandoraCore$getMaxZoom(yRot, this.up),       // Y is camera up/down
 //                pandoraCore$getMaxZoom(zRot, this.left)      // Z is left/right
 //        );
 
-//        this.xRot += xRot;
-//        this.yRot += yRot;
-//        this.pandoraCore$zRot = zRot;
-//        this.rotation.rotationYXZ(-yRot * Mth.DEG_TO_RAD, xRot * Mth.DEG_TO_RAD, zRot * Mth.DEG_TO_RAD);
-//        this.forwards.set(0.0F, 0.0F, 1.0F).rotate(this.rotation);
-//        this.up.set(0.0F, 1.0F, 0.0F).rotate(this.rotation);
-//        this.left.set(1.0F, 0.0F, 0.0F).rotate(this.rotation);
+//        // Moves camera absolutely
+//        this.setPosition(
+//                this.position.x() + xRot,
+//                this.position.y() + yRot,
+//                this.position.z() + zRot
+//        );
+
+        this.move(
+                pandoraCore$getMaxZoom(xRot, this.forwards), // X is forwards/backwards
+                0,       // Y is camera up/down
+                0      // Z is left/right
+        );
+
+        Vec3 current = this.position;
+        double newX = current.x;// + pandoraCore$getMaxZoom(xRot, WORLD_X);
+        double newY = current.y;// + pandoraCore$getMaxZoom(yRot, WORLD_Y);
+        double newZ = current.z + pandoraCore$getMaxZoom(zRot, WORLD_Z);
+        this.setPosition(newX, newY, newZ);
     }
 
     @Unique

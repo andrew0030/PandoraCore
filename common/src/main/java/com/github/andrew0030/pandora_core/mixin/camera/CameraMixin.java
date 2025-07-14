@@ -49,19 +49,25 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
         if (zRot != 0.0F) // TODO swap this for delta zRot
             xRot += partialTick * 0.000001F;
         this.setRotation(this.yRot + yRot, this.xRot + xRot);
+    }
 
+    @Override
+    public void pandoraCore$setPositionRelative(float xPos, float yPos, float zPos) {
         // Moves camera relatively
         this.move(
-                pandoraCore$getMaxZoom(xRot, this.forwards), // X is forwards/backwards
-                pandoraCore$getMaxZoom(yRot, this.up),       // Y is camera up/down
-                pandoraCore$getMaxZoom(zRot, this.left)      // Z is left/right
+                pandoraCore$getMaxZoom(xPos, this.forwards), // X is forwards/backwards
+                pandoraCore$getMaxZoom(yPos, this.up),       // Y is camera up/down
+                pandoraCore$getMaxZoom(zPos, this.left)      // Z is left/right
         );
+    }
 
+    @Override
+    public void pandoraCore$setPositionAbsolute(float xPos, float yPos, float zPos) {
         // Moves camera absolutely
         Vec3 current = this.position;
-        double newX = current.x;// + pandoraCore$getMaxZoom(xRot, WORLD_X);
-        double newY = current.y;// + pandoraCore$getMaxZoom(yRot, WORLD_Y);
-        double newZ = current.z + pandoraCore$getMaxZoom(zRot, WORLD_Z);
+        double newX = current.x;// + pandoraCore$getMaxZoom(xPos, WORLD_X);
+        double newY = current.y;// + pandoraCore$getMaxZoom(yPos, WORLD_Y);
+        double newZ = current.z + pandoraCore$getMaxZoom(zPos, WORLD_Z);
         this.setPosition(newX, newY, newZ);
     }
 

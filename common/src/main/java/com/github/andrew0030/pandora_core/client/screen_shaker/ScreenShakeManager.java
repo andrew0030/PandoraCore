@@ -13,9 +13,9 @@ import java.util.List;
 public class ScreenShakeManager {
     protected static final List<ScreenShake> CONSTRAINED_SHAKES = new ArrayList<>();
     protected static final List<ScreenShake> UNCONSTRAINED_SHAKES = new ArrayList<>();
-    protected static float pitchOffset;
-    protected static float yawOffset;
-    protected static float rollOffset;
+    protected static float pitchOffset, yawOffset, rollOffset;
+    protected static float xOffsetRelative, yOffsetRelative, zOffsetRelative;
+    protected static float xOffsetAbsolute, yOffsetAbsolute, zOffsetAbsolute;
 
     /**
      * Updates the {@link Camera}, used to apply the total offset from all
@@ -26,6 +26,12 @@ public class ScreenShakeManager {
         pitchOffset = 0.0F;
         yawOffset   = 0.0F;
         rollOffset  = 0.0F;
+        xOffsetRelative = 0.0F;
+        yOffsetRelative = 0.0F;
+        zOffsetRelative = 0.0F;
+        xOffsetAbsolute = 0.0F;
+        yOffsetAbsolute = 0.0F;
+        zOffsetAbsolute = 0.0F;
 
         //TODO: Maybe skip all constrained shake offset logic if "multiplier" or "limit" are 0 ?
 
@@ -58,8 +64,12 @@ public class ScreenShakeManager {
             rollOffset  += shake.getRollOffset(partialTick);  // z-axis
         }
 
-        // Sets the camera's screen shaker offsets
+        // Sets the camera's rotation offsets
         ((IPaCoSetCameraRotation) camera).pandoraCore$setRotation(pitchOffset, yawOffset, rollOffset, partialTick);
+        // Sets the camera's position offsets relative to rotation
+        ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionRelative(xOffsetRelative, yOffsetRelative, zOffsetRelative);
+        // Sets the camera's position offsets
+        ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionAbsolute(xOffsetAbsolute, yOffsetAbsolute, zOffsetAbsolute);
     }
 
     /**

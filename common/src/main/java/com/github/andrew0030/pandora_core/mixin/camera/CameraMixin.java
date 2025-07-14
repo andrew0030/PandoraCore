@@ -35,6 +35,7 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     @Unique private static final Vector3f WORLD_Y = new Vector3f(0, 1, 0);
     @Unique private static final Vector3f WORLD_Z = new Vector3f(0, 0, 1);
     @Unique private float pandoraCore$zRot;
+    @Unique private float pandoraCore$zRotOld;
 
     @Inject(method = "setup", at = @At("TAIL"))
     public void cameraShaker(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
@@ -46,9 +47,10 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
         this.pandoraCore$zRot = zRot;
         // This is a hack to make the game think the camera moved, as by default zRot doesn't trigger cull-frustum updates.
         // There is probably a more "elegant" solution by doing some mixin jank, but for the sake of simplicity this will do.
-        if (zRot != 0.0F) // TODO swap this for delta zRot
+        if (this.pandoraCore$zRot != this.pandoraCore$zRotOld)
             xRot += partialTick * 0.000001F;
         this.setRotation(this.yRot + yRot, this.xRot + xRot);
+        this.pandoraCore$zRotOld = this.pandoraCore$zRot;
     }
 
     @Override
@@ -64,11 +66,11 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     @Override
     public void pandoraCore$setPositionAbsolute(float xPos, float yPos, float zPos) {
         // Moves camera absolutely
-        Vec3 current = this.position;
-        double newX = current.x;// + pandoraCore$getMaxZoom(xPos, WORLD_X);
-        double newY = current.y;// + pandoraCore$getMaxZoom(yPos, WORLD_Y);
-        double newZ = current.z + pandoraCore$getMaxZoom(zPos, WORLD_Z);
-        this.setPosition(newX, newY, newZ);
+        this.setPosition(
+                this.position.x() + pandoraCore$getMaxZoom(xPos, WORLD_X),
+                this.position.y() + pandoraCore$getMaxZoom(yPos, WORLD_Y),
+                this.position.z() + pandoraCore$getMaxZoom(zPos, WORLD_Z)
+        );
     }
 
     @Unique

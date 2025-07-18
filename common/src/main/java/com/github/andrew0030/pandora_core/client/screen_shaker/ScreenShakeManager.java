@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+// TODO: Maybe rename the class to something non screen shake related, seeing how now this class handles more than just screen shaking
 /** Helper class that allows playing ScreenShakes. */
 public class ScreenShakeManager {
     protected static final List<ScreenShake> CONSTRAINED_SHAKES = new ArrayList<>();
@@ -53,9 +54,6 @@ public class ScreenShakeManager {
         pitchOffset = ScreenShakeManager.softLimit(pitchOffset, limit);
         yawOffset   = ScreenShakeManager.softLimit(yawOffset, limit);
         rollOffset  = ScreenShakeManager.softLimit(rollOffset, limit);
-//        pitchOffset = Mth.clamp(pitchOffset, -limit, limit);
-//        yawOffset   = Mth.clamp(yawOffset, -limit, limit);
-//        rollOffset  = Mth.clamp(rollOffset, -limit, limit);
 
         // Adds unconstrained shakes (raw)
         for (ScreenShake shake : UNCONSTRAINED_SHAKES) {

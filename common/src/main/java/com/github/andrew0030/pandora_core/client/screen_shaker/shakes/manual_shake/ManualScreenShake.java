@@ -9,9 +9,9 @@ import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.ScreenShak
  * so constrains need to be implemented separately.
  */
 public class ManualScreenShake extends ScreenShake {
-    protected float yawDegrees = 0.0F;
-    protected float pitchDegrees = 0.0F;
-    protected float rollDegrees = 0.0F;
+    protected float yawDegrees, pitchDegrees, rollDegrees = 0.0F;
+    protected float xOffsetRelative, yOffsetRelative, zOffsetRelative = 0.0F;
+    protected float xOffsetAbsolute, yOffsetAbsolute, zOffsetAbsolute = 0.0F;
     protected boolean isFinished;
 
     /** A new {@link ManualScreenShake} instance: */
@@ -35,7 +35,6 @@ public class ManualScreenShake extends ScreenShake {
 
     /**
      * Specifies an offset, that gets applied to the camera's yaw (left/right movement).
-     *
      * @param degrees The number of degrees the camera should move in the specified direction.
      */
     public ManualScreenShake setYaw(float degrees) {
@@ -46,7 +45,6 @@ public class ManualScreenShake extends ScreenShake {
 
     /**
      * Specifies an offset, that gets applied to the camera's pitch (up/down movement).
-     *
      * @param degrees The number of degrees the camera should move in the specified direction.
      */
     public ManualScreenShake setPitch(float degrees) {
@@ -56,11 +54,16 @@ public class ManualScreenShake extends ScreenShake {
 
     /**
      * Specifies an offset, that gets applied to the camera's roll (rotational movement around the forward axis).
-     *
      * @param degrees The number of degrees the camera should move in the specified direction.
      */
     public ManualScreenShake setRoll(float degrees) {
         this.rollDegrees = degrees;
+        return this;
+    }
+
+    //TODO create setters for the other 5 position offsets
+    public ManualScreenShake setDepthOffset(float distance) {
+        this.yOffsetRelative = distance;
         return this;
     }
 
@@ -77,6 +80,36 @@ public class ManualScreenShake extends ScreenShake {
     @Override
     public float getRollOffset(float partialTick) {
         return this.rollDegrees;
+    }
+
+    @Override
+    public float getVerticalOffset(float partialTick) {
+        return this.xOffsetRelative;
+    }
+
+    @Override
+    public float getDepthOffset(float partialTick) {
+        return this.yOffsetRelative;
+    }
+
+    @Override
+    public float getHorizontalOffset(float partialTick) {
+        return this.zOffsetRelative;
+    }
+
+    @Override
+    public float getXOffset(float partialTick) {
+        return this.xOffsetAbsolute;
+    }
+
+    @Override
+    public float getYOffset(float partialTick) {
+        return this.yOffsetAbsolute;
+    }
+
+    @Override
+    public float getZOffset(float partialTick) {
+        return this.zOffsetAbsolute;
     }
 
     @Override

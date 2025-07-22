@@ -50,8 +50,9 @@ public class PaCoKeyMappings {
 //            KeyPressedPacket packet = new KeyPressedPacket(GLFW.GLFW_KEY_J);
 //            PaCoNetworking.CHANNEL.send(PacketTarget.sendToServer(), packet);
             ScreenShakeManager.addScreenShake(new CurveScreenShake(60)
-                .setPitch(PitchDirection.DOWN, 10, 10)
+//                .setPitch(PitchDirection.DOWN, 10, 10)
 //                .setYaw(YawDirection.LEFT, 60, 1)
+//                .setPitch(PitchDirection.UP, 60, 1)
                 .setRoll(RollDirection.RIGHT, 60, 1)
             );
         }
@@ -64,7 +65,9 @@ public class PaCoKeyMappings {
             GLFW.GLFW_KEY_K,
             "category.pandora_core.pandora_core"
         ), () -> {
-            manualShake.setYaw(manualShake.getYawOffset(PaCoClientTicker.getPartialTick()) + 20);
+//            manualShake.setYaw(manualShake.getYawOffset(PaCoClientTicker.getPartialTick()) + 20);
+            float depthOffset = manualShake.getDepthOffset(PaCoClientTicker.getPartialTick());
+            manualShake.setDepthOffset(depthOffset != 0.0F ? depthOffset - 1 : depthOffset + 1);
         }
     );
 }

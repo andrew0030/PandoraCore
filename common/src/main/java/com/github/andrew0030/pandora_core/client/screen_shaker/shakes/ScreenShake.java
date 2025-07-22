@@ -42,6 +42,15 @@ public abstract class ScreenShake {
      */
     public abstract float getRollOffset(float partialTick);
 
+    // TODO write javadocs for relative offsets
+    public abstract float getVerticalOffset(float partialTick);
+    public abstract float getDepthOffset(float partialTick);//TODO right now this moves the camera up/down so probably move these around
+    public abstract float getHorizontalOffset(float partialTick);
+    // TODO write javadocs for absolute offsets
+    public abstract float getXOffset(float partialTick);
+    public abstract float getYOffset(float partialTick);
+    public abstract float getZOffset(float partialTick);
+
     /** @return Whether the {@link ScreenShake} should be constrained by the PaCo screen shaker config options. */
     public boolean hasGeneralConstrains() {
         return true;

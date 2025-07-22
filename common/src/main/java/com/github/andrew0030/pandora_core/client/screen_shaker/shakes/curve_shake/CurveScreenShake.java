@@ -133,6 +133,37 @@ public class CurveScreenShake extends ScreenShake {
         return this.calculateOffset(partialTick, this.rollDegrees, this.rollBounces, this.rollEasingDirection, this.rollEasingType);
     }
 
+    // TODO implement position offset logic
+    @Override
+    public float getVerticalOffset(float partialTick) {
+        return 0;
+    }
+
+    @Override
+    public float getDepthOffset(float partialTick) {
+        return 0;
+    }
+
+    @Override
+    public float getHorizontalOffset(float partialTick) {
+        return 0;
+    }
+
+    @Override
+    public float getXOffset(float partialTick) {
+        return 0;
+    }
+
+    @Override
+    public float getYOffset(float partialTick) {
+        return 0;
+    }
+
+    @Override
+    public float getZOffset(float partialTick) {
+        return 0;
+    }
+
     /** @return The offset based on the given values */
     protected float calculateOffset(float partialTick, float degrees, float bounces, EasingDirection easingDirection, Easing easingType) {
         if (degrees == 0 || bounces == 0) return 0;

@@ -24,23 +24,13 @@ public class ScreenShakeManager {
      */
     @ApiStatus.Internal
     public static void updateCamera(Camera camera, float partialTick) {
-        pitchOffset = 0.0F;
-        yawOffset   = 0.0F;
-        rollOffset  = 0.0F;
-        xOffsetRelative = 0.0F;
-        yOffsetRelative = 0.0F;
-        zOffsetRelative = 0.0F;
-        xOffsetAbsolute = 0.0F;
-        yOffsetAbsolute = 0.0F;
-        zOffsetAbsolute = 0.0F;
+        ScreenShakeManager.resetOffsets();
 
         //TODO: Maybe skip all constrained shake offset logic if "multiplier" or "limit" are 0 ?
 
         // Accumulates constrained shakes
         for (ScreenShake shake : CONSTRAINED_SHAKES) {
-            pitchOffset += shake.getPitchOffset(partialTick); // x-axis
-            yawOffset   += shake.getYawOffset(partialTick);   // y-axis
-            rollOffset  += shake.getRollOffset(partialTick);  // z-axis
+            ScreenShakeManager.applyAllOffsets(shake, partialTick);
         }
 
         // Applies global shake multiplier
@@ -48,18 +38,18 @@ public class ScreenShakeManager {
         pitchOffset *= multiplier;
         yawOffset   *= multiplier;
         rollOffset  *= multiplier;
+        // TODO add a multiplier for position offsets (probably should be a different value, as the rotation multiplier affects it less)
 
         // Soft limits each axis
         float limit = 90F; // TODO: make this a config option, and prevent it from being called if the value is 0 because divided by zero...
         pitchOffset = ScreenShakeManager.softLimit(pitchOffset, limit);
         yawOffset   = ScreenShakeManager.softLimit(yawOffset, limit);
         rollOffset  = ScreenShakeManager.softLimit(rollOffset, limit);
+        // TODO add soft limits for relative and absolute position
 
         // Adds unconstrained shakes (raw)
         for (ScreenShake shake : UNCONSTRAINED_SHAKES) {
-            pitchOffset += shake.getPitchOffset(partialTick); // x-axis
-            yawOffset   += shake.getYawOffset(partialTick);   // y-axis
-            rollOffset  += shake.getRollOffset(partialTick);  // z-axis
+            ScreenShakeManager.applyAllOffsets(shake, partialTick);
         }
 
         // Sets the camera's rotation offsets
@@ -68,6 +58,33 @@ public class ScreenShakeManager {
         ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionRelative(xOffsetRelative, yOffsetRelative, zOffsetRelative);
         // Sets the camera's position offsets
         ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionAbsolute(xOffsetAbsolute, yOffsetAbsolute, zOffsetAbsolute);
+    }
+
+    /** Sets all offsets to {@code 0.0F}. */
+    private static void resetOffsets() {
+        pitchOffset = yawOffset = rollOffset = 0.0F;
+        xOffsetRelative = yOffsetRelative = zOffsetRelative = 0.0F;
+        xOffsetAbsolute = yOffsetAbsolute = zOffsetAbsolute = 0.0F;
+    }
+
+    /**
+     * Retrieves all offsets of the given {@link ScreenShake} and applies them to the {@link ScreenShakeManager}.
+     * @param shake       The {@link ScreenShake} instance that holds the offsets
+     * @param partialTick The current partial tick
+     */
+    private static void applyAllOffsets(ScreenShake shake, float partialTick) {
+        // Rotation
+        pitchOffset += shake.getPitchOffset(partialTick); // x-axis
+        yawOffset   += shake.getYawOffset(partialTick);   // y-axis
+        rollOffset  += shake.getRollOffset(partialTick);  // z-axis
+        // Relative Position
+        xOffsetRelative += shake.getVerticalOffset(partialTick);
+        yOffsetRelative += shake.getDepthOffset(partialTick);
+        zOffsetRelative += shake.getHorizontalOffset(partialTick);
+        // Absolute Position
+        xOffsetAbsolute += shake.getXOffset(partialTick);
+        yOffsetAbsolute += shake.getYOffset(partialTick);
+        zOffsetAbsolute += shake.getZOffset(partialTick);
     }
 
     /**

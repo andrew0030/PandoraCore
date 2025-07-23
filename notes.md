@@ -70,6 +70,13 @@ Systems TODO:
   - [x] Add a limit to how much the screen can shake
   - [x] Add a multiplier that allows modifying the strength of constrained screen shakes
   - [x] Maybe add a special override that allows bypassing the limit, ~~might be handy for a few very select "shakes"~~ this is now the case for "manual" screen shakes
+  - [x] Figure out how to move the camera and prevent clipping into the world
+    - [x] Relative movement
+    - [x] Absolute movement
+  - [ ] Add a separate limit to how much the camera can move
+  - [ ] Add a separate multiplier that allows modifying the strength of movement
+  - [ ] Add methods for position adjustment in all existing screen shake types
+  - [ ] Maybe add FOV support
 - Creative Tabs
   - [x] ~~Create builder pattern abstraction for creating creative tabs~~ The vanilla creative tab builder is fine (just needs a helper to create it more easily)
   - [x] Make a tool that allows inserting items into existing tabs

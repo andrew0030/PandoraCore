@@ -54,12 +54,12 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     }
 
     @Override
-    public void pandoraCore$setPositionRelative(float xPos, float yPos, float zPos) {
+    public void pandoraCore$setPositionRelative(float horizontalOffset, float verticalOffset, float depthOffset) {
         // Moves camera relatively
         this.move(
-                pandoraCore$getMaxZoom(xPos, this.forwards), // X is forwards/backwards
-                pandoraCore$getMaxZoom(yPos, this.up),       // Y is camera up/down
-                pandoraCore$getMaxZoom(zPos, this.left)      // Z is left/right
+                pandoraCore$getMaxZoom(depthOffset, this.forwards), // forwards/backwards
+                pandoraCore$getMaxZoom(verticalOffset, this.up),    // up/down
+                pandoraCore$getMaxZoom(horizontalOffset, this.left) // left/right
         );
     }
 
@@ -73,6 +73,7 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
         );
     }
 
+    // TODO: Optimize this method for max performance
     @Unique
     private double pandoraCore$getMaxZoom(double offset, Vector3f axisDirection) {
         if (offset == 0.0) return 0.0;

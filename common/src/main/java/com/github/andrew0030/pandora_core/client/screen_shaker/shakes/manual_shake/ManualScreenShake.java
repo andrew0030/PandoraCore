@@ -10,8 +10,8 @@ import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.ScreenShak
  */
 public class ManualScreenShake extends ScreenShake {
     protected float yawDegrees, pitchDegrees, rollDegrees = 0.0F;
-    protected float xOffsetRelative, yOffsetRelative, zOffsetRelative = 0.0F;
-    protected float xOffsetAbsolute, yOffsetAbsolute, zOffsetAbsolute = 0.0F;
+    protected float horizontalOffset, verticalOffset, depthOffset = 0.0F;
+    protected float xOffset, yOffset, zOffset = 0.0F;
     protected boolean isFinished;
 
     /** A new {@link ManualScreenShake} instance: */
@@ -61,9 +61,19 @@ public class ManualScreenShake extends ScreenShake {
         return this;
     }
 
-    //TODO create setters for the other 5 position offsets
+    //TODO create setters for the other 3 position offsets
+    public ManualScreenShake setHorizontalOffset(float distance) {
+        this.horizontalOffset = distance;
+        return this;
+    }
+
+    public ManualScreenShake setVerticalOffset(float distance) {
+        this.verticalOffset = distance;
+        return this;
+    }
+
     public ManualScreenShake setDepthOffset(float distance) {
-        this.yOffsetRelative = distance;
+        this.depthOffset = distance;
         return this;
     }
 
@@ -83,33 +93,33 @@ public class ManualScreenShake extends ScreenShake {
     }
 
     @Override
+    public float getHorizontalOffset(float partialTick) {
+        return this.horizontalOffset;
+    }
+
+    @Override
     public float getVerticalOffset(float partialTick) {
-        return this.xOffsetRelative;
+        return this.verticalOffset;
     }
 
     @Override
     public float getDepthOffset(float partialTick) {
-        return this.yOffsetRelative;
-    }
-
-    @Override
-    public float getHorizontalOffset(float partialTick) {
-        return this.zOffsetRelative;
+        return this.depthOffset;
     }
 
     @Override
     public float getXOffset(float partialTick) {
-        return this.xOffsetAbsolute;
+        return this.xOffset;
     }
 
     @Override
     public float getYOffset(float partialTick) {
-        return this.yOffsetAbsolute;
+        return this.yOffset;
     }
 
     @Override
     public float getZOffset(float partialTick) {
-        return this.zOffsetAbsolute;
+        return this.zOffset;
     }
 
     @Override

@@ -15,8 +15,8 @@ public class ScreenShakeManager {
     protected static final List<ScreenShake> CONSTRAINED_SHAKES = new ArrayList<>();
     protected static final List<ScreenShake> UNCONSTRAINED_SHAKES = new ArrayList<>();
     protected static float pitchOffset, yawOffset, rollOffset;
-    protected static float xOffsetRelative, yOffsetRelative, zOffsetRelative;
-    protected static float xOffsetAbsolute, yOffsetAbsolute, zOffsetAbsolute;
+    protected static float horizontalOffset, verticalOffset, depthOffset;
+    protected static float xOffset, yOffset, zOffset;
 
     /**
      * Updates the {@link Camera}, used to apply the total offset from all
@@ -55,16 +55,16 @@ public class ScreenShakeManager {
         // Sets the camera's rotation offsets
         ((IPaCoSetCameraRotation) camera).pandoraCore$setRotation(pitchOffset, yawOffset, rollOffset, partialTick);
         // Sets the camera's position offsets relative to rotation
-        ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionRelative(xOffsetRelative, yOffsetRelative, zOffsetRelative);
+        ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionRelative(horizontalOffset, verticalOffset, depthOffset);
         // Sets the camera's position offsets
-        ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionAbsolute(xOffsetAbsolute, yOffsetAbsolute, zOffsetAbsolute);
+        ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionAbsolute(xOffset, yOffset, zOffset);
     }
 
     /** Sets all offsets to {@code 0.0F}. */
     private static void resetOffsets() {
         pitchOffset = yawOffset = rollOffset = 0.0F;
-        xOffsetRelative = yOffsetRelative = zOffsetRelative = 0.0F;
-        xOffsetAbsolute = yOffsetAbsolute = zOffsetAbsolute = 0.0F;
+        horizontalOffset = verticalOffset = depthOffset = 0.0F;
+        xOffset = yOffset = zOffset = 0.0F;
     }
 
     /**
@@ -78,13 +78,13 @@ public class ScreenShakeManager {
         yawOffset   += shake.getYawOffset(partialTick);   // y-axis
         rollOffset  += shake.getRollOffset(partialTick);  // z-axis
         // Relative Position
-        xOffsetRelative += shake.getVerticalOffset(partialTick);
-        yOffsetRelative += shake.getDepthOffset(partialTick);
-        zOffsetRelative += shake.getHorizontalOffset(partialTick);
+        horizontalOffset += shake.getHorizontalOffset(partialTick);
+        verticalOffset   += shake.getVerticalOffset(partialTick);
+        depthOffset      += shake.getDepthOffset(partialTick);
         // Absolute Position
-        xOffsetAbsolute += shake.getXOffset(partialTick);
-        yOffsetAbsolute += shake.getYOffset(partialTick);
-        zOffsetAbsolute += shake.getZOffset(partialTick);
+        xOffset += shake.getXOffset(partialTick);
+        yOffset += shake.getYOffset(partialTick);
+        zOffset += shake.getZOffset(partialTick);
     }
 
     /**

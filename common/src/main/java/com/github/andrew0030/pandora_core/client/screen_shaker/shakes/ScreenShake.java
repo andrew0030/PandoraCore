@@ -43,9 +43,9 @@ public abstract class ScreenShake {
     public abstract float getRollOffset(float partialTick);
 
     // TODO write javadocs for relative offsets
-    public abstract float getVerticalOffset(float partialTick);
-    public abstract float getDepthOffset(float partialTick);//TODO right now this moves the camera up/down so probably move these around
     public abstract float getHorizontalOffset(float partialTick);
+    public abstract float getVerticalOffset(float partialTick);
+    public abstract float getDepthOffset(float partialTick);
     // TODO write javadocs for absolute offsets
     public abstract float getXOffset(float partialTick);
     public abstract float getYOffset(float partialTick);

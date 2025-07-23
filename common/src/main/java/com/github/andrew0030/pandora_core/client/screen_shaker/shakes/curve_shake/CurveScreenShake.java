@@ -135,17 +135,17 @@ public class CurveScreenShake extends ScreenShake {
 
     // TODO implement position offset logic
     @Override
+    public float getHorizontalOffset(float partialTick) {
+        return 0;
+    }
+
+    @Override
     public float getVerticalOffset(float partialTick) {
         return 0;
     }
 
     @Override
     public float getDepthOffset(float partialTick) {
-        return 0;
-    }
-
-    @Override
-    public float getHorizontalOffset(float partialTick) {
         return 0;
     }
 

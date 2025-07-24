@@ -66,8 +66,8 @@ public class PaCoKeyMappings {
             "category.pandora_core.pandora_core"
         ), () -> {
 //            manualShake.setYaw(manualShake.getYawOffset(PaCoClientTicker.getPartialTick()) + 20);
-            float offset = manualShake.getDepthOffset(PaCoClientTicker.getPartialTick());
-            manualShake.setDepthOffset(offset != 0.0F ? offset - 1 : offset + 1);
+            float offset = manualShake.getYOffset(PaCoClientTicker.getPartialTick());
+            manualShake.setYOffset(offset != 0.0F ? offset - 1 : offset + 1);
         }
     );
 }

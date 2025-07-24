@@ -21,7 +21,7 @@ public class ManualScreenShake extends ScreenShake {
 
     /**
      * Used to flag the {@link ManualScreenShake} instance as finished,
-     * and thus should be removed from the active screen shakes.
+     * and that it should be removed from the active screen shakes.
      * @param isFinished Whether the screen shake is finished and no longer needed.
      */
     public void setFinished(boolean isFinished) {
@@ -34,7 +34,7 @@ public class ManualScreenShake extends ScreenShake {
     }
 
     /**
-     * Specifies an offset, that gets applied to the camera's yaw (left/right movement).
+     * Specifies an offset, that gets applied to the camera's yaw (left/right rotation).
      * @param degrees The number of degrees the camera should move in the specified direction.
      */
     public ManualScreenShake setYaw(float degrees) {
@@ -44,7 +44,7 @@ public class ManualScreenShake extends ScreenShake {
 
 
     /**
-     * Specifies an offset, that gets applied to the camera's pitch (up/down movement).
+     * Specifies an offset, that gets applied to the camera's pitch (up/down rotation).
      * @param degrees The number of degrees the camera should move in the specified direction.
      */
     public ManualScreenShake setPitch(float degrees) {
@@ -53,7 +53,7 @@ public class ManualScreenShake extends ScreenShake {
     }
 
     /**
-     * Specifies an offset, that gets applied to the camera's roll (rotational movement around the forward axis).
+     * Specifies an offset, that gets applied to the camera's roll (rotation around the forward axis).
      * @param degrees The number of degrees the camera should move in the specified direction.
      */
     public ManualScreenShake setRoll(float degrees) {
@@ -61,19 +61,57 @@ public class ManualScreenShake extends ScreenShake {
         return this;
     }
 
-    //TODO create setters for the other 3 position offsets
+    /**
+     * Specifies an offset, that gets applied to the camera's horizontal position (left/right relative to rotation).
+     * @param distance The number of blocks the camera should move in the specified direction.
+     */
     public ManualScreenShake setHorizontalOffset(float distance) {
         this.horizontalOffset = distance;
         return this;
     }
 
+    /**
+     * Specifies an offset, that gets applied to the camera's vertical position (up/down relative to rotation).
+     * @param distance The number of blocks the camera should move in the specified direction.
+     */
     public ManualScreenShake setVerticalOffset(float distance) {
         this.verticalOffset = distance;
         return this;
     }
 
+    /**
+     * Specifies an offset, that gets applied to the camera's depth position (position along the forward axis relative to rotation).
+     * @param distance The number of blocks the camera should move in the specified direction.
+     */
     public ManualScreenShake setDepthOffset(float distance) {
         this.depthOffset = distance;
+        return this;
+    }
+
+    /**
+     * Specifies an offset, that gets applied to the camera's x position (x position in the world).
+     * @param distance The number of blocks the camera should move in the specified direction.
+     */
+    public ManualScreenShake setXOffset(float distance) {
+        this.xOffset = distance;
+        return this;
+    }
+
+    /**
+     * Specifies an offset, that gets applied to the camera's y position (y position in the world).
+     * @param distance The number of blocks the camera should move in the specified direction.
+     */
+    public ManualScreenShake setYOffset(float distance) {
+        this.yOffset = distance;
+        return this;
+    }
+
+    /**
+     * Specifies an offset, that gets applied to the camera's z position (z position in the world).
+     * @param distance The number of blocks the camera should move in the specified direction.
+     */
+    public ManualScreenShake setZOffset(float distance) {
+        this.zOffset = distance;
         return this;
     }
 

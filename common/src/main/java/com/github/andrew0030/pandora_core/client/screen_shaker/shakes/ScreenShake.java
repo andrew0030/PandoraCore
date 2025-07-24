@@ -42,13 +42,40 @@ public abstract class ScreenShake {
      */
     public abstract float getRollOffset(float partialTick);
 
-    // TODO write javadocs for relative offsets
+    /**
+     * Gets called every render tick to modify the {@link Camera} horizontal offset.
+     * @return The horizontal (relative left/right) offset this {@link ScreenShake} should add to the {@link Camera}.
+     */
     public abstract float getHorizontalOffset(float partialTick);
+
+    /**
+     * Gets called every render tick to modify the {@link Camera} vertical offset.
+     * @return The vertical (relative up/down) offset this {@link ScreenShake} should add to the {@link Camera}.
+     */
     public abstract float getVerticalOffset(float partialTick);
+
+    /**
+     * Gets called every render tick to modify the {@link Camera} depth offset.
+     * @return The depth (relative position along the forward axis) offset this {@link ScreenShake} should add to the {@link Camera}.
+     */
     public abstract float getDepthOffset(float partialTick);
-    // TODO write javadocs for absolute offsets
+
+    /**
+     * Gets called every render tick to modify the {@link Camera} x offset.
+     * @return The x (absolute x position) offset this {@link ScreenShake} should add to the {@link Camera}.
+     */
     public abstract float getXOffset(float partialTick);
+
+    /**
+     * Gets called every render tick to modify the {@link Camera} y offset.
+     * @return The y (absolute y position) offset this {@link ScreenShake} should add to the {@link Camera}.
+     */
     public abstract float getYOffset(float partialTick);
+
+    /**
+     * Gets called every render tick to modify the {@link Camera} z offset.
+     * @return The z (absolute z position) offset this {@link ScreenShake} should add to the {@link Camera}.
+     */
     public abstract float getZOffset(float partialTick);
 
     /** @return Whether the {@link ScreenShake} should be constrained by the PaCo screen shaker config options. */

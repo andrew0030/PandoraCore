@@ -12,18 +12,36 @@ import net.minecraft.util.RandomSource;
 /** A curve based {@link ScreenShake}, that supports per axis {@link EasingDirection}, {@link Easing}. */
 public class CurveScreenShake extends ScreenShake {
     protected static final RandomSource random = RandomSource.create();
-    protected float yawDegrees = 0.0F;
-    protected float yawBounces = 0.0F;
+    // Rotation
+    protected float yawDegrees, yawBounces = 0.0F;
     protected EasingDirection yawEasingDirection = EasingDirection.NONE;
     protected Easing yawEasingType = Easing.LINEAR;
-    protected float pitchDegrees = 0.0F;
-    protected float pitchBounces = 0.0F;
+    protected float pitchDegrees, pitchBounces = 0.0F;
     protected EasingDirection pitchEasingDirection = EasingDirection.NONE;
     protected Easing pitchEasingType = Easing.LINEAR;
-    protected float rollDegrees = 0.0F;
-    protected float rollBounces = 0.0F;
+    protected float rollDegrees, rollBounces = 0.0F;
     protected EasingDirection rollEasingDirection = EasingDirection.NONE;
     protected Easing rollEasingType = Easing.LINEAR;
+    // Position Relative
+    protected float horizontalDistance, horizontalBounces = 0.0F;
+    protected EasingDirection horizontalEasingDirection = EasingDirection.NONE;
+    protected Easing horizontalEasingType = Easing.LINEAR;
+    protected float verticalDistance, verticalBounces = 0.0F;
+    protected EasingDirection verticalEasingDirection = EasingDirection.NONE;
+    protected Easing verticalEasingType = Easing.LINEAR;
+    protected float depthDistance, depthBounces = 0.0F;
+    protected EasingDirection depthEasingDirection = EasingDirection.NONE;
+    protected Easing depthEasingType = Easing.LINEAR;
+    // Position Absolute
+    protected float xDistance, xBounces = 0.0F;
+    protected EasingDirection xEasingDirection = EasingDirection.NONE;
+    protected Easing xEasingType = Easing.LINEAR;
+    protected float yDistance, yBounces = 0.0F;
+    protected EasingDirection yEasingDirection = EasingDirection.NONE;
+    protected Easing yEasingType = Easing.LINEAR;
+    protected float zDistance, zBounces = 0.0F;
+    protected EasingDirection zEasingDirection = EasingDirection.NONE;
+    protected Easing zEasingType = Easing.LINEAR;
 
     /**
      * A new {@link CurveScreenShake} instance, methods can/should be

@@ -5,12 +5,8 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen
 import com.github.andrew0030.pandora_core.client.key.PaCoKeyMappingRegistry;
 import com.github.andrew0030.pandora_core.client.screen_shaker.ScreenShakeManager;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.curve_shake.CurveScreenShake;
-import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.EasingDirection;
-import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.PitchDirection;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.RollDirection;
-import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.YawDirection;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.manual_shake.ManualScreenShake;
-import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -54,6 +50,12 @@ public class PaCoKeyMappings {
 //                .setYaw(YawDirection.LEFT, 60, 1)
 //                .setPitch(PitchDirection.UP, 60, 1)
                 .setRoll(RollDirection.RIGHT, 60, 1)
+//                .setHorizontal(HorizontalDirection.RIGHT, 2, 1)
+//                .setVertical(VerticalDirection.UP, 2, 1)
+//                .setDepth(DepthDirection.FORWARDS, 2, 1)
+//                .setX(AxisDirection.POSITIVE, 2, 1)
+//                .setY(AxisDirection.POSITIVE, 2, 1)
+//                .setZ(AxisDirection.POSITIVE, 2, 1)
             );
         }
     );

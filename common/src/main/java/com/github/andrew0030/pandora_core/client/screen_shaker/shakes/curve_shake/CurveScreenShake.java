@@ -1,10 +1,7 @@
 package com.github.andrew0030.pandora_core.client.screen_shaker.shakes.curve_shake;
 
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.ScreenShake;
-import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.EasingDirection;
-import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.PitchDirection;
-import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.RollDirection;
-import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.YawDirection;
+import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.*;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -54,43 +51,172 @@ public class CurveScreenShake extends ScreenShake {
 
     /**
      * Specifies a "shake" curve, that gets applied to the camera's yaw (left/right movement).
+     * <br/> This method uses {@link YawDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setYaw(float, float)} instead.
      * @param direction The initial direction in which the curve will move.
      * @param degrees   The number of degrees the camera should move in the specified direction.
      * @param bounces   The number of times the curve should "bounce".<br/>
      *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
-     *                  <strong>Note</strong>: While "bounces" is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
      */
     public CurveScreenShake setYaw(YawDirection direction, float degrees, float bounces) {
-        this.yawDegrees = Math.abs(degrees) * direction.getValue(random);
+        return this.setYaw(
+                Math.abs(degrees) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's yaw (left/right movement).
+     * <br/> For easier direction logic and randomization, use {@link #setYaw(YawDirection, float, float)} instead.
+     * @param degrees The number of degrees the camera should move.
+     * @param bounces The number of times the curve should "bounce".<br/>
+     *                A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
+    public CurveScreenShake setYaw(float degrees, float bounces) {
+        this.yawDegrees = degrees;
         this.yawBounces = Math.max(0, bounces);
         return this;
     }
 
     /**
      * Specifies a "shake" curve, that gets applied to the camera's pitch (up/down movement).
+     * <br/> This method uses {@link PitchDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setPitch(float, float)} instead.
      * @param direction The initial direction in which the curve will move.
      * @param degrees   The number of degrees the camera should move in the specified direction.
      * @param bounces   The number of times the curve should "bounce".<br/>
      *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
-     *                  <strong>Note</strong>: While "bounces" is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
      */
     public CurveScreenShake setPitch(PitchDirection direction, float degrees, float bounces) {
-        this.pitchDegrees = Math.abs(degrees) * direction.getValue(random);
+        return this.setPitch(
+                Math.abs(degrees) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's pitch (up/down movement).
+     * <br/> For easier direction logic and randomization, use {@link #setPitch(PitchDirection, float, float)} instead.
+     * @param degrees The number of degrees the camera should move.
+     * @param bounces The number of times the curve should "bounce".<br/>
+     *                A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
+    public CurveScreenShake setPitch(float degrees, float bounces) {
+        this.pitchDegrees = degrees;
         this.pitchBounces = Math.max(0, bounces);
         return this;
     }
 
     /**
      * Specifies a "shake" curve, that gets applied to the camera's roll (rotational movement around the forward axis).
+     * <br/> This method uses {@link RollDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setRoll(float, float)} instead.
      * @param direction The initial direction in which the curve will move.
      * @param degrees   The number of degrees the camera should move in the specified direction.
      * @param bounces   The number of times the curve should "bounce".<br/>
      *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
-     *                  <strong>Note</strong>: While "bounces" is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
      */
     public CurveScreenShake setRoll(RollDirection direction, float degrees, float bounces) {
-        this.rollDegrees = Math.abs(degrees) * direction.getValue(random);
+        return this.setRoll(
+                Math.abs(degrees) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's roll (rotational movement around the forward axis).
+     * <br/> For easier direction logic and randomization, use {@link #setRoll(RollDirection, float, float)} instead.
+     * @param degrees The number of degrees the camera should move.
+     * @param bounces The number of times the curve should "bounce".<br/>
+     *                A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
+    public CurveScreenShake setRoll(float degrees, float bounces) {
+        this.rollDegrees = degrees;
         this.rollBounces = Math.max(0, bounces);
+        return this;
+    }
+
+    public CurveScreenShake setHorizontal(HorizontalDirection direction, float distance, float bounces) {
+        return this.setHorizontal(
+                Math.abs(distance) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    public CurveScreenShake setHorizontal(float distance, float bounces) {
+        this.horizontalDistance = distance;
+        this.horizontalBounces = Math.max(0, bounces);
+        return this;
+    }
+
+    public CurveScreenShake setVertical(VerticalDirection direction, float distance, float bounces) {
+        return this.setVertical(
+                Math.abs(distance) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    public CurveScreenShake setVertical(float distance, float bounces) {
+        this.verticalDistance = distance;
+        this.verticalBounces = Math.max(0, bounces);
+        return this;
+    }
+
+    public CurveScreenShake setDepth(DepthDirection direction, float distance, float bounces) {
+        return this.setDepth(
+                Math.abs(distance) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    public CurveScreenShake setDepth(float distance, float bounces) {
+        this.depthDistance = distance;
+        this.depthBounces = Math.max(0, bounces);
+        return this;
+    }
+
+    public CurveScreenShake setX(AxisDirection direction, float distance, float bounces) {
+        return this.setX(
+                Math.abs(distance) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    public CurveScreenShake setX(float distance, float bounces) {
+        this.xDistance = distance;
+        this.xBounces = Math.max(0, bounces);
+        return this;
+    }
+
+    public CurveScreenShake setY(AxisDirection direction, float distance, float bounces) {
+        return this.setY(
+                Math.abs(distance) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    public CurveScreenShake setY(float distance, float bounces) {
+        this.yDistance = distance;
+        this.yBounces = Math.max(0, bounces);
+        return this;
+    }
+
+    public CurveScreenShake setZ(AxisDirection direction, float distance, float bounces) {
+        return this.setZ(
+                Math.abs(distance) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    public CurveScreenShake setZ(float distance, float bounces) {
+        this.zDistance = distance;
+        this.zBounces = Math.max(0, bounces);
         return this;
     }
 
@@ -133,6 +259,13 @@ public class CurveScreenShake extends ScreenShake {
         return this;
     }
 
+    // TODO add setters for easing directions/types for the remaining 5 transform types (relative/absolute movement)
+    public CurveScreenShake setHorizontalEasing(EasingDirection easingDirection, Easing easingType) {
+        this.horizontalEasingDirection = easingDirection;
+        this.horizontalEasingType = easingType;
+        return this;
+    }
+
     @Override
     public float getYawOffset(float partialTick) {
         if (this.tickCount >= this.duration) return 0.0F;
@@ -151,40 +284,45 @@ public class CurveScreenShake extends ScreenShake {
         return this.calculateOffset(partialTick, this.rollDegrees, this.rollBounces, this.rollEasingDirection, this.rollEasingType);
     }
 
-    // TODO implement position offset logic
     @Override
     public float getHorizontalOffset(float partialTick) {
-        return 0;
+        if (this.tickCount >= this.duration) return 0.0F;
+        return this.calculateOffset(partialTick, this.horizontalDistance, this.horizontalBounces, this.horizontalEasingDirection, this.horizontalEasingType);
     }
 
     @Override
     public float getVerticalOffset(float partialTick) {
-        return 0;
+        if (this.tickCount >= this.duration) return 0.0F;
+        return this.calculateOffset(partialTick, this.verticalDistance, this.verticalBounces, this.verticalEasingDirection, this.verticalEasingType);
     }
 
     @Override
     public float getDepthOffset(float partialTick) {
-        return 0;
+        if (this.tickCount >= this.duration) return 0.0F;
+        return this.calculateOffset(partialTick, this.depthDistance, this.depthBounces, this.depthEasingDirection, this.depthEasingType);
     }
 
     @Override
     public float getXOffset(float partialTick) {
-        return 0;
+        if (this.tickCount >= this.duration) return 0.0F;
+        return this.calculateOffset(partialTick, this.xDistance, this.xBounces, this.xEasingDirection, this.xEasingType);
     }
 
     @Override
     public float getYOffset(float partialTick) {
-        return 0;
+        if (this.tickCount >= this.duration) return 0.0F;
+        return this.calculateOffset(partialTick, this.yDistance, this.yBounces, this.yEasingDirection, this.yEasingType);
     }
 
     @Override
     public float getZOffset(float partialTick) {
-        return 0;
+        if (this.tickCount >= this.duration) return 0.0F;
+        return this.calculateOffset(partialTick, this.zDistance, this.zBounces, this.zEasingDirection, this.zEasingType);
     }
 
     /** @return The offset based on the given values */
-    protected float calculateOffset(float partialTick, float degrees, float bounces, EasingDirection easingDirection, Easing easingType) {
-        if (degrees == 0 || bounces == 0) return 0;
+    protected float calculateOffset(float partialTick, float amount, float bounces, EasingDirection easingDirection, Easing easingType) {
+        if (amount == 0 || bounces == 0) return 0;
         // We add partial ticks to the tick counter, so the value we work with is more precise
         float totalTime = this.tickCount + partialTick;
         // We get the time converted to a 0.0F -> 1.0F value, and we apply easing to it.
@@ -199,6 +337,6 @@ public class CurveScreenShake extends ScreenShake {
         // We calculate the phase of the sine wave.
         float phase = normalizedTime * Mth.PI * bounces;
 
-        return degrees * easingDirectionMultiplier * Mth.sin(phase);
+        return amount * easingDirectionMultiplier * Mth.sin(phase);
     }
 }

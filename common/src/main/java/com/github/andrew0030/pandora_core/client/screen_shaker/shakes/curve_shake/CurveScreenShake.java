@@ -259,10 +259,40 @@ public class CurveScreenShake extends ScreenShake {
         return this;
     }
 
-    // TODO add setters for easing directions/types for the remaining 5 transform types (relative/absolute movement)
+    // TODO write javadocs
     public CurveScreenShake setHorizontalEasing(EasingDirection easingDirection, Easing easingType) {
         this.horizontalEasingDirection = easingDirection;
         this.horizontalEasingType = easingType;
+        return this;
+    }
+
+    public CurveScreenShake setVerticalEasing(EasingDirection easingDirection, Easing easingType) {
+        this.verticalEasingDirection = easingDirection;
+        this.verticalEasingType = easingType;
+        return this;
+    }
+
+    public CurveScreenShake setDepthEasing(EasingDirection easingDirection, Easing easingType) {
+        this.depthEasingDirection = easingDirection;
+        this.depthEasingType = easingType;
+        return this;
+    }
+
+    public CurveScreenShake setXEasing(EasingDirection easingDirection, Easing easingType) {
+        this.xEasingDirection = easingDirection;
+        this.xEasingType = easingType;
+        return this;
+    }
+
+    public CurveScreenShake setYEasing(EasingDirection easingDirection, Easing easingType) {
+        this.yEasingDirection = easingDirection;
+        this.yEasingType = easingType;
+        return this;
+    }
+
+    public CurveScreenShake setZEasing(EasingDirection easingDirection, Easing easingType) {
+        this.zEasingDirection = easingDirection;
+        this.zEasingType = easingType;
         return this;
     }
 

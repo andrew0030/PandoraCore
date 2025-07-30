@@ -78,6 +78,12 @@ public abstract class ScreenShake {
      */
     public abstract float getZOffset(float partialTick);
 
+    /**
+     * Gets called every render tick to modify the {@link Camera} FOV offset.
+     * @return The FOV offset this {@link ScreenShake} should add to the {@link Camera}.
+     */
+    public abstract float getFOVOffset(float partialTick);
+
     /** @return Whether the {@link ScreenShake} should be constrained by the PaCo screen shaker config options. */
     public boolean hasGeneralConstrains() {
         return true;

@@ -17,6 +17,7 @@ public class ScreenShakeManager {
     protected static float pitchOffset, yawOffset, rollOffset;
     protected static float horizontalOffset, verticalOffset, depthOffset;
     protected static float xOffset, yOffset, zOffset;
+    protected static float fovOffset;
 
     /**
      * Updates the {@link Camera}, used to apply the total offset from all
@@ -26,7 +27,7 @@ public class ScreenShakeManager {
     public static void updateCamera(Camera camera, float partialTick) {
         ScreenShakeManager.resetOffsets();
 
-        //TODO: Maybe skip all constrained shake offset logic if "multiplier" or "limit" are 0 ?
+        //TODO: Maybe skip all constrained shake offset logic if "multiplier" or "limits" are 0 ?
 
         // Accumulates constrained shakes
         for (ScreenShake shake : CONSTRAINED_SHAKES) {
@@ -58,6 +59,8 @@ public class ScreenShakeManager {
         ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionRelative(horizontalOffset, verticalOffset, depthOffset);
         // Sets the camera's position offsets
         ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionAbsolute(xOffset, yOffset, zOffset);
+        // Sets the camera's FOV offset
+        ((IPaCoSetCameraRotation) camera).pandoraCore$setFOVOffset(fovOffset, partialTick);
     }
 
     /** Sets all offsets to {@code 0.0F}. */
@@ -65,6 +68,7 @@ public class ScreenShakeManager {
         pitchOffset = yawOffset = rollOffset = 0.0F;
         horizontalOffset = verticalOffset = depthOffset = 0.0F;
         xOffset = yOffset = zOffset = 0.0F;
+        fovOffset = 0.0F;
     }
 
     /**
@@ -85,6 +89,8 @@ public class ScreenShakeManager {
         xOffset += shake.getXOffset(partialTick);
         yOffset += shake.getYOffset(partialTick);
         zOffset += shake.getZOffset(partialTick);
+        // FOV
+        fovOffset += shake.getFOVOffset(partialTick);
     }
 
     /**

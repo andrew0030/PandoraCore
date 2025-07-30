@@ -36,6 +36,8 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     @Unique private static final Vector3f WORLD_Z = new Vector3f(0, 0, 1);
     @Unique private float pandoraCore$zRot;
     @Unique private float pandoraCore$zRotOld;
+    @Unique private float pandoraCore$fovOffset;
+    @Unique private float pandoraCore$fovOffsetOld;
 
     @Inject(method = "setup", at = @At("TAIL"))
     public void cameraShaker(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
@@ -73,6 +75,16 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
         );
     }
 
+    @Override
+    public void pandoraCore$setFOVOffset(float fovOffset, float partialTick) {
+        this.pandoraCore$fovOffset = fovOffset;
+        // This is a hack to make the game think the camera moved, as by default FOV doesn't trigger cull-frustum updates.
+        // There is probably a more "elegant" solution by doing some mixin jank, but for the sake of simplicity this will do.
+        if (this.pandoraCore$fovOffset != this.pandoraCore$fovOffsetOld)
+            xRot += partialTick * 0.000001F;
+        this.pandoraCore$fovOffsetOld = this.pandoraCore$fovOffset;
+    }
+
     // TODO: Optimize this method for max performance
     @Unique
     private double pandoraCore$getMaxZoom(double offset, Vector3f axisDirection) {
@@ -107,5 +119,10 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     @Override
     public float pandoraCore$getZRot() {
         return this.pandoraCore$zRot;
+    }
+
+    @Override
+    public float pandoraCore$getFOVOffset() {
+        return this.pandoraCore$fovOffset;
     }
 }

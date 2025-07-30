@@ -39,6 +39,10 @@ public class CurveScreenShake extends ScreenShake {
     protected float zDistance, zBounces = 0.0F;
     protected EasingDirection zEasingDirection = EasingDirection.NONE;
     protected Easing zEasingType = Easing.LINEAR;
+    // FOV
+    protected float fovDistance, fovBounces = 0.0F;
+    protected EasingDirection fovEasingDirection = EasingDirection.NONE;
+    protected Easing fovEasingType = Easing.LINEAR;
 
     /**
      * A new {@link CurveScreenShake} instance, methods can/should be
@@ -142,6 +146,7 @@ public class CurveScreenShake extends ScreenShake {
         return this;
     }
 
+    //TODO write javadocs
     public CurveScreenShake setHorizontal(HorizontalDirection direction, float distance, float bounces) {
         return this.setHorizontal(
                 Math.abs(distance) * direction.getValue(random),
@@ -220,6 +225,19 @@ public class CurveScreenShake extends ScreenShake {
         return this;
     }
 
+    public CurveScreenShake setFOV(FOVDirection direction, float degrees, float bounces) {
+        return this.setFOV(
+                Math.abs(degrees) * direction.getValue(random),
+                bounces
+        );
+    }
+
+    public CurveScreenShake setFOV(float distance, float bounces) {
+        this.fovDistance = distance;
+        this.fovBounces = Math.max(0, bounces);
+        return this;
+    }
+
     /**
      * Specifies the easing direction of the yaw curve, and the easing type that will get applied on it.<br/>
      * Essentially with this a curve can be "eased" so the start/end or both aren't so abrupt, and then fine-tuned
@@ -259,40 +277,94 @@ public class CurveScreenShake extends ScreenShake {
         return this;
     }
 
-    // TODO write javadocs
+    /**
+     * Specifies the easing direction of the horizontal curve, and the easing type that will get applied on it.<br/>
+     * Essentially with this a curve can be "eased" so the start/end or both aren't so abrupt, and then fine-tuned
+     * with an easing type.
+     * @param easingDirection The easing direction of the curve
+     * @param easingType      The easing type of the curve, that gets applied on the direction
+     */
     public CurveScreenShake setHorizontalEasing(EasingDirection easingDirection, Easing easingType) {
         this.horizontalEasingDirection = easingDirection;
         this.horizontalEasingType = easingType;
         return this;
     }
 
+    /**
+     * Specifies the easing direction of the vertical curve, and the easing type that will get applied on it.<br/>
+     * Essentially with this a curve can be "eased" so the start/end or both aren't so abrupt, and then fine-tuned
+     * with an easing type.
+     * @param easingDirection The easing direction of the curve
+     * @param easingType      The easing type of the curve, that gets applied on the direction
+     */
     public CurveScreenShake setVerticalEasing(EasingDirection easingDirection, Easing easingType) {
         this.verticalEasingDirection = easingDirection;
         this.verticalEasingType = easingType;
         return this;
     }
 
+    /**
+     * Specifies the easing direction of the depth curve, and the easing type that will get applied on it.<br/>
+     * Essentially with this a curve can be "eased" so the start/end or both aren't so abrupt, and then fine-tuned
+     * with an easing type.
+     * @param easingDirection The easing direction of the curve
+     * @param easingType      The easing type of the curve, that gets applied on the direction
+     */
     public CurveScreenShake setDepthEasing(EasingDirection easingDirection, Easing easingType) {
         this.depthEasingDirection = easingDirection;
         this.depthEasingType = easingType;
         return this;
     }
 
+    /**
+     * Specifies the easing direction of the x curve, and the easing type that will get applied on it.<br/>
+     * Essentially with this a curve can be "eased" so the start/end or both aren't so abrupt, and then fine-tuned
+     * with an easing type.
+     * @param easingDirection The easing direction of the curve
+     * @param easingType      The easing type of the curve, that gets applied on the direction
+     */
     public CurveScreenShake setXEasing(EasingDirection easingDirection, Easing easingType) {
         this.xEasingDirection = easingDirection;
         this.xEasingType = easingType;
         return this;
     }
 
+    /**
+     * Specifies the easing direction of the y curve, and the easing type that will get applied on it.<br/>
+     * Essentially with this a curve can be "eased" so the start/end or both aren't so abrupt, and then fine-tuned
+     * with an easing type.
+     * @param easingDirection The easing direction of the curve
+     * @param easingType      The easing type of the curve, that gets applied on the direction
+     */
     public CurveScreenShake setYEasing(EasingDirection easingDirection, Easing easingType) {
         this.yEasingDirection = easingDirection;
         this.yEasingType = easingType;
         return this;
     }
 
+    /**
+     * Specifies the easing direction of the z curve, and the easing type that will get applied on it.<br/>
+     * Essentially with this a curve can be "eased" so the start/end or both aren't so abrupt, and then fine-tuned
+     * with an easing type.
+     * @param easingDirection The easing direction of the curve
+     * @param easingType      The easing type of the curve, that gets applied on the direction
+     */
     public CurveScreenShake setZEasing(EasingDirection easingDirection, Easing easingType) {
         this.zEasingDirection = easingDirection;
         this.zEasingType = easingType;
+        return this;
+    }
+
+    /**
+     * Specifies the easing direction of the FOV curve, and the easing type that will get applied on it.<br/>
+     * Essentially with this a curve can be "eased" so the start/end or both aren't so abrupt, and then fine-tuned
+     * with an easing type.
+     * @param easingDirection The easing direction of the curve
+     * @param easingType      The easing type of the curve, that gets applied on the direction
+     */
+    public CurveScreenShake setFOVEasing(EasingDirection easingDirection, Easing easingType) {
+        this.fovEasingDirection = easingDirection;
+        this.fovEasingType = easingType;
         return this;
     }
 
@@ -348,6 +420,12 @@ public class CurveScreenShake extends ScreenShake {
     public float getZOffset(float partialTick) {
         if (this.tickCount >= this.duration) return 0.0F;
         return this.calculateOffset(partialTick, this.zDistance, this.zBounces, this.zEasingDirection, this.zEasingType);
+    }
+
+    @Override
+    public float getFOVOffset(float partialTick) {
+        if (this.tickCount >= this.duration) return 0.0F;
+        return this.calculateOffset(partialTick, this.fovDistance, this.fovBounces, this.fovEasingDirection, this.fovEasingType);
     }
 
     /** @return The offset based on the given values */

@@ -12,6 +12,7 @@ public class ManualScreenShake extends ScreenShake {
     protected float yawDegrees, pitchDegrees, rollDegrees = 0.0F;
     protected float horizontalOffset, verticalOffset, depthOffset = 0.0F;
     protected float xOffset, yOffset, zOffset = 0.0F;
+    protected float fovOffset = 0.0F;
     protected boolean isFinished;
 
     /** A new {@link ManualScreenShake} instance: */
@@ -115,6 +116,15 @@ public class ManualScreenShake extends ScreenShake {
         return this;
     }
 
+    /**
+     * Specifies an offset, that gets applied to the camera's FOV.
+     * @param degrees The number of degrees the camera's FOV should be changed by.
+     */
+    public ManualScreenShake setFOVOffset(float degrees) {
+        this.fovOffset = degrees;
+        return this;
+    }
+
     @Override
     public float getYawOffset(float partialTick) {
         return this.yawDegrees;
@@ -158,6 +168,11 @@ public class ManualScreenShake extends ScreenShake {
     @Override
     public float getZOffset(float partialTick) {
         return this.zOffset;
+    }
+
+    @Override
+    public float getFOVOffset(float partialTick) {
+        return this.fovOffset;
     }
 
     @Override

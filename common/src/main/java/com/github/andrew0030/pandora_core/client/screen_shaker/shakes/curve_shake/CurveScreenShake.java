@@ -6,7 +6,7 @@ import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 
-/** A curve based {@link ScreenShake}, that supports per axis {@link EasingDirection}, {@link Easing}. */
+/** A curve based {@link ScreenShake}, that allows for {@link EasingDirection} & {@link Easing} on each transform type. */
 public class CurveScreenShake extends ScreenShake {
     protected static final RandomSource random = RandomSource.create();
     // Rotation
@@ -39,7 +39,7 @@ public class CurveScreenShake extends ScreenShake {
     protected float zDistance, zBounces = 0.0F;
     protected EasingDirection zEasingDirection = EasingDirection.NONE;
     protected Easing zEasingType = Easing.LINEAR;
-    // FOV
+    // Fov
     protected float fovDistance, fovBounces = 0.0F;
     protected EasingDirection fovEasingDirection = EasingDirection.NONE;
     protected Easing fovEasingType = Easing.LINEAR;
@@ -146,7 +146,16 @@ public class CurveScreenShake extends ScreenShake {
         return this;
     }
 
-    //TODO write javadocs
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's horizontal position (relative left/right movement).
+     * <br/> This method uses {@link HorizontalDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setHorizontal(float, float)} instead.
+     * @param direction The initial direction in which the curve will move.
+     * @param distance  The number of blocks the camera should move in the specified direction.
+     * @param bounces   The number of times the curve should "bounce".<br/>
+     *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setHorizontal(HorizontalDirection direction, float distance, float bounces) {
         return this.setHorizontal(
                 Math.abs(distance) * direction.getValue(random),
@@ -154,12 +163,30 @@ public class CurveScreenShake extends ScreenShake {
         );
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's horizontal position (relative left/right movement).
+     * <br/> For easier direction logic and randomization, use {@link #setHorizontal(HorizontalDirection, float, float)} instead.
+     * @param distance The number of blocks the camera should move.
+     * @param bounces  The number of times the curve should "bounce".<br/>
+     *                 A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setHorizontal(float distance, float bounces) {
         this.horizontalDistance = distance;
         this.horizontalBounces = Math.max(0, bounces);
         return this;
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's vertical position (relative up/down movement).
+     * <br/> This method uses {@link VerticalDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setVertical(float, float)} instead.
+     * @param direction The initial direction in which the curve will move.
+     * @param distance  The number of blocks the camera should move in the specified direction.
+     * @param bounces   The number of times the curve should "bounce".<br/>
+     *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setVertical(VerticalDirection direction, float distance, float bounces) {
         return this.setVertical(
                 Math.abs(distance) * direction.getValue(random),
@@ -167,12 +194,30 @@ public class CurveScreenShake extends ScreenShake {
         );
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's vertical position (relative up/down movement).
+     * <br/> For easier direction logic and randomization, use {@link #setVertical(VerticalDirection, float, float)} instead.
+     * @param distance The number of blocks the camera should move.
+     * @param bounces  The number of times the curve should "bounce".<br/>
+     *                 A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setVertical(float distance, float bounces) {
         this.verticalDistance = distance;
         this.verticalBounces = Math.max(0, bounces);
         return this;
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's depth position (relative movement along the forward axis).
+     * <br/> This method uses {@link DepthDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setDepth(float, float)} instead.
+     * @param direction The initial direction in which the curve will move.
+     * @param distance  The number of blocks the camera should move in the specified direction.
+     * @param bounces   The number of times the curve should "bounce".<br/>
+     *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setDepth(DepthDirection direction, float distance, float bounces) {
         return this.setDepth(
                 Math.abs(distance) * direction.getValue(random),
@@ -180,12 +225,30 @@ public class CurveScreenShake extends ScreenShake {
         );
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's depth position (relative movement along the forward axis).
+     * <br/> For easier direction logic and randomization, use {@link #setDepth(DepthDirection, float, float)} instead.
+     * @param distance The number of blocks the camera should move.
+     * @param bounces  The number of times the curve should "bounce".<br/>
+     *                 A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setDepth(float distance, float bounces) {
         this.depthDistance = distance;
         this.depthBounces = Math.max(0, bounces);
         return this;
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's x position (absolute x position).
+     * <br/> This method uses {@link AxisDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setX(float, float)} instead.
+     * @param direction The initial direction in which the curve will move.
+     * @param distance  The number of blocks the camera should move in the specified direction.
+     * @param bounces   The number of times the curve should "bounce".<br/>
+     *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setX(AxisDirection direction, float distance, float bounces) {
         return this.setX(
                 Math.abs(distance) * direction.getValue(random),
@@ -193,12 +256,30 @@ public class CurveScreenShake extends ScreenShake {
         );
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's x position (absolute x position).
+     * <br/> For easier direction logic and randomization, use {@link #setX(AxisDirection, float, float)} instead.
+     * @param distance The number of blocks the camera should move.
+     * @param bounces  The number of times the curve should "bounce".<br/>
+     *                 A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setX(float distance, float bounces) {
         this.xDistance = distance;
         this.xBounces = Math.max(0, bounces);
         return this;
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's y position (absolute y position).
+     * <br/> This method uses {@link AxisDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setY(float, float)} instead.
+     * @param direction The initial direction in which the curve will move.
+     * @param distance  The number of blocks the camera should move in the specified direction.
+     * @param bounces   The number of times the curve should "bounce".<br/>
+     *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setY(AxisDirection direction, float distance, float bounces) {
         return this.setY(
                 Math.abs(distance) * direction.getValue(random),
@@ -206,12 +287,30 @@ public class CurveScreenShake extends ScreenShake {
         );
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's y position (absolute y position).
+     * <br/> For easier direction logic and randomization, use {@link #setY(AxisDirection, float, float)} instead.
+     * @param distance The number of blocks the camera should move.
+     * @param bounces  The number of times the curve should "bounce".<br/>
+     *                 A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setY(float distance, float bounces) {
         this.yDistance = distance;
         this.yBounces = Math.max(0, bounces);
         return this;
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's z position (absolute z position).
+     * <br/> This method uses {@link AxisDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setZ(float, float)} instead.
+     * @param direction The initial direction in which the curve will move.
+     * @param distance  The number of blocks the camera should move in the specified direction.
+     * @param bounces   The number of times the curve should "bounce".<br/>
+     *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setZ(AxisDirection direction, float distance, float bounces) {
         return this.setZ(
                 Math.abs(distance) * direction.getValue(random),
@@ -219,21 +318,47 @@ public class CurveScreenShake extends ScreenShake {
         );
     }
 
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's z position (absolute z position).
+     * <br/> For easier direction logic and randomization, use {@link #setY(AxisDirection, float, float)} instead.
+     * @param distance The number of blocks the camera should move.
+     * @param bounces  The number of times the curve should "bounce".<br/>
+     *                 A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
     public CurveScreenShake setZ(float distance, float bounces) {
         this.zDistance = distance;
         this.zBounces = Math.max(0, bounces);
         return this;
     }
 
-    public CurveScreenShake setFOV(FOVDirection direction, float degrees, float bounces) {
-        return this.setFOV(
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's fov offset.
+     * <br/> This method uses {@link FOVDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> For passing direct values use {@link #setFov(float, float)} instead.
+     * @param direction The initial direction in which the curve will move.
+     * @param degrees   The number of degrees the fov angle should change.
+     * @param bounces   The number of times the curve should "bounce".<br/>
+     *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
+    public CurveScreenShake setFov(FOVDirection direction, float degrees, float bounces) {
+        return this.setFov(
                 Math.abs(degrees) * direction.getValue(random),
                 bounces
         );
     }
 
-    public CurveScreenShake setFOV(float distance, float bounces) {
-        this.fovDistance = distance;
+    /**
+     * Specifies a "shake" curve, that gets applied to the camera's fov offset.
+     * <br/> For easier direction logic and randomization, use {@link #setFov(FOVDirection, float, float)} instead.
+     * @param degrees The number of degrees the fov angle should change.
+     * @param bounces The number of times the curve should "bounce".<br/>
+     *                A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
+     * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
+     */
+    public CurveScreenShake setFov(float degrees, float bounces) {
+        this.fovDistance = degrees;
         this.fovBounces = Math.max(0, bounces);
         return this;
     }
@@ -362,7 +487,7 @@ public class CurveScreenShake extends ScreenShake {
      * @param easingDirection The easing direction of the curve
      * @param easingType      The easing type of the curve, that gets applied on the direction
      */
-    public CurveScreenShake setFOVEasing(EasingDirection easingDirection, Easing easingType) {
+    public CurveScreenShake setFovEasing(EasingDirection easingDirection, Easing easingType) {
         this.fovEasingDirection = easingDirection;
         this.fovEasingType = easingType;
         return this;
@@ -423,7 +548,7 @@ public class CurveScreenShake extends ScreenShake {
     }
 
     @Override
-    public float getFOVOffset(float partialTick) {
+    public float getFovOffset(float partialTick) {
         if (this.tickCount >= this.duration) return 0.0F;
         return this.calculateOffset(partialTick, this.fovDistance, this.fovBounces, this.fovEasingDirection, this.fovEasingType);
     }

@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.client.screen_shaker;
 
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.ScreenShake;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoSetCameraRotation;
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoCameraTransforms;
 import net.minecraft.client.Camera;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -29,38 +29,34 @@ public class ScreenShakeManager {
 
         //TODO: Maybe skip all constrained shake offset logic if "multiplier" or "limits" are 0 ?
 
+        // TODO: Maybe add a multiplier for position offsets (probably should be a different value, as the rotation multiplier affects it less)
+        float multiplier = 1.0F; // TODO: make this a config option
+        // TODO: make these config options, and prevent them from being called if their values are 0 because divided by zero...
+        float rotLimit = 90F;
+        float posLimit = 3F;
+        float fovLimit = 30F;
+
         // Accumulates constrained shakes
         for (ScreenShake shake : CONSTRAINED_SHAKES) {
             ScreenShakeManager.applyAllOffsets(shake, partialTick);
         }
-
         // Applies global shake multiplier
-        float multiplier = 1.0F; // TODO: make this a config option
-        pitchOffset *= multiplier;
-        yawOffset   *= multiplier;
-        rollOffset  *= multiplier;
-        // TODO add a multiplier for position offsets (probably should be a different value, as the rotation multiplier affects it less)
-
+        ScreenShakeManager.applyMultiplier(multiplier);
         // Soft limits each axis
-        float limit = 90F; // TODO: make this a config option, and prevent it from being called if the value is 0 because divided by zero...
-        pitchOffset = ScreenShakeManager.softLimit(pitchOffset, limit);
-        yawOffset   = ScreenShakeManager.softLimit(yawOffset, limit);
-        rollOffset  = ScreenShakeManager.softLimit(rollOffset, limit);
-        // TODO add soft limits for relative and absolute position
-
+        ScreenShakeManager.applySoftLimits(rotLimit, posLimit, fovLimit);
         // Adds unconstrained shakes (raw)
         for (ScreenShake shake : UNCONSTRAINED_SHAKES) {
             ScreenShakeManager.applyAllOffsets(shake, partialTick);
         }
 
         // Sets the camera's rotation offsets
-        ((IPaCoSetCameraRotation) camera).pandoraCore$setRotation(pitchOffset, yawOffset, rollOffset, partialTick);
+        ((IPaCoCameraTransforms) camera).pandoraCore$setRotation(pitchOffset, yawOffset, rollOffset, partialTick);
         // Sets the camera's position offsets relative to rotation
-        ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionRelative(horizontalOffset, verticalOffset, depthOffset);
+        ((IPaCoCameraTransforms) camera).pandoraCore$setPositionRelative(horizontalOffset, verticalOffset, depthOffset);
         // Sets the camera's position offsets
-        ((IPaCoSetCameraRotation) camera).pandoraCore$setPositionAbsolute(xOffset, yOffset, zOffset);
-        // Sets the camera's FOV offset
-        ((IPaCoSetCameraRotation) camera).pandoraCore$setFOVOffset(fovOffset, partialTick);
+        ((IPaCoCameraTransforms) camera).pandoraCore$setPositionAbsolute(xOffset, yOffset, zOffset);
+        // Sets the camera's fov offset
+        ((IPaCoCameraTransforms) camera).pandoraCore$setFovOffset(fovOffset, partialTick);
     }
 
     /** Sets all offsets to {@code 0.0F}. */
@@ -89,8 +85,54 @@ public class ScreenShakeManager {
         xOffset += shake.getXOffset(partialTick);
         yOffset += shake.getYOffset(partialTick);
         zOffset += shake.getZOffset(partialTick);
-        // FOV
-        fovOffset += shake.getFOVOffset(partialTick);
+        // Fov
+        fovOffset += shake.getFovOffset(partialTick);
+    }
+
+    /**
+     * Applies a multiplier to all {@link ScreenShakeManager#CONSTRAINED_SHAKES}.
+     * @param multiplier  The multiplier that should be applied
+     */
+    private static void applyMultiplier(float multiplier) {
+        // Rotation
+        pitchOffset *= multiplier;
+        yawOffset   *= multiplier;
+        rollOffset  *= multiplier;
+        // Relative Position
+        horizontalOffset *= multiplier;
+        verticalOffset   *= multiplier;
+        depthOffset      *= multiplier;
+        // Absolute Position
+        xOffset *= multiplier;
+        yOffset *= multiplier;
+        zOffset *= multiplier;
+        // Fov
+        fovOffset *= multiplier;
+    }
+
+    /**
+     * Applies the soft-limits (constrains) to all {@link ScreenShakeManager#CONSTRAINED_SHAKES}.
+     * @param rotLimit The max rotation in degrees all constrained shakes can reach
+     * @param posLimit The max distance in blocks all constrained shakes can reach
+     * @param fovLimit The max angle change that can be applied to the fov by all constrained shakes
+     */
+    private static void applySoftLimits(float rotLimit, float posLimit, float fovLimit) {
+        // Rotation
+        pitchOffset = ScreenShakeManager.softLimit(pitchOffset, rotLimit);
+        yawOffset   = ScreenShakeManager.softLimit(yawOffset, rotLimit);
+        rollOffset  = ScreenShakeManager.softLimit(rollOffset, rotLimit);
+
+        // TODO: maybe add a different soft-limit method to position/fov that doesn't affect the distance as much
+        // Relative Position
+        horizontalOffset = ScreenShakeManager.softLimit(horizontalOffset, posLimit);
+        verticalOffset   = ScreenShakeManager.softLimit(verticalOffset, posLimit);
+        depthOffset      = ScreenShakeManager.softLimit(depthOffset, posLimit);
+        // Absolute Position
+        xOffset = ScreenShakeManager.softLimit(xOffset, posLimit);
+        yOffset = ScreenShakeManager.softLimit(yOffset, posLimit);
+        zOffset = ScreenShakeManager.softLimit(zOffset, posLimit);
+        // Fov
+        fovOffset = ScreenShakeManager.softLimit(fovOffset, fovLimit);
     }
 
     /**

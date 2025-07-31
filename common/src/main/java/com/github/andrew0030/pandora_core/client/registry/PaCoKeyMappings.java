@@ -5,7 +5,7 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen
 import com.github.andrew0030.pandora_core.client.key.PaCoKeyMappingRegistry;
 import com.github.andrew0030.pandora_core.client.screen_shaker.ScreenShakeManager;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.curve_shake.CurveScreenShake;
-import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.FOVDirection;
+import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.AxisDirection;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.manual_shake.ManualScreenShake;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
@@ -54,9 +54,9 @@ public class PaCoKeyMappings {
 //                .setVertical(VerticalDirection.UP, 2, 1)
 //                .setDepth(DepthDirection.FORWARDS, 2, 1)
 //                .setX(AxisDirection.POSITIVE, 2, 1)
-//                .setY(AxisDirection.POSITIVE, 2, 1)
+                .setY(AxisDirection.POSITIVE, 3, 1)
 //                .setZ(AxisDirection.POSITIVE, 2, 1)
-                .setFOV(FOVDirection.FORWARDS, 20, 1)
+//                .setFov(FOVDirection.FORWARDS, 30, 1)
             );
         }
     );

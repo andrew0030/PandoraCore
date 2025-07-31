@@ -75,8 +75,8 @@ Systems TODO:
     - [x] Absolute movement
   - [ ] Add a separate limit to how much the camera can move
   - [ ] Add a separate multiplier that allows modifying the strength of movement
-  - [ ] Add methods for position adjustment in all existing screen shake types
-  - [ ] Maybe add FOV support
+  - [x] Add methods for position adjustment in all existing screen shake types
+  - [x] Maybe add FOV support
 - Creative Tabs
   - [x] ~~Create builder pattern abstraction for creating creative tabs~~ The vanilla creative tab builder is fine (just needs a helper to create it more easily)
   - [x] Make a tool that allows inserting items into existing tabs

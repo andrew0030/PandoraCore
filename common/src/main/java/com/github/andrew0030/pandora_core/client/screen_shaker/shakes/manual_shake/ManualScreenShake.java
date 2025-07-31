@@ -117,10 +117,10 @@ public class ManualScreenShake extends ScreenShake {
     }
 
     /**
-     * Specifies an offset, that gets applied to the camera's FOV.
+     * Specifies an offset, that gets applied to the camera's fov.
      * @param degrees The number of degrees the camera's FOV should be changed by.
      */
-    public ManualScreenShake setFOVOffset(float degrees) {
+    public ManualScreenShake setFovOffset(float degrees) {
         this.fovOffset = degrees;
         return this;
     }
@@ -171,7 +171,7 @@ public class ManualScreenShake extends ScreenShake {
     }
 
     @Override
-    public float getFOVOffset(float partialTick) {
+    public float getFovOffset(float partialTick) {
         return this.fovOffset;
     }
 

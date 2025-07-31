@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.mixin.camera;
 
 import com.github.andrew0030.pandora_core.client.screen_shaker.ScreenShakeManager;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoSetCameraRotation;
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoCameraTransforms;
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
-public abstract class CameraMixin implements IPaCoSetCameraRotation {
+public abstract class CameraMixin implements IPaCoCameraTransforms {
     @Shadow private Vec3 position;
     @Shadow protected abstract void setPosition(double $$0, double $$1, double $$2);
     @Shadow protected abstract void move(double $$0, double $$1, double $$2);
@@ -50,7 +50,7 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
         // This is a hack to make the game think the camera moved, as by default zRot doesn't trigger cull-frustum updates.
         // There is probably a more "elegant" solution by doing some mixin jank, but for the sake of simplicity this will do.
         if (this.pandoraCore$zRot != this.pandoraCore$zRotOld)
-            xRot += partialTick * 0.000001F;
+            xRot += partialTick * 0.00001F;
         this.setRotation(this.yRot + yRot, this.xRot + xRot);
         this.pandoraCore$zRotOld = this.pandoraCore$zRot;
     }
@@ -76,12 +76,12 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     }
 
     @Override
-    public void pandoraCore$setFOVOffset(float fovOffset, float partialTick) {
+    public void pandoraCore$setFovOffset(float fovOffset, float partialTick) {
         this.pandoraCore$fovOffset = fovOffset;
-        // This is a hack to make the game think the camera moved, as by default FOV doesn't trigger cull-frustum updates.
+        // This is a hack to make the game think the camera moved, as by default fov doesn't trigger cull-frustum updates.
         // There is probably a more "elegant" solution by doing some mixin jank, but for the sake of simplicity this will do.
         if (this.pandoraCore$fovOffset != this.pandoraCore$fovOffsetOld)
-            xRot += partialTick * 0.000001F;
+            this.setRotation(this.yRot, this.xRot + (partialTick * 0.00001F));
         this.pandoraCore$fovOffsetOld = this.pandoraCore$fovOffset;
     }
 
@@ -122,7 +122,7 @@ public abstract class CameraMixin implements IPaCoSetCameraRotation {
     }
 
     @Override
-    public float pandoraCore$getFOVOffset() {
+    public float pandoraCore$getFovOffset() {
         return this.pandoraCore$fovOffset;
     }
 }

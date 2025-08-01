@@ -73,7 +73,7 @@ Systems TODO:
   - [x] Figure out how to move the camera and prevent clipping into the world
     - [x] Relative movement
     - [x] Absolute movement
-  - [ ] Add a separate limit to how much the camera can move
+  - [x] Add a separate limit to how much the camera can move
   - [ ] Add a separate multiplier that allows modifying the strength of movement
   - [x] Add methods for position adjustment in all existing screen shake types
   - [x] Maybe add FOV support

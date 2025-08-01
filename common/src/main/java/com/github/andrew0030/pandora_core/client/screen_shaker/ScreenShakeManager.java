@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.client.screen_shaker;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.ScreenShake;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoCameraTransforms;
 import net.minecraft.client.Camera;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
@@ -146,7 +147,20 @@ public class ScreenShakeManager {
      * @return a smoothly limited value that never exceeds {@code limit}, but transitions softly near it
      */
     private static float softLimit(float value, float limit) {
-        return (float) (Math.tanh(value / limit) * limit);
+//        return (float) (Math.tanh(value / limit) * limit);
+
+        float absValue = Math.abs(value);
+        float softStart = 0.8f; // Starts soft easing after (X)% of the limit
+        float curveSharpness = 0.4F; // The sharpness of the curve past "soft start"
+
+        // Values under the "soft start" percentage are returned as is
+        if (absValue <= softStart * limit)
+            return value;
+
+        float easedRange = limit - softStart * limit;
+        float easedInput = (absValue - softStart * limit) / easedRange;
+        float easedOutput = (float) (Math.tanh(easedInput * curveSharpness) * easedRange);
+        return Math.signum(value) * (softStart * limit + easedOutput);
     }
 
     /**

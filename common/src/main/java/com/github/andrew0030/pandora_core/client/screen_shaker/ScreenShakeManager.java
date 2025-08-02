@@ -3,7 +3,6 @@ package com.github.andrew0030.pandora_core.client.screen_shaker;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.ScreenShake;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoCameraTransforms;
 import net.minecraft.client.Camera;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
@@ -34,8 +33,8 @@ public class ScreenShakeManager {
         float multiplier = 1.0F; // TODO: make this a config option
         // TODO: make these config options, and prevent them from being called if their values are 0 because divided by zero...
         float rotLimit = 90F;
-        float posLimit = 3F;
-        float fovLimit = 30F;
+        float posLimit = 1.5F;
+        float fovLimit = 20F;
 
         // Accumulates constrained shakes
         for (ScreenShake shake : CONSTRAINED_SHAKES) {
@@ -122,8 +121,6 @@ public class ScreenShakeManager {
         pitchOffset = ScreenShakeManager.softLimit(pitchOffset, rotLimit);
         yawOffset   = ScreenShakeManager.softLimit(yawOffset, rotLimit);
         rollOffset  = ScreenShakeManager.softLimit(rollOffset, rotLimit);
-
-        // TODO: maybe add a different soft-limit method to position/fov that doesn't affect the distance as much
         // Relative Position
         horizontalOffset = ScreenShakeManager.softLimit(horizontalOffset, posLimit);
         verticalOffset   = ScreenShakeManager.softLimit(verticalOffset, posLimit);
@@ -149,9 +146,10 @@ public class ScreenShakeManager {
     private static float softLimit(float value, float limit) {
 //        return (float) (Math.tanh(value / limit) * limit);
 
+        //TODO: maybe modify the method to take in softStart and curveSharpness as per case values might be useful
         float absValue = Math.abs(value);
         float softStart = 0.8f; // Starts soft easing after (X)% of the limit
-        float curveSharpness = 0.4F; // The sharpness of the curve past "soft start"
+        float curveSharpness = 0.8F; // The sharpness of the curve past "soft start"
 
         // Values under the "soft start" percentage are returned as is
         if (absValue <= softStart * limit)

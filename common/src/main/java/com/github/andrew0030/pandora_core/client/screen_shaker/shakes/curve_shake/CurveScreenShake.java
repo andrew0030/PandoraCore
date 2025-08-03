@@ -334,7 +334,7 @@ public class CurveScreenShake extends ScreenShake {
 
     /**
      * Specifies a "shake" curve, that gets applied to the camera's fov offset.
-     * <br/> This method uses {@link FOVDirection}, which has {@code RANDOM} and easy directional logic.
+     * <br/> This method uses {@link FovDirection}, which has {@code RANDOM} and easy directional logic.
      * <br/> For passing direct values use {@link #setFov(float, float)} instead.
      * @param direction The initial direction in which the curve will move.
      * @param degrees   The number of degrees the fov angle should change.
@@ -342,7 +342,7 @@ public class CurveScreenShake extends ScreenShake {
      *                  A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>
      * @implNote While {@code bounces} is typically an integer, decimal values can be used to end the movement at a position different from the start position.
      */
-    public CurveScreenShake setFov(FOVDirection direction, float degrees, float bounces) {
+    public CurveScreenShake setFov(FovDirection direction, float degrees, float bounces) {
         return this.setFov(
                 Math.abs(degrees) * direction.getValue(random),
                 bounces
@@ -351,7 +351,7 @@ public class CurveScreenShake extends ScreenShake {
 
     /**
      * Specifies a "shake" curve, that gets applied to the camera's fov offset.
-     * <br/> For easier direction logic and randomization, use {@link #setFov(FOVDirection, float, float)} instead.
+     * <br/> For easier direction logic and randomization, use {@link #setFov(FovDirection, float, float)} instead.
      * @param degrees The number of degrees the fov angle should change.
      * @param bounces The number of times the curve should "bounce".<br/>
      *                A bounce is defined as starting at 0° and moving the specified number of degrees in one direction, then returning to 0°.<br/>

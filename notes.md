@@ -74,7 +74,7 @@ Systems TODO:
     - [x] Relative movement
     - [x] Absolute movement
   - [x] Add a separate limit to how much the camera can move
-  - [ ] Add a separate multiplier that allows modifying the strength of movement
+  - [x] ~~Add a separate multiplier that allows modifying the strength of movement~~ Don't need this
   - [x] Add methods for position adjustment in all existing screen shake types
   - [x] Maybe add FOV support
 - Creative Tabs

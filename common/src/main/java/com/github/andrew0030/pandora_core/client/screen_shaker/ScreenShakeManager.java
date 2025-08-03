@@ -28,11 +28,10 @@ public class ScreenShakeManager {
         ScreenShakeManager.resetOffsets();
 
         //TODO: Maybe skip all constrained shake offset logic if "multiplier" or "limits" are 0 ?
-
-        // TODO: Maybe add a multiplier for position offsets (probably should be a different value, as the rotation multiplier affects it less)
+        
         float multiplier = 1.0F; // TODO: make this a config option
         // TODO: make these config options, and prevent them from being called if their values are 0 because divided by zero...
-        float rotLimit = 90F;
+        float rotLimit = 45F;
         float posLimit = 1.5F;
         float fovLimit = 20F;
 
@@ -138,15 +137,14 @@ public class ScreenShakeManager {
      * <p>
      * Unlike a hard clamp which abruptly stops values at a fixed threshold, this method smoothly
      * compresses large values toward the specified {@code limit}, preserving motion and oscillation.
+     * </p>
+     * Compression also only starts after a certain percentage, so small values remain unchanged.
      *
      * @param value the input value to be soft-limited
      * @param limit the maximum magnitude to which the output will asymptotically approach
-     * @return a smoothly limited value that never exceeds {@code limit}, but transitions softly near it
+     * @return a smoothly limited value that never exceeds {@code limit}, but tries to transition softly near it
      */
     private static float softLimit(float value, float limit) {
-//        return (float) (Math.tanh(value / limit) * limit);
-
-        //TODO: maybe modify the method to take in softStart and curveSharpness as per case values might be useful
         float absValue = Math.abs(value);
         float softStart = 0.8f; // Starts soft easing after (X)% of the limit
         float curveSharpness = 0.8F; // The sharpness of the curve past "soft start"
@@ -155,6 +153,7 @@ public class ScreenShakeManager {
         if (absValue <= softStart * limit)
             return value;
 
+        // Values over "soft start" percentage are compressed
         float easedRange = limit - softStart * limit;
         float easedInput = (absValue - softStart * limit) / easedRange;
         float easedOutput = (float) (Math.tanh(easedInput * curveSharpness) * easedRange);

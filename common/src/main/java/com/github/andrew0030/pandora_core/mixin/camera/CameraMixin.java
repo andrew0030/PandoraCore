@@ -31,9 +31,9 @@ public abstract class CameraMixin implements IPaCoCameraTransforms {
     @Shadow private BlockGetter level;
     @Shadow private Entity entity;
 
-    @Unique private static final Vector3f WORLD_X = new Vector3f(1, 0, 0);
-    @Unique private static final Vector3f WORLD_Y = new Vector3f(0, 1, 0);
-    @Unique private static final Vector3f WORLD_Z = new Vector3f(0, 0, 1);
+    @Unique private static final Vec3 WORLD_X = new Vec3(1, 0, 0);
+    @Unique private static final Vec3 WORLD_Y = new Vec3(0, 1, 0);
+    @Unique private static final Vec3 WORLD_Z = new Vec3(0, 0, 1);
     @Unique private float pandoraCore$zRot;
     @Unique private float pandoraCore$zRotOld;
     @Unique private float pandoraCore$fovOffset;
@@ -85,14 +85,20 @@ public abstract class CameraMixin implements IPaCoCameraTransforms {
         this.pandoraCore$fovOffsetOld = this.pandoraCore$fovOffset;
     }
 
-    // TODO: Optimize this method for max performance
     @Unique
     private double pandoraCore$getMaxZoom(double offset, Vector3f axisDirection) {
+        // Since the cameras values are stored as Vector3f but later on we need Vec3, I decided to store
+        // the vectors for absolute positions (x, y, z) as Vec3, as they don't require normalizing.
+        // And for relative positions, this method normalizes the values and calls the other one.
+        Vec3 direction = new Vec3(axisDirection.x(), axisDirection.y(), axisDirection.z()).normalize();
+        return this.pandoraCore$getMaxZoom(offset, direction);
+    }
+
+    @Unique
+    private double pandoraCore$getMaxZoom(double offset, Vec3 axisDirection) {
         if (offset == 0.0) return 0.0;
 
-        Vec3 direction = new Vec3(axisDirection.x(), axisDirection.y(), axisDirection.z()).normalize();
         double finalDistance = offset;
-
         float spacing = 0.1F;
         for (int i = 0; i < 8; ++i) {
             float fx = (float) ((i & 1) * 2 - 1) * spacing;
@@ -100,8 +106,7 @@ public abstract class CameraMixin implements IPaCoCameraTransforms {
             float fz = (float) (((i >> 2) & 1) * 2 - 1) * spacing;
 
             Vec3 offsetStart = this.position.add(fx, fy, fz);
-            Vec3 offsetEnd = offsetStart.add(direction.scale(offset));
-
+            Vec3 offsetEnd = offsetStart.add(axisDirection.x() * offset, axisDirection.y() * offset, axisDirection.z() * offset);
             ClipContext context = new ClipContext(offsetStart, offsetEnd, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, this.entity);
             HitResult hit = this.level.clip(context);
 

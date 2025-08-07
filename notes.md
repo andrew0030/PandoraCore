@@ -48,6 +48,7 @@ Systems TODO:
   - [x] Add a description to Minecraft on fabric
   - [ ] Replace Fabric's placeholder background
   - [ ] Replace Forge's placeholder background
+  - [ ] Add support for [FancyMenu](https://www.curseforge.com/minecraft/mc-mods/fancymenu), which currently gets replaced with panorama
   - [ ] Maybe add banner support
 - PaCo Config Screen
   - [ ] Create config screen that can take any number of components and dynamically adjust to it
@@ -77,6 +78,7 @@ Systems TODO:
   - [x] ~~Add a separate multiplier that allows modifying the strength of movement~~ Don't need this
   - [x] Add methods for position adjustment in all existing screen shake types
   - [x] Maybe add FOV support
+  - [ ] Maybe add custom line of sight checking options as offsetting doesn't seem to alter line of sight checks 
 - Creative Tabs
   - [x] ~~Create builder pattern abstraction for creating creative tabs~~ The vanilla creative tab builder is fine (just needs a helper to create it more easily)
   - [x] Make a tool that allows inserting items into existing tabs
@@ -89,5 +91,11 @@ Systems TODO:
   - [x] Add different types of ctm
   - [x] Add json option to toggle "in front of" checks
   - [x] Optimize ctm even more (this will involve some hacky stuff, so it should be the last step)
+- World Generation
+  - [ ] Add a data driven registry that allows for modifiers (essentially an alternative to forge biome modifiers)
+  - [ ] Add a modifier that allows registering entity spawns to biome/s
+  - [ ] Add a modifier that allows registering features to biome/s
+  - [ ] Add a modifier that allows registering structures to biome/s
+  - [ ] Maybe add a modifier that allows adding entries to jigsaw structure piece pools
 - Shader Patcher
   - I dont understand enough about this system to write TODOs

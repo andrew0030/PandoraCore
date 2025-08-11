@@ -4,14 +4,19 @@ import com.github.andrew0030.pandora_core.client.registry.PaCoParticleProviderRe
 import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
 import com.github.andrew0030.pandora_core.registry.PaCoBrewingRecipeRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
+import com.github.andrew0030.pandora_core.registry.PaCoRegistryBuilder;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.client.KeyMapping;
@@ -21,9 +26,12 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.DefaultedMappedRegistry;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,6 +42,7 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class FabricRegistryHelper implements IRegistryHelper {
@@ -43,6 +52,43 @@ public class FabricRegistryHelper implements IRegistryHelper {
         registryQueue.forEach((name, registryObject) -> {
             Registry.register(registry, new ResourceLocation(modId, name), registryObject.get());
         });
+    }
+
+    @Override
+    public <T> void registerCustom(PaCoRegistryBuilder.SimpleSpec<T> spec, String modId, Map<String, PaCoRegistryObject<T>> registryQueue) {
+        ResourceKey<Registry<T>> resourceKey = spec.getResourceKey();
+        Optional<ResourceLocation> defaultId = spec.getDefaultId();
+        Registry<T> registry;
+        if (defaultId.isPresent()) {
+            FabricRegistryBuilder<T, DefaultedMappedRegistry<T>> builder = FabricRegistryBuilder.createDefaulted(resourceKey, defaultId.get());
+            // If sync has been enabled we enable sync for this registry
+            if (spec.getSync()) builder.attribute(RegistryAttribute.SYNCED);
+            // If saving has been enabled we enable saving for this registry
+            if (spec.getPersistent()) builder.attribute(RegistryAttribute.PERSISTED);
+            // Lastly we build the registry
+            registry = builder.buildAndRegister();
+        } else {
+            FabricRegistryBuilder<T, MappedRegistry<T>> builder = FabricRegistryBuilder.createSimple(resourceKey);
+            // If sync has been enabled we enable sync for this registry
+            if (spec.getSync()) builder.attribute(RegistryAttribute.SYNCED);
+            // If saving has been enabled we enable saving for this registry
+            if (spec.getPersistent()) builder.attribute(RegistryAttribute.PERSISTED);
+            // Lastly we build the registry
+            registry = builder.buildAndRegister();
+        }
+        registryQueue.forEach((name, registryObject) -> {
+            Registry.register(registry, new ResourceLocation(modId, name), registryObject.get());
+        });
+    }
+
+    @Override
+    public <T> void registerDynamic(PaCoRegistryBuilder.DynamicSpec<T> spec) {
+        ResourceKey<Registry<T>> resourceKey = spec.getResourceKey();
+        Codec<T> codec = spec.getCodec();
+        spec.getNetCodec().ifPresentOrElse(
+                netCodec -> DynamicRegistries.registerSynced(resourceKey, codec, netCodec),
+                () -> DynamicRegistries.register(resourceKey, codec)
+        );
     }
 
     @Override

@@ -4,8 +4,10 @@ import com.github.andrew0030.pandora_core.client.registry.PaCoParticleProviderRe
 import com.github.andrew0030.pandora_core.platform.services.IRegistryHelper;
 import com.github.andrew0030.pandora_core.registry.PaCoBrewingRecipeRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoFlammableBlockRegistry;
+import com.github.andrew0030.pandora_core.registry.PaCoRegistryBuilder;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryObject;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
@@ -17,6 +19,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -39,7 +42,9 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DataPackRegistryEvent;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -53,6 +58,41 @@ public class ForgeRegistryHelper implements IRegistryHelper {
         DeferredRegister<T> deferred = DeferredRegister.create(registry.key(), modId);
         registryQueue.forEach(deferred::register);
         deferred.register(FMLJavaModLoadingContext.get().getModEventBus());
+    }
+
+    @Override
+    public <T> void registerCustom(PaCoRegistryBuilder.SimpleSpec<T> spec, String modId, Map<String, PaCoRegistryObject<T>> registryQueue) {
+        ResourceKey<Registry<T>> resourceKey = spec.getResourceKey();
+        DeferredRegister<T> deferred = DeferredRegister.create(resourceKey, modId);
+        deferred.makeRegistry(() -> {
+            RegistryBuilder<T> builder = new RegistryBuilder<>();
+            // Custom registries without tag support don't have an associated vanilla Registry
+            // So since I want for there to always be one I will keep this line here unconditionally
+            builder.hasTags();
+            // If sync hasn't been enabled we disable sync for this registry
+            if (!spec.getSync()) builder.disableSync();
+            // If saving hasn't been enabled we disable saving for this registry
+            if (!spec.getPersistent()) builder.disableSaving();
+            // If a default entry has been specified we set it here
+            spec.getDefaultId().ifPresent(builder::setDefaultKey);
+            // Lastly we return the configured builder
+            return builder;
+        });
+        registryQueue.forEach(deferred::register);
+        deferred.register(FMLJavaModLoadingContext.get().getModEventBus());
+    }
+
+    @Override
+    public <T> void registerDynamic(PaCoRegistryBuilder.DynamicSpec<T> spec) {
+        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ResourceKey<Registry<T>> resourceKey = spec.getResourceKey();
+        Codec<T> codec = spec.getCodec();
+        modEventBus.addListener((DataPackRegistryEvent.NewRegistry event) -> {
+            spec.getNetCodec().ifPresentOrElse(
+                    netCodec -> event.dataPackRegistry(resourceKey, codec, netCodec),
+                    () -> event.dataPackRegistry(resourceKey, codec)
+            );
+        });
     }
 
     @Override

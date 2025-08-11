@@ -3,6 +3,8 @@ package com.github.andrew0030.pandora_core.registry;
 import com.github.andrew0030.pandora_core.platform.Services;
 import net.minecraft.core.Registry;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -25,6 +27,7 @@ import java.util.function.Supplier;
  */
 public class PaCoRegistry<T> {
     private final Registry<T> registry;
+    private final PaCoRegistryBuilder.SimpleSpec<T> spec;
     private final String modId;
     private final Map<String, PaCoRegistryObject<T>> registryQueue = new LinkedHashMap<>();
 
@@ -35,6 +38,13 @@ public class PaCoRegistry<T> {
      */
     public PaCoRegistry(Registry<T> registry, String modId) {
         this.registry = registry;
+        this.spec = null;
+        this.modId = modId;
+    }
+
+    public PaCoRegistry(PaCoRegistryBuilder.SimpleSpec<T> spec, String modId) {
+        this.registry = null;
+        this.spec = spec;
         this.modId = modId;
     }
 
@@ -57,15 +67,26 @@ public class PaCoRegistry<T> {
 
     /**
      * This needs to be called, to register all added entries.
-     * Here is a list of when to call it, on each loader:<br/><br/>
+     * Here is a list of when to call it, on each loader:
+     * <br/><br/>
      * <strong>Forge</strong>: Inside mod constructor.<br/>
-     * <strong>Fabric</strong>: Inside ModInitializer#onInitialize.<br/><br/>
-     * <strong>NOTE</strong>: This method also clears {@link PaCoRegistry#registryQueue} after the objects have been registered.
+     * <strong>Fabric</strong>: Inside ModInitializer#onInitialize.
      */
     public void register() {
-        Services.REGISTRY.register(this.registry, this.modId, this.registryQueue);
-        // If there is a random mod that rebuilds registries, this will probably conflict with it.
-        // That said there is probably VERY FEW mods that do this, if any...
-        this.registryQueue.clear();
+        if (this.registry != null) {
+            Services.REGISTRY.register(this.registry, this.modId, this.registryQueue);
+        } else {
+            Services.REGISTRY.registerCustom(this.spec, this.modId, this.registryQueue);
+        }
+    }
+
+    //TODO write java docs
+
+    public Collection<PaCoRegistryObject<T>> getEntries() {
+        return Collections.unmodifiableCollection(this.registryQueue.values());
+    }
+
+    public static <T> void registerDynamic(PaCoRegistryBuilder.DynamicSpec<T> spec) {
+        Services.REGISTRY.registerDynamic(spec);
     }
 }

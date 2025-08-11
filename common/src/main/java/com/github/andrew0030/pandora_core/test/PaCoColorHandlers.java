@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.test;
 
 import com.github.andrew0030.pandora_core.client.registry.PaCoColorHandlerRegistry;
-import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
+import com.github.andrew0030.pandora_core.registry.test.PaCoBlocks;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.world.level.FoliageColor;
 

@@ -9,8 +9,8 @@ import com.github.andrew0030.pandora_core.client.render.renderers.registry.Insta
 import com.github.andrew0030.pandora_core.client.shader.compute.ComputeLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.platform.Services;
-import com.github.andrew0030.pandora_core.registry.PaCoBlockEntities;
-import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
+import com.github.andrew0030.pandora_core.registry.test.PaCoBlockEntities;
+import com.github.andrew0030.pandora_core.registry.test.PaCoBlocks;
 import com.github.andrew0030.pandora_core.test.InstancingTestBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.test.PaCoBlockRenderTypes;
 import com.github.andrew0030.pandora_core.test.PaCoColorHandlers;

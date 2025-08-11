@@ -1,8 +1,9 @@
-package com.github.andrew0030.pandora_core.registry;
+package com.github.andrew0030.pandora_core.registry.test;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.block_entities.InstancingTestBlockEntity;
 import com.github.andrew0030.pandora_core.block_entities.TestBlockEntity;
+import com.github.andrew0030.pandora_core.registry.PaCoRegistry;
 import com.github.andrew0030.pandora_core.test.block_entities.TestBERenderer;
 import com.google.common.collect.Sets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;

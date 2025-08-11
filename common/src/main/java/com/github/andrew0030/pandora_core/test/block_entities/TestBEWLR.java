@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.test.block_entities;
 
 import com.github.andrew0030.pandora_core.block_entities.TestBlockEntity;
-import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
+import com.github.andrew0030.pandora_core.registry.test.PaCoBlocks;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;

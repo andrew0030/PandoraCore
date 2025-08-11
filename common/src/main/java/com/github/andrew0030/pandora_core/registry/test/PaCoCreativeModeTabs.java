@@ -1,6 +1,7 @@
-package com.github.andrew0030.pandora_core.registry;
+package com.github.andrew0030.pandora_core.registry.test;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.registry.PaCoRegistry;
 import com.github.andrew0030.pandora_core.tab.PaCoTabManager;
 import com.github.andrew0030.pandora_core.tab.TabVisibility;
 import net.minecraft.core.registries.BuiltInRegistries;

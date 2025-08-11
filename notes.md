@@ -59,7 +59,7 @@ Systems TODO:
 - Registries
   - [x] Create PaCoRegistry to abstract all Object registration
   - [x] Create more registry classes or a util class, to allow registering event based stuff (model layers, particles, e.t.c)
-  - [ ] Maybe look into abstracting custom Registry registration
+  - [x] Maybe look into abstracting custom Registry registration
 - Random Render Stuff
   - [x] Create abstraction for BEWLERs
 - Sounds
@@ -97,5 +97,6 @@ Systems TODO:
   - [ ] Add a modifier that allows registering features to biome/s
   - [ ] Add a modifier that allows registering structures to biome/s
   - [ ] Maybe add a modifier that allows adding entries to jigsaw structure piece pools
+  - [ ] Maybe add some sort of "empty" modifier that allows data packs to disable/overwrite modifiers
 - Shader Patcher
   - I dont understand enough about this system to write TODOs

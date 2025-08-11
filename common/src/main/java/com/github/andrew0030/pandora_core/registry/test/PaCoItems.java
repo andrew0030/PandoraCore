@@ -1,6 +1,7 @@
-package com.github.andrew0030.pandora_core.registry;
+package com.github.andrew0030.pandora_core.registry.test;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.registry.PaCoRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 

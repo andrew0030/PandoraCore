@@ -13,6 +13,7 @@ Jank:
 - apparently there is some kind of known memory leak that needs to be fixed
 - game crashes in production on fabric if iris is present (need to move a mixin into loader modules)
 - move black hole shader out of data
+- use `ARBInstancedArrays.glVertexAttribDivisorARB();`
 
 <hr/>
 

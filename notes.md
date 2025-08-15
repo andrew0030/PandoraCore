@@ -13,7 +13,7 @@ Jank:
 - apparently there is some kind of known memory leak that needs to be fixed
 - game crashes in production on fabric if iris is present (need to move a mixin into loader modules)
 - move black hole shader out of data
-- use `ARBInstancedArrays.glVertexAttribDivisorARB();`
+- use `ARBInstancedArrays.glVertexAttribDivisorARB();` if necessary
 
 <hr/>
 
@@ -93,11 +93,11 @@ Systems TODO:
   - [x] Add json option to toggle "in front of" checks
   - [x] Optimize ctm even more (this will involve some hacky stuff, so it should be the last step)
 - World Generation
-  - [ ] Add a data driven registry that allows for modifiers (essentially an alternative to forge biome modifiers)
-  - [ ] Add a modifier that allows registering entity spawns to biome/s
+  - [x] Add a data driven registry that allows for modifiers (essentially an alternative to forge biome modifiers)
+  - [x] Add a modifier that allows registering entity spawns to biome/s
   - [ ] Add a modifier that allows registering features to biome/s
   - [ ] Add a modifier that allows registering structures to biome/s
   - [ ] Maybe add a modifier that allows adding entries to jigsaw structure piece pools
-  - [ ] Maybe add some sort of "empty" modifier that allows data packs to disable/overwrite modifiers
+  - [x] Maybe add some sort of "empty" modifier that allows data packs to disable/overwrite modifiers
 - Shader Patcher
   - I dont understand enough about this system to write TODOs

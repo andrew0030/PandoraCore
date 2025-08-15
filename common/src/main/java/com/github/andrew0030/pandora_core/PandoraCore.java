@@ -3,10 +3,14 @@ package com.github.andrew0030.pandora_core;
 import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.platform.Services;
-import com.github.andrew0030.pandora_core.registry.PaCoBlockEntities;
-import com.github.andrew0030.pandora_core.registry.PaCoBlocks;
-import com.github.andrew0030.pandora_core.registry.PaCoCreativeModeTabs;
-import com.github.andrew0030.pandora_core.registry.PaCoItems;
+import com.github.andrew0030.pandora_core.registry.PaCoRegistry;
+import com.github.andrew0030.pandora_core.registry.PaCoRegistryBuilder;
+import com.github.andrew0030.pandora_core.registry.internal.PaCoModifiers;
+import com.github.andrew0030.pandora_core.registry.internal.PaCoRegistryKeys;
+import com.github.andrew0030.pandora_core.registry.test.PaCoBlockEntities;
+import com.github.andrew0030.pandora_core.registry.test.PaCoBlocks;
+import com.github.andrew0030.pandora_core.registry.test.PaCoCreativeModeTabs;
+import com.github.andrew0030.pandora_core.registry.test.PaCoItems;
 import com.github.andrew0030.pandora_core.test.PaCoBrewingRecipes;
 import com.github.andrew0030.pandora_core.test.PaCoFlammables;
 import com.github.andrew0030.pandora_core.test.entity.PaCoEntities;
@@ -17,6 +21,7 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory;
 import com.github.andrew0030.pandora_core.utils.update_checker.PaCoUpdateChecker;
+import com.github.andrew0030.pandora_core.world.Modifier;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -31,14 +36,17 @@ public class PandoraCore {
 
     /** Early Init (Mod Construction) **/
     public static void earlyInit() {
+        // Normal Registries
         PaCoBlocks.BLOCKS.register();
         PaCoItems.ITEMS.register();
         PaCoEntities.ENTITY_TYPES.register();
         PaCoBlockEntities.BLOCK_ENTITY_TYPES.register();
         PaCoParticles.PARTICLE_TYPES.register();
         PaCoCreativeModeTabs.CREATIVE_MODE_TABS.register();
-
         PaCoEntityAttributes.ENTITY_ATTRIBUTES.register();
+        PaCoModifiers.MODIFIER_TYPES.register();
+        // Dynamic Registries
+        PaCoRegistry.registerDynamic(PaCoRegistryBuilder.dynamic(PaCoRegistryKeys.WORLDGEN_MODIFIER, Modifier.CODEC));
 
         PaCoNetworking.CHANNEL.register();
     }

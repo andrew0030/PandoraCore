@@ -42,6 +42,7 @@ public class PaCoRegistry<T> {
         this.modId = modId;
     }
 
+    //TODO write java docs
     public PaCoRegistry(PaCoRegistryBuilder.SimpleSpec<T> spec, String modId) {
         this.registry = null;
         this.spec = spec;

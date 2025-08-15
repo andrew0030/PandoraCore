@@ -10,7 +10,11 @@
     "level.ServerLevelMixin",
     "player.PlayerMixin",
     "player.ServerPlayerMixin",
-    "tab.CreativeModeTabMixin"
+    "tab.CreativeModeTabMixin",
+    "accessor.BiomeAccessor",
+    "accessor.MobSpawnSettingsAccessor",
+    "worldgen_modifier.DedicatedServerMixin",
+    "worldgen_modifier.GameTestServerMixin"
   ],
   "client": [
     "camera.CameraMixin",
@@ -53,7 +57,8 @@
     "render.instancing.compat.SectionBuilderMixin",
     "render.instancing.compat.SodiumRendererMixin",
     "render.instancing.compat.iris.ShadowPassMixin",
-    "test.ShaderTemplateTest"
+    "test.ShaderTemplateTest",
+    "worldgen_modifier.IntegratedServerMixin"
   ],
   "server": [],
   "injectors": {

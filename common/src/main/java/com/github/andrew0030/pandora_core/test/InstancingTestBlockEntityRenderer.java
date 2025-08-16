@@ -7,11 +7,13 @@ import com.github.andrew0030.pandora_core.client.render.instancing.InstanceForma
 import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.joml.Matrix3f;
 import org.joml.Random;
@@ -45,6 +47,12 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
         data.activateData();
         data.writeFloat(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
         data.writeMatrix(matrix3f);
+        int $$0 = LightTexture.pack(
+//                2, 0
+                level.getBrightness(LightLayer.BLOCK, pos),
+                level.getBrightness(LightLayer.SKY, pos)
+        );
+        data.writeInt($$0);
 
         data.finishInstance();
     }

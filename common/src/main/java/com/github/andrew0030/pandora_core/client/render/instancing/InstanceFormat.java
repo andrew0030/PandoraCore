@@ -2,7 +2,6 @@ package com.github.andrew0030.pandora_core.client.render.instancing;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
 import com.github.andrew0030.pandora_core.utils.collection.CyclicStack;
-import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import org.lwjgl.opengl.GL33;
@@ -51,7 +50,7 @@ public class InstanceFormat {
                 for (int i = 0; i < element.components; i++) {
                     clientState.add(attribute);
                     GlStateManager._enableVertexAttribArray(attribute);
-                    if (NumericPrimitive.BYTE.isFloating()) {
+                    if (element.type.isFloating()) {
                         GlStateManager._vertexAttribPointer(attribute, element.size, element.type.glPrim, element.normalize, stride, offset);
                     } else {
                         GlStateManager._vertexAttribIPointer(attribute, element.size, element.type.glPrim, stride, offset);

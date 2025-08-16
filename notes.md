@@ -11,6 +11,8 @@ Jank:
 - ~~does not properly reload when enabling iris shaders~~
 - shader patcher does not like full F3+T with ~~iris~~ fabric
 - apparently there is some kind of known memory leak that needs to be fixed
+  - partially fixed, should also tie some closure logic to level close event on forge
+  - might be nice to look into also making more immediate closure logic on fabric
 - game crashes in production on fabric if iris is present (need to move a mixin into loader modules)
 - move black hole shader out of data
 - use `ARBInstancedArrays.glVertexAttribDivisorARB();` if necessary

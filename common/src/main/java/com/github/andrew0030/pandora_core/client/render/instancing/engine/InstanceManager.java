@@ -73,7 +73,7 @@ public class InstanceManager {
             k.flush(level, v);
         });
         VertexBuffer.unbind();
-        System.gc();
+//        System.gc();
     }
 
     public void close() {

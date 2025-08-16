@@ -16,14 +16,14 @@ public class BlackHoleProgram extends BaseProgram {
     public BlackHoleProgram() {
         ClassLoader ldr = BlackHoleProgram.class.getClassLoader();
         try {
-            InputStream is = ldr.getResourceAsStream("data/blackhole.fsh");
+            InputStream is = ldr.getResourceAsStream("resources/blackhole.fsh");
             byte[] data = is.readAllBytes();
             String frag = new String(data);
             try {
                 is.close();
             } catch (Throwable ignored) {
             }
-            is = ldr.getResourceAsStream("data/blackhole.vsh");
+            is = ldr.getResourceAsStream("resources/blackhole.vsh");
             data = is.readAllBytes();
             String vert = new String(data);
             try {

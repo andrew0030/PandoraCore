@@ -6,6 +6,7 @@ import com.github.andrew0030.pandora_core.registry.PaCoRegistryBuilder;
 import com.github.andrew0030.pandora_core.world.AddSpawnsModifier;
 import com.github.andrew0030.pandora_core.world.Modifier;
 import com.github.andrew0030.pandora_core.world.NoneModifier;
+import com.github.andrew0030.pandora_core.world.RemoveSpawnsModifier;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,8 +16,9 @@ import java.util.function.Supplier;
 public class PaCoModifiers {
     public static final PaCoRegistry<Codec<? extends Modifier>> MODIFIER_TYPES = new PaCoRegistry<>(PaCoRegistryBuilder.simple(PaCoRegistryKeys.MODIFIER_TYPE), PandoraCore.MOD_ID);
 
-    public static final Supplier<Codec<? extends Modifier>> NONE       = MODIFIER_TYPES.add("none", () -> NoneModifier.CODEC);
-    public static final Supplier<Codec<? extends Modifier>> ADD_SPAWNS = MODIFIER_TYPES.add("add_spawns", () -> AddSpawnsModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> NONE          = MODIFIER_TYPES.add("none", () -> NoneModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> ADD_SPAWNS    = MODIFIER_TYPES.add("add_spawns", () -> AddSpawnsModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> REMOVE_SPAWNS = MODIFIER_TYPES.add("remove_spawns", () -> RemoveSpawnsModifier.CODEC);
 
     @SuppressWarnings("unchecked")
     public static Registry<Codec<? extends Modifier>> getRegistry() {

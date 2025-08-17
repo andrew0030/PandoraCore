@@ -237,6 +237,11 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
     }
 
     @Override
+    public boolean manuallyReloaded() {
+        return false;
+    }
+
+    @Override
     public void _beginReload() {
         notCore.clear();
         sources.clear();

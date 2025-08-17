@@ -6,6 +6,7 @@ import com.github.andrew0030.pandora_core.mixin_interfaces.render.IPaCoAccessibl
 import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31C;
+import org.lwjgl.opengl.GL33;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,9 @@ public class InstancedVBO extends AcceleratedVBO {
 
     public void bindData(InstanceData data) {
         for (Integer i : clientState) {
+            GL33.glVertexAttribDivisor(
+                    i, 0
+            );
             GlStateManager._disableVertexAttribArray(i);
         }
 
@@ -62,5 +66,15 @@ public class InstancedVBO extends AcceleratedVBO {
                 0L,
                 count
         );
+    }
+
+    public void unbindVBO() {
+        for (Integer i : clientState) {
+            GL33.glVertexAttribDivisor(
+                    i, 0
+            );
+            GlStateManager._disableVertexAttribArray(i);
+        }
+        clientState.clear();
     }
 }

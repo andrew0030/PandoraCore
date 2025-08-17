@@ -9,7 +9,8 @@
     "compat.gui.CatalogueModListScreenMixin"
   ],
   "client": [
-    "ModListScreenMixin"
+    "ModListScreenMixin",
+    "shader.ShaderLoaderDeferenceMixin"
   ],
   "server": [],
   "injectors": {

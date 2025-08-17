@@ -75,6 +75,7 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
                 RenderSystem.getProjectionMatrix(),
                 RenderSystem.getShader()
         );
+        vbo.unbindVBO();
         type.clearRenderState();
         RenderSystem.setShaderFogShape(FogShape.CYLINDER);
     }

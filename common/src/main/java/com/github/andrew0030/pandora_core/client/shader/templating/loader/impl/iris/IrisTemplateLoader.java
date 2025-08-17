@@ -188,6 +188,11 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
     }
 
     @Override
+    public boolean manuallyReloaded() {
+        return true;
+    }
+
+    @Override
     public void _beginReload() {
         sources.clear();
         instances.clear();

@@ -40,13 +40,17 @@ public abstract class TemplateLoader {
 
     protected abstract void _beginReload();
 
+    public abstract boolean manuallyReloaded();
+
     public final void beginReload() {
-        for (TemplatedShader value : loadedShaders.values()) {
-            if (value.hasDirect())
-                value.destroy();
+        if (!manuallyReloaded()) {
+            for (TemplatedShader value : loadedShaders.values()) {
+                if (value.hasDirect())
+                    value.destroy();
+            }
+            loadedShaders.clear();
+            _beginReload();
         }
-        loadedShaders.clear();
-        _beginReload();
     }
 
     public boolean supports(ShaderCapability[] requestedCapabilities) {

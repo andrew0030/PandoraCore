@@ -22,6 +22,11 @@ public class VoidShader extends TemplatedShader {
     }
 
     @Override
+    public void clear() {
+        program.clear();
+    }
+
+    @Override
     public void upload() {
         program.upload();
     }

@@ -6,13 +6,13 @@
   "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginCommon",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "accessor.BiomeAccessor",
+    "accessor.MobSpawnSettingsAccessor",
     "level.LevelMixin",
     "level.ServerLevelMixin",
     "player.PlayerMixin",
     "player.ServerPlayerMixin",
     "tab.CreativeModeTabMixin",
-    "accessor.BiomeAccessor",
-    "accessor.MobSpawnSettingsAccessor",
     "worldgen_modifier.DedicatedServerMixin",
     "worldgen_modifier.GameTestServerMixin"
   ],
@@ -31,7 +31,6 @@
     "compat.shader.vanilla.ProgramMixin",
     "compat.shader.vanilla.ShaderInstance_CacheShadersMixin",
     "compat.shader.vanilla.ShaderInstance_CacheSrc_CondBindableMixin",
-    "compat.shader.vanilla.ShaderLoaderDeferenceMixin",
     "ctm.ModelBakeryMixin",
     "gui.AbstractWidgetMixin",
     "gui.EditBoxMixin",

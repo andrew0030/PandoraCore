@@ -14,7 +14,6 @@ Jank:
   - partially fixed, should also tie some closure logic to level close event on forge
   - might be nice to look into also making more immediate closure logic on fabric
 - game crashes in production on fabric if iris is present (need to move a mixin into loader modules)
-- move black hole shader out of data
 - use `ARBInstancedArrays.glVertexAttribDivisorARB();` if necessary
 
 <hr/>
@@ -102,4 +101,14 @@ Systems TODO:
   - [ ] Maybe add a modifier that allows adding entries to jigsaw structure piece pools
   - [x] Maybe add some sort of "empty" modifier that allows data packs to disable/overwrite modifiers
 - Shader Patcher
-  - I dont understand enough about this system to write TODOs
+  - [ ] Allow injecting custom methods
+  - [ ] Allow utilization of predefined variables to optimize shaders
+- Instancer
+  - [ ] Batching system
+  - [ ] Texturing optimizations
+    - [ ] Bindless rendering
+    - [ ] Texture arrays
+    - [ ] 3D textures
+  - [ ] Item instancer
+  - [ ] Entity instancer
+  - [ ] Particle instancer

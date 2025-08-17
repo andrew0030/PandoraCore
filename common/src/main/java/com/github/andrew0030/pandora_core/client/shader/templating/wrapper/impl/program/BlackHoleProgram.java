@@ -53,6 +53,7 @@ public class BlackHoleProgram extends BaseProgram {
 
     @Override
     public void bind() {
+        GL30.glEnable(GL30.GL_RASTERIZER_DISCARD);
         if (SupportChecker.SUPPORT_BLACKHOLE) {
             GL30.glEnable(INTELBlackholeRender.GL_BLACKHOLE_RENDER_INTEL);
         }
@@ -70,6 +71,7 @@ public class BlackHoleProgram extends BaseProgram {
         if (SupportChecker.SUPPORT_BLACKHOLE) {
             GL30.glDisable(INTELBlackholeRender.GL_BLACKHOLE_RENDER_INTEL);
         }
+        GL30.glDisable(GL30.GL_RASTERIZER_DISCARD);
     }
 
     @Override

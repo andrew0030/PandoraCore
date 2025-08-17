@@ -4,6 +4,8 @@ import com.github.andrew0030.pandora_core.block_entities.InstancingTestBlockEnti
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
 import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
+import com.github.andrew0030.pandora_core.client.render.instancing.engine.BatchData;
+import com.github.andrew0030.pandora_core.client.render.instancing.engine.BatchKey;
 import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -26,12 +28,29 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
         );
     }
 
+    private final BatchKey STANDARD_KEY = new BatchKey() {
+        public void flush(CollectiveDrawData data) {
+            vbo.setupData(data, PaCoRenderTypes.shader);
+            RenderSystem.getShader().apply();
+            data.upload();
+            vbo.bind();
+            vbo.drawWithShader(
+                    RenderSystem.getModelViewMatrix(),
+                    RenderSystem.getProjectionMatrix(),
+                    RenderSystem.getShader()
+            );
+            vbo.unbindVBO();
+        }
+    };
+
     public InstancingTestBlockEntityRenderer(InstanceFormat format, CollectiveVBO vbo) {
         super(format, vbo);
     }
 
     @Override
-    public void render(Level level, InstancingTestBlockEntity object, BlockPos pos, CollectiveDrawData data) {
+    public void render(Level level, InstancingTestBlockEntity object, BlockPos pos, BatchData batches) {
+        CollectiveDrawData data = batches.buildBatch(STANDARD_KEY);
+
         Matrix3f matrix3f = new Matrix3f();
         XoroshiroRandomSource source = new XoroshiroRandomSource(
                 new ChunkPos(pos).toLong(),
@@ -58,7 +77,7 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
     }
 
     @Override
-    public void flush(Level level, CollectiveDrawData data) {
+    public void flush(Level level, BatchData data) {
         RenderSystem.setShaderFogShape(FogShape.SPHERE);
         RenderSystem.setShaderTexture(0, new ResourceLocation(
 //                "minecraft:dynamic/light_map_1"
@@ -66,16 +85,7 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
         ));
         RenderType type = PaCoRenderTypes.type;
         type.setupRenderState();
-        vbo.setupData(data, PaCoRenderTypes.shader);
-        RenderSystem.getShader().apply();
-        data.upload();
-        vbo.bind();
-        vbo.drawWithShader(
-                RenderSystem.getModelViewMatrix(),
-                RenderSystem.getProjectionMatrix(),
-                RenderSystem.getShader()
-        );
-        vbo.unbindVBO();
+        data.flush();
         type.clearRenderState();
         RenderSystem.setShaderFogShape(FogShape.CYLINDER);
     }

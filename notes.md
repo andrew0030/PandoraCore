@@ -15,7 +15,7 @@ Jank:
   - might be nice to look into also making more immediate closure logic on fabric
 - game crashes in production on fabric if iris is present (need to move a mixin into loader modules)
 - use `ARBInstancedArrays.glVertexAttribDivisorARB();` if necessary
-- Isometric projection seems breaks the instancer
+- Isometric projection seems breaks the instancer (I Like Vanilla v1.0.6)
 - Resource reloading cases things to vanish instantly, because the shaders are dumped instantly
 - `miniature shader` causes shader templater to break
 

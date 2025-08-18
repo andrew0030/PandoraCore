@@ -31,15 +31,12 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
     private final BatchKey STANDARD_KEY = new BatchKey() {
         public void flush(CollectiveDrawData data) {
             vbo.setupData(data, PaCoRenderTypes.shader);
-            RenderSystem.getShader().apply();
             data.upload();
-            vbo.bind();
             vbo.drawWithShader(
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),
                     RenderSystem.getShader()
             );
-            vbo.unbindVBO();
         }
     };
 
@@ -85,7 +82,10 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
         ));
         RenderType type = PaCoRenderTypes.type;
         type.setupRenderState();
+        RenderSystem.getShader().apply();
+        vbo.bind();
         data.flush();
+        vbo.unbindVBO();
         type.clearRenderState();
         RenderSystem.setShaderFogShape(FogShape.CYLINDER);
     }

@@ -10,8 +10,7 @@
     "compat.gui.CatalogueModListScreenMixin",
     "compat.gui.ModsScreenMixin",
     "fixes.EffectInstanceMixin",
-    "fixes.ShaderInstanceMixin",
-    "shader.ShaderLoaderDeferenceMixin"
+    "fixes.ShaderInstanceMixin"
   ],
   "server": [],
   "injectors": {

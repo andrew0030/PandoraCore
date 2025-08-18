@@ -12,5 +12,10 @@ public record NoneModifier() implements Modifier {
     }
 
     @Override
+    public Phase phase() {
+        return Phase.NONE;
+    }
+
+    @Override
     public void applyModifier() {}
 }

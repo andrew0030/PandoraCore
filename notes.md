@@ -15,6 +15,9 @@ Jank:
   - might be nice to look into also making more immediate closure logic on fabric
 - game crashes in production on fabric if iris is present (need to move a mixin into loader modules)
 - use `ARBInstancedArrays.glVertexAttribDivisorARB();` if necessary
+- Isometric projection seems breaks the instancer
+- Resource reloading cases things to vanish instantly, because the shaders are dumped instantly
+- `miniature shader` causes shader templater to break
 
 <hr/>
 
@@ -52,6 +55,7 @@ Systems TODO:
   - [ ] Replace Forge's placeholder background
   - [ ] Add support for [FancyMenu](https://www.curseforge.com/minecraft/mc-mods/fancymenu), which currently gets replaced with panorama
   - [ ] Maybe add banner support
+  - [ ] Look into mod ordering and libs on Quilt
 - PaCo Config Screen
   - [ ] Create config screen that can take any number of components and dynamically adjust to it
   - [ ] Hook mod config system into it
@@ -106,7 +110,7 @@ Systems TODO:
   - [ ] Add a modifier that allows removing features from biome/s
   - [ ] Add a modifier that allows removing structures from biome/s
   - [ ] Maybe add a modifier that allows removing entries from jigsaw structure piece pools (if they can be identified)
-  - [ ] Add some sorta phase system like forges `Phase` enum, to ensure removing happens after adding
+  - [x] Add some sorta phase system like forges `Phase` enum, to ensure removing happens after adding
 - Shader Patcher
   - [ ] Allow injecting custom methods
   - [ ] Allow utilization of predefined variables to optimize shaders

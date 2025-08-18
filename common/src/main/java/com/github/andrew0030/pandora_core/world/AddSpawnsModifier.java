@@ -29,6 +29,11 @@ public record AddSpawnsModifier(HolderSet<Biome> biomes, List<MobSpawnSettings.S
     }
 
     @Override
+    public Phase phase() {
+        return Phase.ADD;
+    }
+
+    @Override
     public void applyModifier() {
         List<Holder<Biome>> biomeHolders = this.biomes().stream().toList();
         for (Holder<Biome> holder : biomeHolders) {

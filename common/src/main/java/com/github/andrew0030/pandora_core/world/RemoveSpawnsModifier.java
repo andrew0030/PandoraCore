@@ -32,14 +32,17 @@ public record RemoveSpawnsModifier(HolderSet<Biome> biomes, HolderSet<EntityType
     }
 
     @Override
+    public Phase phase() {
+        return Phase.REMOVE;
+    }
+
+    @Override
     public void applyModifier() {
         List<Holder<Biome>> biomeHolders = this.biomes().stream().toList();
         for (Holder<Biome> holder : biomeHolders) {
             this.removeFromBiome(holder.value());
         }
     }
-
-    // TODO add phases to ensure removal modifiers run after addition modifiers
 
     private void removeFromBiome(Biome biome) {
         // Gets current spawn settings and a mutable copy of the internal map

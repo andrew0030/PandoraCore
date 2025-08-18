@@ -2,16 +2,16 @@ package com.github.andrew0030.pandora_core.client.render.instancing.engine;
 
 import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class BatchData {
     Map<BatchKey, CollectiveDrawData> datas = new HashMap<>();
     Supplier<CollectiveDrawData> datagen;
-    List<CollectiveDrawData> inactiveData = new ArrayList<>();
+    Deque<CollectiveDrawData> inactiveData = new ArrayDeque<>();
 
     public BatchData(Supplier<CollectiveDrawData> datagen) {
         this.datagen = datagen;
@@ -25,7 +25,7 @@ public class BatchData {
 
     protected CollectiveDrawData nextData() {
         if (!inactiveData.isEmpty()) {
-            return inactiveData.remove(0);
+            return inactiveData.removeFirst();
         }
         return datagen.get();
     }

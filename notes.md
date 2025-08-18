@@ -110,8 +110,10 @@ Systems TODO:
 - Shader Patcher
   - [ ] Allow injecting custom methods
   - [ ] Allow utilization of predefined variables to optimize shaders
+  - [ ] Rewrite the patcher
+  - [ ] Rewrite template manager?
 - Instancer
-  - [ ] Batching system
+  - [x] Batching system
   - [ ] Texturing optimizations
     - [ ] Bindless rendering
     - [ ] Texture arrays
@@ -119,3 +121,4 @@ Systems TODO:
   - [ ] Item instancer
   - [ ] Entity instancer
   - [ ] Particle instancer
+  - [ ] Potential future rewrite?

@@ -19,7 +19,7 @@ public record AddSpawnsModifier(HolderSet<Biome> biomes, List<MobSpawnSettings.S
     public static final Codec<AddSpawnsModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Biome.LIST_CODEC.fieldOf("biomes").forGetter(AddSpawnsModifier::biomes),
-            PaCoCodecUtils.singleOrList(MobSpawnSettings.SpawnerData.CODEC, "spawners").forGetter(AddSpawnsModifier::spawners)
+            PaCoCodecUtils.singleOrList(MobSpawnSettings.SpawnerData.CODEC).fieldOf("spawners").forGetter(AddSpawnsModifier::spawners)
         ).apply(instance, AddSpawnsModifier::new)
     );
 
@@ -43,8 +43,8 @@ public record AddSpawnsModifier(HolderSet<Biome> biomes, List<MobSpawnSettings.S
 
     private void applyToBiome(Biome biome) {
         // Gets current spawn settings and a mutable copy of the internal map
-        MobSpawnSettings spawnSettings = biome.getMobSettings();
-        Map<MobCategory, WeightedRandomList<MobSpawnSettings.SpawnerData>> biomeSpawners = new HashMap<>(((MobSpawnSettingsAccessor) spawnSettings).getSpawners());
+        MobSpawnSettings settings = biome.getMobSettings();
+        Map<MobCategory, WeightedRandomList<MobSpawnSettings.SpawnerData>> biomeSpawners = new HashMap<>(((MobSpawnSettingsAccessor) settings).getSpawners());
 
         // Groups new spawners by category
         Map<MobCategory, List<MobSpawnSettings.SpawnerData>> toAdd = new EnumMap<>(MobCategory.class);
@@ -67,7 +67,7 @@ public record AddSpawnsModifier(HolderSet<Biome> biomes, List<MobSpawnSettings.S
         }
 
         // Updates the spawn settings before updating the mob settings of the Biome
-        ((MobSpawnSettingsAccessor) spawnSettings).setSpawners(biomeSpawners);
-        ((BiomeAccessor) (Object) biome).setMobSettings(spawnSettings);
+        ((MobSpawnSettingsAccessor) settings).setSpawners(biomeSpawners);
+        ((BiomeAccessor) (Object) biome).setMobSettings(settings);
     }
 }

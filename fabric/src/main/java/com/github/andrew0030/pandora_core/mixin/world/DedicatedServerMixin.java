@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.mixin.worldgen_modifier;
+package com.github.andrew0030.pandora_core.mixin.world;
 
 import com.github.andrew0030.pandora_core.world.Modifier;
 import net.minecraft.server.MinecraftServer;
@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(DedicatedServer.class)
 public class DedicatedServerMixin {
+
     @Inject(method = "initServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/dedicated/DedicatedServer;loadLevel()V"))
     public void injectInitServer(CallbackInfoReturnable<Boolean> info) {
         Modifier.applyAll((MinecraftServer) (Object) this);

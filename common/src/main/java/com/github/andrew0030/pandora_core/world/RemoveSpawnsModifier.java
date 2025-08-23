@@ -53,6 +53,9 @@ public record RemoveSpawnsModifier(HolderSet<Biome> biomes, HolderSet<EntityType
         Set<EntityType<?>> toRemove = this.entityTypes().stream().map(Holder::value).collect(Collectors.toCollection(HashSet::new));
         if (toRemove.isEmpty()) return; // If no entity types need to be removed we skip further logic
 
+        // A little smt to keep track of whether any changes happened
+        boolean changed = false;
+
         // Iterates through the categories present in the biome spawner map
         for (Map.Entry<MobCategory, WeightedRandomList<MobSpawnSettings.SpawnerData>> entry : biomeSpawners.entrySet()) {
             MobCategory category = entry.getKey();
@@ -79,7 +82,11 @@ public record RemoveSpawnsModifier(HolderSet<Biome> biomes, HolderSet<EntityType
             }
 
             biomeSpawners.put(category, WeightedRandomList.create(filtered));
+            changed = true;
         }
+
+        // If nothing changed, the mob spawn settings don't need to be updated
+        if (!changed) return;
 
         // Updates the spawn settings before updating the mob settings of the Biome
         ((MobSpawnSettingsAccessor) spawnSettings).setSpawners(biomeSpawners);

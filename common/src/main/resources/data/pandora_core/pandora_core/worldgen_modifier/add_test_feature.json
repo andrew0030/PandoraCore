@@ -1,0 +1,6 @@
+{
+  "type": "pandora_core:add_features",
+  "biomes": "minecraft:plains",
+  "features": "pandora_core:test_feature",
+  "step": "vegetal_decoration"
+}

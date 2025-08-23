@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "minecraft:plains",
+  "features": "swampier_swamps:bald_cypress",
+  "step": "vegetal_decoration"
+}

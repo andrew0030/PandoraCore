@@ -1,0 +1,11 @@
+{
+  "type": "pandora_core:remove_features",
+  "biomes": "minecraft:swamp",
+  "features": [
+    "swampier_swamps:bald_cypress",
+    "swampier_swamps:patch_big_lily_pad",
+    "swampier_swamps:patch_cattail",
+    "swampier_swamps:mud_puddle",
+    "swampier_swamps:decaying_kelp"
+  ]
+}

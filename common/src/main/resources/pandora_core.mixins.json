@@ -7,14 +7,13 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "accessor.BiomeAccessor",
+    "accessor.BiomeGenerationSettingsAccessor",
     "accessor.MobSpawnSettingsAccessor",
     "level.LevelMixin",
     "level.ServerLevelMixin",
     "player.PlayerMixin",
     "player.ServerPlayerMixin",
-    "tab.CreativeModeTabMixin",
-    "worldgen_modifier.DedicatedServerMixin",
-    "worldgen_modifier.GameTestServerMixin"
+    "tab.CreativeModeTabMixin"
   ],
   "client": [
     "camera.CameraMixin",
@@ -57,8 +56,7 @@
     "render.instancing.compat.SectionBuilderMixin",
     "render.instancing.compat.SodiumRendererMixin",
     "render.instancing.compat.iris.ShadowPassMixin",
-    "test.ShaderTemplateTest",
-    "worldgen_modifier.IntegratedServerMixin"
+    "test.ShaderTemplateTest"
   ],
   "server": [],
   "injectors": {

@@ -100,13 +100,13 @@ Systems TODO:
 - World Generation
   - [x] Add a data driven registry that allows for modifiers (essentially an alternative to forge biome modifiers)
   - [x] Add a modifier that allows registering entity spawns to biome/s
-  - [ ] Add a modifier that allows registering entity spawn costs to biome/s
+  - [x] Add a modifier that allows registering entity spawn costs to biome/s
   - [x] Add a modifier that allows registering features to biome/s
   - [ ] Add a modifier that allows registering structures to biome/s
   - [ ] Maybe add a modifier that allows adding entries to jigsaw structure piece pools
   - [x] Maybe add some sort of "empty" modifier that allows data packs to disable/overwrite modifiers
   - [x] Add a modifier that allows removing entity spawns from biome/s
-  - [ ] Add a modifier that allows removing entity spawn costs from biome/s
+  - [x] Add a modifier that allows removing entity spawn costs from biome/s
   - [x] Add a modifier that allows removing features from biome/s
   - [ ] Add a modifier that allows removing structures from biome/s
   - [ ] Maybe add a modifier that allows removing entries from jigsaw structure piece pools (if they can be identified)

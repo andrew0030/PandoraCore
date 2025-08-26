@@ -1,0 +1,15 @@
+{
+  "type": "pandora_core:add_spawn_costs",
+  "biomes": [
+    "minecraft:nether_wastes",
+    "minecraft:plains"
+  ],
+  "entity_types": [
+    "minecraft:zombified_piglin",
+    "pandora_core:test_entity"
+  ],
+  "spawn_cost": {
+    "energy_budget": 0.7,
+    "charge": 0.3
+  }
+}

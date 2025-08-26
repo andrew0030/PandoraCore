@@ -1,0 +1,11 @@
+{
+  "type": "pandora_core:remove_spawn_costs",
+  "biomes": [
+    "minecraft:soul_sand_valley",
+    "minecraft:warped_forest"
+  ],
+  "entity_types": [
+    "minecraft:enderman",
+    "minecraft:skeleton"
+  ]
+}

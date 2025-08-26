@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.world;
 
-import com.github.andrew0030.pandora_core.mixin_interfaces.ForgeModifierConverter;
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoForgeModifierConverter;
 import com.github.andrew0030.pandora_core.registry.internal.PaCoRegistryKeys;
 import com.github.andrew0030.pandora_core.world.Modifier;
 import net.minecraft.core.RegistryAccess;
@@ -34,7 +34,7 @@ public class ServerLifeCycleHooksMixin {
 
         registryAccess.lookupOrThrow(PaCoRegistryKeys.WORLDGEN_MODIFIER).listElements().forEach(modifierReference -> {
             Modifier modifier = modifierReference.value();
-            if (modifier instanceof ForgeModifierConverter converter) {
+            if (modifier instanceof IPaCoForgeModifierConverter converter) {
                 toAdd.add(converter.convertToForgeModifier());
             } else {
                 modifier.applyModifier();

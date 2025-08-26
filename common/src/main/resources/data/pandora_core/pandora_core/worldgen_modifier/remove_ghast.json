@@ -1,0 +1,5 @@
+{
+  "type": "pandora_core:remove_spawns",
+  "biomes": "minecraft:soul_sand_valley",
+  "entity_types": "minecraft:ghast"
+}

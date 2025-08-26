@@ -13,11 +13,13 @@ import java.util.function.Supplier;
 public class PaCoModifiers {
     public static final PaCoRegistry<Codec<? extends Modifier>> MODIFIER_TYPES = new PaCoRegistry<>(PaCoRegistryBuilder.simple(PaCoRegistryKeys.MODIFIER_TYPE), PandoraCore.MOD_ID);
 
-    public static final Supplier<Codec<? extends Modifier>> NONE            = MODIFIER_TYPES.add("none", () -> NoneModifier.CODEC);
-    public static final Supplier<Codec<? extends Modifier>> ADD_FEATURES    = MODIFIER_TYPES.add("add_features", () -> AddFeaturesModifier.CODEC);
-    public static final Supplier<Codec<? extends Modifier>> REMOVE_FEATURES = MODIFIER_TYPES.add("remove_features", () -> RemoveFeaturesModifier.CODEC);
-    public static final Supplier<Codec<? extends Modifier>> ADD_SPAWNS      = MODIFIER_TYPES.add("add_spawns", () -> AddSpawnsModifier.CODEC);
-    public static final Supplier<Codec<? extends Modifier>> REMOVE_SPAWNS   = MODIFIER_TYPES.add("remove_spawns", () -> RemoveSpawnsModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> NONE               = MODIFIER_TYPES.add("none", () -> NoneModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> ADD_FEATURES       = MODIFIER_TYPES.add("add_features", () -> AddFeaturesModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> REMOVE_FEATURES    = MODIFIER_TYPES.add("remove_features", () -> RemoveFeaturesModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> ADD_SPAWNS         = MODIFIER_TYPES.add("add_spawns", () -> AddSpawnsModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> REMOVE_SPAWNS      = MODIFIER_TYPES.add("remove_spawns", () -> RemoveSpawnsModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> ADD_SPAWN_COSTS    = MODIFIER_TYPES.add("add_spawn_costs", () -> AddSpawnCostsModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> REMOVE_SPAWN_COSTS = MODIFIER_TYPES.add("remove_spawn_costs", () -> RemoveSpawnCostsModifier.CODEC);
 
     @SuppressWarnings("unchecked")
     public static Registry<Codec<? extends Modifier>> getRegistry() {

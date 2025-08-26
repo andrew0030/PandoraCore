@@ -1,5 +1,0 @@
-{
-  "type": "pandora_core:remove_spawns",
-  "biomes": "the_end",
-  "entity_types": "minecraft:enderman"
-}

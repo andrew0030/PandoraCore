@@ -4,7 +4,7 @@
   "spawners": {
     "type": "pandora_core:test_entity",
     "weight": 100,
-    "minCount": 2,
-    "maxCount": 5
+    "minCount": 1,
+    "maxCount": 2
   }
 }

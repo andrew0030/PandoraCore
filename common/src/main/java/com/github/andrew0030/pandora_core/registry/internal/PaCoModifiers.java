@@ -20,6 +20,8 @@ public class PaCoModifiers {
     public static final Supplier<Codec<? extends Modifier>> REMOVE_SPAWNS      = MODIFIER_TYPES.add("remove_spawns", () -> RemoveSpawnsModifier.CODEC);
     public static final Supplier<Codec<? extends Modifier>> ADD_SPAWN_COSTS    = MODIFIER_TYPES.add("add_spawn_costs", () -> AddSpawnCostsModifier.CODEC);
     public static final Supplier<Codec<? extends Modifier>> REMOVE_SPAWN_COSTS = MODIFIER_TYPES.add("remove_spawn_costs", () -> RemoveSpawnCostsModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> ADD_CARVERS        = MODIFIER_TYPES.add("add_carvers", () -> AddCarversModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> REMOVE_CARVERS     = MODIFIER_TYPES.add("remove_carvers", () -> RemoveCarversModifier.CODEC);
 
     @SuppressWarnings("unchecked")
     public static Registry<Codec<? extends Modifier>> getRegistry() {

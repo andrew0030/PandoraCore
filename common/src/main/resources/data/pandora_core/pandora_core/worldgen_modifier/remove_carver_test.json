@@ -1,0 +1,11 @@
+{
+  "type": "pandora_core:remove_carvers",
+  "biomes": "minecraft:the_end",
+  "carvers": [
+    "minecraft:cave_extra_underground",
+    "minecraft:canyon",
+    "minecraft:nether_cave",
+    "minecraft:cave"
+  ],
+  "steps": "air"
+}

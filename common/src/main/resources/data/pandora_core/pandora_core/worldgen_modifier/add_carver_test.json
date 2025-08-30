@@ -1,0 +1,6 @@
+{
+  "type": "pandora_core:add_carvers",
+  "biomes": "minecraft:plains",
+  "carvers": "pandora_core:test_carver",
+  "step": "air"
+}

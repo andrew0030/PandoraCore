@@ -144,7 +144,7 @@ public class ModrinthUpdateStrategy extends UpdateCheckStrategy {
                                 if (parts.length >= 6) {
                                     String projectId = parts[2];
                                     String versionId = parts[4];
-                                    downloadURL = new URL(String.format("https://modrinth.com/mod/%s/version/%s", projectId, versionId));
+                                    downloadURL = new URL(String.format("https://modrinth.com/project/%s/version/%s", projectId, versionId));
                                 }
                             } catch (Exception ignored) {}
                         }

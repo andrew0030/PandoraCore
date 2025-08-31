@@ -15,6 +15,7 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import java.util.*;
 import java.util.stream.Collectors;
 
+//TODO write javadocs
 public record RemoveCarversModifier(HolderSet<Biome> biomes, HolderSet<ConfiguredWorldCarver<?>> carvers, Set<GenerationStep.Carving> steps) implements Modifier {
     private static final EnumSet<GenerationStep.Carving> ALL_STEPS = EnumSet.allOf(GenerationStep.Carving.class);
     public static final Codec<RemoveCarversModifier> CODEC = RecordCodecBuilder.create(instance ->
@@ -57,10 +58,10 @@ public record RemoveCarversModifier(HolderSet<Biome> biomes, HolderSet<Configure
 
         // Iterates through the specified steps
         for (GenerationStep.Carving step : this.steps()) {
-            // If the biome doesn't have the step, there is nothing to remove
-            if (step.ordinal() >= biomeCarvers.size()) continue;
+            HolderSet<ConfiguredWorldCarver<?>> existing = biomeCarvers.get(step);
+            if (existing == null) continue; // If the category has no entries we skip further logic
 
-            List<Holder<ConfiguredWorldCarver<?>>> base = biomeCarvers.get(step).stream().toList();
+            List<Holder<ConfiguredWorldCarver<?>>> base = existing.stream().toList();
 
             // If none of the base entries are in the removal set, we skip further logic
             boolean anyRemoved = false;
@@ -79,7 +80,8 @@ public record RemoveCarversModifier(HolderSet<Biome> biomes, HolderSet<Configure
                     filtered.add(holder);
             }
 
-            biomeCarvers.put(step, HolderSet.direct(filtered));
+            // If filtered is empty rather than adding an empty holder set, this removes the step entirely
+            biomeCarvers.compute(step, (key, value) -> filtered.isEmpty() ? null : HolderSet.direct(filtered));
             changed = true;
         }
 

@@ -16,12 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//TODO write javadocs
 public record AddCarversModifier(HolderSet<Biome> biomes, HolderSet<ConfiguredWorldCarver<?>> carvers, GenerationStep.Carving step) implements Modifier {
     public static final Codec<AddCarversModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Biome.LIST_CODEC.fieldOf("biomes").forGetter(AddCarversModifier::biomes),
             ConfiguredWorldCarver.LIST_CODEC.fieldOf("carvers").forGetter(AddCarversModifier::carvers),
-            GenerationStep.Carving.CODEC.fieldOf("step").forGetter(AddCarversModifier::step)
+            GenerationStep.Carving.CODEC.optionalFieldOf("step", GenerationStep.Carving.AIR).forGetter(AddCarversModifier::step)
         ).apply(instance, AddCarversModifier::new)
     );
 

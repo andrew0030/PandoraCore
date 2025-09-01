@@ -14,6 +14,7 @@ public class PaCoModifiers {
     public static final PaCoRegistry<Codec<? extends Modifier>> MODIFIER_TYPES = new PaCoRegistry<>(PaCoRegistryBuilder.simple(PaCoRegistryKeys.MODIFIER_TYPE), PandoraCore.MOD_ID);
 
     public static final Supplier<Codec<? extends Modifier>> NONE               = MODIFIER_TYPES.add("none", () -> NoneModifier.CODEC);
+    // Biome Related Modifiers
     public static final Supplier<Codec<? extends Modifier>> ADD_FEATURES       = MODIFIER_TYPES.add("add_features", () -> AddFeaturesModifier.CODEC);
     public static final Supplier<Codec<? extends Modifier>> REMOVE_FEATURES    = MODIFIER_TYPES.add("remove_features", () -> RemoveFeaturesModifier.CODEC);
     public static final Supplier<Codec<? extends Modifier>> ADD_SPAWNS         = MODIFIER_TYPES.add("add_spawns", () -> AddSpawnsModifier.CODEC);
@@ -22,6 +23,8 @@ public class PaCoModifiers {
     public static final Supplier<Codec<? extends Modifier>> REMOVE_SPAWN_COSTS = MODIFIER_TYPES.add("remove_spawn_costs", () -> RemoveSpawnCostsModifier.CODEC);
     public static final Supplier<Codec<? extends Modifier>> ADD_CARVERS        = MODIFIER_TYPES.add("add_carvers", () -> AddCarversModifier.CODEC);
     public static final Supplier<Codec<? extends Modifier>> REMOVE_CARVERS     = MODIFIER_TYPES.add("remove_carvers", () -> RemoveCarversModifier.CODEC);
+    // Structure Related Modifiers
+    public static final Supplier<Codec<? extends Modifier>> ADD_TEMPLATE_POOL_ELEMENTS = MODIFIER_TYPES.add("add_template_pool_elements", () -> AddTemplatePoolElementsModifier.CODEC);
 
     @SuppressWarnings("unchecked")
     public static Registry<Codec<? extends Modifier>> getRegistry() {

@@ -24,7 +24,10 @@ public class PaCoModifiers {
     public static final Supplier<Codec<? extends Modifier>> ADD_CARVERS        = MODIFIER_TYPES.add("add_carvers", () -> AddCarversModifier.CODEC);
     public static final Supplier<Codec<? extends Modifier>> REMOVE_CARVERS     = MODIFIER_TYPES.add("remove_carvers", () -> RemoveCarversModifier.CODEC);
     // Structure Related Modifiers
-    public static final Supplier<Codec<? extends Modifier>> ADD_TEMPLATE_POOL_ELEMENTS = MODIFIER_TYPES.add("add_template_pool_elements", () -> AddTemplatePoolElementsModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> ADD_TEMPLATE_POOL_ELEMENTS      = MODIFIER_TYPES.add("add_template_pool_elements", () -> AddTemplatePoolElementsModifier.CODEC);
+    //TODO: Not sure if I can/should add a remove template pool elements modifier, as its a bit tricky to pin point exact instances
+    public static final Supplier<Codec<? extends Modifier>> ADD_STRUCTURE_SET_STRUCTURES    = MODIFIER_TYPES.add("add_structure_set_structures", () -> AddStructureSetStructuresModifier.CODEC);
+    public static final Supplier<Codec<? extends Modifier>> REMOVE_STRUCTURE_SET_STRUCTURES = MODIFIER_TYPES.add("remove_structure_set_structures", () -> RemoveStructureSetStructuresModifier.CODEC);
 
     @SuppressWarnings("unchecked")
     public static Registry<Codec<? extends Modifier>> getRegistry() {

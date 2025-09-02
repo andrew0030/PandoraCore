@@ -9,6 +9,7 @@
     "accessor.BiomeAccessor",
     "accessor.BiomeGenerationSettingsAccessor",
     "accessor.MobSpawnSettingsAccessor",
+    "accessor.StructureSetAccessor",
     "accessor.StructureTemplatePoolAccessor",
     "level.LevelMixin",
     "level.ServerLevelMixin",

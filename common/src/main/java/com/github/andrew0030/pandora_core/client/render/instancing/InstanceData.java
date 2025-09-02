@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.mixin_interfaces.render.IPaCoAccessibl
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
@@ -123,6 +124,12 @@ public class InstanceData {
     public InstanceData writeMatrix(Matrix3f matrix3f) {
         matrix3f.get(buffer);
         buffer.position(buffer.position() + (4 * 3 * 3));
+        return this;
+    }
+
+    public InstanceData writeMatrix(Matrix4f matrix4f) {
+        matrix4f.get(buffer);
+        buffer.position(buffer.position() + (4 * 4 * 4));
         return this;
     }
 

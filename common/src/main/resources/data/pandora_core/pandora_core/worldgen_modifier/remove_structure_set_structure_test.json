@@ -1,9 +1,0 @@
-{
-  "type": "pandora_core:remove_structure_set_structures",
-  "structure_sets": [
-    "swampier_swamps:village"
-  ],
-  "structures": [
-    "swampier_swamps:village_swamp"
-  ]
-}

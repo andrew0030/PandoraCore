@@ -25,7 +25,7 @@ public class PaCoModifiers {
     public static final Supplier<Codec<? extends Modifier>> REMOVE_CARVERS     = MODIFIER_TYPES.add("remove_carvers", () -> RemoveCarversModifier.CODEC);
     // Structure Related Modifiers
     public static final Supplier<Codec<? extends Modifier>> ADD_TEMPLATE_POOL_ELEMENTS      = MODIFIER_TYPES.add("add_template_pool_elements", () -> AddTemplatePoolElementsModifier.CODEC);
-    //TODO: Not sure if I can/should add a remove template pool elements modifier, as its a bit tricky to pin point exact instances
+    // For now there won't be a "REMOVE_TEMPLATE_POOL_ELEMENTS", because there is no easy way to differentiate between instances, and I don't really need it
     public static final Supplier<Codec<? extends Modifier>> ADD_STRUCTURE_SET_STRUCTURES    = MODIFIER_TYPES.add("add_structure_set_structures", () -> AddStructureSetStructuresModifier.CODEC);
     public static final Supplier<Codec<? extends Modifier>> REMOVE_STRUCTURE_SET_STRUCTURES = MODIFIER_TYPES.add("remove_structure_set_structures", () -> RemoveStructureSetStructuresModifier.CODEC);
 

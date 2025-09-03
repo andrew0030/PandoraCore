@@ -16,7 +16,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//TODO write javadocs
+/**
+ * The {@link AddCarversModifier} can be used to add {@link ConfiguredWorldCarver} instances to {@link Biome} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:add_carvers",
+ *   "biomes": "minecraft:the_end",
+ *   "carvers": "example_mod:example_end_carver",
+ *   "step": "air" // This is optional, if omitted it defaults to "air"
+ * }
+ * }</pre>
+ *
+ * @param biomes  The {@link Biome} instances the {@code carvers} will be added to
+ * @param carvers The {@link ConfiguredWorldCarver} instances that will be added
+ * @param step    The {@link GenerationStep.Carving} step at which {@code carvers} will run
+ */
 public record AddCarversModifier(HolderSet<Biome> biomes, HolderSet<ConfiguredWorldCarver<?>> carvers, GenerationStep.Carving step) implements Modifier {
     public static final Codec<AddCarversModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
@@ -57,10 +72,7 @@ public record AddCarversModifier(HolderSet<Biome> biomes, HolderSet<ConfiguredWo
          */
         HolderSet<ConfiguredWorldCarver<?>> existingHolderSet = biomeCarvers.get(this.step());
         List<Holder<ConfiguredWorldCarver<?>>> existing = existingHolderSet != null ? existingHolderSet.stream().toList() : List.of();
-        List<Holder<ConfiguredWorldCarver<?>>> toAdd = new ArrayList<>();
-        for (Holder<ConfiguredWorldCarver<?>> carverHolder : this.carvers()) {
-            toAdd.add(carverHolder);
-        }
+        List<Holder<ConfiguredWorldCarver<?>>> toAdd = this.carvers().stream().toList();
 
         // If there are no addition no further logic needs to run
         if (toAdd.isEmpty()) return;

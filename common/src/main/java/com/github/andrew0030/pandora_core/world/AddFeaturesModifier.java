@@ -14,7 +14,22 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO write javadocs
+/**
+ * The {@link AddFeaturesModifier} can be used to add {@link PlacedFeature} instances to {@link Biome} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:add_features",
+ *   "biomes": "minecraft:plains",
+ *   "features": "example_mod:test_bush_feature",
+ *   "step": "vegetal_decoration"
+ * }
+ * }</pre>
+ *
+ * @param biomes   The {@link Biome} instances the {@code features} will be added to
+ * @param features The {@link PlacedFeature} instances that will be added
+ * @param step     The {@link GenerationStep.Decoration} step at which {@code features} will run
+ */
 public record AddFeaturesModifier(HolderSet<Biome> biomes, HolderSet<PlacedFeature> features, GenerationStep.Decoration step) implements Modifier {
     public static final Codec<AddFeaturesModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
@@ -60,10 +75,7 @@ public record AddFeaturesModifier(HolderSet<Biome> biomes, HolderSet<PlacedFeatu
          * if de-duping could break smt. So for now users need to ensure safety themselves
          */
         List<Holder<PlacedFeature>> existing = biomeFeatures.get(index).stream().toList();
-        List<Holder<PlacedFeature>> toAdd = new ArrayList<>();
-        for (Holder<PlacedFeature> featureHolder : this.features()) {
-            toAdd.add(featureHolder);
-        }
+        List<Holder<PlacedFeature>> toAdd = this.features().stream().toList();
 
         // If there are no addition no further logic needs to run
         if (toAdd.isEmpty()) return;

@@ -2,7 +2,16 @@ package com.github.andrew0030.pandora_core.world;
 
 import com.mojang.serialization.Codec;
 
-//TODO write javadocs
+/**
+ * The {@link NoneModifier} does nothing, it's intended for mod pack makers
+ * and players to be used, to disable modifiers by overriding them.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:none"
+ * }
+ * }</pre>
+ */
 public record NoneModifier() implements Modifier {
     public static final Codec<NoneModifier> CODEC = Codec.unit(NoneModifier::new);
 

@@ -15,7 +15,22 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import java.util.*;
 import java.util.stream.Collectors;
 
-//TODO write javadocs
+/**
+ * The {@link RemoveFeaturesModifier} can be used to remove {@link PlacedFeature} instances from {@link Biome} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:remove_features",
+ *   "biomes": "minecraft:ocean",
+ *   "features": "minecraft:kelp",
+ *   "steps": "vegetal_decoration" // This is optional, if omitted it defaults to all steps
+ * }
+ * }</pre>
+ *
+ * @param biomes   The {@link Biome} instances the {@code features} will be removed from
+ * @param features The {@link PlacedFeature} instances that will be removed
+ * @param steps    The {@link GenerationStep.Decoration} steps from which {@code features} will be removed
+ */
 public record RemoveFeaturesModifier(HolderSet<Biome> biomes, HolderSet<PlacedFeature> features, Set<GenerationStep.Decoration> steps) implements Modifier {
     private static final EnumSet<GenerationStep.Decoration> ALL_STEPS = EnumSet.allOf(GenerationStep.Decoration.class);
     public static final Codec<RemoveFeaturesModifier> CODEC = RecordCodecBuilder.create(instance ->

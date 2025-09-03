@@ -15,7 +15,26 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import java.util.*;
 import java.util.stream.Collectors;
 
-//TODO write javadocs
+/**
+ * The {@link RemoveCarversModifier} can be used to remove {@link ConfiguredWorldCarver} instances from {@link Biome} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:remove_carvers",
+ *   "biomes": "minecraft:plains",
+ *   "carvers": [
+ *     "minecraft:cave_extra_underground",
+ *     "minecraft:canyon",
+ *     "minecraft:cave"
+ *   ],
+ *   "steps": "air" // This is optional, if omitted it defaults to all steps
+ * }
+ * }</pre>
+ *
+ * @param biomes  The {@link Biome} instances the {@code carvers} will be removed from
+ * @param carvers The {@link ConfiguredWorldCarver} instances that will be removed
+ * @param steps   The {@link GenerationStep.Carving} steps from which {@code carvers} will be removed
+ */
 public record RemoveCarversModifier(HolderSet<Biome> biomes, HolderSet<ConfiguredWorldCarver<?>> carvers, Set<GenerationStep.Carving> steps) implements Modifier {
     private static final EnumSet<GenerationStep.Carving> ALL_STEPS = EnumSet.allOf(GenerationStep.Carving.class);
     public static final Codec<RemoveCarversModifier> CODEC = RecordCodecBuilder.create(instance ->

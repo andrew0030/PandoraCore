@@ -58,6 +58,9 @@
     "render.instancing.compat.SectionBuilderMixin",
     "render.instancing.compat.SodiumRendererMixin",
     "render.instancing.compat.iris.ShadowPassMixin",
+    "shader.AbstractUniformMixin",
+    "shader.ShaderInstanceMixin",
+    "shader.UniformMixin",
     "test.ShaderTemplateTest"
   ],
   "server": [],

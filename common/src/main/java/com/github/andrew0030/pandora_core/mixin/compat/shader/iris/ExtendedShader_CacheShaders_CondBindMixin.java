@@ -37,4 +37,12 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
             lastApplied = (ExtendedShader) (Object) this;
         }
     }
+
+    @Inject(at = @At("HEAD"), method = "clear", cancellable = true)
+    public void preClear(CallbackInfo ci) {
+        if (((IPaCoConditionallyBindable) this).isDisableBind()) {
+            lastApplied = null;
+            ci.cancel();
+        }
+    }
 }

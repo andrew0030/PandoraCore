@@ -61,6 +61,11 @@ public class TemplatedProgram extends BaseProgram {
         RenderSystem.setShader(() -> from);
         ((IPaCoConditionallyBindable) from).pandoraCore$disableBind();
         GL20.glUseProgram(id);
+//        for (Uniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
+//            ((IPacoDirtyable) uniform).pandoraCore$markDirty();
+//        }
+//        from.markDirty();
+//        from.apply();
     }
 
     public void close() {

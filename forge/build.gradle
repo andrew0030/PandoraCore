@@ -84,7 +84,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:configured-457570:5180900") // Configured
     // My Mods (PaCo Screen Tests)
     runtimeOnly fg.deobf("curse.maven:swampier-swamps-632591:4578599") // Swampier Swamps
-    runtimeOnly fg.deobf("curse.maven:table-top-craft-467136:5318681") // Table Top Craft
+//    runtimeOnly fg.deobf("curse.maven:table-top-craft-467136:5318681") // Table Top Craft
     runtimeOnly fg.deobf("curse.maven:online-detector-454487:4574905") // Online Detector
     // Yung Mods (PaCo Screen Tests)
     runtimeOnly fg.deobf("curse.maven:yungs-api-421850:5331703") // YUNG's API
@@ -111,6 +111,8 @@ dependencies {
     // Render Mods To Test Shader Patcher
     implementation fg.deobf("curse.maven:embeddium-908741:5681725") // Embeddium
     implementation fg.deobf("curse.maven:oculus-581495:6020952") // Oculus
+
+    implementation fg.deobf("org.andrew:ttc:1.0")
 
     // FlatDir
     if (file("libs").exists()) {

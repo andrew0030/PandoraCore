@@ -48,6 +48,14 @@ public class ShaderInstance_CacheSrc_CondBindableMixin implements IPaCoCondition
             lastProgramId = programId;
     }
 
+    @Inject(at = @At("HEAD"), method = "clear", cancellable = true)
+    public void preClear(CallbackInfo ci) {
+        if (((IPaCoConditionallyBindable) this).isDisableBind()) {
+            lastProgramId = -1;
+            ci.cancel();
+        }
+    }
+
     @Override
     public void pandoraCore$disableBind() {
         pandoraCore$disableBind = true;

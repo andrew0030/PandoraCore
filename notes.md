@@ -111,7 +111,7 @@ Systems TODO:
   - [x] Add a modifier that allows removing features from biome/s
   - [x] ~~Add a modifier that allows removing structures from biome/s~~ Structures are already data driven
   - [x] Add a modifier that allows removing carvers from biome/s
-  - [ ] Maybe add a modifier that allows removing entries from jigsaw structure piece pools (if they can be identified)
+  - [x] ~~Maybe add a modifier that allows removing entries from jigsaw structure piece pools (if they can be identified)~~ Too annoying and I don't need it
   - [x] Add some sorta phase system like forges `Phase` enum, to ensure removing happens after adding
 - Shader Patcher
   - [ ] Look into creating dummy ShaderInstance copies to avoid awkward uniform management?

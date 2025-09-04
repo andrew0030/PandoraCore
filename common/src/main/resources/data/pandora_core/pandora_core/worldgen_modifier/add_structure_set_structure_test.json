@@ -1,0 +1,10 @@
+{
+  "type": "pandora_core:add_structure_set_structures",
+  "structure_sets": "minecraft:villages",
+  "structures": [
+    {
+      "structure": "swampier_swamps:village_swamp",
+      "weight": 1
+    }
+  ]
+}

@@ -14,7 +14,25 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 
 import java.util.*;
 
-//TODO write javadocs
+/**
+ * The {@link AddSpawnsModifier} can be used to add {@link MobSpawnSettings.SpawnerData} instances to {@link Biome} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:add_spawns",
+ *   "biomes": "minecraft:plains",
+ *   "spawners": {
+ *     "type": "example_mod:test_entity",
+ *     "weight": 100,
+ *     "minCount": 1,
+ *     "maxCount": 2
+ *   }
+ * }
+ * }</pre>
+ *
+ * @param biomes   The {@link Biome} instances the {@code spawners} will be added to
+ * @param spawners The {@link MobSpawnSettings.SpawnerData} instances that will be added
+ */
 public record AddSpawnsModifier(HolderSet<Biome> biomes, List<MobSpawnSettings.SpawnerData> spawners) implements Modifier {
     public static final Codec<AddSpawnsModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(

@@ -15,6 +15,28 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The {@link AddSpawnCostsModifier} can be used to set the {@link MobSpawnSettings.MobSpawnCost} of {@link EntityType} instances in  {@link Biome} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:add_spawn_costs",
+ *   "biomes": "example_mod:test_biome",
+ *   "entity_types": [
+ *     "example_mod:test_entity",
+ *     "example_mod:other_test_entity"
+ *   ],
+ *   "spawn_cost": {
+ *     "energy_budget": 0.7,
+ *     "charge": 0.3
+ *   }
+ * }
+ * }</pre>
+ *
+ * @param biomes      The {@link Biome} instances in which the {@code entityTypes} will get a {@code spawnCost}
+ * @param entityTypes The {@link EntityType} instances that will get a {@code spawnCost}
+ * @param spawnCost   The {@link MobSpawnSettings.MobSpawnCost} that will be applied to the {@code entityTypes}
+ */
 public record AddSpawnCostsModifier(HolderSet<Biome> biomes, HolderSet<EntityType<?>> entityTypes, MobSpawnSettings.MobSpawnCost spawnCost) implements Modifier {
     public static final Codec<AddSpawnCostsModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(

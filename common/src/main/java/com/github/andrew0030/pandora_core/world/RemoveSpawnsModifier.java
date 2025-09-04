@@ -17,7 +17,20 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import java.util.*;
 import java.util.stream.Collectors;
 
-//TODO write javadocs
+/**
+ * The {@link RemoveSpawnsModifier} can be used to remove the {@link MobSpawnSettings.SpawnerData} of {@link EntityType} instances in  {@link Biome} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:remove_spawns",
+ *   "biomes": "minecraft:soul_sand_valley",
+ *   "entity_types": "minecraft:ghast"
+ * }
+ * }</pre>
+ *
+ * @param biomes      The {@link Biome} instances in which {@code entityTypes} will get their spawns removed
+ * @param entityTypes The {@link EntityType} instances that will be removed from {@code biomes}
+ */
 public record RemoveSpawnsModifier(HolderSet<Biome> biomes, HolderSet<EntityType<?>> entityTypes) implements Modifier {
     public static final Codec<RemoveSpawnsModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(

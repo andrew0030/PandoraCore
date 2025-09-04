@@ -29,8 +29,20 @@ public abstract class TemplatedShader {
 
     public static void bindAttributes(TemplatedProgram shader, int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
         for (String vertexAttribute : transformation.getInstanceData()) {
-            int aid = GL32.glGetAttribLocation(id, vertexAttribute);
-            shader.attributeLocations.put(vertexAttribute, aid);
+            String type = transformation.getAttributeType(vertexAttribute);
+            if (type.startsWith("mat")) {
+                int count = type.charAt(3) - '0';
+
+                for (int i = 0; i < count; i++) {
+                    String txt = vertexAttribute + "_" + i;
+
+                    int aid = GL32.glGetAttribLocation(id, txt);
+                    shader.attributeLocations.put(txt, aid);
+                }
+            } else {
+                int aid = GL32.glGetAttribLocation(id, vertexAttribute);
+                shader.attributeLocations.put(vertexAttribute, aid);
+            }
         }
     }
 

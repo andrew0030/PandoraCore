@@ -15,7 +15,6 @@
 
 //#paco_replace UV1 paco_Inject_Overlay
 #paco_transform ModelViewMat: translateMatr paco_Inject_Translation, rotateMatr paco_Inject_Orientation
-#paco_transform Normal: multiply paco_Inject_Orientation
 #paco_replace UV2 paco_Inject_Lightmap
 //#paco_transform IViewRotMat: translateMatr -paco_Inject_Translation
 //#paco_transform Position: rotateQuat paco_Inject_Orientation, add paco_Inject_Translation

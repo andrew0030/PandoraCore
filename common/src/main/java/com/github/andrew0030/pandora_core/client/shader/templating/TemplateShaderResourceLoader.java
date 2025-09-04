@@ -123,6 +123,7 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
         private List<String> instanceData = new ArrayList<>();
         private List<String> vertexAttributes = new ArrayList<>();
         private List<String> uniforms = new ArrayList<>();
+        private HashMap<String, String> dataTypes = new HashMap<>();
 
         public TemplateStruct(ResourceLocation location) {
             this.location = location;
@@ -167,6 +168,10 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
             return templates.get(of);
         }
 
+        public String getAttributeType(String name) {
+            return dataTypes.get(name);
+        }
+
         public void parse(JsonObject obj) {
             JsonObject tplate = obj.getAsJsonObject("template");
             for (Map.Entry<String, JsonElement> stringJsonElementEntry : tplate.entrySet()) {
@@ -178,8 +183,10 @@ public class TemplateShaderResourceLoader implements PacoResourceManager {
                 this.transformers.put(stringJsonElementEntry.getKey(), stringJsonElementEntry.getValue().getAsString());
             }
 
-            for (JsonElement instance_data : obj.getAsJsonArray("instance_data")) {
-                this.instanceData.add(instance_data.getAsString());
+            JsonObject idata = obj.getAsJsonObject("instance_data");
+            for (String s : idata.keySet()) {
+                this.instanceData.add(s);
+                this.dataTypes.put(s, idata.getAsJsonPrimitive(s).getAsString());
             }
         }
 

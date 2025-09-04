@@ -114,6 +114,7 @@ Systems TODO:
   - [ ] Maybe add a modifier that allows removing entries from jigsaw structure piece pools (if they can be identified)
   - [x] Add some sorta phase system like forges `Phase` enum, to ensure removing happens after adding
 - Shader Patcher
+  - [ ] Look into creating dummy ShaderInstance copies to avoid awkward uniform management?
   - [ ] Allow injecting custom methods
   - [ ] Allow utilization of predefined variables to optimize shaders
   - [ ] Rewrite the patcher

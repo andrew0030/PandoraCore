@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class IrisTemplatedShader extends TemplatedShader {
+    protected static boolean FIRST_BIND = false;
+
     TemplatedProgram program;
     BaseProgram programShadow;
     List<String> sourceNames = new ArrayList<>();
@@ -67,6 +69,10 @@ public class IrisTemplatedShader extends TemplatedShader {
 
             // log error
             program.validate("Iris/Oculus:Base");
+
+            program.setFirstBind(() -> {
+                FIRST_BIND = true;
+            });
         }
         if (vanillaShadow != null) {
             List<ShaderAttachment> attachments = new ArrayList<>();
@@ -99,9 +105,21 @@ public class IrisTemplatedShader extends TemplatedShader {
             // log error
             programShadow.validate("Iris/Oculus:Shadow");
             this.programShadow = programShadow;
+
+            programShadow.setFirstBind(() -> {
+                FIRST_BIND = true;
+            });
         } else {
             programShadow = BlackHoleProgram.INSTANCE;
         }
+    }
+
+    public static boolean isFirstBind() {
+        return FIRST_BIND;
+    }
+
+    public static void setBound() {
+        FIRST_BIND = false;
     }
 
     @Override

@@ -44,27 +44,46 @@ public class InstanceFormat {
         List<Integer> clientState = new ArrayList<>();
         int offset = 0;
         for (InstanceDataElement element : elements) {
-            int attribute = wrapper.getAttributeLocation(element.name);
-            if (attribute != -1) {
-//                attribute += element.components;
+            if (element.components > 1) {
                 for (int i = 0; i < element.components; i++) {
-                    clientState.add(attribute);
-                    GlStateManager._enableVertexAttribArray(attribute);
-                    if (element.type.isFloating()) {
-                        GlStateManager._vertexAttribPointer(attribute, element.size, element.type.glPrim, element.normalize, stride, offset);
-                    } else {
-                        GlStateManager._vertexAttribIPointer(attribute, element.size, element.type.glPrim, stride, offset);
+                    int attribute = wrapper.getAttributeLocation(element.name + "_" + i);
+                    if (attribute != -1) {
+                        clientState.add(attribute);
+                        GlStateManager._enableVertexAttribArray(attribute);
+                        if (element.type.isFloating()) {
+                            GlStateManager._vertexAttribPointer(attribute, element.size, element.type.glPrim, element.normalize, stride, offset);
+                        } else {
+                            GlStateManager._vertexAttribIPointer(attribute, element.size, element.type.glPrim, stride, offset);
+                        }
+                        GL33.glVertexAttribDivisor(
+                                attribute, 1
+                        );
+                        offset += element.bytes() / element.components;
                     }
-                    // TODO: apparently, vertexAttribDivisor is in a newer version of OpenGL than MC uses
-                    //       a fallback uniform based implementation will be necessary
-                    GL33.glVertexAttribDivisor(
-                            attribute, 1
-                    );
-                    attribute++;
-                    offset += element.bytes() / element.components;
                 }
             } else {
-                offset += element.bytes();
+                int attribute = wrapper.getAttributeLocation(element.name);
+                if (attribute != -1) {
+//                attribute += element.components;
+                    for (int i = 0; i < element.components; i++) {
+                        clientState.add(attribute);
+                        GlStateManager._enableVertexAttribArray(attribute);
+                        if (element.type.isFloating()) {
+                            GlStateManager._vertexAttribPointer(attribute, element.size, element.type.glPrim, element.normalize, stride, offset);
+                        } else {
+                            GlStateManager._vertexAttribIPointer(attribute, element.size, element.type.glPrim, stride, offset);
+                        }
+                        // TODO: apparently, vertexAttribDivisor is in a newer version of OpenGL than MC uses
+                        //       a fallback uniform based implementation will be necessary
+                        GL33.glVertexAttribDivisor(
+                                attribute, 1
+                        );
+                        attribute++;
+                        offset += element.bytes() / element.components;
+                    }
+                } else {
+                    offset += element.bytes();
+                }
             }
         }
         return clientState;

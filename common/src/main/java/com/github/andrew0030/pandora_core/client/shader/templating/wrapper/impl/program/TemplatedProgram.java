@@ -27,6 +27,13 @@ public class TemplatedProgram extends BaseProgram {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Templated Vanilla/Iris");
     public Map<String, Integer> attributeLocations = new HashMap<>();
 
+    Runnable firstBind;
+
+    public TemplatedProgram setFirstBind(Runnable firstBind) {
+        this.firstBind = firstBind;
+        return this;
+    }
+
     ShaderInstance from;
     int id;
 
@@ -61,11 +68,10 @@ public class TemplatedProgram extends BaseProgram {
         RenderSystem.setShader(() -> from);
         ((IPaCoConditionallyBindable) from).pandoraCore$disableBind();
         GL20.glUseProgram(id);
-//        for (Uniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
-//            ((IPacoDirtyable) uniform).pandoraCore$markDirty();
-//        }
-//        from.markDirty();
-//        from.apply();
+        if (firstBind != null) {
+            firstBind.run();
+            firstBind = null;
+        }
     }
 
     public void close() {

@@ -15,6 +15,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * The {@link RemoveStructureSetStructuresModifier} can be used to remove {@link Structure} instances from {@link StructureSet} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:remove_structure_set_structures",
+ *   "structure_sets": [
+ *     "minecraft:villages"
+ *   ],
+ *   "structures": [
+ *     "minecraft:village_plains"
+ *   ]
+ * }
+ * }</pre>
+ *
+ * @param structureSets The {@link StructureSet} instances from which {@code structures} will be removed
+ * @param structures    The {@link Structure} instances that will be removed
+ */
 public record RemoveStructureSetStructuresModifier(HolderSet<StructureSet> structureSets, HolderSet<Structure> structures) implements Modifier {
     public static final Codec<RemoveStructureSetStructuresModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(

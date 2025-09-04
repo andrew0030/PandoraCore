@@ -13,6 +13,25 @@ import net.minecraft.world.level.levelgen.structure.StructureSet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The {@link AddStructureSetStructuresModifier} can be used to add {@link StructureSet.StructureSelectionEntry} instances to {@link StructureSet} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:add_structure_set_structures",
+ *   "structure_sets": "minecraft:villages",
+ *   "structures": [
+ *     {
+ *       "structure": "example_mod:example_village",
+ *       "weight": 1
+ *     }
+ *   ]
+ * }
+ * }</pre>
+ *
+ * @param structureSets The {@link StructureSet} instances the {@code structures} will be added to
+ * @param structures    The {@link StructureSet.StructureSelectionEntry} instances that will be added
+ */
 public record AddStructureSetStructuresModifier(HolderSet<StructureSet> structureSets, List<StructureSet.StructureSelectionEntry> structures) implements Modifier {
     public static final Codec<AddStructureSetStructuresModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(

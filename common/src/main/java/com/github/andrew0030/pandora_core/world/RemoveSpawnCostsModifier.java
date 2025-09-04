@@ -15,6 +15,26 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The {@link RemoveSpawnCostsModifier} can be used to remove the {@link MobSpawnSettings.MobSpawnCost} of {@link EntityType} instances in  {@link Biome} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:remove_spawn_costs",
+ *   "biomes": [
+ *     "minecraft:soul_sand_valley",
+ *     "minecraft:warped_forest"
+ *   ],
+ *   "entity_types": [
+ *     "minecraft:enderman",
+ *     "minecraft:skeleton"
+ *   ]
+ * }
+ * }</pre>
+ *
+ * @param biomes      The {@link Biome} instances in which the {@code entityTypes} will get their {@code spawnCost} removed
+ * @param entityTypes The {@link EntityType} instances that will get their {@code spawnCost} removed
+ */
 public record RemoveSpawnCostsModifier(HolderSet<Biome> biomes, HolderSet<EntityType<?>> entityTypes) implements Modifier {
     public static final Codec<RemoveSpawnCostsModifier> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(

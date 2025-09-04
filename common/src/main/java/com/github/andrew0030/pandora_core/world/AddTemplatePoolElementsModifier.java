@@ -16,6 +16,28 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The {@link AddTemplatePoolElementsModifier} can be used to add {@link StructurePoolElement} instances to {@link StructureTemplatePool} instances.
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * {
+ *   "type": "pandora_core:add_template_pool_elements",
+ *   "template_pools": "minecraft:village/taiga/houses",
+ *   "elements": {
+ *     "weight": 5,
+ *     "element": {
+ *       "element_type": "minecraft:legacy_single_pool_element",
+ *       "location": "minecraft:village/plains/houses/plains_small_house_1",
+ *       "processors": "minecraft:mossify_10_percent",
+ *       "projection": "rigid"
+ *     }
+ *   }
+ * }
+ * }</pre>
+ *
+ * @param templatePools The {@link StructureTemplatePool} instances the {@code elements} will be added to
+ * @param elements      The {@link StructurePoolElement} instances that will be added using the specified {@link Integer} as weight
+ */
 public record AddTemplatePoolElementsModifier(HolderSet<StructureTemplatePool> templatePools, List<Pair<StructurePoolElement, Integer>> elements) implements Modifier {
     // A Codec representing a weighted structure pool element
     public static final Codec<Pair<StructurePoolElement, Integer>> WEIGHTED_POOL_ELEMENT_CODEC = Codec.mapPair(

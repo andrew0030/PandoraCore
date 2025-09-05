@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.registry.internal;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.world.Modifier;
+import com.github.andrew0030.pandora_core.world.modifier.Modifier;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;

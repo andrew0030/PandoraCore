@@ -3,7 +3,7 @@ package com.github.andrew0030.pandora_core.registry.internal;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryBuilder;
-import com.github.andrew0030.pandora_core.world.*;
+import com.github.andrew0030.pandora_core.world.modifier.*;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;

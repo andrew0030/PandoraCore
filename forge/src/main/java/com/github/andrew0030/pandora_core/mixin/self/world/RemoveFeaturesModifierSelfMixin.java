@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.mixin.self.world;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoForgeModifierConverter;
-import com.github.andrew0030.pandora_core.world.RemoveFeaturesModifier;
+import com.github.andrew0030.pandora_core.world.modifier.RemoveFeaturesModifier;
 import net.minecraftforge.common.world.BiomeModifier;
 import net.minecraftforge.common.world.ForgeBiomeModifiers;
 import org.spongepowered.asm.mixin.Mixin;

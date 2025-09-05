@@ -113,6 +113,7 @@ Systems TODO:
   - [x] Add a modifier that allows removing carvers from biome/s
   - [x] ~~Maybe add a modifier that allows removing entries from jigsaw structure piece pools (if they can be identified)~~ Too annoying and I don't need it
   - [x] Add some sorta phase system like forges `Phase` enum, to ensure removing happens after adding
+  - [ ] Expand/wrap `StructurePoolElement`, and use it to allow for additional properties, such as `min_count` and or `max_count`
 - Shader Patcher
   - [ ] Look into creating dummy ShaderInstance copies to avoid awkward uniform management?
   - [ ] Allow injecting custom methods

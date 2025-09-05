@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.world;
 
-import com.github.andrew0030.pandora_core.world.Modifier;
+import com.github.andrew0030.pandora_core.world.modifier.Modifier;
 import net.minecraft.gametest.framework.GameTestServer;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;

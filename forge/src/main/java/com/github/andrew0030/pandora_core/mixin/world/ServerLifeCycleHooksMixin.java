@@ -2,7 +2,7 @@ package com.github.andrew0030.pandora_core.mixin.world;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoForgeModifierConverter;
 import com.github.andrew0030.pandora_core.registry.internal.PaCoRegistryKeys;
-import com.github.andrew0030.pandora_core.world.Modifier;
+import com.github.andrew0030.pandora_core.world.modifier.Modifier;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.world.BiomeModifier;

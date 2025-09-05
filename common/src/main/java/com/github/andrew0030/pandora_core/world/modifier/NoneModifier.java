@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.world;
+package com.github.andrew0030.pandora_core.world.modifier;
 
 import com.mojang.serialization.Codec;
 

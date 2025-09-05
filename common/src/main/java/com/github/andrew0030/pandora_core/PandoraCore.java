@@ -7,6 +7,7 @@ import com.github.andrew0030.pandora_core.registry.PaCoRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryBuilder;
 import com.github.andrew0030.pandora_core.registry.internal.PaCoModifiers;
 import com.github.andrew0030.pandora_core.registry.internal.PaCoRegistryKeys;
+import com.github.andrew0030.pandora_core.registry.internal.PaCoStructurePoolElementTypes;
 import com.github.andrew0030.pandora_core.registry.test.PaCoBlockEntities;
 import com.github.andrew0030.pandora_core.registry.test.PaCoBlocks;
 import com.github.andrew0030.pandora_core.registry.test.PaCoCreativeModeTabs;
@@ -21,7 +22,7 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory;
 import com.github.andrew0030.pandora_core.utils.update_checker.PaCoUpdateChecker;
-import com.github.andrew0030.pandora_core.world.Modifier;
+import com.github.andrew0030.pandora_core.world.modifier.Modifier;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -45,6 +46,7 @@ public class PandoraCore {
         PaCoCreativeModeTabs.CREATIVE_MODE_TABS.register();
         PaCoEntityAttributes.ENTITY_ATTRIBUTES.register();
         PaCoModifiers.MODIFIER_TYPES.register();
+        PaCoStructurePoolElementTypes.STRUCTURE_POOL_ELEMENT_TYPES.register();
         // Dynamic Registries
         PaCoRegistry.registerDynamic(PaCoRegistryBuilder.dynamic(PaCoRegistryKeys.WORLDGEN_MODIFIER, Modifier.CODEC));
 

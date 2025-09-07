@@ -12,6 +12,7 @@ import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoModifyTitleScreen;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
@@ -39,6 +40,7 @@ import java.util.*;
 
 import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders.BlurVariables.*;
 
+//TODO: look into how to support the PackMenu mod customizations in a relatively sane way
 public class PaCoScreen extends Screen {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
     // Mods Panel
@@ -88,18 +90,34 @@ public class PaCoScreen extends Screen {
     public int modButtonWidth;
     public int modsHandleHeight;
 
-
+    /** Opens the {@link PaCoScreen} directly, without any previous {@link Screen} instances. */
     public PaCoScreen() {
         super(TITLE);
         this.parameters = new HashMap<>();
         this.openTime = System.currentTimeMillis();
     }
 
+    /**
+     * Opens the {@link PaCoScreen} from within the {@link TitleScreen}.
+     * The {@link TitleScreen} instance is ticked, meaning when we exit {@link PaCoScreen}, the panorama progress remains the same.
+     *
+     * @param titleScreen The {@link TitleScreen} that will be opened when we exist {@link PaCoScreen}
+     */
     public PaCoScreen(TitleScreen titleScreen) {
         this();
         this.titleScreen = titleScreen;
+        // If there is a title screen it flags it to cancel element rendering (we only want the background)
+        if (titleScreen != null)
+            ((IPaCoModifyTitleScreen) titleScreen).pandoraCore$hideElements(true);
     }
 
+    /**
+     * Opens the {@link PaCoScreen} from within a different mod list {@link Screen} instance, which has the {@link TitleScreen} cached internally.
+     * The {@link TitleScreen} instance is ticked, meaning when we exit that {@link Screen}, the panorama progress remains the same.
+     *
+     * @param titleScreen    The {@link TitleScreen} stored inside {@code previousScreen}
+     * @param previousScreen The {@link Screen} that will be opened when we exist {@link PaCoScreen}
+     */
     public PaCoScreen(TitleScreen titleScreen, Screen previousScreen) {
         this(titleScreen);
         this.previousScreen = previousScreen;
@@ -184,13 +202,13 @@ public class PaCoScreen extends Screen {
         long elapsed = System.currentTimeMillis() - this.openTime;
         int fadeInTime = 160; //TODO add config options for fade in time and blurriness
         this.fadeInProgress = (elapsed + partialTick) < fadeInTime ? (elapsed + partialTick) / fadeInTime : 1.0F;
-        // Renders the Panorama if needed
+        // Renders the Panorama/Background if needed
         if (this.titleScreen != null) {
-            if (this.titleScreen.fadeInStart == 0L && this.titleScreen.fading)
-                this.titleScreen.fadeInStart = Util.getMillis();
+//            if (this.titleScreen.fadeInStart == 0L && this.titleScreen.fading)
+//                this.titleScreen.fadeInStart = Util.getMillis();
+//            float f = this.titleScreen.fading ? (float)(Util.getMillis() - this.titleScreen.fadeInStart) / 1000.0F : 1.0F;
 
-            float f = this.titleScreen.fading ? (float)(Util.getMillis() - this.titleScreen.fadeInStart) / 1000.0F : 1.0F;
-            this.titleScreen.panorama.render(partialTick, Mth.clamp(f, 0.0F, 1.0F));
+            this.titleScreen.render(graphics, mouseX, mouseY, partialTick);
         }
 
         // Background Blur and Gradient
@@ -337,8 +355,11 @@ public class PaCoScreen extends Screen {
         this.imageManager.close();
         // Handles returning to previous Screen if needed
         if (this.previousScreen != null) {
+            if (this.titleScreen != null)
+                ((IPaCoModifyTitleScreen) this.titleScreen).pandoraCore$hideElements(false);
             Minecraft.getInstance().setScreen(this.previousScreen);
         } else if (this.titleScreen != null) {
+            ((IPaCoModifyTitleScreen) this.titleScreen).pandoraCore$hideElements(false);
             Minecraft.getInstance().setScreen(this.titleScreen);
         } else {
             super.onClose();

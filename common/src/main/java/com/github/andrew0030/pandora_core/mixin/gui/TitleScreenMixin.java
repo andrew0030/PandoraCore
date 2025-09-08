@@ -24,6 +24,11 @@ public class TitleScreenMixin implements IPaCoCheckTitleScreen, IPaCoModifyTitle
         this.pandoraCore$hideElements = value;
     }
 
+    @Override
+    public boolean pandoraCore$areElementsHidden() {
+        return this.pandoraCore$hideElements;
+    }
+
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/LogoRenderer;renderLogo(Lnet/minecraft/client/gui/GuiGraphics;IF)V", ordinal = 0), cancellable = true)
     public void injectAboveLogoRenderer(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (this.pandoraCore$hideElements)

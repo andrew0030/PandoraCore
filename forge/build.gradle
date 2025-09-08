@@ -82,6 +82,8 @@ dependencies {
     // MrCrayfish Config Mods
     implementation fg.deobf("curse.maven:catalogue-459701:4766090") // Catalogue
     compileOnly fg.deobf("curse.maven:configured-457570:5180900") // Configured
+    // PackMenu (Compatibility)
+    compileOnly fg.deobf("curse.maven:packmenu-358191:5503481") // PackMenu
     // My Mods (PaCo Screen Tests)
     runtimeOnly fg.deobf("curse.maven:swampier-swamps-632591:4578599") // Swampier Swamps
 //    runtimeOnly fg.deobf("curse.maven:table-top-craft-467136:5318681") // Table Top Craft

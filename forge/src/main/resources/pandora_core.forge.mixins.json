@@ -6,7 +6,6 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginForge",
   "mixins": [
-    "compat.gui.CatalogueModListScreenMixin",
     "self.world.AddFeaturesModifierSelfMixin",
     "self.world.AddSpawnsModifierSelfMixin",
     "self.world.RemoveFeaturesModifierSelfMixin",
@@ -14,7 +13,9 @@
     "world.ServerLifeCycleHooksMixin"
   ],
   "client": [
-    "ModListScreenMixin"
+    "ModListScreenMixin",
+    "compat.gui.CatalogueModListScreenMixin",
+    "compat.gui.ExtendedMenuScreenMixin"
   ],
   "server": [],
   "injectors": {

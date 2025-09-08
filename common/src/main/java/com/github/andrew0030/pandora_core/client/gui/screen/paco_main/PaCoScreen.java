@@ -19,7 +19,6 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -40,7 +39,6 @@ import java.util.*;
 
 import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders.BlurVariables.*;
 
-//TODO: look into how to support the PackMenu mod customizations in a relatively sane way
 public class PaCoScreen extends Screen {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
     // Mods Panel
@@ -145,6 +143,14 @@ public class PaCoScreen extends Screen {
 
     @Override
     protected void init() {
+        /* Compatibility */
+        if (this.titleScreen != null) {
+            // Technically this isn't needed when the title screen renders a panorama, however when it has
+            // a static image, due to mods like "PackMenu" we need this to update the dimensions on resize
+            this.titleScreen.width = this.width;
+            this.titleScreen.height = this.height;
+        }
+
         /* Field Init */
         this.fieldInit();
 
@@ -202,14 +208,9 @@ public class PaCoScreen extends Screen {
         long elapsed = System.currentTimeMillis() - this.openTime;
         int fadeInTime = 160; //TODO add config options for fade in time and blurriness
         this.fadeInProgress = (elapsed + partialTick) < fadeInTime ? (elapsed + partialTick) / fadeInTime : 1.0F;
-        // Renders the Panorama/Background if needed
-        if (this.titleScreen != null) {
-//            if (this.titleScreen.fadeInStart == 0L && this.titleScreen.fading)
-//                this.titleScreen.fadeInStart = Util.getMillis();
-//            float f = this.titleScreen.fading ? (float)(Util.getMillis() - this.titleScreen.fadeInStart) / 1000.0F : 1.0F;
-
+        // Renders the panorama/background
+        if (this.titleScreen != null)
             this.titleScreen.render(graphics, mouseX, mouseY, partialTick);
-        }
 
         // Background Blur and Gradient
         RenderSystem.disableDepthTest(); // Needed so it works if chat is rendering.

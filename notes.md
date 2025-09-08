@@ -16,7 +16,7 @@ Jank:
 - game crashes in production on fabric if iris is present (need to move a mixin into loader modules)
 - use `ARBInstancedArrays.glVertexAttribDivisorARB();` if necessary
 - Isometric projection seems breaks the instancer (I Like Vanilla v1.0.6)
-- Resource reloading cases things to vanish instantly, because the shaders are dumped instantly
+- Resource reloading causes things to vanish instantly, because the shaders are dumped instantly
 - `miniature shader` causes shader templater to break
 
 <hr/>
@@ -54,7 +54,7 @@ Systems TODO:
   - [ ] Replace Fabric's placeholder background
   - [ ] Replace Forge's placeholder background
   - [x] Add support for [FancyMenu](https://www.curseforge.com/minecraft/mc-mods/fancymenu), which currently gets replaced with panorama
-  - [ ] Add support for [PackMenu](https://www.curseforge.com/minecraft/mc-mods/packmenu), which currently renders buttons in background
+  - [x] Add support for [PackMenu](https://www.curseforge.com/minecraft/mc-mods/packmenu), which currently renders buttons in background
   - [ ] Maybe add banner support
   - [ ] Look into mod ordering and libs on Quilt
 - PaCo Config Screen
@@ -131,3 +131,5 @@ Systems TODO:
   - [ ] Entity instancer
   - [ ] Particle instancer
   - [ ] Potential future rewrite?
+- Uniform Holder
+  - [ ] Replace the list hashing inside `TagFilter` because it could potentially be order dependent

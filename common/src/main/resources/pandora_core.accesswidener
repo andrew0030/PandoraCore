@@ -6,11 +6,6 @@ accessible method net/minecraft/client/Camera setRotation (FF)V # setRotation
 # Used to make a method that allows accessing partialTick anywhere
 accessible field net/minecraft/client/Minecraft pausePartialTick F # pausePartialTick
 
-# Used to render the panorama if the PaCo menu was opened in the title screen
-accessible field net/minecraft/client/gui/screens/TitleScreen panorama Lnet/minecraft/client/renderer/PanoramaRenderer; # panorama
-accessible field net/minecraft/client/gui/screens/TitleScreen fading Z # fading
-accessible field net/minecraft/client/gui/screens/TitleScreen fadeInStart J # fadeInStart
-
 # Used to make canChangeValue public, so we can access it from PaCo sliders
 accessible field net/minecraft/client/gui/components/AbstractSliderButton canChangeValue Z # canChangeValue
 

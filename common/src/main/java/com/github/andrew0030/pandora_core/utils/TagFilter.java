@@ -1,7 +1,6 @@
 package com.github.andrew0030.pandora_core.utils;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoTagged;
-import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,6 +14,7 @@ public class TagFilter implements Comparable<TagFilter> {
         this.tags = new ReadOnlyList<>(new ArrayList<>(new HashSet<>(
                 Arrays.asList(tags)
         )));
+        // TODO: The list should probably not be hashed, because it could potentially be order dependent
         this.hash = Objects.hash(tags);
     }
 

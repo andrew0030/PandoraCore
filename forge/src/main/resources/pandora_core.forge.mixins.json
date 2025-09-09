@@ -14,8 +14,10 @@
   ],
   "client": [
     "ModListScreenMixin",
+    "compat.gui.AetherTitleScreenMixin",
     "compat.gui.CatalogueModListScreenMixin",
-    "compat.gui.ExtendedMenuScreenMixin"
+    "compat.gui.ExtendedMenuScreenMixin",
+    "compat.gui.IceAndFireMainMenuMixin"
   ],
   "server": [],
   "injectors": {

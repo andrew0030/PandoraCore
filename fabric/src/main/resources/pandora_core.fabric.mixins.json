@@ -10,6 +10,7 @@
     "world.GameTestServerMixin"
   ],
   "client": [
+    "compat.gui.AetherTitleScreenMixin",
     "compat.gui.CatalogueModListScreenMixin",
     "compat.gui.ModsScreenMixin",
     "fixes.EffectInstanceMixin",

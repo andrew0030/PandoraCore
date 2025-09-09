@@ -201,6 +201,16 @@ public class PaCoScreen extends Screen {
     @Override
     public void tick() {
         this.searchBox.tick();
+        // Technically this isn't needed when the title screen renders a panorama, however when it has
+        // animated content, due to mods like "PackMenu" we need this to ensure the content stays animated
+        if (this.titleScreen != null) {
+            // We set the current screen to the title screen just before rendering it
+            // in order to keep the game state as close as possible to what is expected
+            boolean isMinecraftNotNull = this.minecraft != null;
+            if (isMinecraftNotNull) this.minecraft.screen = this.titleScreen;
+            this.titleScreen.tick();
+            if (isMinecraftNotNull) this.minecraft.screen = this;
+        }
     }
 
     @Override
@@ -208,9 +218,15 @@ public class PaCoScreen extends Screen {
         long elapsed = System.currentTimeMillis() - this.openTime;
         int fadeInTime = 160; //TODO add config options for fade in time and blurriness
         this.fadeInProgress = (elapsed + partialTick) < fadeInTime ? (elapsed + partialTick) / fadeInTime : 1.0F;
-        // Renders the panorama/background
-        if (this.titleScreen != null)
+        // Renders the title screen panorama/background
+        if (this.titleScreen != null) {
+            // We set the current screen to the title screen just before rendering it
+            // in order to keep the game state as close as possible to what is expected
+            boolean isMinecraftNotNull = this.minecraft != null;
+            if (isMinecraftNotNull) this.minecraft.screen = this.titleScreen;
             this.titleScreen.render(graphics, mouseX, mouseY, partialTick);
+            if (isMinecraftNotNull) this.minecraft.screen = this;
+        }
 
         // Background Blur and Gradient
         RenderSystem.disableDepthTest(); // Needed so it works if chat is rendering.

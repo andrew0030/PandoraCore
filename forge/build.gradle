@@ -85,7 +85,7 @@ dependencies {
     // Title Screen Compatibility Mods
     compileOnly fg.deobf("curse.maven:packmenu-358191:5503481") // PackMenu
     compileOnly fg.deobf("curse.maven:ice-and-fire-dragons-264231:5633453") // Ice and Fire: Dragons
-    implementation fg.deobf("curse.maven:aether-255308:6134920") // The Aether
+    compileOnly fg.deobf("curse.maven:aether-255308:6134920") // The Aether
     // My Mods (PaCo Screen Tests)
     runtimeOnly fg.deobf("curse.maven:swampier-swamps-632591:4578599") // Swampier Swamps
 //    runtimeOnly fg.deobf("curse.maven:table-top-craft-467136:5318681") // Table Top Craft

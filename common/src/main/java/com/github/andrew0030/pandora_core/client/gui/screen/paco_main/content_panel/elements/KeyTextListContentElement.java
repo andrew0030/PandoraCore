@@ -30,12 +30,11 @@ public class KeyTextListContentElement extends BaseContentElement {
         super(manager, offsetX, offsetY);
         this.key = key;
         this.valuePrefix = valuePrefix;
-        Font font = Minecraft.getInstance().font;
-        this.valueInset += StringUtil.isNullOrEmpty(valuePrefix) ? 0 : font.width(valuePrefix);
+        this.valueInset += StringUtil.isNullOrEmpty(valuePrefix) ? 0 : this.font.width(valuePrefix);
         // Calculates and stores the values with corresponding heights
         for (int i = 0; i < values.size(); i++) {
             FormattedText value = FormattedText.of(values.get(i));
-            int valueHeight = font.split(value, this.manager.getWidth() - this.valueInset - this.getOffsetX()).size() * 9;
+            int valueHeight = this.font.split(value, this.getWidth() - this.valueInset).size() * 9;
             this.values.put(i, Pair.of(value, valueHeight));
         }
         this.initializeHeight();
@@ -58,23 +57,24 @@ public class KeyTextListContentElement extends BaseContentElement {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Key
-        graphics.drawString(Minecraft.getInstance().font, this.key, this.getX(), this.getY(), this.keyColor, true);
+        graphics.drawString(this.font, this.key, this.getX(), this.getY(), this.keyColor, true);
         // Value
         int lineOffsetY = 11;
-        Font font = Minecraft.getInstance().font;
         for (int i = 0; i < this.values.size(); i++) {
             int posX = this.getX() + this.valueInset;
             int posY = this.getY() + lineOffsetY;
             // Prefix (if needed)
             if (!StringUtil.isNullOrEmpty(this.valuePrefix))
-                graphics.drawString(font, this.valuePrefix, posX - font.width(this.valuePrefix), posY, this.valueColor);
+                graphics.drawString(this.font, this.valuePrefix, posX - this.font.width(this.valuePrefix), posY, this.valueColor);
             // Value
             FormattedText lineValue = this.values.get(i).getFirst();
-            PaCoGuiUtils.drawWordWrap(graphics, font, lineValue, posX, posY, this.manager.getWidth() - this.valueInset - this.getOffsetX(), this.valueColor, true);
+            PaCoGuiUtils.drawWordWrap(graphics, this.font, lineValue, posX, posY, this.getWidth() - this.valueInset, this.valueColor, true);
             lineOffsetY += this.values.get(i).getSecond();
         }
 
-//        PaCoGuiUtils.renderBoxWithRim(graphics, this.manager.posX, this.manager.getContentHeight() + getOffsetY(), this.manager.width, this.height, null, PaCoColor.color(255, 255, 40), 1);
+        // Debug Outline
+        if (PaCoContentPanelManager.DEBUG_MODE)
+            PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), null, PaCoColor.color(255, 255, 40), 1);
     }
 
     @Override

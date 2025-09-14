@@ -23,6 +23,7 @@ public class ModImageManager implements Closeable {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "ModImageManager");
     private final Map<String, Pair<ResourceLocation, DynamicTexture>> iconCache = new HashMap<>();
     private Pair<String, Pair<ResourceLocation, DynamicTexture>> backgroundCache = Pair.of(null, Pair.of(null, null));
+    private Pair<String, Pair<ResourceLocation, DynamicTexture>> bannerCache = Pair.of(null, Pair.of(null, null));
     // Just a boolean that can be toggled to get some debug info about icon caching.
     public static final boolean SHOW_DEBUG_MESSAGES = false;
 
@@ -42,6 +43,12 @@ public class ModImageManager implements Closeable {
                 this.backgroundCache.getSecond().getSecond().close();
             PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached background image", this.backgroundCache.getFirst());
         }
+        // Mod Banner
+        if (this.bannerCache.getSecond() != null) {
+            if (this.bannerCache.getSecond().getSecond() != null)
+                this.bannerCache.getSecond().getSecond().close();
+            PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached banner image", this.bannerCache.getFirst());
+        }
     }
 
     /** @return Whether there is an icon cache entry, for the given mod id. */
@@ -55,11 +62,18 @@ public class ModImageManager implements Closeable {
         return this.iconCache.get(modId);
     }
 
-    /** @return The cache background of the given mod id. If there is none null is returned. */
+    /** @return The cached background of the given mod id. If there is none null is returned. */
     @Nullable
     public Pair<ResourceLocation, DynamicTexture> getCachedBackground(String modId) {
         if (this.backgroundCache.getFirst() == null) return null;
         return this.backgroundCache.getFirst().equals(modId) ? this.backgroundCache.getSecond() : null;
+    }
+
+    /** @return The cached banner of the given mod id. If there is none null is returned. */
+    @Nullable
+    public Pair<ResourceLocation, DynamicTexture> getCachedBanner(String modId) {
+        if (this.bannerCache.getFirst() == null) return null;
+        return this.bannerCache.getFirst().equals(modId) ? this.bannerCache.getSecond() : null;
     }
 
     /** Caches the given icon image data for the given mod id. */
@@ -81,6 +95,21 @@ public class ModImageManager implements Closeable {
         }
         this.backgroundCache = Pair.of(modId, Pair.of(resourceLocation, dynamicTexture));
         PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Loading background image into cache", modId);
+    }
+
+    /**
+     * Caches the given banner image data for the given mod id.<br/>
+     * Note: Since by design there can only be one banner loaded at a time,
+     * this also unloads the previous banner if there was one.
+     */
+    public void cacheBanner(String modId, ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
+        if (this.bannerCache.getSecond() != null) {
+            if (this.bannerCache.getSecond().getSecond() != null)
+                this.bannerCache.getSecond().getSecond().close();
+            PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached banner image", this.bannerCache.getFirst());
+        }
+        this.bannerCache = Pair.of(modId, Pair.of(resourceLocation, dynamicTexture));
+        PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Loading banner image into cache", modId);
     }
 
     /**

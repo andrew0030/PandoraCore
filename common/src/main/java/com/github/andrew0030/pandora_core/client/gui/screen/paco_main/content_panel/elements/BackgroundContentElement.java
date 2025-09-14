@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -18,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class BackgroundContentElement extends BaseContentElement {
-
     public static final List<ResourceLocation> MOD_MISSING_BACKGROUNDS = new ArrayList<>();
     public static final HashMap<String, ResourceLocation> MOD_BACKGROUNDS = new HashMap<>();
 
@@ -29,6 +29,8 @@ public class BackgroundContentElement extends BaseContentElement {
         }
         MOD_BACKGROUNDS.put("minecraft", new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/backgrounds/mc_background.png"));
         MOD_BACKGROUNDS.put("forge", new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/backgrounds/forge_background.png"));
+        MOD_BACKGROUNDS.put("fabricloader", new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/backgrounds/fabric_background.png"));
+        MOD_BACKGROUNDS.put("fabric-api", new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/backgrounds/fabric_background.png"));
     }
 
     public BackgroundContentElement(PaCoContentPanelManager manager) {
@@ -45,7 +47,9 @@ public class BackgroundContentElement extends BaseContentElement {
         PaCoScreen screen = this.manager.getScreen();
         this.renderModBackground(screen.selectedModButton.getModDataHolder(), graphics, this.getX(), this.getY(), this.manager.getWidth(), this.getHeight());
 
-//        PaCoGuiUtils.renderBoxWithRim(graphics, this.manager.posX + this.getOffsetX(), this.manager.getContentHeight() + this.getOffsetY(), this.manager.width, this.height, null, PaCoColor.color(255, 40, 40), 1);
+        // Debug Outline
+        if (PaCoContentPanelManager.DEBUG_MODE)
+            PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), null, PaCoColor.color(255, 40, 40), 1);
     }
 
     @Override

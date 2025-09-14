@@ -3,13 +3,10 @@ package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_p
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.FormattedText;
 
 public class KeyTextContentElement extends BaseContentElement {
-
     private final String key;
     private final FormattedText value;
     private final int valueInset = 12;
@@ -40,25 +37,26 @@ public class KeyTextContentElement extends BaseContentElement {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Key
-        graphics.drawString(Minecraft.getInstance().font, this.key, this.getX(), this.getY(), this.keyColor, true);
+        graphics.drawString(this.font, this.key, this.getX(), this.getY(), this.keyColor, true);
         // Value
         PaCoGuiUtils.drawWordWrap(
                 graphics,
-                Minecraft.getInstance().font,
+                this.font,
                 this.value,
                 this.getX() + this.valueInset,
                 this.getY() + 11,
-                this.manager.getWidth() - this.getOffsetX() - this.valueInset,
+                this.getWidth() - this.valueInset,
                 this.valueColor,
                 true
         );
 
-//        PaCoGuiUtils.renderBoxWithRim(graphics, this.manager.posX, this.manager.getContentHeight() + getOffsetY(), this.manager.width, this.height, null, PaCoColor.color(40, 40, 255), 1);
+        // Debug Outline
+        if (PaCoContentPanelManager.DEBUG_MODE)
+            PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), null, PaCoColor.color(40, 40, 255), 1);
     }
 
     @Override
     public int getHeight() {
-        Font font = Minecraft.getInstance().font;
-        return 11 + font.split(this.value, (this.manager.getWidth() - this.valueInset - this.getOffsetX())).size() * 9;
+        return 11 + this.font.split(this.value, (this.getWidth() - this.valueInset)).size() * 9;
     }
 }

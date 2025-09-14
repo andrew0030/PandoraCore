@@ -41,6 +41,7 @@ Systems TODO:
   - [ ] Optimize Animation System
   - [ ] Add proper ghost model
   - [ ] Add better BlockEntity handling
+  - [ ] Improve the way exp4j deals with degree based cos/sin (maybe functions can be overwritten like operators)
   - [ ] Maybe add Item animations
   - [ ] Maybe add Player animations
 - Click Location System (Abstract TTCs System)
@@ -55,8 +56,11 @@ Systems TODO:
   - [ ] Replace Forge's placeholder background
   - [x] Add support for [FancyMenu](https://www.curseforge.com/minecraft/mc-mods/fancymenu), which currently gets replaced with panorama
   - [x] Add support for [PackMenu](https://www.curseforge.com/minecraft/mc-mods/packmenu), which currently renders buttons in background
+  - [ ] Add links section or buttons to the content panel for hope page and or issues
   - [ ] Maybe add banner support
   - [ ] Look into mod ordering and libs on Quilt
+  - [ ] Try improving compatibility with connector
+  - [ ] Maybe a config driven way to hide mods from the list (could be good for libraries)
 - PaCo Config Screen
   - [ ] Create config screen that can take any number of components and dynamically adjust to it
   - [ ] Hook mod config system into it

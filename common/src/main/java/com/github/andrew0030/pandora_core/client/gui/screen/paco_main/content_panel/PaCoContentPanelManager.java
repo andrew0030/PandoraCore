@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 public class PaCoContentPanelManager {
+    public static final boolean DEBUG_MODE = true;
     // Content Panel | With Active Mod
     public static final Component MOD_VERSION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.version.key");
     public static final Component MOD_WARNING_KEY = Component.translatable("gui.pandora_core.paco.content.mod.warning.key");

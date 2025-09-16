@@ -19,6 +19,7 @@ public class ForgeModDataHolder extends ModDataHolder {
     private final List<String> icons = new ArrayList<>();
     private Optional<Boolean> blurIcon = Optional.empty();
     private final List<String> backgrounds = new ArrayList<>();
+    private final List<String> banners = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
     private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
@@ -39,6 +40,10 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .ifPresent(this.backgrounds::add);
+        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBanner"))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .ifPresent(this.banners::add);
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreUpdateURL"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
@@ -59,7 +64,10 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .map(String.class::cast)
                 .ifPresent(this.backgrounds::add);
         // Forge
-        modInfo.getLogoFile().ifPresent(this.icons::add);
+        modInfo.getLogoFile().ifPresent(logo -> {
+            this.icons.add(logo);   // Used to render mod icon
+            this.banners.add(logo); // Used to render mod banner
+        });
         modInfo.getUpdateURL().ifPresent(url -> this.updateURL = this.updateURL.isPresent() ? this.updateURL : modInfo.getUpdateURL());
 
         ((ModInfo) modInfo).getConfigElement("authors").map(Object::toString).ifPresent(string -> this.authors.addAll(Arrays.stream(string.replaceAll(" (and|&) ", ",").split("(?<=:)|[,;]")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
@@ -115,6 +123,11 @@ public class ForgeModDataHolder extends ModDataHolder {
     @Override
     public List<String> getModBackgroundFiles() {
         return this.backgrounds;
+    }
+
+    @Override
+    public List<String> getModBannerFiles() {
+        return this.banners;
     }
 
     @Override

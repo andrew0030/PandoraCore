@@ -22,7 +22,7 @@ import java.util.function.Function;
 public class ModImageManager implements Closeable {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "ModImageManager");
     private final Map<String, Pair<ResourceLocation, DynamicTexture>> iconCache = new HashMap<>();
-    private Pair<String, Pair<ResourceLocation, DynamicTexture>> backgroundCache = Pair.of(null, Pair.of(null, null));
+    private Pair<String, Pair<ResourceLocation, DynamicTexture>> backgroundCache = Pair.of(null, Pair.of(null, null));//TODO: create a "Triplet" to replace this double pair
     private Pair<String, Pair<ResourceLocation, DynamicTexture>> bannerCache = Pair.of(null, Pair.of(null, null));
     // Just a boolean that can be toggled to get some debug info about icon caching.
     public static final boolean SHOW_DEBUG_MESSAGES = false;
@@ -89,9 +89,10 @@ public class ModImageManager implements Closeable {
      */
     public void cacheBackground(String modId, ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
         if (this.backgroundCache.getSecond() != null) {
-            if (this.backgroundCache.getSecond().getSecond() != null)
+            if (this.backgroundCache.getSecond().getSecond() != null) {
                 this.backgroundCache.getSecond().getSecond().close();
-            PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached background image", this.backgroundCache.getFirst());
+                PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached background image", this.backgroundCache.getFirst());
+            }
         }
         this.backgroundCache = Pair.of(modId, Pair.of(resourceLocation, dynamicTexture));
         PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Loading background image into cache", modId);
@@ -104,9 +105,10 @@ public class ModImageManager implements Closeable {
      */
     public void cacheBanner(String modId, ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
         if (this.bannerCache.getSecond() != null) {
-            if (this.bannerCache.getSecond().getSecond() != null)
+            if (this.bannerCache.getSecond().getSecond() != null) {
                 this.bannerCache.getSecond().getSecond().close();
-            PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached banner image", this.bannerCache.getFirst());
+                PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached banner image", this.bannerCache.getFirst());
+            }
         }
         this.bannerCache = Pair.of(modId, Pair.of(resourceLocation, dynamicTexture));
         PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Loading banner image into cache", modId);

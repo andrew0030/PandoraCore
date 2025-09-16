@@ -344,6 +344,9 @@ public class PaCoScreen extends Screen {
             // Bottom Gradient
             int maxVal = this.contentPanelManager.getContentHeight() - this.contentMenuHeight;
             if (roundedVal < maxVal) {
+
+                //TODO: This seems to crash the game if the windows is made very small vertically on certain tabs
+
                 int gradientHeight = Math.min(25, maxVal - roundedVal);
                 graphics.blitRepeating(TEXTURE, this.contentPanelManager.getPosX(), this.contentMenuHeightStart + this.contentMenuHeight - gradientHeight, this.contentPanelManager.getWidth(), gradientHeight, 0, 97, 25, gradientHeight);
             }

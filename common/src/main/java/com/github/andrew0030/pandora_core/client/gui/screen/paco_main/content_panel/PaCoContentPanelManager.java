@@ -18,7 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 public class PaCoContentPanelManager {
-    public static final boolean DEBUG_MODE = true;
+    // Just a boolean that can be toggled to get some debug overlays inside the content panel.
+    public static final boolean DEBUG_MODE = false;
     // Content Panel | With Active Mod
     public static final Component MOD_VERSION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.version.key");
     public static final Component MOD_WARNING_KEY = Component.translatable("gui.pandora_core.paco.content.mod.warning.key");
@@ -58,6 +59,7 @@ public class PaCoContentPanelManager {
         int paddingX = PaCoScreen.PADDING_FOUR;
         int paddingY = 8;
         this.elements.add(new BackgroundContentElement(this));
+        this.elements.add(new BannerContentElement(this, 0, -this.getContentHeight())); // Since the banner is the second element added, moving it up by height moves it to 0
         this.elements.add(new TitleContentElement(this, paddingX, -16, holder.getModName()));
         this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
         if (holder.hasModWarnings()) // We only add warnings if there are any

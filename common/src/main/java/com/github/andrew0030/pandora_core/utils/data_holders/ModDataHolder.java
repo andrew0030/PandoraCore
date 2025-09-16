@@ -56,6 +56,9 @@ public abstract class ModDataHolder {
     /** @return A list of found mod background names. */
     public abstract List<String> getModBackgroundFiles();
 
+    /** @return A list of found mod banner names. */
+    public abstract List<String> getModBannerFiles();
+
     /** @return An {@link URL} pointing to an update JSON file, used to check for updates. */
     public abstract Optional<URL> getUpdateURL();
 

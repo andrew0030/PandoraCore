@@ -7,9 +7,9 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_pa
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -186,7 +186,7 @@ public class ModButton extends AbstractButton {
 
     private void renderModIcon(ModDataHolder holder, GuiGraphics graphics, int posX, int posY, int size) {
         String modId = holder.getModId();
-        Pair<ResourceLocation, Pair<Integer, Integer>> iconData = this.screen.imageManager.getImageData(
+        Triple<ResourceLocation, Integer, Integer> iconData = this.screen.imageManager.getImageData(
                 modId,
                 this.screen.imageManager::getCachedIcon,
                 this.screen.imageManager::cacheIcon,
@@ -197,9 +197,7 @@ public class ModButton extends AbstractButton {
         );
         if (iconData != null) {
             // If the ResourceLocation isn't null we render the icon.
-            ResourceLocation resourceLocation = iconData.getFirst();
-            Pair<Integer, Integer> dimensions = iconData.getSecond();
-            graphics.blit(resourceLocation, posX, posY, size, size, 0, 0, dimensions.getFirst(), dimensions.getSecond(), dimensions.getFirst(), dimensions.getSecond());
+            graphics.blit(iconData.getFirst(), posX, posY, size, size, 0, 0, iconData.getSecond(), iconData.getThird(), iconData.getSecond(), iconData.getThird());
         } else {
             // Otherwise we render a predefined or missing icon texture.
             ResourceLocation rl = MOD_ICONS.get(modId);

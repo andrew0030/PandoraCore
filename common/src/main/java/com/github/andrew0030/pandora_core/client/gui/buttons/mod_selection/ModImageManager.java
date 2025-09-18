@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.function.TriConsumer;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
@@ -22,8 +23,8 @@ import java.util.function.Function;
 public class ModImageManager implements Closeable {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "ModImageManager");
     private final Map<String, Pair<ResourceLocation, DynamicTexture>> iconCache = new HashMap<>();
-    private Pair<String, Pair<ResourceLocation, DynamicTexture>> backgroundCache = Pair.of(null, Pair.of(null, null));//TODO: create a "Triplet" to replace this double pair
-    private Pair<String, Pair<ResourceLocation, DynamicTexture>> bannerCache = Pair.of(null, Pair.of(null, null));
+    private Triple<String, ResourceLocation, DynamicTexture> backgroundCache = Triple.of(null, null, null);
+    private Triple<String, ResourceLocation, DynamicTexture> bannerCache = Triple.of(null, null, null);
     // Just a boolean that can be toggled to get some debug info about icon caching.
     public static final boolean SHOW_DEBUG_MESSAGES = false;
 
@@ -38,15 +39,13 @@ public class ModImageManager implements Closeable {
             PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached icon image", entry.getKey());
         }
         // Mod Background
-        if (this.backgroundCache.getSecond() != null) {
-            if (this.backgroundCache.getSecond().getSecond() != null)
-                this.backgroundCache.getSecond().getSecond().close();
+        if (this.backgroundCache.getThird() != null) {
+            this.backgroundCache.getThird().close();
             PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached background image", this.backgroundCache.getFirst());
         }
         // Mod Banner
-        if (this.bannerCache.getSecond() != null) {
-            if (this.bannerCache.getSecond().getSecond() != null)
-                this.bannerCache.getSecond().getSecond().close();
+        if (this.bannerCache.getThird() != null) {
+            this.bannerCache.getThird().close();
             PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached banner image", this.bannerCache.getFirst());
         }
     }
@@ -66,14 +65,16 @@ public class ModImageManager implements Closeable {
     @Nullable
     public Pair<ResourceLocation, DynamicTexture> getCachedBackground(String modId) {
         if (this.backgroundCache.getFirst() == null) return null;
-        return this.backgroundCache.getFirst().equals(modId) ? this.backgroundCache.getSecond() : null;
+        if (!this.backgroundCache.getFirst().equals(modId)) return null;
+        return Pair.of(this.backgroundCache.getSecond(), this.backgroundCache.getThird());
     }
 
     /** @return The cached banner of the given mod id. If there is none null is returned. */
     @Nullable
     public Pair<ResourceLocation, DynamicTexture> getCachedBanner(String modId) {
         if (this.bannerCache.getFirst() == null) return null;
-        return this.bannerCache.getFirst().equals(modId) ? this.bannerCache.getSecond() : null;
+        if (!this.bannerCache.getFirst().equals(modId)) return null;
+        return Pair.of(this.bannerCache.getSecond(), this.bannerCache.getThird());
     }
 
     /** Caches the given icon image data for the given mod id. */
@@ -88,13 +89,11 @@ public class ModImageManager implements Closeable {
      * this also unloads the previous background if there was one.
      */
     public void cacheBackground(String modId, ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
-        if (this.backgroundCache.getSecond() != null) {
-            if (this.backgroundCache.getSecond().getSecond() != null) {
-                this.backgroundCache.getSecond().getSecond().close();
-                PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached background image", this.backgroundCache.getFirst());
-            }
+        if (this.backgroundCache.getThird() != null) {
+            this.backgroundCache.getThird().close();
+            PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached background image", this.backgroundCache.getFirst());
         }
-        this.backgroundCache = Pair.of(modId, Pair.of(resourceLocation, dynamicTexture));
+        this.backgroundCache = Triple.of(modId, resourceLocation, dynamicTexture);
         PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Loading background image into cache", modId);
     }
 
@@ -104,13 +103,11 @@ public class ModImageManager implements Closeable {
      * this also unloads the previous banner if there was one.
      */
     public void cacheBanner(String modId, ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
-        if (this.bannerCache.getSecond() != null) {
-            if (this.bannerCache.getSecond().getSecond() != null) {
-                this.bannerCache.getSecond().getSecond().close();
-                PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached banner image", this.bannerCache.getFirst());
-            }
+        if (this.bannerCache.getThird() != null) {
+            this.bannerCache.getThird().close();
+            PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Unloading cached banner image", this.bannerCache.getFirst());
         }
-        this.bannerCache = Pair.of(modId, Pair.of(resourceLocation, dynamicTexture));
+        this.bannerCache = Triple.of(modId, resourceLocation, dynamicTexture);
         PaCoLogger.conditionalInfo(LOGGER, SHOW_DEBUG_MESSAGES, "[{}] Loading banner image into cache", modId);
     }
 
@@ -125,12 +122,12 @@ public class ModImageManager implements Closeable {
      * @param blur        A {@link BiFunction} that takes the width and height, and returns whether this image should be blurred when scaled
      * @param type        A {@link String} describing what the purpose of this image is. This is combined with "mod" to create a key.
      *                    For example "icon" will become "modicon", or "background" will become "modbackground".
-     * @return A {@link Pair} containing the {@link ResourceLocation} of the image, and additionally a second {@link Pair}
-     * containing the <strong>width</strong> and <strong>height</strong> of the image.<br/>
+     * @return A {@link Triple} containing the {@link ResourceLocation} of the image
+     * and additionally the {@code width} and {@code height} of the image.<br/>
      * If no image successfully loaded, <strong>null</strong> is returned and cached.
      */
     @Nullable
-    public Pair<ResourceLocation, Pair<Integer, Integer>> getImageData(
+    public Triple<ResourceLocation, Integer, Integer> getImageData(
             String modId,
             Function<String, Pair<ResourceLocation, DynamicTexture>> getCached,
             TriConsumer<String, ResourceLocation, DynamicTexture> cache,
@@ -154,12 +151,12 @@ public class ModImageManager implements Closeable {
      * @param blur           A {@link BiFunction} that takes the width and height, and returns whether this image should be blurred when scaled
      * @param type           A {@link String} describing what the purpose of this image is. This is combined with "mod" to create a key.
      *                       For example "icon" will become "modicon", or "background" will become "modbackground".
-     * @return A {@link Pair} containing the {@link ResourceLocation} of the image, and additionally a second {@link Pair}
-     * containing the <strong>width</strong> and <strong>height</strong> of the image.<br/>
+     * @return A {@link Triple} containing the {@link ResourceLocation} of the image
+     * and additionally the {@code width} and {@code height} of the image.<br/>
      * If no image successfully loaded, <strong>null</strong> is returned and cached.
      */
     @Nullable
-    public Pair<ResourceLocation, Pair<Integer, Integer>> getImageData(
+    public Triple<ResourceLocation, Integer, Integer> getImageData(
             String modId,
             Function<String, Pair<ResourceLocation, DynamicTexture>> getCached,
             TriConsumer<String, ResourceLocation, DynamicTexture> cache,
@@ -174,20 +171,23 @@ public class ModImageManager implements Closeable {
         if (cachedEntry != null) {
             // If the cached entry's resource location is null, then null should be returned for consistency reasons
             // The first entry being null indicates that the mod has an image, but said image failed to load
-            if (cachedEntry.getFirst() == null)
-                return null;
+            if (cachedEntry.getFirst() == null) return null;
 
-            // return the entry
-            return Pair.of(
+            // I don't think this should ever be the case, but if for some reason pixels are null we return early to avoid a crash
+            if (cachedEntry.getSecond().getPixels() == null) return null;
+
+            // If there is a cached entry we return it
+            return Triple.of(
                     cachedEntry.getFirst(),
-                    Pair.of(cachedEntry.getSecond().getPixels().getWidth(), cachedEntry.getSecond().getPixels().getHeight())
+                    cachedEntry.getSecond().getPixels().getWidth(),
+                    cachedEntry.getSecond().getPixels().getHeight()
             );
         }
 
         // If no image is already cached, we attempt to load one, and stop if a valid one was found
         // Alternatively if there is no images (the list is empty) the loop will not get called and null is cached/returned
         for (String imageFile : imageFiles) {
-            Pair<ResourceLocation, Pair<Integer, Integer>> result = Services.PLATFORM.loadNativeImage(modId, imageFile, nativeImage -> {
+            Triple<ResourceLocation, Integer, Integer> result = Services.PLATFORM.loadNativeImage(modId, imageFile, nativeImage -> {
                 // If the backgroundFile fails to load, null is provided
                 if (nativeImage == null)
                     return null;
@@ -211,7 +211,7 @@ public class ModImageManager implements Closeable {
                     // Register and cache the texture, and return it
                     ResourceLocation resourceLocation = Minecraft.getInstance().getTextureManager().register("mod" + type, dynamicTexture);
                     cache.accept(modId, resourceLocation, dynamicTexture);
-                    return Pair.of(resourceLocation, Pair.of(nativeImage.getWidth(), nativeImage.getHeight()));
+                    return Triple.of(resourceLocation, nativeImage.getWidth(), nativeImage.getHeight());
                 } catch (Exception ignored) {
                     // Safety reasons
                     // To my knowledge, the try here should never fail

@@ -7,9 +7,9 @@ import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
@@ -58,7 +58,7 @@ public class BackgroundContentElement extends BaseContentElement {
     }
 
     public void renderModBackground(ModDataHolder holder, GuiGraphics graphics, int posX, int posY, int width, int height) {
-        Pair<ResourceLocation, Pair<Integer, Integer>> backgroundData = this.manager.getScreen().imageManager.getImageData(
+        Triple<ResourceLocation, Integer, Integer> backgroundData = this.manager.getScreen().imageManager.getImageData(
                 holder.getModId(),
                 this.manager.getScreen().imageManager::getCachedBackground,
                 this.manager.getScreen().imageManager::cacheBackground,
@@ -68,25 +68,22 @@ public class BackgroundContentElement extends BaseContentElement {
                 "background"
         );
 
+        // if the aspect ratio is smaller than 1.0F  we center the background horizontally
         if (width < height * 2) {
             posX = (posX + (width / 2)) - (height); // Centers the banner
             width = height * 2; // Ensures the banner maintains a 2:1 ratio
         }
 
-        // If the ResourceLocation isn't null we render the background.
         ResourceLocation rl;
         if (backgroundData != null) {
+            // If a valid background was provided we render that
             rl = backgroundData.getFirst();
         } else {
+            // If no valid banner was provided but the entry was in "MOD_BACKGROUNDS" we render that,
+            // alternatively if there was no match at all we grab a background from "MOD_MISSING_BACKGROUNDS"
             rl = MOD_BACKGROUNDS.getOrDefault(holder.getModId(), MOD_MISSING_BACKGROUNDS.get(Math.abs(holder.getModId().hashCode()) % MOD_MISSING_BACKGROUNDS.size()));
         }
 
-        RenderSystem.setShaderTexture(0, rl);
-        RenderSystem.setShader(PaCoCoreShaders::getPositionColorTexFullAlphaShader);
-        RenderSystem.enableBlend();
-        Matrix4f matrix4f = graphics.pose().last().pose();
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
         int visible = PaCoColor.color(255, 255, 255, 255);
         int hidden = PaCoColor.color(0, 255, 255, 255);
         float halfBackground = height / 2F; // Visible height from the background center to the background top/bottom
@@ -94,16 +91,22 @@ public class BackgroundContentElement extends BaseContentElement {
         float originTop = (posY + halfBackground) - (imgHeight / 2F); // Original background top position (centered)
         float shift = posY - originTop; // Shift amount: how much we need to move the background  to be within bounds
 
-        // Top Quad with adjustments
+        RenderSystem.setShaderTexture(0, rl);
+        RenderSystem.setShader(PaCoCoreShaders::getPositionColorTexFullAlphaShader);
+        RenderSystem.enableBlend();
+        Matrix4f matrix4f = graphics.pose().last().pose();
+        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+        // Top-half background quad construction
         float pY1 = originTop + shift;
         float pY2 = pY1 + (imgHeight / 2F) - shift;
         float v1 = shift / imgHeight;
         float v2 = 0.5F ;
-        bufferbuilder.vertex(matrix4f, posX, pY1, 0).color(visible).uv(0F, v1).endVertex(); // Top Left
-        bufferbuilder.vertex(matrix4f, posX, pY2, 0).color(visible).uv(0F, v2).endVertex(); // Bottom Left
+        bufferbuilder.vertex(matrix4f, posX,         pY1, 0).color(visible).uv(0F, v1).endVertex(); // Top Left
+        bufferbuilder.vertex(matrix4f, posX,         pY2, 0).color(visible).uv(0F, v2).endVertex(); // Bottom Left
         bufferbuilder.vertex(matrix4f, posX + width, pY2, 0).color(visible).uv(1F, v2).endVertex(); // Bottom Right
         bufferbuilder.vertex(matrix4f, posX + width, pY1, 0).color(visible).uv(1F, v1).endVertex(); // Top Right
-
+        // Bottom-half background quad construction
         pY1 = pY2;
         pY2 = posY + height;
         v1 = v2;
@@ -112,7 +115,7 @@ public class BackgroundContentElement extends BaseContentElement {
         bufferbuilder.vertex(matrix4f, posX, pY2, 0).color(hidden).uv(0F, v2).endVertex(); // Bottom Left
         bufferbuilder.vertex(matrix4f, posX + width, pY2, 0).color(hidden).uv(1F, v2).endVertex(); // Bottom Right
         bufferbuilder.vertex(matrix4f, posX + width, pY1, 0).color(visible).uv(1F, v1).endVertex(); // Top Right
-
+        // Renders the constructed quads
         BufferUploader.drawWithShader(bufferbuilder.end());
         RenderSystem.disableBlend();
     }

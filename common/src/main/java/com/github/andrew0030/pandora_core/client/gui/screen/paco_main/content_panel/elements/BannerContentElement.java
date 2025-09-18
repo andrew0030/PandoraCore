@@ -6,16 +6,25 @@ import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
+import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
-// TODO: Add a HashMap of String as a key and Tripple (Pair alternative I need to make) that will contain a texture path and desired width/height to render if no paco banner was specified, with a higher priority than "forge logos".
+import java.util.HashMap;
+
 // TODO: Finish implementing banner loading on Fabric by adding the getter method to the FabricDataHolder class
 public class BannerContentElement extends BaseContentElement {
+    public static final HashMap<String, Triple<ResourceLocation, Integer, Integer>> MOD_BANNERS = new HashMap<>();
+
+    static {
+        MOD_BANNERS.put("minecraft", Triple.of(new ResourceLocation("textures/gui/title/minecraft.png"), 1024, 256));
+//        MOD_BANNERS.put("minecraft", Triple.of(new ResourceLocation(PandoraCore.MOD_ID, "textures/test.png"), 3, 2));
+    }
 
     public BannerContentElement(PaCoContentPanelManager manager) {
         this(manager, 0, 0);
@@ -41,28 +50,36 @@ public class BannerContentElement extends BaseContentElement {
     }
 
     public void renderModBanner(ModDataHolder holder, GuiGraphics graphics, int posX, int posY, int width, int height) {
-        Pair<ResourceLocation, Pair<Integer, Integer>> bannerData = this.manager.getScreen().imageManager.getImageData(
+        Triple<ResourceLocation, Integer, Integer> bannerData = this.manager.getScreen().imageManager.getImageData(
                 holder.getModId(),
                 this.manager.getScreen().imageManager::getCachedBanner,
                 this.manager.getScreen().imageManager::cacheBanner,
                 holder.getModBannerFiles(),
                 0.5F,
                 8F,//TODO maybe tweak or disable aspect ratio
-                (imgWidth, ingHeight) -> false, //TODO add blurring logic
+                (imgWidth, ingHeight) -> true, //TODO add blurring logic
                 "banner"
         );
-        if (bannerData == null) return;
 
-        // If the ResourceLocation isn't null we render the banner.
-        ResourceLocation rl = bannerData.getFirst();
-        RenderSystem.setShaderTexture(0, rl);
-        RenderSystem.setShader(PaCoCoreShaders::getPositionColorTexFullAlphaShader);
-        RenderSystem.enableBlend();
-        Matrix4f matrix4f = graphics.pose().last().pose();
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
-        int imageWidth = bannerData.getSecond().getFirst();
-        int imageHeight = bannerData.getSecond().getSecond();
+        ResourceLocation rl;
+        int imageWidth = 0;
+        int imageHeight = 0;
+        if (bannerData != null) {
+            // If a valid banner was provided we render that
+            rl = bannerData.getFirst();
+            imageWidth = bannerData.getSecond();
+            imageHeight = bannerData.getThird();
+        } else if (MOD_BANNERS.containsKey(holder.getModId())) {
+            // If no valid banner was provided but the entry was in MOD_BANNERS we render that
+            Triple<ResourceLocation, Integer, Integer> triple = MOD_BANNERS.get(holder.getModId());
+            rl = triple.getFirst();
+            imageWidth = triple.getSecond();
+            imageHeight = triple.getThird();
+        } else {
+            // Lastly if no valid banner was found, there is nothing to render
+            return;
+        }
+
         int paddingHorizontal = 8;
         int paddingVertical = 4;
         float containerX = posX + paddingHorizontal;
@@ -70,11 +87,8 @@ public class BannerContentElement extends BaseContentElement {
         float containerW = width - (2 * paddingHorizontal);
         float containerH = height - (2 * paddingVertical);
 
-        // just in case
-        if (imageWidth <= 0 || imageHeight <= 0 || containerW <= 0 || containerH <= 0) {
-            RenderSystem.disableBlend();
-            return;
-        }
+        // Just in case, if any of the values are 0 we return early
+        if (imageWidth <= 0 || imageHeight <= 0 || containerW <= 0 || containerH <= 0) return;
 
         // Scale based on whether the banner is touching the container horizontally or vertically
         float scale = Math.min(containerW / (float) imageWidth, containerH / (float) imageHeight);
@@ -91,14 +105,37 @@ public class BannerContentElement extends BaseContentElement {
         drawWidth = Math.round(drawWidth);
         drawHeight = Math.round(drawHeight);
 
-        // The banner construction
-        bufferbuilder.vertex(matrix4f, drawX, drawY, 0).color(PaCoColor.WHITE).uv(0F, 0F).endVertex(); // Top Left
-        bufferbuilder.vertex(matrix4f, drawX, drawY + drawHeight, 0).color(PaCoColor.WHITE).uv(0F, 1F).endVertex(); // Bottom Left
-        bufferbuilder.vertex(matrix4f, drawX + drawWidth, drawY + drawHeight, 0).color(PaCoColor.WHITE).uv(1F, 1F).endVertex(); // Bottom Right
-        bufferbuilder.vertex(matrix4f, drawX + drawWidth, drawY, 0).color(PaCoColor.WHITE).uv(1F, 0F).endVertex(); // Top Right
+        // Stores the previous texture wrap mode so we can reset it after we are done rendering the quad
+        int prevWrapModeS = GL11.glGetTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S);
+        int prevWrapModeT = GL11.glGetTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T);
 
+        RenderSystem.setShaderTexture(0, rl);
+        /*
+         * Sets the texture wrap mode to "GL_CLAMP_TO_EDGE" to avoid scaling artifacts.
+         *
+         * NOTE: Should this ever break due to a Mod that replaces Blaze3D or adds Vulkan or something crazy,
+         * I have left commented out code inside the "position_color_tex_full_alpha" fragment shader. Which can
+         * be used to clamp the "Sampler" and make it sample with half-texel offset, effectively simulating what
+         * this raw GL11 code does. At the cost of worse performance.
+         */
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+        RenderSystem.setShader(PaCoCoreShaders::getPositionColorTexFullAlphaShader);
+        RenderSystem.enableBlend();
+        Matrix4f matrix4f = graphics.pose().last().pose();
+        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+        // The banner quad construction
+        bufferbuilder.vertex(matrix4f, drawX,             drawY,              0).color(PaCoColor.WHITE).uv(0F, 0F).endVertex(); // Top Left
+        bufferbuilder.vertex(matrix4f, drawX,             drawY + drawHeight, 0).color(PaCoColor.WHITE).uv(0F, 1F).endVertex(); // Bottom Left
+        bufferbuilder.vertex(matrix4f, drawX + drawWidth, drawY + drawHeight, 0).color(PaCoColor.WHITE).uv(1F, 1F).endVertex(); // Bottom Right
+        bufferbuilder.vertex(matrix4f, drawX + drawWidth, drawY,              0).color(PaCoColor.WHITE).uv(1F, 0F).endVertex(); // Top Right
+        // Renders the constructed quad
         BufferUploader.drawWithShader(bufferbuilder.end());
         RenderSystem.disableBlend();
+        // Resets the texture wrap mode to what ever it was before we rendered our banner
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, prevWrapModeS);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, prevWrapModeT);
 
         // Debug Outline
         if (PaCoContentPanelManager.DEBUG_MODE) {

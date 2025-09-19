@@ -11,17 +11,17 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.locating.IModFile;
-import net.minecraftforge.resource.ResourcePackLoader;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,19 +62,19 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public <T> T loadNativeImage(String modId, String resource, Function<NativeImage, T> consumer) {
-        Object[] o = new Object[1];
-        ResourcePackLoader.getPackFor(modId).ifPresent(resources -> {
-            IoSupplier<InputStream> supplier = resources.getRootResource(resource);
-            if(supplier != null) {
-                try(InputStream is = supplier.get(); NativeImage image = NativeImage.read(is)) {
-                    o[0] = consumer.apply(image);
-                } catch(IOException ignored) {
-                    // If the icon fails to load, provide a null texture so that it can be cached as attempted
-                    o[0] = consumer.apply(null);
-                }
+        IModFileInfo modFileInfo = ModList.get().getModFileById(modId);
+        if (modFileInfo == null) return null; // If no mod file with the given id exists we return early
+        Path path = modFileInfo.getFile().findResource(resource);
+        T result = null;
+        if(Files.exists(path)) {
+            try(InputStream is = Files.newInputStream(path); NativeImage image = NativeImage.read(is)) {
+                result = consumer.apply(image);
+            } catch(IOException ignored) {
+                // If the image fails to load, provide a null texture so that it can be cached as attempted
+                result = consumer.apply(null);
             }
-        });
-        return (T) o[0];
+        }
+        return result;
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.client.resources.model.BakedModel;
@@ -22,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class FabricPlatformHelper implements IPlatformHelper {
@@ -61,16 +63,19 @@ public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
     public <T> T loadNativeImage(String modId, String resource, Function<NativeImage, T> consumer) {
-        Object[] o = new Object[1];
-        FabricLoader.getInstance().getModContainer(modId).flatMap(container -> container.findPath(resource)).ifPresent(path -> {
-            try(InputStream is = Files.newInputStream(path); NativeImage icon = NativeImage.read(is)) {
-                o[0] = (T) consumer.apply(icon);
+        Optional<ModContainer> modContainer = FabricLoader.getInstance().getModContainer(modId);
+        if (modContainer.isEmpty()) return null; // If no mod container with the given id exists we return early
+        Optional<Path> path = modContainer.get().findPath(resource);
+        T result = null;
+        if (path.isPresent()) {
+            try(InputStream is = Files.newInputStream(path.get()); NativeImage image = NativeImage.read(is)) {
+                result = consumer.apply(image);
             } catch(IOException ignored) {
-                // If the icon fails to load, provide a null texture so that it can be cached as attempted
-                o[0] = consumer.apply(null);
+                // If the image fails to load, provide a null texture so that it can be cached as attempted
+                result = consumer.apply(null);
             }
-        });
-        return (T) o[0];
+        }
+        return result;
     }
 
     @Override

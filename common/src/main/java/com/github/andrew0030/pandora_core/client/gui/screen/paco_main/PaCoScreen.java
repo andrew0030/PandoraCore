@@ -291,7 +291,7 @@ public class PaCoScreen extends Screen {
 
         // Mod Buttons Gradients
         RenderSystem.enableBlend();
-        if (this.modsScrollBar != null) {
+        if (this.modsScrollBar != null && this.modButtonsPanelLength >= 50) {
             RenderSystem.disableDepthTest();
             int roundedVal = (int) Math.round(this.modsScrollBar.getValue());
             // Top Gradient
@@ -333,7 +333,7 @@ public class PaCoScreen extends Screen {
 
         // Content Panel Gradients
         RenderSystem.enableBlend();
-        if (this.contentScrollBar != null) {
+        if (this.contentScrollBar != null && this.contentMenuHeight >= 50) {
             RenderSystem.disableDepthTest();
             int roundedVal = (int) Math.round(this.contentScrollBar.getValue());
             // Top Gradient
@@ -344,9 +344,6 @@ public class PaCoScreen extends Screen {
             // Bottom Gradient
             int maxVal = this.contentPanelManager.getContentHeight() - this.contentMenuHeight;
             if (roundedVal < maxVal) {
-
-                //TODO: This seems to crash the game if the windows is made very small vertically on certain tabs
-
                 int gradientHeight = Math.min(25, maxVal - roundedVal);
                 graphics.blitRepeating(TEXTURE, this.contentPanelManager.getPosX(), this.contentMenuHeightStart + this.contentMenuHeight - gradientHeight, this.contentPanelManager.getWidth(), gradientHeight, 0, 97, 25, gradientHeight);
             }

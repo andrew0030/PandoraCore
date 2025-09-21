@@ -9,21 +9,21 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import java.util.HashMap;
+import java.util.Optional;
 
-// TODO: Finish implementing banner loading on Fabric by adding the getter method to the FabricDataHolder class
 public class BannerContentElement extends BaseContentElement {
-    public static final HashMap<String, Triple<ResourceLocation, Integer, Integer>> MOD_BANNERS = new HashMap<>();
+    public static final HashMap<String, Pair<String, String>> MOD_BANNERS = new HashMap<>();
 
     static {
-        MOD_BANNERS.put("minecraft", Triple.of(new ResourceLocation("textures/gui/title/minecraft.png"), 1024, 256));
-//        MOD_BANNERS.put("minecraft", Triple.of(new ResourceLocation(PandoraCore.MOD_ID, "textures/test.png"), 3, 2));
+        MOD_BANNERS.put("minecraft",    sameNamespacePair("minecraft", "textures/gui/title/minecraft.png"));
+        MOD_BANNERS.put("pandora_core", sameNamespacePair("minecraft", "textures/gui/title/minecraft.png"));
     }
 
     public BannerContentElement(PaCoContentPanelManager manager) {
@@ -33,6 +33,23 @@ public class BannerContentElement extends BaseContentElement {
     public BannerContentElement(PaCoContentPanelManager manager, int offsetX, int offsetY) {
         super(manager, offsetX, offsetY);
         this.initializeHeight();
+    }
+
+    @Deprecated(forRemoval = false)
+    @ApiStatus.Internal
+    public static Optional<Pair<String, String>> getInternalFallbackResourceLocation(String modId) {
+        return Optional.ofNullable(MOD_BANNERS.get(modId));
+    }
+
+    /**
+     * A convenience method to allow loading images like a {@link ResourceLocation}.<br/>
+     * Creates a {@link Pair} containing a Mod-ID {@code namespace} and a <b>full</b> {@code path} using the same {@code namespace}.<br/>
+     * Meaning that the second {@link String} will then be {@code assets/<namespace>/<path>}.
+     * @param namespace The Mod-ID of the Mod containing the texture
+     * @param path      The path to the texture. (Needs to be inside {@code assets/<namespace>/}
+     */
+    private static Pair<String, String> sameNamespacePair(String namespace, String path) {
+        return Pair.of(namespace, String.format("assets/%s/%s", namespace, path));
     }
 
     @Override
@@ -50,6 +67,7 @@ public class BannerContentElement extends BaseContentElement {
     }
 
     public void renderModBanner(ModDataHolder holder, GuiGraphics graphics, int posX, int posY, int width, int height) {
+
         Triple<ResourceLocation, Integer, Integer> bannerData = this.manager.getScreen().imageManager.getImageData(
                 holder.getModId(),
                 this.manager.getScreen().imageManager::getCachedBanner,
@@ -58,27 +76,16 @@ public class BannerContentElement extends BaseContentElement {
                 0.5F,
                 8F,//TODO maybe tweak or disable aspect ratio
                 (imgWidth, ingHeight) -> true, //TODO add blurring logic
+                (imgWidth, ingHeight) -> true,
                 "banner"
         );
 
-        ResourceLocation rl;
-        int imageWidth = 0;
-        int imageHeight = 0;
-        if (bannerData != null) {
-            // If a valid banner was provided we render that
-            rl = bannerData.getFirst();
-            imageWidth = bannerData.getSecond();
-            imageHeight = bannerData.getThird();
-        } else if (MOD_BANNERS.containsKey(holder.getModId())) {
-            // If no valid banner was provided but the entry was in MOD_BANNERS we render that
-            Triple<ResourceLocation, Integer, Integer> triple = MOD_BANNERS.get(holder.getModId());
-            rl = triple.getFirst();
-            imageWidth = triple.getSecond();
-            imageHeight = triple.getThird();
-        } else {
-            // Lastly if no valid banner was found, there is nothing to render
-            return;
-        }
+        // If no valid banner was found, there is nothing to render
+        if (bannerData == null) return;
+
+        ResourceLocation rl = bannerData.getFirst();;
+        int imageWidth = bannerData.getSecond();
+        int imageHeight = bannerData.getThird();
 
         int paddingHorizontal = 8;
         int paddingVertical = 4;
@@ -105,21 +112,7 @@ public class BannerContentElement extends BaseContentElement {
         drawWidth = Math.round(drawWidth);
         drawHeight = Math.round(drawHeight);
 
-        // Stores the previous texture wrap mode so we can reset it after we are done rendering the quad
-        int prevWrapModeS = GL11.glGetTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S);
-        int prevWrapModeT = GL11.glGetTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T);
-
         RenderSystem.setShaderTexture(0, rl);
-        /*
-         * Sets the texture wrap mode to "GL_CLAMP_TO_EDGE" to avoid scaling artifacts.
-         *
-         * NOTE: Should this ever break due to a Mod that replaces Blaze3D or adds Vulkan or something crazy,
-         * I have left commented out code inside the "position_color_tex_full_alpha" fragment shader. Which can
-         * be used to clamp the "Sampler" and make it sample with half-texel offset, effectively simulating what
-         * this raw GL11 code does. At the cost of worse performance.
-         */
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
         RenderSystem.setShader(PaCoCoreShaders::getPositionColorTexFullAlphaShader);
         RenderSystem.enableBlend();
         Matrix4f matrix4f = graphics.pose().last().pose();
@@ -133,9 +126,6 @@ public class BannerContentElement extends BaseContentElement {
         // Renders the constructed quad
         BufferUploader.drawWithShader(bufferbuilder.end());
         RenderSystem.disableBlend();
-        // Resets the texture wrap mode to what ever it was before we rendered our banner
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, prevWrapModeS);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, prevWrapModeT);
 
         // Debug Outline
         if (PaCoContentPanelManager.DEBUG_MODE) {

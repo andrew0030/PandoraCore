@@ -10,6 +10,7 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -17,13 +18,15 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class ModButton extends AbstractButton {
     public static final ResourceLocation MISSING_MOD_ICON = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/missing_mod_icon.png");
-    public static final HashMap<String, ResourceLocation> MOD_ICONS = new HashMap<>();
+    public static final HashMap<String, Pair<String, String>> MOD_ICONS = new HashMap<>();
     private final ModDataHolder modDataHolder;
     private final PaCoScreen screen;
     private final boolean isOutdated;
@@ -33,8 +36,8 @@ public class ModButton extends AbstractButton {
     private boolean selected;
 
     static {
-        MOD_ICONS.put("minecraft", new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/mc_mod_icon.png"));
-        MOD_ICONS.put("forge", new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/forge_mod_icon.png"));
+        MOD_ICONS.put("minecraft", sameNamespacePair(PandoraCore.MOD_ID, "textures/gui/mc_mod_icon.png"));
+        MOD_ICONS.put("forge",     sameNamespacePair(PandoraCore.MOD_ID, "textures/gui/forge_mod_icon.png"));
     }
 
     public ModButton(int x, int y, int width, int height, ModDataHolder modDataHolder, PaCoScreen screen) {
@@ -49,6 +52,23 @@ public class ModButton extends AbstractButton {
                         PaCoColor.color(200, 150, 10) :
                         PaCoColor.color(10, 200, 90) :
                 PaCoColor.color(130, 130, 130);
+    }
+
+    @Deprecated(forRemoval = false)
+    @ApiStatus.Internal
+    public static Optional<Pair<String, String>> getInternalFallbackResourceLocation(String modId) {
+        return Optional.ofNullable(MOD_ICONS.get(modId));
+    }
+
+    /**
+     * A convenience method to allow loading images like a {@link ResourceLocation}.<br/>
+     * Creates a {@link Pair} containing a Mod-ID {@code namespace} and a <b>full</b> {@code path} using the same {@code namespace}.<br/>
+     * Meaning that the second {@link String} will then be {@code assets/<namespace>/<path>}.
+     * @param namespace The Mod-ID of the Mod containing the texture
+     * @param path      The path to the texture. (Needs to be inside {@code assets/<namespace>/}
+     */
+    private static Pair<String, String> sameNamespacePair(String namespace, String path) {
+        return Pair.of(namespace, String.format("assets/%s/%s", namespace, path));
     }
 
     @Override
@@ -193,33 +213,32 @@ public class ModButton extends AbstractButton {
                 holder.getModIconFiles(),
                 1.0F,
                 (imgWidth, ingHeight) -> this.modDataHolder.getBlurModIcon().orElse(imgWidth > 92),
+                (imgWidth, ingHeight) -> true,
                 "icon"
         );
         if (iconData != null) {
             // If the ResourceLocation isn't null we render the icon.
             graphics.blit(iconData.getFirst(), posX, posY, size, size, 0, 0, iconData.getSecond(), iconData.getThird(), iconData.getSecond(), iconData.getThird());
         } else {
-            // Otherwise we render a predefined or missing icon texture.
-            ResourceLocation rl = MOD_ICONS.get(modId);
-            if (rl != null) { // If the mod has a predefined icon we use that
-                graphics.blit(rl, posX, posY, size, size, 0, 0, 23, 23, 23, 23);
-            } else { // If the mod has a missing icon we do some tinting and render the first 2 letters
-                // The "rim", this is technically the entire icon, but it's easier to just do it this way
-                graphics.blit(MISSING_MOD_ICON, posX, posY, size, size, 0, 0, 23, 23, 23, 23);
-                // The centerpiece
-                int color = PaCoColor.colorFromHSV(Math.abs(modId.hashCode()) % 360, 0.8F, 0.7F); //TODO: adjust colors or text
-                float r = PaCoColor.red(color) / 255F;
-                float g = PaCoColor.green(color) / 255F;
-                float b = PaCoColor.blue(color) / 255F;
-                RenderSystem.setShaderColor(r, g, b, 1F);
-                graphics.blit(MISSING_MOD_ICON, posX + 4, posY + 4, 15, 15, 4, 4, 15, 15, 23, 23);
-                RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
-                // The two letters inside the icon
-                graphics.pose().pushPose();
-                graphics.pose().translate(posX + 11.5F, posY + 7.5F, 0F);
-                PaCoGuiUtils.drawCenteredString(graphics, Minecraft.getInstance().font, holder.getModName().substring(0, 2), 0, 0, 0xa0a0a0, true);
-                graphics.pose().popPose();
-            }
+            // If the mod has a missing icon we do some tinting and render the first 2 letters
+            // The "rim", this is technically the entire icon, but it's easier to just do it this way
+            graphics.blit(MISSING_MOD_ICON, posX, posY, size, size, 0, 0, 23, 23, 23, 23);
+            // The centerpiece
+            int color = PaCoColor.colorFromHSV(Math.abs(modId.hashCode()) % 360, 0.8F, 0.7F); //TODO: adjust colors or text
+            float r = PaCoColor.red(color) / 255F;
+            float g = PaCoColor.green(color) / 255F;
+            float b = PaCoColor.blue(color) / 255F;
+            RenderSystem.setShaderColor(r, g, b, 1F);
+            graphics.blit(MISSING_MOD_ICON, posX + 4, posY + 4, 15, 15, 4, 4, 15, 15, 23, 23);
+            RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+            // The two letters inside the icon
+            graphics.pose().pushPose();
+            float textOffset = Minecraft.getInstance().getWindow().getGuiScale() == 1.0 ? 0.0F : 0.5F; // If one GUI pixel consists of one pixel, we avoid offsetting to prevent scaling artifacts
+            float textPosX = posX + textOffset + 11F;
+            float textPosY = posY + textOffset + 7F;
+            graphics.pose().translate(textPosX, textPosY, 0F);
+            PaCoGuiUtils.drawCenteredString(graphics, Minecraft.getInstance().font, holder.getModName().substring(0, 2), 0, 0, 0xa0a0a0, true);
+            graphics.pose().popPose();
         }
     }
 

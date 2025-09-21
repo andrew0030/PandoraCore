@@ -1,13 +1,18 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
+import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BackgroundContentElement;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BannerContentElement;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
+import com.mojang.datafixers.util.Pair;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.fabricmc.loader.api.metadata.ModOrigin;
 import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -27,9 +32,10 @@ public class FabricModDataHolder extends ModDataHolder {
     private static final String MINECRAFT_DESCRIPTION = "The base game.";
     private final ModContainer container;
     private final ModMetadata metadata;
-    private final List<String> icons = new ArrayList<>();
+    private final List<Pair<String, String>> icons = new ArrayList<>();
     private Optional<Boolean> blurIcon = Optional.empty();
-    private final List<String> backgrounds = new ArrayList<>();
+    private final List<Pair<String, String>> backgrounds = new ArrayList<>();
+    private final List<Pair<String, String>> banners = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
     private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
@@ -48,7 +54,8 @@ public class FabricModDataHolder extends ModDataHolder {
                     Optional.ofNullable(pandoracoreObj.get("icon"))
                             .filter(iconVal -> iconVal.getType() == CustomValue.CvType.STRING)
                             .map(CustomValue::getAsString)
-                            .ifPresent(this.icons::add);
+                            .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                            .ifPresent(val -> this.icons.add(Pair.of(this.getModId(), val)));
                     // Blur Icon
                     Optional.ofNullable(pandoracoreObj.get("blurIcon"))
                             .filter(blurIconVal -> blurIconVal.getType() == CustomValue.CvType.BOOLEAN)
@@ -58,7 +65,14 @@ public class FabricModDataHolder extends ModDataHolder {
                     Optional.ofNullable(pandoracoreObj.get("background"))
                             .filter(backgroundVal -> backgroundVal.getType() == CustomValue.CvType.STRING)
                             .map(CustomValue::getAsString)
-                            .ifPresent(this.backgrounds::add);
+                            .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                            .ifPresent(val -> this.backgrounds.add(Pair.of(this.getModId(), val)));
+                    // Banner
+                    Optional.ofNullable(pandoracoreObj.get("banner"))
+                            .filter(bannerVal -> bannerVal.getType() == CustomValue.CvType.STRING)
+                            .map(CustomValue::getAsString)
+                            .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                            .ifPresent(val -> this.banners.add(Pair.of(this.getModId(), val)));
                     // Mod Warnings
                     Optional.ofNullable(pandoracoreObj.get("warningFactory"))
                             .filter(factoryVal -> factoryVal.getType() == CustomValue.CvType.STRING)
@@ -72,12 +86,14 @@ public class FabricModDataHolder extends ModDataHolder {
                             .filter(updateURLVal -> updateURLVal.getType() == CustomValue.CvType.STRING)
                             .map(CustomValue::getAsString)
                             .ifPresent(val -> {
-                                if (val.trim().isEmpty() || val.contains("myurl.me") || val.contains("example.invalid"))
+                                if (val.trim().isEmpty() || val.contains("myurl.me") || val.contains("example.invalid")) {
                                     this.updateURL = Optional.empty();
-                                try {
-                                    this.updateURL = Optional.of(new URL(val)); }
-                                catch (MalformedURLException e) {
-                                    throw new RuntimeException(e);
+                                } else {
+                                    try {
+                                        this.updateURL = Optional.of(new URL(val));
+                                    } catch (MalformedURLException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                 }
                             });
                 });
@@ -93,15 +109,33 @@ public class FabricModDataHolder extends ModDataHolder {
                             .map(iconObj -> iconObj.get("image"))
                             .filter(imageVal -> imageVal.getType() == CustomValue.CvType.STRING)
                             .map(CustomValue::getAsString)
-                            .ifPresent(this.icons::add);
+                            .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                            .ifPresent(val -> this.icons.add(Pair.of(this.getModId(), val)));
                     // Background
                     Optional.ofNullable(catalogueObj.get("background"))
                             .filter(backgroundVal -> backgroundVal.getType() == CustomValue.CvType.STRING)
                             .map(CustomValue::getAsString)
-                            .ifPresent(this.backgrounds::add);
+                            .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                            .ifPresent(val -> this.backgrounds.add(Pair.of(this.getModId(), val)));
+                    // Banner
+                    Optional.ofNullable(catalogueObj.get("banner"))
+                            .filter(bannerVal -> bannerVal.getType() == CustomValue.CvType.STRING)
+                            .map(CustomValue::getAsString)
+                            .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                            .ifPresent(val -> this.banners.add(Pair.of(this.getModId(), val)));
                 });
+        // Internal Fallback Textures
+        // Added before Fabric, as we want to prioritize internal banners over "icons as banners"
+        BannerContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.banners::add);
         // Fabric
-        metadata.getIconPath(0).ifPresent(this.icons::add);
+        metadata.getIconPath(0).ifPresent(logo -> {
+            this.icons.add(Pair.of(this.getModId(), logo));   // Used to render mod icon
+            this.banners.add(Pair.of(this.getModId(), logo)); // Used to render mod banner
+        });
+        // Internal Fallback Textures
+        // TODO: probably need to move this to a different class to prevent class loader from screaming due to button being client only
+        ModButton.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.icons::add);                      // Icons
+        BackgroundContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.backgrounds::add); // Backgrounds
 
         this.authors.addAll(this.metadata.getAuthors().stream().map(Person::getName).toList());
         this.credits.addAll(this.metadata.getContributors().stream().map(Person::getName).toList());
@@ -146,7 +180,7 @@ public class FabricModDataHolder extends ModDataHolder {
     }
 
     @Override
-    public List<String> getModIconFiles() {
+    public List<Pair<String, String>> getModIconFiles() {
         return this.icons;
     }
 
@@ -156,8 +190,13 @@ public class FabricModDataHolder extends ModDataHolder {
     }
 
     @Override
-    public List<String> getModBackgroundFiles() {
+    public List<Pair<String, String>> getModBackgroundFiles() {
         return this.backgrounds;
+    }
+
+    @Override
+    public List<Pair<String, String>> getModBannerFiles() {
+        return this.banners;
     }
 
     @Override

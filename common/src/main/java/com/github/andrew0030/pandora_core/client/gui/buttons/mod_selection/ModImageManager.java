@@ -114,12 +114,13 @@ public class ModImageManager implements Closeable {
     /**
      * Used to load and cache an image out of a given list for a given mod.<br/>
      * Note: this method stops once a valid image has been loaded, so the list order matters.
-     * @param modId       The mod id of the mod containing the images we are trying to load
+     * @param modId       The mod id of the mod the image will be loaded for
      * @param getCached   A {@link Function} used to load a cached image
      * @param cache       A {@link TriConsumer} used to cache an image
-     * @param imageFiles  A {@link List} containing strings pointing to images that should be loaded
+     * @param imageFiles  A {@link List} containing {@link Pair} instances, made of a {@link String namespace} and full {@link String path}
      * @param aspectRatio The aspect, a valid image needs to have
      * @param blur        A {@link BiFunction} that takes the width and height, and returns whether this image should be blurred when scaled
+     * @param clamp       A {@link BiFunction} that takes the {@code width} and {@code height}, and returns whether this image texture mode should be clamped
      * @param type        A {@link String} describing what the purpose of this image is. This is combined with "mod" to create a key.
      *                    For example "icon" will become "modicon", or "background" will become "modbackground".
      * @return A {@link Triple} containing the {@link ResourceLocation} of the image
@@ -131,25 +132,27 @@ public class ModImageManager implements Closeable {
             String modId,
             Function<String, Pair<ResourceLocation, DynamicTexture>> getCached,
             TriConsumer<String, ResourceLocation, DynamicTexture> cache,
-            List<String> imageFiles,
+            List<Pair<String, String>> imageFiles,
             float aspectRatio,
             BiFunction<Integer, Integer, Boolean> blur,
+            BiFunction<Integer, Integer, Boolean> clamp,
             String type
     ) {
-        return this.getImageData(modId, getCached, cache, imageFiles, aspectRatio, aspectRatio, blur, type);
+        return this.getImageData(modId, getCached, cache, imageFiles, aspectRatio, aspectRatio, blur, clamp, type);
     }
 
     /**
      * Used to load and cache an image out of a given list for a given mod.<br/>
      * Note: this method stops once a valid image has been loaded, so the list order matters.
-     * @param modId          The mod id of the mod containing the images we are trying to load
+     * @param modId          The mod id of the mod the image will be loaded for
      * @param getCached      A {@link Function} used to load a cached image
      * @param cache          A {@link TriConsumer} used to cache an image
-     * @param imageFiles     A {@link List} containing strings pointing to images that should be loaded
+     * @param imageFiles     A {@link List} containing {@link Pair} instances, made of a {@link String namespace} and full {@link String path}
      * @param minAspectRatio The minimum aspect ratio (inclusive), a valid image can be
      * @param maxAspectRatio The maximum aspect ratio (inclusive), a valid image can be
-     * @param blur           A {@link BiFunction} that takes the width and height, and returns whether this image should be blurred when scaled
-     * @param type           A {@link String} describing what the purpose of this image is. This is combined with "mod" to create a key.
+     * @param blur           A {@link BiFunction} that takes the {@code width} and {@code height}, and returns whether this image should be blurred when scaled
+     * @param clamp          A {@link BiFunction} that takes the {@code width} and {@code height}, and returns whether this image texture mode should be clamped
+     * @param type           A {@link String} describing what the purpose of this image is. This is combined with "mod" to create a key
      *                       For example "icon" will become "modicon", or "background" will become "modbackground".
      * @return A {@link Triple} containing the {@link ResourceLocation} of the image
      * and additionally the {@code width} and {@code height} of the image.<br/>
@@ -160,12 +163,14 @@ public class ModImageManager implements Closeable {
             String modId,
             Function<String, Pair<ResourceLocation, DynamicTexture>> getCached,
             TriConsumer<String, ResourceLocation, DynamicTexture> cache,
-            List<String> imageFiles,
+            List<Pair<String, String>> imageFiles,
             float minAspectRatio,
             float maxAspectRatio,
             BiFunction<Integer, Integer, Boolean> blur,
+            BiFunction<Integer, Integer, Boolean> clamp,
             String type
     ) {
+
         // Checks if the modId is already present in the cache, and grabs the values if so.
         Pair<ResourceLocation, DynamicTexture> cachedEntry = getCached.apply(modId);
         if (cachedEntry != null) {
@@ -186,8 +191,10 @@ public class ModImageManager implements Closeable {
 
         // If no image is already cached, we attempt to load one, and stop if a valid one was found
         // Alternatively if there is no images (the list is empty) the loop will not get called and null is cached/returned
-        for (String imageFile : imageFiles) {
-            Triple<ResourceLocation, Integer, Integer> result = Services.PLATFORM.loadNativeImage(modId, imageFile, nativeImage -> {
+        for (Pair<String, String> imageFile : imageFiles) {
+            String namespace = imageFile.getFirst();
+            String path = imageFile.getSecond();
+            Triple<ResourceLocation, Integer, Integer> result = Services.PLATFORM.loadNativeImage(namespace, path, nativeImage -> {
                 // If the backgroundFile fails to load, null is provided
                 if (nativeImage == null)
                     return null;
@@ -198,6 +205,8 @@ public class ModImageManager implements Closeable {
 
                 // Determines whether to blur the image using the provided BiFunction
                 boolean shouldBlur = blur.apply(nativeImage.getWidth(), nativeImage.getHeight());
+                // Determines whether to clamp the image using the provided BiFunction
+                boolean shouldClamp = clamp.apply(nativeImage.getWidth(), nativeImage.getHeight());
                 DynamicTexture dynamicTexture = null;
                 try {
                     dynamicTexture = new DynamicTexture(nativeImage) {
@@ -205,7 +214,7 @@ public class ModImageManager implements Closeable {
                         public void upload() {
                             this.bind();
                             NativeImage image = this.getPixels();
-                            this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), shouldBlur, false, false, false);
+                            this.getPixels().upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), shouldBlur, shouldClamp, false, false);
                         }
                     };
                     // Register and cache the texture, and return it

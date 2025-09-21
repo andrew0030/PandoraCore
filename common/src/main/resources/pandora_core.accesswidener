@@ -42,6 +42,9 @@ accessible method net/minecraft/core/particles/SimpleParticleType <init> (Z)V # 
 # so in order to access it in common and fabric we need to add an AW.
 accessible method net/minecraft/client/renderer/entity/EntityRenderers register (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/client/renderer/entity/EntityRendererProvider;)V
 
+# Used to access ResourceLocation.isValidPath, forge makes this public,
+# so in order to access it in common and fabric we need to add an AW.
+accessible method net/minecraft/resources/ResourceLocation isValidPath (Ljava/lang/String;)Z
 
 #=================================================================================================================
 # Shader Patcher Stuff, this is all dark magic to me so I moved it down for now to keep a clear seperation ~andrew

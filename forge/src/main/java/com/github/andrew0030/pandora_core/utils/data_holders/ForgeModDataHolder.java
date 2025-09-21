@@ -1,9 +1,14 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
+import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BackgroundContentElement;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BannerContentElement;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.loading.StringUtils;
 import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -16,10 +21,10 @@ import java.util.function.Supplier;
 
 public class ForgeModDataHolder extends ModDataHolder {
     private final IModInfo modInfo;
-    private final List<String> icons = new ArrayList<>();
+    private final List<Pair<String, String>> icons = new ArrayList<>();
     private Optional<Boolean> blurIcon = Optional.empty();
-    private final List<String> backgrounds = new ArrayList<>();
-    private final List<String> banners = new ArrayList<>();
+    private final List<Pair<String, String>> backgrounds = new ArrayList<>();
+    private final List<Pair<String, String>> banners = new ArrayList<>();
     private Optional<URL> updateURL = Optional.empty();
     private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
@@ -31,7 +36,8 @@ public class ForgeModDataHolder extends ModDataHolder {
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreIcon"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
-                .ifPresent(this.icons::add);
+                .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                .ifPresent(val -> this.icons.add(Pair.of(this.getModId(), val)));
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBlurIcon"))
                 .filter(Boolean.class::isInstance)
                 .map(Boolean.class::cast)
@@ -39,11 +45,13 @@ public class ForgeModDataHolder extends ModDataHolder {
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBackground"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
-                .ifPresent(this.backgrounds::add);
+                .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                .ifPresent(val -> this.backgrounds.add(Pair.of(this.getModId(), val)));
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBanner"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
-                .ifPresent(this.banners::add);
+                .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                .ifPresent(val -> this.banners.add(Pair.of(this.getModId(), val)));
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreUpdateURL"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
@@ -58,18 +66,27 @@ public class ForgeModDataHolder extends ModDataHolder {
         Optional.ofNullable(this.modInfo.getModProperties().get("catalogueImageIcon"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
-                .ifPresent(this.icons::add);
+                .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                .ifPresent(val -> this.icons.add(Pair.of(this.getModId(), val)));
         Optional.ofNullable(this.modInfo.getModProperties().get("catalogueBackground"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
-                .ifPresent(this.backgrounds::add);
+                .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
+                .ifPresent(val -> this.backgrounds.add(Pair.of(this.getModId(), val)));
+        // Internal Fallback Textures
+        // Added before Forge, as we want to prioritize internal banners over "icons as banners"
+        BannerContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.banners::add);
         // Forge
         modInfo.getLogoFile().ifPresent(logo -> {
-            this.icons.add(logo);   // Used to render mod icon
-            this.banners.add(logo); // Used to render mod banner
+            this.icons.add(Pair.of(this.getModId(), logo));   // Used to render mod icon
+            this.banners.add(Pair.of(this.getModId(), logo)); // Used to render mod banner
         });
-        modInfo.getUpdateURL().ifPresent(url -> this.updateURL = this.updateURL.isPresent() ? this.updateURL : modInfo.getUpdateURL());
+        // Internal Fallback Textures
+        // TODO: probably need to move this to a different class to prevent class loader from screaming due to button being client only
+        ModButton.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.icons::add);                      // Icons
+        BackgroundContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.backgrounds::add); // Backgrounds
 
+        modInfo.getUpdateURL().ifPresent(url -> this.updateURL = this.updateURL.isPresent() ? this.updateURL : modInfo.getUpdateURL());
         ((ModInfo) modInfo).getConfigElement("authors").map(Object::toString).ifPresent(string -> this.authors.addAll(Arrays.stream(string.replaceAll(" (and|&) ", ",").split("(?<=:)|[,;]")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
         ((ModInfo) modInfo).getConfigElement("credits").map(Object::toString).ifPresent(string -> this.credits.addAll(Arrays.stream(string.replaceAll("^[\\r\\n]+|[\\r\\n]+$", "").split("\\n")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
     }
@@ -111,7 +128,7 @@ public class ForgeModDataHolder extends ModDataHolder {
     }
 
     @Override
-    public List<String> getModIconFiles() {
+    public List<Pair<String, String>> getModIconFiles() {
         return this.icons;
     }
 
@@ -121,12 +138,12 @@ public class ForgeModDataHolder extends ModDataHolder {
     }
 
     @Override
-    public List<String> getModBackgroundFiles() {
+    public List<Pair<String, String>> getModBackgroundFiles() {
         return this.backgrounds;
     }
 
     @Override
-    public List<String> getModBannerFiles() {
+    public List<Pair<String, String>> getModBannerFiles() {
         return this.banners;
     }
 

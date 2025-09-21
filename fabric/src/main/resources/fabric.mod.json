@@ -43,6 +43,7 @@
         "pandoracore": {
             "icon": "${mod_id}.png",
             "background": "background.png",
+            "banner": "assets/minecraft/textures/gui/title/minecraft.png",
             "blurIcon": false,
             "updateURL": "https://raw.githubusercontent.com/andrew0030/Pandoras-Creatures/refs/heads/1.16.5/src/main/resources/assets/pandoras_creatures/update.json",
             "warningFactory": "com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory"

@@ -54,6 +54,7 @@ public class PaCoContentPanelManager {
     }
 
     // TODO maybe add a "Link(s):" section that has a homepage/issue tracker entry that can be clicked to open the corresponding pages
+    // TODO on Fabric some "lib mods" don't have a description or author entry, so maybe add checks for all entries that don't have a check yet
     public void buildContentPanel(ModDataHolder holder) {
         this.clearElements();
         int paddingX = PaCoScreen.PADDING_FOUR;

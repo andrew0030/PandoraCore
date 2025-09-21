@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.utils.data_holders;
 
 import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningProvider;
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -48,16 +49,16 @@ public abstract class ModDataHolder {
     public abstract String getModVersion();
 
     /** @return A list of found mod icon names. */
-    public abstract List<String> getModIconFiles();
+    public abstract List<Pair<String, String>> getModIconFiles();
 
     /** @return Whether scaling should blur the mod icon. */
     public abstract Optional<Boolean> getBlurModIcon();
 
     /** @return A list of found mod background names. */
-    public abstract List<String> getModBackgroundFiles();
+    public abstract List<Pair<String, String>> getModBackgroundFiles();
 
     /** @return A list of found mod banner names. */
-    public abstract List<String> getModBannerFiles();
+    public abstract List<Pair<String, String>> getModBannerFiles();
 
     /** @return An {@link URL} pointing to an update JSON file, used to check for updates. */
     public abstract Optional<URL> getUpdateURL();

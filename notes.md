@@ -57,7 +57,7 @@ Systems TODO:
   - [x] Add support for [FancyMenu](https://www.curseforge.com/minecraft/mc-mods/fancymenu), which currently gets replaced with panorama
   - [x] Add support for [PackMenu](https://www.curseforge.com/minecraft/mc-mods/packmenu), which currently renders buttons in background
   - [ ] Add links section or buttons to the content panel for hope page and or issues
-  - [ ] Maybe add banner support
+  - [x] Maybe add banner support
   - [ ] Look into mod ordering and libs on Quilt
   - [ ] Try improving compatibility with connector
   - [ ] Maybe a config driven way to hide mods from the list (could be good for libraries)

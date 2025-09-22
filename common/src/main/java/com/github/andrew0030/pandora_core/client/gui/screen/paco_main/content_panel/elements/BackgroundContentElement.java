@@ -84,7 +84,7 @@ public class BackgroundContentElement extends BaseContentElement {
                 this.manager.getScreen().imageManager::cacheBackground,
                 holder.getModBackgroundFiles(),
                 2F,
-                (imgWidth, ingHeight) -> true, //TODO add blurring logic
+                (imgWidth, ingHeight) -> false, //TODO add blurring logic
                 (imgWidth, ingHeight) -> true,
                 "background"
         );

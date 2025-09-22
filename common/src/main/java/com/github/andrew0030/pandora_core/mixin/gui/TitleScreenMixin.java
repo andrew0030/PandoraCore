@@ -14,6 +14,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class TitleScreenMixin implements IPaCoCheckTitleScreen, IPaCoModifyTitleScreen {
     @Unique private boolean pandoraCore$hideElements;
 
+    @Inject(method = "init", at = @At("HEAD"))
+    public void injectSafetyVisibilitySetter(CallbackInfo ci) {
+        this.pandoraCore$hideElements = false;
+    }
+
     @Override
     public boolean pandoraCore$isTitleScreen() {
         return true;

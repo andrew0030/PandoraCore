@@ -26,10 +26,12 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -396,7 +398,7 @@ public class PaCoScreen extends Screen {
         if (button == GLFW.GLFW_MOUSE_BUTTON_1) { // left-click
             for (ComponentElement element : this.contentPanelManager.getComponentElements()) {
                 int textWidth = this.font.width(element.getComponent());
-                int textHeight = font.lineHeight;
+                int textHeight = this.font.lineHeight;
 
                 // Checks if mouse is within bounds
                 if (mouseY >= this.contentMenuHeightStart && mouseY <= this.contentMenuHeightStop &&
@@ -407,6 +409,7 @@ public class PaCoScreen extends Screen {
                     ClickEvent click = style.getClickEvent();
                     if (click != null) {
                         this.handleComponentClicked(style);
+                        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                     }
                 }
             }

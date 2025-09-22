@@ -11,6 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -74,10 +75,9 @@ public class PaCoContentPanelManager {
                 Component clickable = MOD_UPDATE_PAGE.copy()
                         .withStyle(style -> style
                                 .withColor(ChatFormatting.BLUE)
-                                .withUnderlined(true)
                                 .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, updateInfo.getDownloadURL().toString()))
                         );
-                ComponentElement element = new ComponentElement(this, paddingX + 13, 0, clickable);
+                ComponentElement element = new ComponentElement(this, paddingX + 12, 0, clickable);
                 this.componentElements.add(element);
                 this.elements.add(element);
             }

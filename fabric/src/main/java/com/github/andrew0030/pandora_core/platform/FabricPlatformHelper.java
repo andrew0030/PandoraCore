@@ -70,7 +70,7 @@ public class FabricPlatformHelper implements IPlatformHelper {
         if (path.isPresent()) {
             try(InputStream is = Files.newInputStream(path.get()); NativeImage image = NativeImage.read(is)) {
                 result = consumer.apply(image);
-            } catch(IOException ignored) {
+            } catch (IOException ignored) {
                 // If the image fails to load, provide a null texture so that it can be cached as attempted
                 result = consumer.apply(null);
             }

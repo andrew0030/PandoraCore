@@ -7,11 +7,12 @@ import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
-import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.sounds.SoundEvents;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,7 +35,7 @@ public class PaCoContentPanelManager {
     // Content Panel | No Active Mod
     // TODO
     private final List<BaseContentElement> elements = new ArrayList<>();
-    private final Set<ComponentElement> componentElements = new HashSet<>();
+    private final Set<IClickableContentElement> clickableElements = new HashSet<>();
     private final PaCoScreen screen;
     private int posX;
     private final int posY;
@@ -72,13 +73,11 @@ public class PaCoContentPanelManager {
             String value = String.format("%s → %s [%s]", holder.getModVersion(), updateInfo.getNewVersion(), type);
             this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_UPDATE_KEY.getString(), value).setValueColor(PaCoColor.color(160, 160, 160)));
             if (updateInfo.getDownloadURL() != null) {
-                Component clickable = MOD_UPDATE_PAGE.copy()
-                        .withStyle(style -> style
-                                .withColor(ChatFormatting.BLUE)
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, updateInfo.getDownloadURL().toString()))
-                        );
-                ComponentElement element = new ComponentElement(this, paddingX + 12, 0, clickable);
-                this.componentElements.add(element);
+                ClickableTextElement element = new ClickableTextElement(this, paddingX + 12, 0, MOD_UPDATE_PAGE.getString(), () -> {
+                    ConfirmLinkScreen.confirmLinkNow(updateInfo.getDownloadURL().toString(), this.getScreen(), false);
+                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                });
+                this.clickableElements.add(element);
                 this.elements.add(element);
             }
         }
@@ -114,7 +113,7 @@ public class PaCoContentPanelManager {
 
     public void clearElements() {
         this.elements.clear();
-        this.componentElements.clear();
+        this.clickableElements.clear();
         this.contentHeight = 0;
     }
 
@@ -167,7 +166,7 @@ public class PaCoContentPanelManager {
         return this.height;
     }
 
-    public Set<ComponentElement> getComponentElements() {
-        return this.componentElements;
+    public Set<IClickableContentElement> getClickableElements() {
+        return this.clickableElements;
     }
 }

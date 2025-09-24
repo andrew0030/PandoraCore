@@ -6,7 +6,8 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModBu
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModImageManager;
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.ComponentElement;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BaseContentElement;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.IClickableContentElement;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
@@ -26,12 +27,8 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -396,21 +393,17 @@ public class PaCoScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == GLFW.GLFW_MOUSE_BUTTON_1) { // left-click
-            for (ComponentElement element : this.contentPanelManager.getComponentElements()) {
-                int textWidth = this.font.width(element.getComponent());
+            for (IClickableContentElement clicked : this.contentPanelManager.getClickableElements()) {
+                BaseContentElement element = clicked.getElement();
+                int textWidth = element.getWidth();
                 int textHeight = this.font.lineHeight;
 
                 // Checks if mouse is within bounds
                 if (mouseY >= this.contentMenuHeightStart && mouseY <= this.contentMenuHeightStop &&
                     mouseX >= element.getX() && mouseX <= element.getX() + textWidth &&
                     mouseY >= element.getY() && mouseY <= element.getY() + textHeight) {
-
-                    Style style = element.getComponent().getStyle();
-                    ClickEvent click = style.getClickEvent();
-                    if (click != null) {
-                        this.handleComponentClicked(style);
-                        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                    }
+                    // Triggers the click logic of the element
+                    clicked.onClicked();
                 }
             }
         }

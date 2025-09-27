@@ -22,9 +22,13 @@ import java.util.function.Supplier;
 public class ForgeModDataHolder extends ModDataHolder {
     private final IModInfo modInfo;
     private final List<Pair<String, String>> icons = new ArrayList<>();
-    private Optional<Boolean> blurIcon = Optional.empty();
     private final List<Pair<String, String>> backgrounds = new ArrayList<>();
     private final List<Pair<String, String>> banners = new ArrayList<>();
+    // Note: the reason we store values in optionals, is to avoid
+    // creating a new instance every time the getters are called.
+    private Optional<Boolean> blurIcon = Optional.empty();
+    private Optional<Boolean> blurBackground = Optional.empty();
+    private Optional<Boolean> blurBanner = Optional.empty();
     private Optional<URL> updateURL = Optional.empty();
     private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
@@ -32,56 +36,68 @@ public class ForgeModDataHolder extends ModDataHolder {
 
     public ForgeModDataHolder(IModInfo modInfo) {
         this.modInfo = modInfo;
-        // Pandora Core
+        // [######| Pandora Core |######]
+        // Icon
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreIcon"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
                 .ifPresent(val -> this.icons.add(Pair.of(this.getModId(), val)));
-        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBlurIcon"))
-                .filter(Boolean.class::isInstance)
-                .map(Boolean.class::cast)
-                .ifPresent(val -> this.blurIcon = Optional.of(val));
+        // Background
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBackground"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
                 .ifPresent(val -> this.backgrounds.add(Pair.of(this.getModId(), val)));
+        // Banner
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBanner"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
                 .ifPresent(val -> this.banners.add(Pair.of(this.getModId(), val)));
+        // Blur Icon
+        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBlurIcon"))
+                .filter(Boolean.class::isInstance)
+                .map(Boolean.class::cast)
+                .ifPresent(val -> this.blurIcon = Optional.of(val));
+        // Update URL
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreUpdateURL"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .ifPresent(val -> this.updateURL = Optional.ofNullable(StringUtils.toURL(val)));
+        // Mod Warnings
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreWarningFactory"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .ifPresent(factoryClass -> {
                     this.modWarnings = this.loadWarningsFromFactory(factoryClass);
                 });
-        // Catalogue
+
+        // [######| Catalogue |######]
+        // Icon
         Optional.ofNullable(this.modInfo.getModProperties().get("catalogueImageIcon"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
                 .ifPresent(val -> this.icons.add(Pair.of(this.getModId(), val)));
+        // Background
         Optional.ofNullable(this.modInfo.getModProperties().get("catalogueBackground"))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
                 .ifPresent(val -> this.backgrounds.add(Pair.of(this.getModId(), val)));
-        // Internal Fallback Textures
+
+        // [######| Internal Fallback Textures |######]
         // Added before Forge, as we want to prioritize internal banners over "icons as banners"
         BannerContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.banners::add);
-        // Forge
+
+        // [######| Forge |######]
         modInfo.getLogoFile().ifPresent(logo -> {
             this.icons.add(Pair.of(this.getModId(), logo));   // Used to render mod icon
             this.banners.add(Pair.of(this.getModId(), logo)); // Used to render mod banner
         });
-        // Internal Fallback Textures
+
+        // [######| Internal Fallback Textures |######]
         // TODO: probably need to move this to a different class to prevent class loader from screaming due to button being client only
         ModButton.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.icons::add);                      // Icons
         BackgroundContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.backgrounds::add); // Backgrounds
@@ -133,11 +149,6 @@ public class ForgeModDataHolder extends ModDataHolder {
     }
 
     @Override
-    public Optional<Boolean> getBlurModIcon() {
-        return this.blurIcon;
-    }
-
-    @Override
     public List<Pair<String, String>> getModBackgroundFiles() {
         return this.backgrounds;
     }
@@ -145,6 +156,11 @@ public class ForgeModDataHolder extends ModDataHolder {
     @Override
     public List<Pair<String, String>> getModBannerFiles() {
         return this.banners;
+    }
+
+    @Override
+    public Optional<Boolean> getBlurModIcon() {
+        return this.blurIcon;
     }
 
     @Override
@@ -161,7 +177,9 @@ public class ForgeModDataHolder extends ModDataHolder {
     @Override
     public Optional<String> getSha512Hash() {
 
-        // TODO: remove this
+        // TODO: Maybe remove this ?
+        // Since Mods arent inside the "mods" folder in IDEs this is used to manually check for files
+        // inside a "libs" folder, which are then compared to the id of the current data holder.
         if (Services.PLATFORM.isDevelopmentEnvironment()) {
             File libsDir = new File(Services.PLATFORM.getGameDirectory().toString().replaceAll("run", "libs"));
             if (libsDir.exists() && libsDir.isDirectory()) {

@@ -51,14 +51,14 @@ public abstract class ModDataHolder {
     /** @return A list of found mod icon names. */
     public abstract List<Pair<String, String>> getModIconFiles();
 
-    /** @return Whether scaling should blur the mod icon. */
-    public abstract Optional<Boolean> getBlurModIcon();
-
     /** @return A list of found mod background names. */
     public abstract List<Pair<String, String>> getModBackgroundFiles();
 
     /** @return A list of found mod banner names. */
     public abstract List<Pair<String, String>> getModBannerFiles();
+
+    /** @return Whether scaling should blur the mod icon. */
+    public abstract Optional<Boolean> getBlurModIcon();
 
     /** @return An {@link URL} pointing to an update JSON file, used to check for updates. */
     public abstract Optional<URL> getUpdateURL();

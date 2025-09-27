@@ -33,19 +33,23 @@ public class FabricModDataHolder extends ModDataHolder {
     private final ModContainer container;
     private final ModMetadata metadata;
     private final List<Pair<String, String>> icons = new ArrayList<>();
-    private Optional<Boolean> blurIcon = Optional.empty();
     private final List<Pair<String, String>> backgrounds = new ArrayList<>();
     private final List<Pair<String, String>> banners = new ArrayList<>();
+    // Note: the reason we store values in optionals, is to avoid
+    // creating a new instance every time the getters are called.
+    private Optional<Boolean> blurIcon = Optional.empty();
+    private Optional<Boolean> blurBackground = Optional.empty();
+    private Optional<Boolean> blurBanner = Optional.empty();
     private Optional<URL> updateURL = Optional.empty();
     private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
     private final List<String> credits = new ArrayList<>();
+    private final boolean isMinecraft;
 
     public FabricModDataHolder(ModContainer modContainer) {
         this.container = modContainer;
         this.metadata = modContainer.getMetadata();
-        /* We check for all valid mod icons and add them to the list */
-        // Pandora Core
+        // [######| Pandora Core |######]
         Optional.ofNullable(metadata.getCustomValue("pandoracore"))
                 .filter(val -> val.getType() == CustomValue.CvType.OBJECT)
                 .map(CustomValue::getAsObject)
@@ -56,11 +60,6 @@ public class FabricModDataHolder extends ModDataHolder {
                             .map(CustomValue::getAsString)
                             .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
                             .ifPresent(val -> this.icons.add(Pair.of(this.getModId(), val)));
-                    // Blur Icon
-                    Optional.ofNullable(pandoracoreObj.get("blurIcon"))
-                            .filter(blurIconVal -> blurIconVal.getType() == CustomValue.CvType.BOOLEAN)
-                            .map(CustomValue::getAsBoolean)
-                            .ifPresent(val -> this.blurIcon = Optional.of(val));
                     // Background
                     Optional.ofNullable(pandoracoreObj.get("background"))
                             .filter(backgroundVal -> backgroundVal.getType() == CustomValue.CvType.STRING)
@@ -73,13 +72,11 @@ public class FabricModDataHolder extends ModDataHolder {
                             .map(CustomValue::getAsString)
                             .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
                             .ifPresent(val -> this.banners.add(Pair.of(this.getModId(), val)));
-                    // Mod Warnings
-                    Optional.ofNullable(pandoracoreObj.get("warningFactory"))
-                            .filter(factoryVal -> factoryVal.getType() == CustomValue.CvType.STRING)
-                            .map(CustomValue::getAsString)
-                            .ifPresent(factoryClass -> {
-                                this.modWarnings = this.loadWarningsFromFactory(factoryClass);
-                            });
+                    // Blur Icon
+                    Optional.ofNullable(pandoracoreObj.get("blurIcon"))
+                            .filter(blurIconVal -> blurIconVal.getType() == CustomValue.CvType.BOOLEAN)
+                            .map(CustomValue::getAsBoolean)
+                            .ifPresent(val -> this.blurIcon = Optional.of(val));
                     // Because its handy I also check for all other paco properties here
                     // Update URL
                     Optional.ofNullable(pandoracoreObj.get("updateURL"))
@@ -96,8 +93,16 @@ public class FabricModDataHolder extends ModDataHolder {
                                     }
                                 }
                             });
+                    // Mod Warnings
+                    Optional.ofNullable(pandoracoreObj.get("warningFactory"))
+                            .filter(factoryVal -> factoryVal.getType() == CustomValue.CvType.STRING)
+                            .map(CustomValue::getAsString)
+                            .ifPresent(factoryClass -> {
+                                this.modWarnings = this.loadWarningsFromFactory(factoryClass);
+                            });
                 });
-        // Catalogue
+
+        // [######| Catalogue |######]
         Optional.ofNullable(metadata.getCustomValue("catalogue"))
                 .filter(val -> val.getType() == CustomValue.CvType.OBJECT)
                 .map(CustomValue::getAsObject)
@@ -124,21 +129,27 @@ public class FabricModDataHolder extends ModDataHolder {
                             .filter(ResourceLocation::isValidPath) // Skips entry if someone used a weird char, as we only want paths
                             .ifPresent(val -> this.banners.add(Pair.of(this.getModId(), val)));
                 });
-        // Internal Fallback Textures
+
+        // [######| Internal Fallback Textures |######]
         // Added before Fabric, as we want to prioritize internal banners over "icons as banners"
         BannerContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.banners::add);
-        // Fabric
+
+        // [######| Fabric |######]
         metadata.getIconPath(0).ifPresent(logo -> {
             this.icons.add(Pair.of(this.getModId(), logo));   // Used to render mod icon
             this.banners.add(Pair.of(this.getModId(), logo)); // Used to render mod banner
         });
-        // Internal Fallback Textures
+
+        // [######| Internal Fallback Textures |######]
         // TODO: probably need to move this to a different class to prevent class loader from screaming due to button being client only
         ModButton.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.icons::add);                      // Icons
         BackgroundContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.backgrounds::add); // Backgrounds
 
         this.authors.addAll(this.metadata.getAuthors().stream().map(Person::getName).toList());
         this.credits.addAll(this.metadata.getContributors().stream().map(Person::getName).toList());
+
+        // Simple boolean to quickly check if this data holder is the minecraft data holder
+        this.isMinecraft = this.getModId().equals("minecraft");
     }
 
     @Override
@@ -153,13 +164,13 @@ public class FabricModDataHolder extends ModDataHolder {
 
     @Override
     public String getModDescription() {
-        if (this.getModId().equals("minecraft")) return MINECRAFT_DESCRIPTION;
+        if (this.isMinecraft) return MINECRAFT_DESCRIPTION;
         return this.metadata.getDescription();
     }
 
     @Override
     public List<String> getModAuthors() {
-        if (this.getModId().equals("minecraft")) return MOJANG_STUDIOS;
+        if (this.isMinecraft) return MOJANG_STUDIOS;
         return this.authors;
     }
 
@@ -170,7 +181,7 @@ public class FabricModDataHolder extends ModDataHolder {
 
     @Override
     public String getModLicense() {
-        if (this.getModId().equals("minecraft")) return MINECRAFT_EULA;
+        if (this.isMinecraft) return MINECRAFT_EULA;
         return StringUtils.join(this.metadata.getLicense(), ", ");
     }
 
@@ -185,11 +196,6 @@ public class FabricModDataHolder extends ModDataHolder {
     }
 
     @Override
-    public Optional<Boolean> getBlurModIcon() {
-        return this.blurIcon;
-    }
-
-    @Override
     public List<Pair<String, String>> getModBackgroundFiles() {
         return this.backgrounds;
     }
@@ -197,6 +203,11 @@ public class FabricModDataHolder extends ModDataHolder {
     @Override
     public List<Pair<String, String>> getModBannerFiles() {
         return this.banners;
+    }
+
+    @Override
+    public Optional<Boolean> getBlurModIcon() {
+        return this.blurIcon;
     }
 
     @Override

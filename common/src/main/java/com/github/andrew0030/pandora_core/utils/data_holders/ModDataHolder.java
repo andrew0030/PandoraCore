@@ -60,6 +60,9 @@ public abstract class ModDataHolder {
     /** @return Whether scaling should blur the mod icon. */
     public abstract Optional<Boolean> getBlurModIcon();
 
+    /** @return Whether scaling should blur the mod background. */
+    public abstract Optional<Boolean> getBlurModBackground();
+
     /** @return An {@link URL} pointing to an update JSON file, used to check for updates. */
     public abstract Optional<URL> getUpdateURL();
 

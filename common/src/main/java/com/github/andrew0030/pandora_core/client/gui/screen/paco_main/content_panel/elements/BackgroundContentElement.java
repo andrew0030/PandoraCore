@@ -26,6 +26,7 @@ public class BackgroundContentElement extends BaseContentElement {
     public static final HashMap<String, Pair<String, String>> MOD_BACKGROUNDS = new HashMap<>();
 
     static {
+        // TODO: missing backgrounds could probably also be converted to be loaded through my image loading system to allow for blurring them
         int totalMissingBackgrounds = 9;
         for (int i = 0; i < totalMissingBackgrounds; i++) {
             MOD_MISSING_BACKGROUNDS.add(new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/backgrounds/missing/missing_" + i + ".png"));
@@ -84,7 +85,7 @@ public class BackgroundContentElement extends BaseContentElement {
                 this.manager.getScreen().imageManager::cacheBackground,
                 holder.getModBackgroundFiles(),
                 2F,
-                (imgWidth, ingHeight) -> false, // Blurring should probably be false by default with the option to opt-in
+                (imgWidth, ingHeight) -> holder.getBlurModBackground().orElse(false),
                 (imgWidth, ingHeight) -> true,
                 "background"
         );

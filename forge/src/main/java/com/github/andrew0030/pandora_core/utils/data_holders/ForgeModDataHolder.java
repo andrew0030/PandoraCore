@@ -60,6 +60,11 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .filter(Boolean.class::isInstance)
                 .map(Boolean.class::cast)
                 .ifPresent(val -> this.blurIcon = Optional.of(val));
+        // Blur Background
+        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBlurBackground"))
+                .filter(Boolean.class::isInstance)
+                .map(Boolean.class::cast)
+                .ifPresent(val -> this.blurBackground = Optional.of(val));
         // Update URL
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreUpdateURL"))
                 .filter(String.class::isInstance)
@@ -161,6 +166,11 @@ public class ForgeModDataHolder extends ModDataHolder {
     @Override
     public Optional<Boolean> getBlurModIcon() {
         return this.blurIcon;
+    }
+
+    @Override
+    public Optional<Boolean> getBlurModBackground() {
+        return this.blurBackground;
     }
 
     @Override

@@ -9,7 +9,6 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
@@ -19,11 +18,11 @@ import java.util.HashMap;
 import java.util.Optional;
 
 public class BannerContentElement extends BaseContentElement {
-    public static final HashMap<String, Pair<String, String>> MOD_BANNERS = new HashMap<>();
+    public static final HashMap<String, Triple<String, String, Boolean>> MOD_BANNERS = new HashMap<>();
 
     static {
-        MOD_BANNERS.put("minecraft",    sameNamespacePair("minecraft", "textures/gui/title/minecraft.png"));
-        MOD_BANNERS.put("pandora_core", sameNamespacePair("minecraft", "textures/gui/title/minecraft.png"));
+        MOD_BANNERS.put("minecraft",    sameNamespaceImage("minecraft", "textures/gui/title/minecraft.png", true));
+        MOD_BANNERS.put("pandora_core", sameNamespaceImage("minecraft", "textures/gui/title/minecraft.png", true)); //TODO remove this entry when done testing
     }
 
     public BannerContentElement(PaCoContentPanelManager manager) {
@@ -35,21 +34,23 @@ public class BannerContentElement extends BaseContentElement {
         this.initializeHeight();
     }
 
-    @Deprecated(forRemoval = false)
     @ApiStatus.Internal
-    public static Optional<Pair<String, String>> getInternalFallbackResourceLocation(String modId) {
+    @Deprecated(forRemoval = false)
+    public static Optional<Triple<String, String, Boolean>> getInternalFallbackImageData(String modId) {
         return Optional.ofNullable(MOD_BANNERS.get(modId));
     }
 
     /**
      * A convenience method to allow loading images like a {@link ResourceLocation}.<br/>
-     * Creates a {@link Pair} containing a Mod-ID {@code namespace} and a <b>full</b> {@code path} using the same {@code namespace}.<br/>
-     * Meaning that the second {@link String} will then be {@code assets/<namespace>/<path>}.
+     * Creates a {@link Triple} containing a Mod-ID {@code namespace} and a <b>full</b> {@code path} using the same {@code namespace}.<br/>
+     * Meaning that the second {@link String} will then be {@code assets/<namespace>/<path>}.<br/>
+     * Lastly the {@link Triple} contains a {@link Boolean} specifying whether the image should be blurred when scaled.
      * @param namespace The Mod-ID of the Mod containing the texture
      * @param path      The path to the texture. (Needs to be inside {@code assets/<namespace>/}
+     * @param blur      Whether the image should blur when scaled
      */
-    private static Pair<String, String> sameNamespacePair(String namespace, String path) {
-        return Pair.of(namespace, String.format("assets/%s/%s", namespace, path));
+    private static Triple<String, String, Boolean> sameNamespaceImage(String namespace, String path, boolean blur) {
+        return Triple.of(namespace, String.format("assets/%s/%s", namespace, path), blur);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class BannerContentElement extends BaseContentElement {
                 holder.getModBannerFiles(),
                 0.5F,
                 8F,//TODO maybe tweak or disable aspect ratio
-                (imgWidth, ingHeight) -> true, //TODO add blurring logic
+                (imgWidth, ingHeight) -> holder.getBlurModBanner().orElse(false), // TODO test banner resolutions and maybe make blurring dynamic based on banner resolution
                 (imgWidth, ingHeight) -> true,
                 "banner"
         );

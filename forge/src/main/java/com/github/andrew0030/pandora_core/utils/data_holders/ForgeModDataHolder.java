@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModBu
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BackgroundContentElement;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BannerContentElement;
 import com.github.andrew0030.pandora_core.platform.Services;
+import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import com.mojang.datafixers.util.Pair;
@@ -65,6 +66,11 @@ public class ForgeModDataHolder extends ModDataHolder {
                 .filter(Boolean.class::isInstance)
                 .map(Boolean.class::cast)
                 .ifPresent(val -> this.blurBackground = Optional.of(val));
+        // Blur Banner
+        Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreBlurBanner"))
+                .filter(Boolean.class::isInstance)
+                .map(Boolean.class::cast)
+                .ifPresent(val -> this.blurBanner = Optional.of(val));
         // Update URL
         Optional.ofNullable(this.modInfo.getModProperties().get("pandoracoreUpdateURL"))
                 .filter(String.class::isInstance)
@@ -94,7 +100,11 @@ public class ForgeModDataHolder extends ModDataHolder {
 
         // [######| Internal Fallback Textures |######]
         // Added before Forge, as we want to prioritize internal banners over "icons as banners"
-        BannerContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.banners::add);
+        BannerContentElement.getInternalFallbackImageData(this.getModId()).ifPresent(triple -> {
+            if (this.banners.isEmpty()) // Non-destructive design, if there is a user specified banner, we don't overwrite the blur
+                this.blurBanner = Optional.of(triple.getThird());
+            this.banners.add(Pair.of(triple.getFirst(), triple.getSecond()));
+        });
 
         // [######| Forge |######]
         modInfo.getLogoFile().ifPresent(logo -> {
@@ -104,8 +114,21 @@ public class ForgeModDataHolder extends ModDataHolder {
 
         // [######| Internal Fallback Textures |######]
         // TODO: probably need to move this to a different class to prevent class loader from screaming due to button being client only
-        ModButton.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.icons::add);                      // Icons
-        BackgroundContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.backgrounds::add); // Backgrounds
+        // Icons
+        ModButton.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.icons::add);
+        // Backgrounds
+        BackgroundContentElement.getInternalFallbackImageData(this.getModId()).ifPresent(triple -> {
+            if (this.backgrounds.isEmpty()) // Non-destructive design, if there is a user specified background, we don't overwrite the blur
+                this.blurBackground = Optional.of(triple.getThird());
+            this.backgrounds.add(Pair.of(triple.getFirst(), triple.getSecond()));
+        });
+
+        // [######| Missing Textures |######]
+        // Backgrounds
+        Triple<String, String, Boolean> triple = BackgroundContentElement.MOD_MISSING_BACKGROUNDS.get(Math.abs(this.getModId().hashCode()) % BackgroundContentElement.MOD_MISSING_BACKGROUNDS.size());
+        if (this.backgrounds.isEmpty()) // Non-destructive design, if there is a user/internal specified background, we don't overwrite the blur
+            this.blurBackground = Optional.of(triple.getThird());
+        this.backgrounds.add(Pair.of(triple.getFirst(), triple.getSecond()));
 
         modInfo.getUpdateURL().ifPresent(url -> this.updateURL = this.updateURL.isPresent() ? this.updateURL : modInfo.getUpdateURL());
         ((ModInfo) modInfo).getConfigElement("authors").map(Object::toString).ifPresent(string -> this.authors.addAll(Arrays.stream(string.replaceAll(" (and|&) ", ",").split("(?<=:)|[,;]")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
@@ -171,6 +194,11 @@ public class ForgeModDataHolder extends ModDataHolder {
     @Override
     public Optional<Boolean> getBlurModBackground() {
         return this.blurBackground;
+    }
+
+    @Override
+    public Optional<Boolean> getBlurModBanner() {
+        return this.blurBanner;
     }
 
     @Override

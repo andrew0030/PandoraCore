@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.utils.data_holders;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BackgroundContentElement;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BannerContentElement;
+import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import com.mojang.datafixers.util.Pair;
@@ -77,6 +78,16 @@ public class FabricModDataHolder extends ModDataHolder {
                             .filter(blurIconVal -> blurIconVal.getType() == CustomValue.CvType.BOOLEAN)
                             .map(CustomValue::getAsBoolean)
                             .ifPresent(val -> this.blurIcon = Optional.of(val));
+                    // Blur Background
+                    Optional.ofNullable(pandoracoreObj.get("blurBackground"))
+                            .filter(blurBackgroundVal -> blurBackgroundVal.getType() == CustomValue.CvType.BOOLEAN)
+                            .map(CustomValue::getAsBoolean)
+                            .ifPresent(val -> this.blurBackground = Optional.of(val));
+                    // Blur Banner
+                    Optional.ofNullable(pandoracoreObj.get("blurBanner"))
+                            .filter(blurBannerVal -> blurBannerVal.getType() == CustomValue.CvType.BOOLEAN)
+                            .map(CustomValue::getAsBoolean)
+                            .ifPresent(val -> this.blurBanner = Optional.of(val));
                     // Because its handy I also check for all other paco properties here
                     // Update URL
                     Optional.ofNullable(pandoracoreObj.get("updateURL"))
@@ -132,7 +143,11 @@ public class FabricModDataHolder extends ModDataHolder {
 
         // [######| Internal Fallback Textures |######]
         // Added before Fabric, as we want to prioritize internal banners over "icons as banners"
-        BannerContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.banners::add);
+        BannerContentElement.getInternalFallbackImageData(this.getModId()).ifPresent(triple -> {
+            if (this.banners.isEmpty()) // Non-destructive design, if there is a user specified banner, we don't overwrite the blur
+                this.blurBanner = Optional.of(triple.getThird());
+            this.banners.add(Pair.of(triple.getFirst(), triple.getSecond()));
+        });
 
         // [######| Fabric |######]
         metadata.getIconPath(0).ifPresent(logo -> {
@@ -142,8 +157,21 @@ public class FabricModDataHolder extends ModDataHolder {
 
         // [######| Internal Fallback Textures |######]
         // TODO: probably need to move this to a different class to prevent class loader from screaming due to button being client only
-        ModButton.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.icons::add);                      // Icons
-        BackgroundContentElement.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.backgrounds::add); // Backgrounds
+        // Icons
+        ModButton.getInternalFallbackResourceLocation(this.getModId()).ifPresent(this.icons::add);
+        // Backgrounds
+        BackgroundContentElement.getInternalFallbackImageData(this.getModId()).ifPresent(triple -> {
+            if (this.backgrounds.isEmpty()) // Non-destructive design, if there is a user specified background, we don't overwrite the blur
+                this.blurBackground = Optional.of(triple.getThird());
+            this.backgrounds.add(Pair.of(triple.getFirst(), triple.getSecond()));
+        });
+
+        // [######| Missing Textures |######]
+        // Backgrounds
+        Triple<String, String, Boolean> triple = BackgroundContentElement.MOD_MISSING_BACKGROUNDS.get(Math.abs(this.getModId().hashCode()) % BackgroundContentElement.MOD_MISSING_BACKGROUNDS.size());
+        if (this.backgrounds.isEmpty()) // Non-destructive design, if there is a user/internal specified background, we don't overwrite the blur
+            this.blurBackground = Optional.of(triple.getThird());
+        this.backgrounds.add(Pair.of(triple.getFirst(), triple.getSecond()));
 
         this.authors.addAll(this.metadata.getAuthors().stream().map(Person::getName).toList());
         this.credits.addAll(this.metadata.getContributors().stream().map(Person::getName).toList());
@@ -208,6 +236,16 @@ public class FabricModDataHolder extends ModDataHolder {
     @Override
     public Optional<Boolean> getBlurModIcon() {
         return this.blurIcon;
+    }
+
+    @Override
+    public Optional<Boolean> getBlurModBackground() {
+        return this.blurBackground;
+    }
+
+    @Override
+    public Optional<Boolean> getBlurModBanner() {
+        return this.blurBanner;
     }
 
     @Override

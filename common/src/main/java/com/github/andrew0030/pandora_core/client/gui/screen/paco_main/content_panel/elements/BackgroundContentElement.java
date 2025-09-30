@@ -10,7 +10,6 @@ import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
@@ -22,19 +21,19 @@ import java.util.List;
 import java.util.Optional;
 
 public class BackgroundContentElement extends BaseContentElement {
-    public static final List<ResourceLocation> MOD_MISSING_BACKGROUNDS = new ArrayList<>();
-    public static final HashMap<String, Pair<String, String>> MOD_BACKGROUNDS = new HashMap<>();
+    public static final List<Triple<String, String, Boolean>> MOD_MISSING_BACKGROUNDS = new ArrayList<>();
+    public static final HashMap<String, Triple<String, String, Boolean>> MOD_BACKGROUNDS = new HashMap<>();
 
     static {
         // TODO: missing backgrounds could probably also be converted to be loaded through my image loading system to allow for blurring them
         int totalMissingBackgrounds = 9;
         for (int i = 0; i < totalMissingBackgrounds; i++) {
-            MOD_MISSING_BACKGROUNDS.add(new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/backgrounds/missing/missing_" + i + ".png"));
+            MOD_MISSING_BACKGROUNDS.add(sameNamespaceImage(PandoraCore.MOD_ID, "textures/gui/backgrounds/missing/missing_" + i + ".png", true));
         }
-        MOD_BACKGROUNDS.put("minecraft",    sameNamespacePair(PandoraCore.MOD_ID, "textures/gui/backgrounds/mc_background.png"));
-        MOD_BACKGROUNDS.put("forge",        sameNamespacePair(PandoraCore.MOD_ID, "textures/gui/backgrounds/forge_background.png"));
-        MOD_BACKGROUNDS.put("fabricloader", sameNamespacePair(PandoraCore.MOD_ID, "textures/gui/backgrounds/fabric_background.png"));
-        MOD_BACKGROUNDS.put("fabric-api",   sameNamespacePair(PandoraCore.MOD_ID, "textures/gui/backgrounds/fabric_background.png"));
+        MOD_BACKGROUNDS.put("minecraft",    sameNamespaceImage(PandoraCore.MOD_ID, "textures/gui/backgrounds/mc_background.png",     false));
+        MOD_BACKGROUNDS.put("forge",        sameNamespaceImage(PandoraCore.MOD_ID, "textures/gui/backgrounds/forge_background.png",  true));
+        MOD_BACKGROUNDS.put("fabricloader", sameNamespaceImage(PandoraCore.MOD_ID, "textures/gui/backgrounds/fabric_background.png", false));
+        MOD_BACKGROUNDS.put("fabric-api",   sameNamespaceImage(PandoraCore.MOD_ID, "textures/gui/backgrounds/fabric_background.png", false));
     }
 
     public BackgroundContentElement(PaCoContentPanelManager manager) {
@@ -46,21 +45,23 @@ public class BackgroundContentElement extends BaseContentElement {
         this.initializeHeight();
     }
 
-    @Deprecated(forRemoval = false)
     @ApiStatus.Internal
-    public static Optional<Pair<String, String>> getInternalFallbackResourceLocation(String modId) {
+    @Deprecated(forRemoval = false)
+    public static Optional<Triple<String, String, Boolean>> getInternalFallbackImageData(String modId) {
         return Optional.ofNullable(MOD_BACKGROUNDS.get(modId));
     }
 
     /**
      * A convenience method to allow loading images like a {@link ResourceLocation}.<br/>
-     * Creates a {@link Pair} containing a Mod-ID {@code namespace} and a <b>full</b> {@code path} using the same {@code namespace}.<br/>
-     * Meaning that the second {@link String} will then be {@code assets/<namespace>/<path>}.
+     * Creates a {@link Triple} containing a Mod-ID {@code namespace} and a <b>full</b> {@code path} using the same {@code namespace}.<br/>
+     * Meaning that the second {@link String} will then be {@code assets/<namespace>/<path>}.<br/>
+     * Lastly the {@link Triple} contains a {@link Boolean} specifying whether the image should be blurred when scaled.
      * @param namespace The Mod-ID of the Mod containing the texture
      * @param path      The path to the texture. (Needs to be inside {@code assets/<namespace>/}
+     * @param blur      Whether the image should blur when scaled
      */
-    private static Pair<String, String> sameNamespacePair(String namespace, String path) {
-        return Pair.of(namespace, String.format("assets/%s/%s", namespace, path));
+    private static Triple<String, String, Boolean> sameNamespaceImage(String namespace, String path, boolean blur) {
+        return Triple.of(namespace, String.format("assets/%s/%s", namespace, path), blur);
     }
 
     @Override
@@ -90,21 +91,16 @@ public class BackgroundContentElement extends BaseContentElement {
                 "background"
         );
 
+        // If no valid background was found, there is nothing to render (this should never happen due to "MISSING_BACKGROUNDS")
+        if (backgroundData == null) return;
+
         // if the aspect ratio is smaller than 1.0F  we center the background horizontally
         if (width < height * 2) {
             posX = (posX + (width / 2)) - (height); // Centers the banner
             width = height * 2; // Ensures the banner maintains a 2:1 ratio
         }
 
-        ResourceLocation rl;
-        if (backgroundData != null) {
-            // If a valid background was found, we render that
-            rl = backgroundData.getFirst();
-        } else {
-            // If no valid banner was provided we grab a background from "MOD_MISSING_BACKGROUNDS"
-            rl = MOD_MISSING_BACKGROUNDS.get(Math.abs(holder.getModId().hashCode()) % MOD_MISSING_BACKGROUNDS.size());
-        }
-
+        ResourceLocation rl = backgroundData.getFirst();
         int visible = PaCoColor.color(255, 255, 255, 255);
         int hidden = PaCoColor.color(0, 255, 255, 255);
         float halfBackground = height / 2F; // Visible height from the background center to the background top/bottom

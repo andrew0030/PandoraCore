@@ -151,8 +151,8 @@ public class FabricModDataHolder extends ModDataHolder {
 
         // [######| Fabric |######]
         metadata.getIconPath(0).ifPresent(logo -> {
-            this.icons.add(Pair.of(this.getModId(), logo));   // Used to render mod icon
-            this.banners.add(Pair.of(this.getModId(), logo)); // Used to render mod banner
+            this.icons.add(Pair.of(this.getModId(), logo));   // Icon
+            this.banners.add(Pair.of(this.getModId(), logo)); // Banner
         });
 
         // [######| Internal Fallback Textures |######]

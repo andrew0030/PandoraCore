@@ -31,7 +31,7 @@ issueTrackerURL="${issue_tracker_url}"
 [modproperties.${mod_id}]
     pandoracoreIcon="${mod_id}.png"
 #    pandoracoreBackground="background.png"
-    pandoracoreBackground="assets/pandora_core/textures/gui/backgrounds/test/256x128.png"
+    pandoracoreBackground="background.png"
     pandoracoreBanner=":assets/pandora_core/textures/test.png"
     pandoracoreBlurIcon=false
     pandoracoreBlurBackground=true

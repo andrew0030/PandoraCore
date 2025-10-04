@@ -107,9 +107,16 @@ public class ForgeModDataHolder extends ModDataHolder {
         });
 
         // [######| Forge |######]
+        // Note Banners: Only checks for explicitly disabled blur, as default on forge is blurred.
+        // If a banner doesn't have a specification or is set to true, we use the default
+        // blur logic, which blurs it based on size.
+        // Note Icons: Since the forge logo renderer is a lot bigger than the icons rendered PaCo uses, we ignore
+        // forge's blur setting fully, and utilize the PaCo specification or size if the former is missing.
+        if (this.banners.isEmpty() && !modInfo.getLogoBlur()) // Non-destructive design, if there is a user/internal specified banner, we don't overwrite the blur, also only checks for blur = false
+            this.blurBanner = Optional.of(false); // Blur Banner
         modInfo.getLogoFile().ifPresent(logo -> {
-            this.icons.add(Pair.of(this.getModId(), logo));   // Used to render mod icon
-            this.banners.add(Pair.of(this.getModId(), logo)); // Used to render mod banner
+            this.icons.add(Pair.of(this.getModId(), logo));   // Icon
+            this.banners.add(Pair.of(this.getModId(), logo)); // Banner
         });
 
         // [######| Internal Fallback Textures |######]

@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements;
 
+import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
@@ -22,7 +23,7 @@ public class BannerContentElement extends BaseContentElement {
 
     static {
         MOD_BANNERS.put("minecraft",    sameNamespaceImage("minecraft", "textures/gui/title/minecraft.png", true));
-        MOD_BANNERS.put("pandora_core", sameNamespaceImage("minecraft", "textures/gui/title/minecraft.png", true)); //TODO remove this entry when done testing
+        MOD_BANNERS.put("pandora_core", sameNamespaceImage(PandoraCore.MOD_ID, "textures/gui/backgrounds/test/256x128.png", true)); //TODO remove this entry when done testing
     }
 
     public BannerContentElement(PaCoContentPanelManager manager) {
@@ -76,8 +77,8 @@ public class BannerContentElement extends BaseContentElement {
                 holder.getModBannerFiles(),
                 0.5F,
                 8F,//TODO maybe tweak or disable aspect ratio
-                (imgWidth, ingHeight) -> holder.getBlurModBanner().orElse(false), // TODO test banner resolutions and maybe make blurring dynamic based on banner resolution
-                (imgWidth, ingHeight) -> true,
+                (imgWidth, imgHeight) -> holder.getBlurModBanner().orElse(Math.max(imgWidth, imgHeight) >= 128),
+                (imgWidth, imgHeight) -> true,
                 "banner"
         );
 

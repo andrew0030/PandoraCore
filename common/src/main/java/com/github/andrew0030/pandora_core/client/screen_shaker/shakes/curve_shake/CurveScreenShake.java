@@ -47,10 +47,20 @@ public class CurveScreenShake extends ScreenShake {
     /**
      * A new {@link CurveScreenShake} instance, methods can/should be
      * chained onto this to specify the exact behavior it should have.
-     * @param duration How long this {@link CurveScreenShake} should last, measured in ticks.
+     * @param duration How long this {@link CurveScreenShake} should last, measured in ticks
      */
     public CurveScreenShake(int duration) {
         super(duration);
+    }
+
+    /**
+     * A new {@link CurveScreenShake} instance, methods can/should be
+     * chained onto this to specify the exact behavior it should have.
+     * @param duration       How long this {@link CurveScreenShake} should last, measured in ticks
+     * @param playerAsOrigin Whether to use the player as the origin for camera collision checks
+     */
+    public CurveScreenShake(int duration, boolean playerAsOrigin) {
+        super(duration, playerAsOrigin);
     }
 
     /**

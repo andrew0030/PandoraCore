@@ -8,10 +8,20 @@ import net.minecraft.client.Camera;
 public abstract class ScreenShake {
     protected final int duration;
     protected int tickCount;
+    protected boolean playerAsOrigin;
 
     /** @param duration How long the {@link ScreenShake} should remain active */
     public ScreenShake(int duration) {
         this.duration = Math.max(duration, 0);
+    }
+
+    /**
+     * @param duration       How long the {@link ScreenShake} should remain active
+     * @param playerAsOrigin Whether to use the player as the origin for camera collision checks
+     */
+    public ScreenShake(int duration, boolean playerAsOrigin) {
+        this(duration);
+        this.playerAsOrigin = playerAsOrigin;
     }
 
     /** Gets called every tick, great for updating values over time. */
@@ -87,5 +97,9 @@ public abstract class ScreenShake {
     /** @return Whether the {@link ScreenShake} should be constrained by the PaCo screen shaker config options. */
     public boolean hasGeneralConstrains() {
         return true;
+    }
+
+    public boolean usesPlayerAsOrigin() {
+        return this.playerAsOrigin;
     }
 }

@@ -89,7 +89,7 @@ Systems TODO:
   - [x] ~~Add a separate multiplier that allows modifying the strength of movement~~ Don't need this
   - [x] Add methods for position adjustment in all existing screen shake types
   - [x] Maybe add FOV support
-  - [ ] Maybe add custom line of sight checking options as offsetting doesn't seem to alter line of sight checks 
+  - [x] Maybe add custom line of sight checking options as offsetting doesn't seem to alter line of sight checks 
 - Creative Tabs
   - [x] ~~Create builder pattern abstraction for creating creative tabs~~ The vanilla creative tab builder is fine (just needs a helper to create it more easily)
   - [x] Make a tool that allows inserting items into existing tabs

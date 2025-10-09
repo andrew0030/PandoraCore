@@ -15,9 +15,21 @@ public class ManualScreenShake extends ScreenShake {
     protected float fovOffset = 0.0F;
     protected boolean isFinished;
 
-    /** A new {@link ManualScreenShake} instance: */
+    /**
+     * A new {@link ManualScreenShake} instance, methods can/should be
+     * chained onto this to specify the exact behavior it should have.
+     */
     public ManualScreenShake() {
         super(Integer.MAX_VALUE);
+    }
+
+    /**
+     * A new {@link ManualScreenShake} instance, methods can/should be
+     * chained onto this to specify the exact behavior it should have.
+     * @param playerAsOrigin Whether to use the player as the origin for camera collision checks
+     */
+    public ManualScreenShake(boolean playerAsOrigin) {
+        super(Integer.MAX_VALUE, playerAsOrigin);
     }
 
     /**

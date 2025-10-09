@@ -39,9 +39,16 @@ public abstract class CameraMixin implements IPaCoCameraTransforms {
     @Unique private float pandoraCore$fovOffset;
     @Unique private float pandoraCore$fovOffsetOld;
 
+    @Inject(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V", shift = At.Shift.AFTER))
+    public void cameraShakerEarly(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
+        // Called before the 3rd-person offsets are applied
+        ScreenShakeManager.updateCameraEarly(((Camera)(Object) this), partialTick);
+    }
+
     @Inject(method = "setup", at = @At("TAIL"))
     public void cameraShaker(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
-        ScreenShakeManager.updateCamera(((Camera)(Object) this), partialTick);
+        // Called after all vanilla offsets have been applied
+        ScreenShakeManager.updateCamera(((Camera)(Object) this), partialTick); // TODO make camera position the default
     }
 
     @Override

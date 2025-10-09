@@ -6,29 +6,61 @@ import net.minecraft.client.Camera;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
 
 // TODO: Maybe rename the class to something non screen shake related, seeing how now this class handles more than just screen shaking
 /** Helper class that allows playing ScreenShakes. */
 public class ScreenShakeManager {
-    protected static final List<ScreenShake> CONSTRAINED_SHAKES = new ArrayList<>();
-    protected static final List<ScreenShake> UNCONSTRAINED_SHAKES = new ArrayList<>();
+    protected static final EnumMap<ShakeType, List<ScreenShake>> SCREEN_SHAKES = new EnumMap<>(ShakeType.class);
     protected static float pitchOffset, yawOffset, rollOffset;
     protected static float horizontalOffset, verticalOffset, depthOffset;
     protected static float xOffset, yOffset, zOffset;
     protected static float fovOffset;
 
+    static {
+        // Populates the map so we can safely get each list without causing null-pointers
+        for (ShakeType type : ShakeType.values())
+            SCREEN_SHAKES.put(type, new ArrayList<>());
+    }
+
     /**
      * Updates the {@link Camera}, used to apply the total offset from all
-     * {@link ScreenShakeManager#CONSTRAINED_SHAKES} and {@link ScreenShakeManager#UNCONSTRAINED_SHAKES}.
+     * {@code EARLY_CONSTRAINED} shakes and {@code  EARLY_UNCONSTRAINED} shakes.
+     *
+     * @apiNote This method gets called before the 3rd person camera offsets are applied, meaning that collision
+     * checks with the world originate from the {@code player head}, rather than the {@code camera position}.
+     */
+    @ApiStatus.Internal
+    public static void updateCameraEarly(Camera camera, float partialTick) {
+        ScreenShakeManager.applyCameraTransforms(
+                camera, partialTick,
+                SCREEN_SHAKES.get(ShakeType.EARLY_CONSTRAINED),
+                SCREEN_SHAKES.get(ShakeType.EARLY_UNCONSTRAINED)
+        );
+    }
+
+    /**
+     * Updates the {@link Camera}, used to apply the total offset from all
+     * {@code  CONSTRAINED} shakes and {@code  UNCONSTRAINED} shakes.
+     *
+     * @apiNote This method gets called after the 3rd person camera offsets are applied, meaning
+     * that collision checks with the world originate from the {@code camera position}.
      */
     @ApiStatus.Internal
     public static void updateCamera(Camera camera, float partialTick) {
-        ScreenShakeManager.resetOffsets();
+        ScreenShakeManager.applyCameraTransforms(
+                camera, partialTick,
+                SCREEN_SHAKES.get(ShakeType.CONSTRAINED),
+                SCREEN_SHAKES.get(ShakeType.UNCONSTRAINED)
+        );
+    }
 
+    private static void applyCameraTransforms(Camera camera, float partialTick, List<ScreenShake> constrained, List<ScreenShake> unconstrained) {
+        // Resets previous camera offsets
+        ScreenShakeManager.resetOffsets();
         //TODO: Maybe skip all constrained shake offset logic if "multiplier" or "limits" are 0 ?
-        
         float multiplier = 1.0F; // TODO: make this a config option
         // TODO: make these config options, and prevent them from being called if their values are 0 because divided by zero...
         float rotLimit = 45F;
@@ -36,7 +68,7 @@ public class ScreenShakeManager {
         float fovLimit = 20F;
 
         // Accumulates constrained shakes
-        for (ScreenShake shake : CONSTRAINED_SHAKES) {
+        for (ScreenShake shake : constrained) {
             ScreenShakeManager.applyAllOffsets(shake, partialTick);
         }
         // Applies global shake multiplier
@@ -44,7 +76,7 @@ public class ScreenShakeManager {
         // Soft limits each axis
         ScreenShakeManager.applySoftLimits(rotLimit, posLimit, fovLimit);
         // Adds unconstrained shakes (raw)
-        for (ScreenShake shake : UNCONSTRAINED_SHAKES) {
+        for (ScreenShake shake : unconstrained) {
             ScreenShakeManager.applyAllOffsets(shake, partialTick);
         }
 
@@ -89,7 +121,7 @@ public class ScreenShakeManager {
     }
 
     /**
-     * Applies a multiplier to all {@link ScreenShakeManager#CONSTRAINED_SHAKES}.
+     * Applies a multiplier to all {@code EARLY_CONSTRAINED} and {@code CONSTRAINED} shakes.
      * @param multiplier  The multiplier that should be applied
      */
     private static void applyMultiplier(float multiplier) {
@@ -110,7 +142,7 @@ public class ScreenShakeManager {
     }
 
     /**
-     * Applies the soft-limits (constrains) to all {@link ScreenShakeManager#CONSTRAINED_SHAKES}.
+     * Applies the soft-limits (constrains) to all {@code EARLY_CONSTRAINED} and {@code CONSTRAINED} shakes.
      * @param rotLimit The max rotation in degrees all constrained shakes can reach
      * @param posLimit The max distance in blocks all constrained shakes can reach
      * @param fovLimit The max angle change that can be applied to the fov by all constrained shakes
@@ -166,23 +198,23 @@ public class ScreenShakeManager {
      */
     @ApiStatus.Internal
     public static void tickCameraShakes() {
+        // Ticks and cleans early constrained screen shakes
+        ScreenShakeManager.processShakes(ShakeType.EARLY_CONSTRAINED);
         // Ticks and cleans constrained screen shakes
-        Iterator<ScreenShake> iterator = CONSTRAINED_SHAKES.iterator();
-        while (iterator.hasNext()) {
-            ScreenShake shake = iterator.next();
-            shake.tick();
-            if (shake.isFinished()) {
-                iterator.remove();
-            }
-        }
+        ScreenShakeManager.processShakes(ShakeType.CONSTRAINED);
+        // Ticks and cleans early unconstrained screen shakes
+        ScreenShakeManager.processShakes(ShakeType.EARLY_UNCONSTRAINED);
         // Ticks and cleans unconstrained screen shakes
-        iterator = UNCONSTRAINED_SHAKES.iterator();
+        ScreenShakeManager.processShakes(ShakeType.UNCONSTRAINED);
+    }
+
+    private static void processShakes(ShakeType type) {
+        Iterator<ScreenShake> iterator = SCREEN_SHAKES.get(type).iterator();
         while (iterator.hasNext()) {
             ScreenShake shake = iterator.next();
             shake.tick();
-            if (shake.isFinished()) {
+            if (shake.isFinished())
                 iterator.remove();
-            }
         }
     }
 
@@ -191,10 +223,28 @@ public class ScreenShakeManager {
      * @param shake The {@link ScreenShake} that will be played
      */
     public static void addScreenShake(ScreenShake shake) {
+        ShakeType type;
         if (shake.hasGeneralConstrains()) {
-            CONSTRAINED_SHAKES.add(shake);
+            type = shake.usesPlayerAsOrigin() ? ShakeType.EARLY_CONSTRAINED : ShakeType.CONSTRAINED;
         } else {
-            UNCONSTRAINED_SHAKES.add(shake);
+            type = shake.usesPlayerAsOrigin() ? ShakeType.EARLY_UNCONSTRAINED : ShakeType.UNCONSTRAINED;
         }
+        SCREEN_SHAKES.get(type).add(shake);
+    }
+
+    /**
+     * The various screen shake types:
+     * <ul>
+     *     <li>{@code EARLY_CONSTRAINED:} Called before 3rd-person offsets are applied and uses constrains system.</li>
+     *     <li>{@code CONSTRAINED:} Called after 3rd-person offsets are applied and uses constrains system.</li>
+     *     <li>{@code EARLY_UNCONSTRAINED:} Called before 3rd-person offsets are applied and doesn't use constrains system.</li>
+     *     <li>{@code UNCONSTRAINED:} Called after 3rd-person offsets are applied and doesn't use constrains system.</li>
+     * </ul>
+     */
+    protected enum ShakeType {
+        EARLY_CONSTRAINED,
+        CONSTRAINED,
+        EARLY_UNCONSTRAINED,
+        UNCONSTRAINED
     }
 }

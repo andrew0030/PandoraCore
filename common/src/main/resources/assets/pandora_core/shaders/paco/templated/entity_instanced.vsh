@@ -1,21 +1,43 @@
-// TODO: remove this eventually
+//in PerInstance {
+//    vec3 paco_Inject_Translation;
+//    mat3 paco_Inject_Orientation;
+//    ivec2 paco_Inject_Lightmap;
+//};
+//
+//const ivec2 paco_Inject_ConstantOverlay = ivec2(0, 10);
+//
+//ivec3 pcg3d(ivec3 v) {
+//    v = v * 1664525u + 1013904223u;
+//    v.x += v.y*v.z;
+//    v.y += v.z*v.x;
+//    v.z += v.x*v.y;
+//    v ^= v>>16u;
+//    v.x += v.y*v.z;
+//    v.y += v.z*v.x;
+//    v.z += v.x*v.y;
+//    return v;
+//}
+//
+//vec4 combined = paco_translateMatr(ModelViewMat, paco_Inject_Translation);
+//ivec4 seed = floatBitsToInt(combined);
+//vec4 offset = (pcg3d(seed) / 200.0) % 1;
+//
+//// transforms
+//ModelViewMat = paco_rotateMatr(combined + offset, paco_Inject_Orientation);
+//Normal = Normal * paco_Inject_Orientation;
+//UV1 = paco_Inject_ConstantOverlay;
+//UV2 = paco_Inject_Lightmap;
 
-// when a variable is missmatched between vec2 and ivec2, paco assumes the data is meant to be interpreted bitwise
-// the reason for this, is because lightmap coords in vanilla are written bitwise and used as an ivec2 in some shaders, but a vec2 in others
+in PerInstance {
+    vec3 paco_Inject_Translation;
+    mat3 paco_Inject_Orientation;
+    ivec2 paco_Inject_Lightmap;
+};
 
-// PER_INSTANCE
-#paco_inject
-//#extension GL_ARB_gpu_shader5 : enable
-//    paco_per_instance vec2 paco_Inject_Overlay;
-    paco_per_instance vec3 paco_Inject_Translation; // translation
-    paco_per_instance mat3 paco_Inject_Orientation; // rotation
-    paco_per_instance ivec2 paco_Inject_Lightmap;   // lightmap
-//    paco_per_instance vec4 paco_Inject_Orientation; // quat4f
-#paco_end
+const ivec2 paco_Inject_ConstantOverlay = ivec2(0, 10);
 
-//#paco_replace UV1 paco_Inject_Overlay
-#paco_transform ModelViewMat: translateMatr paco_Inject_Translation, rotateMatr paco_Inject_Orientation
-#paco_replace UV2 paco_Inject_Lightmap
-//#paco_transform IViewRotMat: translateMatr -paco_Inject_Translation
-//#paco_transform Position: rotateQuat paco_Inject_Orientation, add paco_Inject_Translation
-//#paco_transform Normal: rotateQuat paco_Inject_Orientation
+// transforms
+transform ModelViewMat = paco_rotateMatr(paco_translateMatr(ModelViewMat, paco_Inject_Translation), paco_Inject_Orientation);
+transform Normal = Normal * paco_Inject_Orientation;
+replace UV1 = paco_Inject_ConstantOverlay;
+replace UV2 = paco_Inject_Lightmap;

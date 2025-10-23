@@ -17,6 +17,7 @@ minecraft {
 }
 
 repositories {
+    flatDir { dirs '../libs' }
     maven { url "https://www.cursemaven.com" }
 //    maven { url 'https://jitpack.io' }
     maven {
@@ -41,6 +42,6 @@ dependencies {
     compileOnly "curse.maven:oculus-581495:6020952" // Oculus
 
     // glsl preprocessor (shader patcher)
-    compileOnly "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+    compileOnly "a:glsl_parser:${glsl_parser_version}"
 //    testImplementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
 }

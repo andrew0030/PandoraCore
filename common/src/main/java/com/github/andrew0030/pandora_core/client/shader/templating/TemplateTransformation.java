@@ -6,6 +6,9 @@ import com.github.andrew0030.pandora_core.client.shader.templating.action.Transf
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
+import tfc.glsl.GlslFile;
+import tfc.glsl.GlslParser;
+import tfc.glsl.base.GlslSegment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,20 +38,24 @@ public class TemplateTransformation {
             }
             if (action instanceof TransformVar transform) {
                 hasQuatTransform = hasQuatTransform || transform.hasQuatRot();
-                funcCache.put("rotateQuat", "paco_rotateQuat_" + generateSnowflake());
+                funcCache.put("paco_rotateQuat", "paco_rotateQuat_" + generateSnowflake());
+//                funcCache.put("paco_rotateQuat", "paco_rotateQuat");
 
                 hasMatrixTranslate = hasMatrixTranslate || transform.hasMatrTranslate();
-                funcCache.put("translateMatr", "paco_translateMatr_" + generateSnowflake());
+                funcCache.put("paco_translateMatr", "paco_translateMatr_" + generateSnowflake());
+//                funcCache.put("paco_translateMatr", "paco_translateMatr");
 
                 hasMatrixRotation = hasMatrixRotation || transform.hasMatrRotate();
-                funcCache.put("rotateMatr", "paco_rotateMatr_" + generateSnowflake());
+                funcCache.put("paco_rotateMatr", "paco_rotateMatr_" + generateSnowflake());
+//                funcCache.put("paco_rotateMatr", "paco_rotateMatr");
             }
         }
         // if a mutation involving quaternion rotations is present, a method for rotating quats has to be injected
         if (hasQuatTransform) {
-            String qName = funcCache.get("rotateQuat");
+            String qName = funcCache.get("paco_rotateQuat");
             String qFunc = """
-                    #extension GL_ARB_shader_bit_encoding : enable
+                    #version 1
+//                    #extension GL_ARB_shader_bit_encoding : enable
                     float fma(float f,float m,float a) {return f*m+a;}
                     vec2 fma(vec2 f,vec2 m,vec2 a) {return f*m+a;}
                     vec3 fma(vec3 f,vec3 m,vec3 a) {return f*m+a;}
@@ -96,17 +103,19 @@ public class TemplateTransformation {
                         );
                     }vec3 %func%(const vec3 point,const vec4 quat){return %func%(vec4(point,0.0),quat).xyz;}
                     """.replace("%func%", qName);
+            GlslFile file = GlslParser.parse(qFunc);
             actions.add(0, new InsertionAction() {
                 @Override
-                public String headInjection(TemplateTransformation transformation) {
-                    return qFunc;
+                public List<GlslSegment> headInjection(TemplateTransformation transformation) {
+                    return file.getSegments();
                 }
             });
         }
         // if a mutation involving matrix translations is present, a method for translating matrices has to be injected
         if (hasMatrixTranslate) {
-            String qName = funcCache.get("translateMatr");
+            String qName = funcCache.get("paco_translateMatr");
             String qFunc = """
+                    #version 1
                     mat4 %func%(mat4 matr, const vec3 vec){
                         matr[3] = vec4(matr[3].xyz + (mat3(matr) * vec), matr[3].w);
                         return matr;
@@ -126,23 +135,26 @@ public class TemplateTransformation {
                         return matr;
                     }
                     """.replace("%func%", qName);
+            GlslFile file = GlslParser.parse(qFunc);
             actions.add(0, new InsertionAction() {
                 @Override
-                public String headInjection(TemplateTransformation transformation) {
-                    return qFunc;
+                public List<GlslSegment> headInjection(TemplateTransformation transformation) {
+                    return file.getSegments();
                 }
             });
         }
         // if a mutation involving matrix rotations is present (i.e. mat4 by mat3), a method for rotating matrices has to be injected
-        if (hasMatrixTranslate) {
-            String qName = funcCache.get("rotateMatr");
+        if (hasMatrixRotation) {
+            String qName = funcCache.get("paco_rotateMatr");
             String qFunc = """
+                    #version 1
                     mat4 %func%(mat4 matr, const mat3 rotation){return matr * mat4(rotation);}
                     """.replace("%func%", qName);
+            GlslFile file = GlslParser.parse(qFunc);
             actions.add(0, new InsertionAction() {
                 @Override
-                public String headInjection(TemplateTransformation transformation) {
-                    return qFunc;
+                public List<GlslSegment> headInjection(TemplateTransformation transformation) {
+                    return file.getSegments();
                 }
             });
         }

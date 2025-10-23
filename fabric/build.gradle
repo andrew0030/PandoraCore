@@ -15,6 +15,7 @@ configurations {
 }
 
 repositories {
+    flatDir { dirs '../libs' }
     maven { url "https://www.cursemaven.com" }
     maven { url "https://api.modrinth.com/maven/" }
 //    maven { url 'https://jitpack.io' }
@@ -44,10 +45,8 @@ dependencies {
     modImplementation "net.objecthunter:exp4j:0.4.8"
     shade "net.objecthunter:exp4j:0.4.8"
     // glsl preprocessor (shader patching)
-    modImplementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
-    shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
-        exclude group: "org.ow2.asm"
-    }
+    modImplementation "a:glsl_parser:${glsl_parser_version}"
+    shade ("a:glsl_parser:${glsl_parser_version}")
     // NightConfig (Config System)
     modImplementation "com.electronwill.night-config:core:3.8.1" // Core
     modImplementation "com.electronwill.night-config:toml:3.8.1" // Toml

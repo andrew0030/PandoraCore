@@ -39,7 +39,8 @@ public class ShaderAttachment {
                     case TESSELATION_CONTROL -> GL40.GL_TESS_CONTROL_SHADER;
                 }
         );
-        GL20.glShaderSource(id, source.replace("out struct", "out").replace(";]", "]"));
+//        GL20.glShaderSource(id, source.replace("out struct", "out").replace(";]", "]"));
+        GL20.glShaderSource(id, source);
 //        GL20.glShaderSource(id, source);
         GL20.glCompileShader(id);
 

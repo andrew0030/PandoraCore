@@ -102,6 +102,10 @@ dependencies {
     // glsl parser (shader patching)
     minecraftLibrary "a:glsl_parser:${glsl_parser_version}"
     shade ("a:glsl_parser:${glsl_parser_version}")
+    minecraftLibrary "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+    shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
+        exclude group: "org.ow2.asm"
+    }
     // NightConfig (Config System)
     // We shade because forges version is outdated...
     shade "com.electronwill.night-config:core:3.8.1"
@@ -118,15 +122,15 @@ dependencies {
     implementation fg.deobf("org.andrew:ttc:1.0")
 
     // FlatDir
-    if (file("libs").exists()) {
-        for (File f : file("libs").listFiles()) {
-            String name = f.getName().replace(".jar", "")
-            String[] split = name.split("-", 2)
-            String lib = "flatdir.lib:" + split[0] + ":" + split[1]
-            System.out.println("| " + lib)
-            runtimeOnly fg.deobf(lib)
-        }
-    }
+//    if (file("libs").exists()) {
+//        for (File f : file("libs").listFiles()) {
+//            String name = f.getName().replace(".jar", "")
+//            String[] split = name.split("-", 2)
+//            String lib = "flatdir.lib:" + split[0] + ":" + split[1]
+//            System.out.println("| " + lib)
+//            runtimeOnly fg.deobf(lib)
+//        }
+//    }
 
     compileOnly project(":common")
 }
@@ -145,10 +149,12 @@ shadowJar {
     relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
     relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
     relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
+    relocate 'tfc.glsl', "${project.group}.shadowed.tfc.glsl"
     finalizedBy('reobfShadowJar')
     dependsOn "reobfJar"
     minimize {
         group "tfc.glsl"
+        group "io.github.ocelot"
     }
 }
 // This block configures how the shadowJar will be reobfuscated.

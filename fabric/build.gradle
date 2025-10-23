@@ -47,6 +47,10 @@ dependencies {
     // glsl preprocessor (shader patching)
     modImplementation "a:glsl_parser:${glsl_parser_version}"
     shade ("a:glsl_parser:${glsl_parser_version}")
+    modImplementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+    shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
+        exclude group: "org.ow2.asm"
+    }
     // NightConfig (Config System)
     modImplementation "com.electronwill.night-config:core:3.8.1" // Core
     modImplementation "com.electronwill.night-config:toml:3.8.1" // Toml
@@ -101,6 +105,11 @@ shadowJar {
     relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
     relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
     relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
+    relocate 'tfc.glsl', "${project.group}.shadowed.tfc.glsl"
+    minimize {
+        group "tfc.glsl"
+        group "io.github.ocelot"
+    }
 }
 
 // Makes sure that the remapJar task depends on the shadowJar task.

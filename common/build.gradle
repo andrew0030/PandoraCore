@@ -43,5 +43,5 @@ dependencies {
 
     // glsl preprocessor (shader patcher)
     compileOnly "a:glsl_parser:${glsl_parser_version}"
-//    testImplementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+    compileOnly "io.github.ocelot:glsl-processor:${glsl_processor_version}"
 }

@@ -1,17 +1,24 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.action;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
+import com.github.andrew0030.pandora_core.client.shader.templating.action.util.OperationVisitor;
+import com.github.andrew0030.pandora_core.client.shader.templating.action.util.Transformations;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.TransformationContext;
 import tfc.glsl.base.GlslSegment;
 import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.SegmentType;
 import tfc.glsl.meta.Member;
 import tfc.glsl.meta.VarSpecifier;
+import tfc.glsl.segments.GlslCodeSegment;
 import tfc.glsl.segments.GlslMemberSegment;
 import tfc.glsl.segments.GlslVarSegment;
 import tfc.glsl.value.AccessArrayValue;
 import tfc.glsl.value.ConstantValue;
 import tfc.glsl.value.MethodCallValue;
 import tfc.glsl.value.TokenValue;
+import tfc.glsl.visitor.GlslTreeVisitor;
+import tfc.glsl.visitor.GlslValueVisitor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,15 +29,63 @@ public class Injection extends InsertionAction {
 
     public Injection(List<GlslSegment> segments) {
         this.segments = segments;
+        GlslTreeVisitor visitor = new GlslTreeVisitor(
+                new OperationVisitor(OPS),
+                null, null
+        );
+        for (GlslSegment segment : segments) {
+            visitor.visit(segment);
+        }
     }
 
-    protected List<GlslSegment> patchSegments() {
+    // TODO: patch nested function calls
+    private GlslCodeSegment patchFunction(TemplateTransformation transformation, GlslCodeSegment segment, TransformationContext context) {
+        String snowflake = transformation.generateSnowflake() + "_" + segment.getName();
+        GlslCodeSegment dup = (GlslCodeSegment) segment.duplicate();
+        dup.setName(snowflake);
+        context.setFuncName(segment.getName(), dup.getName());
+        GlslValueVisitor valueVisitor = Transformations.callPatcher(
+                transformation, context
+        );
+        GlslTreeVisitor visitor = new GlslTreeVisitor(
+                valueVisitor, null, null
+        );
+        visitor.visit(dup);
+        return dup;
+    }
+
+    private GlslVarSegment patchVar(TemplateTransformation transformation, GlslVarSegment segment, VariableMapper mapper, TransformationContext context) {
+        GlslVarSegment dup = (GlslVarSegment) segment.duplicate();
+        if (dup.getValue() != null) {
+            Transformations.callPatcher(
+                    transformation,
+                    context
+            ).visitValue(dup.getValue());
+            Transformations.valuePatcher(
+                    transformation,
+                    mapper,
+                    null, null,
+                    context
+            ).visitValue(dup.getValue());
+        }
+        return dup;
+    }
+
+    protected List<GlslSegment> patchSegments(TemplateTransformation transformation, VariableMapper mapper, TransformationContext context) {
         List<GlslSegment> copies = new ArrayList<>();
         for (GlslSegment segment : segments) {
             if (
                     segment.getSegmentType().equals(SegmentType.MEMBER_DEF)
             ) {
                 copies.addAll(patchMember((GlslMemberSegment) segment));
+            } else if (
+                    segment.getSegmentType().equals(SegmentType.CODE)
+            ) {
+                copies.add(patchFunction(transformation, (GlslCodeSegment) segment, context));
+            } else if (
+                    segment.getSegmentType().equals(SegmentType.VAR_DEF)
+            ) {
+                copies.add(patchVar(transformation, (GlslVarSegment) segment, mapper, context));
             } else {
                 copies.add(segment);
             }
@@ -107,8 +162,8 @@ public class Injection extends InsertionAction {
     }
 
     @Override
-    public List<GlslSegment> headInjection(TemplateTransformation transformation) {
-        return patchSegments();
+    public List<GlslSegment> headInjection(TemplateTransformation transformation, VariableMapper mapper, TransformationContext context) {
+        return patchSegments(transformation, mapper, context);
     }
 
     public void resolveTypes(HashMap<String, String> varTypes) {

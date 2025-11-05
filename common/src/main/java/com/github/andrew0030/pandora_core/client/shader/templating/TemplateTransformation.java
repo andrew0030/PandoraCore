@@ -2,7 +2,8 @@ package com.github.andrew0030.pandora_core.client.shader.templating;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.action.Injection;
 import com.github.andrew0030.pandora_core.client.shader.templating.action.InsertionAction;
-import com.github.andrew0030.pandora_core.client.shader.templating.action.TransformVar;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.TransformationContext;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
@@ -36,20 +37,16 @@ public class TemplateTransformation {
             if (action instanceof Injection inject) {
                 inject.resolveTypes(varTypes);
             }
-            if (action instanceof TransformVar transform) {
-                hasQuatTransform = hasQuatTransform || transform.hasQuatRot();
-                funcCache.put("paco_rotateQuat", "paco_rotateQuat_" + generateSnowflake());
-//                funcCache.put("paco_rotateQuat", "paco_rotateQuat");
 
-                hasMatrixTranslate = hasMatrixTranslate || transform.hasMatrTranslate();
-                funcCache.put("paco_translateMatr", "paco_translateMatr_" + generateSnowflake());
-//                funcCache.put("paco_translateMatr", "paco_translateMatr");
-
-                hasMatrixRotation = hasMatrixRotation || transform.hasMatrRotate();
-                funcCache.put("paco_rotateMatr", "paco_rotateMatr_" + generateSnowflake());
-//                funcCache.put("paco_rotateMatr", "paco_rotateMatr");
-            }
+            hasQuatTransform = hasQuatTransform || action.hasQuatRot();
+            hasMatrixTranslate = hasMatrixTranslate || action.hasMatrTranslate();
+            hasMatrixRotation = hasMatrixRotation || action.hasMatrRotate();
         }
+
+        if (hasQuatTransform) funcCache.put("paco_rotateQuat", "paco_rotateQuat_" + generateSnowflake());
+        if (hasMatrixTranslate) funcCache.put("paco_translateMatr", "paco_translateMatr_" + generateSnowflake());
+        if (hasMatrixRotation) funcCache.put("paco_rotateMatr", "paco_rotateMatr_" + generateSnowflake());
+
         // if a mutation involving quaternion rotations is present, a method for rotating quats has to be injected
         if (hasQuatTransform) {
             String qName = funcCache.get("paco_rotateQuat");
@@ -106,7 +103,7 @@ public class TemplateTransformation {
             GlslFile file = GlslParser.parse(qFunc);
             actions.add(0, new InsertionAction() {
                 @Override
-                public List<GlslSegment> headInjection(TemplateTransformation transformation) {
+                public List<GlslSegment> headInjection(TemplateTransformation transformation, VariableMapper mapper, TransformationContext context) {
                     return file.getSegments();
                 }
             });
@@ -138,7 +135,7 @@ public class TemplateTransformation {
             GlslFile file = GlslParser.parse(qFunc);
             actions.add(0, new InsertionAction() {
                 @Override
-                public List<GlslSegment> headInjection(TemplateTransformation transformation) {
+                public List<GlslSegment> headInjection(TemplateTransformation transformation, VariableMapper mapper, TransformationContext context) {
                     return file.getSegments();
                 }
             });
@@ -153,7 +150,7 @@ public class TemplateTransformation {
             GlslFile file = GlslParser.parse(qFunc);
             actions.add(0, new InsertionAction() {
                 @Override
-                public List<GlslSegment> headInjection(TemplateTransformation transformation) {
+                public List<GlslSegment> headInjection(TemplateTransformation transformation, VariableMapper mapper, TransformationContext context) {
                     return file.getSegments();
                 }
             });

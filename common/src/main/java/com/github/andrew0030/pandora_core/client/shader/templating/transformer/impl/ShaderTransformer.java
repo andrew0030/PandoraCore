@@ -27,14 +27,21 @@ public class ShaderTransformer {
     }
 
     public void transform(VariableMapper mapper, GlslFile tree) {
+        TransformationContext context = new TransformationContext();
+
+        List<GlslSegment> HEAD = new ArrayList<>();
         for (InsertionAction action : actions) {
-            List<GlslSegment> segments = action.headInjection(transformation);
+//        for (int i = actions.size() - 1; i >= 0; i--) {
+//            InsertionAction action = actions.get(i);
+            List<GlslSegment> segments = action.headInjection(transformation, mapper, context);
             if (segments == null) continue;
 
-            for (int i = segments.size() - 1; i >= 0; i--) {
-                tree.getSegments().add(0, segments.get(i));
-            }
+//            for (int i1 = segments.size() - 1; i1 >= 0; i1--) {
+//                tree.getSegments().add(0, segments.get(i1));
+//            }
+            HEAD.addAll(segments);
         }
+        tree.getSegments().addAll(0, HEAD);
 
         for (int index = 0; index < tree.getSegments().size(); index++) {
             GlslSegment segment = tree.getSegments().get(index);
@@ -46,7 +53,8 @@ public class ShaderTransformer {
                             mapper,
                             transformation,
                             memberSegment.getMember().getVar().getType(),
-                            memberSegment.getMember().getVar().getName()
+                            memberSegment.getMember().getVar().getName(),
+                            context
                     );
                     if (segments.getFirst() == null) continue;
 

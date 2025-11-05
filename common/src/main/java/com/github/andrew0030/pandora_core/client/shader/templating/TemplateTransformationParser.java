@@ -77,6 +77,16 @@ public class TemplateTransformationParser {
                         }
                     }
                 }
+                case CODE -> {
+                    transformation.actions.add(new Injection(
+                            List.of(segment)
+                    ));
+                }
+                case EXTENSION -> {
+                    transformation.actions.add(new Injection(
+                            List.of(segment)
+                    ));
+                }
                 default -> {
                     throw new RuntimeException("wat " + segment.getSegmentType());
                 }

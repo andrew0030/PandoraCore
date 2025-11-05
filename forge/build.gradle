@@ -100,8 +100,8 @@ dependencies {
     minecraftLibrary "net.objecthunter:exp4j:0.4.8"
     shade "net.objecthunter:exp4j:0.4.8"
     // glsl parser (shader patching)
-    minecraftLibrary "a:glsl_parser:${glsl_parser_version}"
-    shade ("a:glsl_parser:${glsl_parser_version}")
+    minecraftLibrary "local_slim:glsl_parser:${glsl_parser_version}"
+    shade ("local_slim:glsl_parser:${glsl_parser_version}")
     minecraftLibrary "io.github.ocelot:glsl-processor:${glsl_processor_version}"
     shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
         exclude group: "org.ow2.asm"
@@ -153,8 +153,8 @@ shadowJar {
     finalizedBy('reobfShadowJar')
     dependsOn "reobfJar"
     minimize {
-        group "tfc.glsl"
-        group "io.github.ocelot"
+        include(dependency("io.github.ocelot:.*:.*"))
+        include(dependency("local_slim:.*:.*"))
     }
 }
 // This block configures how the shadowJar will be reobfuscated.

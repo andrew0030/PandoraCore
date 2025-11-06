@@ -62,6 +62,7 @@
     "render.instancing.compat.SectionBuilderMixin",
     "render.instancing.compat.SodiumRendererMixin",
     "render.instancing.compat.iris.ShadowPassMixin",
+    "render.instancing.compat.iris.ShadowRendererMixin",
     "shader.AbstractUniformMixin",
     "shader.ShaderInstanceMixin",
     "shader.UniformMixin",

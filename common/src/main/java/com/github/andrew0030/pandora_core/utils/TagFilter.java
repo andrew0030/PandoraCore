@@ -14,8 +14,7 @@ public class TagFilter implements Comparable<TagFilter> {
         this.tags = new ReadOnlyList<>(new ArrayList<>(new HashSet<>(
                 Arrays.asList(tags)
         )));
-        // TODO: The list should probably not be hashed, because it could potentially be order dependent
-        this.hash = Objects.hash(tags);
+        this.hash = Objects.hash(this.tags);
     }
 
     public static TagFilter of(String... tags) {

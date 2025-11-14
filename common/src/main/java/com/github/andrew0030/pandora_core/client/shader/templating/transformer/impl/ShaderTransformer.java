@@ -82,6 +82,6 @@ public class ShaderTransformer {
             }
         }
 
-        System.out.println("QWERTYUIOP");
+//        System.out.println("QWERTYUIOP");
     }
 }

@@ -15,6 +15,7 @@ configurations {
 }
 
 repositories {
+    flatDir { dirs '../libs' }
     maven { url "https://www.cursemaven.com" }
     maven { url "https://api.modrinth.com/maven/" }
 //    maven { url 'https://jitpack.io' }
@@ -44,6 +45,8 @@ dependencies {
     modImplementation "net.objecthunter:exp4j:0.4.8"
     shade "net.objecthunter:exp4j:0.4.8"
     // glsl preprocessor (shader patching)
+    modImplementation "local_slim:glsl_parser:${glsl_parser_version}"
+    shade ("local_slim:glsl_parser:${glsl_parser_version}")
     modImplementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
     shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
         exclude group: "org.ow2.asm"
@@ -102,6 +105,11 @@ shadowJar {
     relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
     relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
     relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
+    relocate 'tfc.glsl', "${project.group}.shadowed.tfc.glsl"
+    minimize {
+        include(dependency("io.github.ocelot:.*:.*"))
+        include(dependency("local_slim:.*:.*"))
+    }
 }
 
 // Makes sure that the remapJar task depends on the shadowJar task.

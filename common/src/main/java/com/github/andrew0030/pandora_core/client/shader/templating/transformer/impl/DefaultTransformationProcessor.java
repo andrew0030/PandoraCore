@@ -4,15 +4,19 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTrans
 import com.github.andrew0030.pandora_core.client.shader.templating.action.InsertionAction;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
-import io.github.ocelot.glslprocessor.api.GlslParser;
-import io.github.ocelot.glslprocessor.api.node.GlslTree;
-import io.github.ocelot.glslprocessor.api.visitor.GlslTreeStringWriter;
+import io.github.ocelot.glslprocessor.impl.GlslParserImpl;
+import tfc.glsl.GlslFile;
+import tfc.glsl.GlslParser;
+
+import java.util.HashMap;
 
 public class DefaultTransformationProcessor extends TransformationProcessor {
     @Override
     public String process(VariableMapper mapper, String source, TemplateTransformation transformation) {
         try {
-            GlslTree tree = GlslParser.parse(source);
+            source = GlslParserImpl.preprocess(source, new HashMap<>());
+
+            GlslFile tree = GlslParser.parse(source);
 
             ShaderTransformer transformer = new ShaderTransformer(transformation);
             for (InsertionAction action : transformation.getActions()) {
@@ -20,9 +24,7 @@ public class DefaultTransformationProcessor extends TransformationProcessor {
             }
             transformer.transform(mapper, tree);
 
-            GlslTreeStringWriter writer = new GlslTreeStringWriter();
-            tree.visit(writer);
-            return writer.toString();
+            return tree.asString();
         } catch (Throwable err) {
             throw new RuntimeException("Unexpected error while patching shader", err);
         }

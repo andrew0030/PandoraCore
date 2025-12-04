@@ -1,77 +1,72 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.action;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
-import com.github.andrew0030.pandora_core.client.shader.templating.transformer.TransformationProcessor;
+import com.github.andrew0030.pandora_core.client.shader.templating.action.util.OperationVisitor;
+import com.github.andrew0030.pandora_core.client.shader.templating.action.util.Transformations;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
+import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.TransformationContext;
 import com.mojang.datafixers.util.Pair;
+import tfc.glsl.base.GlslSegment;
+import tfc.glsl.base.GlslValue;
+import tfc.glsl.meta.VarSpecifier;
+import tfc.glsl.segments.GlslVarSegment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TransformVar extends InsertionAction {
-    String from;
-    ArrayList<Pair<Operation, String>> ops = new ArrayList<>();
+    VarSpecifier from;
+    GlslValue to;
 
-    public TransformVar(String from, String to) {
+    public TransformVar(VarSpecifier from, GlslValue to) {
         this.from = from;
-        for (String s : to.split(",")) {
-            String[] splatter = s.trim().split(" ");
-            ops.add(Pair.of(
-                    Operation.forName(splatter[0].trim()),
-                    splatter[1].trim()
-            ));
-        }
-    }
-
-    public boolean hasQuatRot() {
-        for (Pair<Operation, String> op : ops) {
-            if (op.getFirst() == Operation.ROTATE_QUAT)
-                return true;
-        }
-        return false;
-    }
-
-    public boolean hasMatrTranslate() {
-        for (Pair<Operation, String> op : ops) {
-            if (op.getFirst() == Operation.TRANSLATE_MATRIX)
-                return true;
-        }
-        return false;
-    }
-
-    public boolean hasMatrRotate() {
-        for (Pair<Operation, String> op : ops) {
-            if (op.getFirst() == Operation.ROTATE_MATRIX)
-                return true;
-        }
-        return false;
+        this.to = to;
+        new OperationVisitor(OPS).visitValue(to);
     }
 
     @Override
-    public String afterInputVar(VariableMapper mapper, TemplateTransformation transformation, String type, String var) {
+    public Pair<List<GlslSegment>, String> transformInputVar(VariableMapper mapper, TemplateTransformation transformation, String type, String var, TransformationContext context) {
+        String snowflake = transformation.generateSnowflake() + "_" + var;
+        return Pair.of(
+                afterInputVar(
+                        mapper, transformation,
+                        type, var,
+                        snowflake,
+                        context
+                ),
+                snowflake
+        );
+    }
+
+    @Override
+    public List<GlslSegment> afterInputVar(VariableMapper mapper, TemplateTransformation transformation, String type, String var, TransformationContext context) {
+        String snowflake = transformation.generateSnowflake() + "_" + var;
+        return afterInputVar(mapper, transformation, type, var, snowflake, context);
+    }
+
+    protected GlslValue patch(GlslValue value, TemplateTransformation transformation, VariableMapper mapper, String fromName, String toName, TransformationContext context) {
+        Transformations.callPatcher(
+                transformation,
+                context
+        ).visitValue(value);
+        Transformations.valuePatcher(
+                transformation, mapper,
+                fromName, toName, context
+        ).visitValue(value);
+        return value;
+    }
+
+    public List<GlslSegment> afterInputVar(VariableMapper mapper, TemplateTransformation transformation, String type, String var, String snowflake, TransformationContext context) {
         String varMap = mapper.mapFrom(type, var);
-        if (!varMap.equals(from))
+        if (!varMap.equals(from.getName()))
             return null;
 
-        String leftHand = var;
-        for (Pair<Operation, String> op : ops) {
-            String rightHand = op.getSecond();
-            Operation operation = op.getFirst();
-
-            String format = operation.format;
-            if (operation.func != null)
-                format = format.replace("%func%", transformation.getFunc(operation.func));
-
-            // TODO: automatic type conversions as required
-            leftHand = format
-                    .replace("%lh%", leftHand)
-                    .replace("%rh%", rightHand);
-        }
-
-        return TransformationProcessor.TRANSFORM_INJECT
-                .replace("%snowflake%", transformation.generateSnowflake())
-                .replace("%type%", type)
-                .replace("%variable%", var)
-                .replace("%transform%", leftHand);
+        List<GlslSegment> ret = new ArrayList<>();
+        ret.add(new GlslVarSegment(new VarSpecifier(
+                type,
+                snowflake
+        )).setValue(patch(to.duplicate(), transformation, mapper, from.getName(), var, context)));
+        return ret;
     }
 
     public enum Operation {

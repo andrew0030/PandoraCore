@@ -28,10 +28,12 @@ public class AnnotationHandler {
     private final ConfigSpec configSpec = new ConfigSpec();
     private final PaCoConfigManager manager;
     private final String configName;
+    private final String subFolder;
 
     public AnnotationHandler(PaCoConfigManager manager) {
         this.manager = manager;
         this.configName = this.initConfigName();
+        this.subFolder = this.initConfigSubFolder();
         // Initializes the: annotatedFields, configSpec
         this.initConfigCaches();
     }
@@ -42,6 +44,23 @@ public class AnnotationHandler {
         if (configAnnotation == null)
             throw new IllegalArgumentException("Class " + this.manager.getConfigClass().getName() + " must be annotated with @PaCoConfig.Config");
         return String.format("%s-%s", configAnnotation.modId(), configAnnotation.name());
+    }
+
+    /** Retrieves and "normalizes" the config sub-folder, or returns an empty {@code String} if none was specified. */
+    private String initConfigSubFolder() {
+        PaCoConfig.SubFolder subFolderAnnotation = this.manager.getConfigClass().getAnnotation(PaCoConfig.SubFolder.class);
+        // Returns early if no annotation was found
+        if (subFolderAnnotation == null) return "";
+        String subFolder = subFolderAnnotation.value();
+        // Returns early if no String was given
+        if (StringUtil.isNullOrEmpty(subFolder)) return "";
+        // Normalizes and cleans up the given path (if needed)
+        subFolder = subFolder.replace('\\', '/');    // Normalizes separators
+        subFolder = subFolder.replaceAll("^/+", ""); // Removes leading slashes
+        subFolder = subFolder.replaceAll("/+$", ""); // Removes trailing slashes
+        subFolder = subFolder.replaceAll("/+", "/"); // Collapses multiple slashes
+
+        return subFolder;
     }
 
     /**
@@ -55,6 +74,17 @@ public class AnnotationHandler {
      */
     public String getConfigName() {
         return this.configName;
+    }
+
+    /**
+     * Gets the sub-folder the config should have, this happens by checking {@link PaCoConfig.SubFolder}
+     * and using the specified {@link PaCoConfig.SubFolder#subFolder()}. If no sub-folder is specified
+     * an empty {@link String} is returned.
+     *
+     * @return The sub-folder specified in the {@link PaCoConfig} annotation.
+     */
+    public String getConfigSubFolder() {
+        return this.subFolder;
     }
 
     /**

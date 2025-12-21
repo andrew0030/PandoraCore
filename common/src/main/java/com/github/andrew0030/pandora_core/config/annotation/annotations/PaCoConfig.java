@@ -21,6 +21,19 @@ public class PaCoConfig {
     }
 
     /**
+     * Used to specify a sub-folder for the config file.<br/>
+     * As an example to put the config into a sub-folder named {@code foo},
+     * simply provide the {@link String} {@code "foo"} to this annotation.<br/>
+     * <strong>Note</strong>: Multiple folders can be specified by separating
+     * them with {@code /}. E.g. {@code "foo/some_other_folder"}.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface SubFolder {
+        String value();
+    }
+
+    /**
      * Used to add a comment above a Config category.<br/>
      * <code>\n</code> or multiline Strings may be used.<br/>
      * <br/>

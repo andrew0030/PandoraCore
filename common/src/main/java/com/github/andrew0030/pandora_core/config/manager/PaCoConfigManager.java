@@ -11,10 +11,13 @@ import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConf
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import net.minecraft.util.StringUtil;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -45,8 +48,16 @@ public class PaCoConfigManager {
      */
     private CommentedFileConfig createEmptyConfig() {
         String configName = this.annotationHandler.getConfigName();
+        String subFolder = this.annotationHandler.getConfigSubFolder();
         Path configDirectory = Services.PLATFORM.getConfigDirectory();
-        Path configFilePath = configDirectory.resolve(configName + ".toml");
+        Path targetDirectory = StringUtil.isNullOrEmpty(subFolder) ? configDirectory : configDirectory.resolve(subFolder);
+        // Creates missing folders (needed to avoid FileNotFoundExceptions when sub-folders are used).
+        try {
+            Files.createDirectories(targetDirectory);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create config directory: " + targetDirectory, e);
+        }
+        Path configFilePath = targetDirectory.resolve(configName + ".toml");
         // Creates the CommentedFileConfig instance
         CommentedFileConfigBuilder builder = CommentedFileConfig.builder(configFilePath);
         builder.preserveInsertionOrder();

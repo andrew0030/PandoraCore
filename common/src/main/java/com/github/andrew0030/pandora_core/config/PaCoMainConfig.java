@@ -18,6 +18,7 @@ import java.util.List;
 // - Maybe keep track of mods that used the PaCoMainConfig system...
 
 @PaCoConfig.Config(type = ConfigType.COMMON, modId = PandoraCore.MOD_ID, name = "main")
+@PaCoConfig.SubFolder("paco_sub_folder")
 public class PaCoMainConfig {
 
     @PaCoConfigValues.Comment("This is a test comment")

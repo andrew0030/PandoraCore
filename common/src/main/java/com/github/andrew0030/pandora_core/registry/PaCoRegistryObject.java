@@ -23,7 +23,9 @@ public final class PaCoRegistryObject<T> implements Supplier<T> {
      * Constructs a new registry object.
      * @param factory A supplier that creates the object.
      */
-    PaCoRegistryObject(Supplier<T> factory) {
+    @ApiStatus.Internal
+    @Deprecated(forRemoval = false)
+    public PaCoRegistryObject(Supplier<T> factory) {
         this.factory = factory;
     }
 

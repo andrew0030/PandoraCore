@@ -51,12 +51,13 @@ public class PandoraCoreClient {
     /** Client Init */
     public static void init() {
         PaCoPostShaders.init();
+
+        // TODO: remove this when done with testing
+        PaCoClientManager.registerItemBEWLR(PaCoBlocks.TEST.get(), TestBEWLR::new);
     }
 
     /** Thread Safe Client Init */
     public static void initThreadSafe() {
-        // TODO: remove this when done with testing
-        PaCoClientManager.registerItemBEWLR(PaCoBlocks.TEST.get(), TestBEWLR.INSTANCE);
         // Immediate Rendering
         PaCoBlockEntities.registerBlockEntityRenderers();
         // Instanced Rendering

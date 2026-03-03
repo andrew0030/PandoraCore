@@ -78,7 +78,7 @@ public class AnnotationHandler {
 
     /**
      * Gets the sub-folder the config should have, this happens by checking {@link PaCoConfig.SubFolder}
-     * and using the specified {@link PaCoConfig.SubFolder#subFolder()}. If no sub-folder is specified
+     * and using the specified {@link PaCoConfig.SubFolder#value()}. If no sub-folder is specified
      * an empty {@link String} is returned.
      *
      * @return The sub-folder specified in the {@link PaCoConfig} annotation.

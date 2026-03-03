@@ -76,7 +76,7 @@ public class PaCoMainConfig {
         public static Boolean trueValue = true;
     }
 
-    @PaCoConfig.Comment("This category contains 2 other categories.")
+    @PaCoConfig.Comment("This category contains multiple other categories.")
     @PaCoConfig.Category("nested_outer")
     public static class NestedOuter {
 
@@ -85,6 +85,11 @@ public class PaCoMainConfig {
 
             @PaCoConfigValues.BooleanValue
             public static Boolean someValue = true;
+
+            @PaCoConfig.Comment("This category should not exist, as it's contents are null!")
+            @PaCoConfig.Category("nested_inner_empty")
+            public static class NestedInnerEmpty {
+            }
         }
 
         @PaCoConfig.Category("nested_inner2")
@@ -213,5 +218,24 @@ public class PaCoMainConfig {
             MEDIUM,
             HARD
         }
+    }
+
+    @PaCoConfig.Comment("This Category contains custom Objects")
+    @PaCoConfig.Category("customValues")
+    public static class CustomValues {
+        @PaCoConfigValues.Comment("Custom object handled by PaCo's config system")
+        public static TestColor color = new TestColor(30, 40, 50);
+    }
+
+    public static class TestColor {
+        private final int r,g,b;
+        public TestColor(int r, int g, int b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
+        public int getR() { return r; }
+        public int getG() { return g; }
+        public int getB() { return b; }
     }
 }

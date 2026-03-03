@@ -172,7 +172,9 @@ public class PaCoConfigManager {
             String[] parts = key.split("\\.");
             if (parts.length == 1) {
                 // Top-level key
-                tempMap.put(key, config.get(key));
+                // Since the keys the data holders return can also contain empty categories,
+                // we need to ensure the config has a value at a given key.
+                config.getOptional(key).ifPresent(object -> tempMap.put(key, object));
             } else {
                 // Nested key
                 String topKey = parts[0];

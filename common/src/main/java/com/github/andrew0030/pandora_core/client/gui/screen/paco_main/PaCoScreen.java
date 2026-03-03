@@ -362,6 +362,14 @@ public class PaCoScreen extends Screen {
             this.onClose();
             return true;
         }
+
+        //TODO remove when done testing
+        if (keyCode == GLFW.GLFW_KEY_E) {
+            if (this.minecraft != null && this.selectedModButton != null) {
+                this.selectedModButton.getModDataHolder().getConfigScreen(this).ifPresent(configScreen -> this.minecraft.setScreen(configScreen));
+            }
+        }
+
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 

@@ -8,8 +8,12 @@ import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.loading.StringUtils;
 import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -34,6 +38,7 @@ public class ForgeModDataHolder extends ModDataHolder {
     private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
     private final List<String> credits = new ArrayList<>();
+    private final boolean isMinecraft;
 
     public ForgeModDataHolder(IModInfo modInfo) {
         this.modInfo = modInfo;
@@ -140,6 +145,9 @@ public class ForgeModDataHolder extends ModDataHolder {
         modInfo.getUpdateURL().ifPresent(url -> this.updateURL = this.updateURL.isPresent() ? this.updateURL : modInfo.getUpdateURL());
         ((ModInfo) modInfo).getConfigElement("authors").map(Object::toString).ifPresent(string -> this.authors.addAll(Arrays.stream(string.replaceAll(" (and|&) ", ",").split("(?<=:)|[,;]")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
         ((ModInfo) modInfo).getConfigElement("credits").map(Object::toString).ifPresent(string -> this.credits.addAll(Arrays.stream(string.replaceAll("^[\\r\\n]+|[\\r\\n]+$", "").split("\\n")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
+
+        // Simple boolean to quickly check if this data holder is the minecraft data holder
+        this.isMinecraft = this.getModId().equals("minecraft");
     }
 
     @Override
@@ -262,5 +270,15 @@ public class ForgeModDataHolder extends ModDataHolder {
         } catch (IOException e) {
             return Optional.empty();
         }
+    }
+
+    //TODO maybe add minecraft to the variables ?
+    public Optional<Screen> getConfigScreen(Screen current) {
+        Minecraft mc = Minecraft.getInstance();
+        // Opens the Minecraft "Options" screen as the config
+        if (this.isMinecraft)
+            return Optional.of(new OptionsScreen(current, mc.options));
+        // Opens the ConfigScreen specified through forges system
+        return ConfigScreenHandler.getScreenFactoryFor(this.modInfo).map((configScreen) -> configScreen.apply(mc, current));
     }
 }

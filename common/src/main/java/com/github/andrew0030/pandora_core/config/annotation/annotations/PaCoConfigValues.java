@@ -74,6 +74,12 @@ public class PaCoConfigValues {
     @Target(ElementType.FIELD)
     public @interface EnumValue {}
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CustomValue {
+
+    }
+
     /**
      * Used to add a comment above a Config entry.<br/>
      * <code>\n</code> or multiline Strings may be used.<br/>

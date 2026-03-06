@@ -75,6 +75,8 @@ public class PandoraCore {
         // TODO remove when done testing
         PaCoFlammables.FLAMMABLES.register();
         PaCoBrewingRecipes.BREWING_RECIPES.register();
+
+        System.out.println("The color is: " + PaCoMainConfig.CustomValues.color);
     }
 
     /** A {@link Collection} containing a {@link ModDataHolder} for each loaded mod. */

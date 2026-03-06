@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.config.annotation;
 
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
@@ -19,6 +20,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class AnnotationHandler {
@@ -93,17 +95,18 @@ public class AnnotationHandler {
      * <strong>Note</strong>: This method ensures type safety.
      */
     private void initConfigCaches() {
-        this.annotationHandlers.put(PaCoConfigValues.BooleanValue.class, this::handleBooleanField);
-        this.annotationHandlers.put(PaCoConfigValues.IntegerValue.class, this::handleIntegerField);
-        this.annotationHandlers.put(PaCoConfigValues.ByteValue.class, this::handleByteField);
-        this.annotationHandlers.put(PaCoConfigValues.ShortValue.class, this::handleShortField);
-        this.annotationHandlers.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);
-        this.annotationHandlers.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);
-        this.annotationHandlers.put(PaCoConfigValues.LongValue.class, this::handleLongField);
-        this.annotationHandlers.put(PaCoConfigValues.StringValue.class, this::handleStringField);
-        this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);
-        this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);
-        this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);
+        this.annotationHandlers.put(PaCoConfigValues.BooleanValue.class, this::handleBooleanField); // Boolean & boolean
+        this.annotationHandlers.put(PaCoConfigValues.IntegerValue.class, this::handleIntegerField); // Integer & int
+        this.annotationHandlers.put(PaCoConfigValues.ByteValue.class, this::handleByteField);       // Byte & byte
+        this.annotationHandlers.put(PaCoConfigValues.ShortValue.class, this::handleShortField);     // Short & short
+        this.annotationHandlers.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);   // Double & double
+        this.annotationHandlers.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);     // Float & float
+        this.annotationHandlers.put(PaCoConfigValues.LongValue.class, this::handleLongField);       // Long & long
+        this.annotationHandlers.put(PaCoConfigValues.StringValue.class, this::handleStringField);   // String
+        this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);       // List
+        this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);       // Enum
+        this.annotationHandlers.put(PaCoConfigValues.CustomValue.class, this::handleCustomField);   // Custom Classes
+        this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);           // Comments
 
         this.processConfigClass(this.manager.getConfigClass(), null);
     }
@@ -523,6 +526,60 @@ public class AnnotationHandler {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void handleCustomField(Field field, String category) {
+        if (!PaCoMainConfig.IPaCoConfigConverter.class.isAssignableFrom(field.getType()))
+            throw new IllegalArgumentException(String.format(
+                    "Field: '%s' in Class: '%s' object must implement IPaCoConfigConverter for CustomValue annotation.",
+                    field.getName(),
+                    this.manager.getConfigClass().getName()
+            ));
+
+        // TODO probably perform null check for all "defaultValue" cases to ensure there wont be any null pointer exceptions
+
+        PaCoConfigValues.CustomValue customAnnotation = field.getAnnotation(PaCoConfigValues.CustomValue.class);
+        field.setAccessible(true);
+        try {
+
+            Object defaultValue = field.get(null);
+            PaCoMainConfig.IPaCoConfigConverter<?, ?> converter = (PaCoMainConfig.IPaCoConfigConverter<?, ?>) defaultValue;
+            String key = category + field.getName();
+
+            Object serializedDefault = converter.serialize();
+            Class<?> expectedType = converter.getSerializedType();
+            Predicate<Object> predicate = obj -> {
+                if (!expectedType.isInstance(obj))
+                    return false;
+                Object casted = expectedType.cast(obj);
+                Predicate<Object> inner = (Predicate<Object>) converter.getSerializedPredicate();
+                return inner.test(casted);
+            };
+            configSpec.define(key, serializedDefault, predicate);
+
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            if (holder instanceof ConfigDataHolderEntry holderEntry)
+                this.dataHolders.put(key, holderEntry
+                        .setConverter(value -> {
+                            if (expectedType.isInstance(value))
+                                return this.deserializeHelper(converter, value);
+                            throw new IllegalArgumentException(String.format("Custom config value '%s' is not expected type '%s'.", key, expectedType.getSimpleName()));
+                        }).setPath(key)
+                );
+
+
+
+
+
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private <T, R> Object deserializeHelper(PaCoMainConfig.IPaCoConfigConverter<T, R> converter, Object value) {
+        Class<R> type = converter.getSerializedType();
+        R casted = type.cast(value);
+        return converter.deserialize(casted);
     }
 
     private void handleComment(Field field, String category) {

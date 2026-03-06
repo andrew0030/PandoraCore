@@ -5,9 +5,13 @@ import com.github.andrew0030.pandora_core.config.annotation.annotations.ConfigTy
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringUtil;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 //TODO: create a config system using NightConfig
 // - Probably add annotations as its a nice clean and simple way to create configs
@@ -224,10 +228,11 @@ public class PaCoMainConfig {
     @PaCoConfig.Category("customValues")
     public static class CustomValues {
         @PaCoConfigValues.Comment("Custom object handled by PaCo's config system")
+        @PaCoConfigValues.CustomValue
         public static TestColor color = new TestColor(30, 40, 50);
     }
 
-    public static class TestColor {
+    public static class TestColor implements IPaCoConfigConverter<TestColor, String> {
         private final int r,g,b;
         public TestColor(int r, int g, int b) {
             this.r = r;
@@ -237,5 +242,49 @@ public class PaCoMainConfig {
         public int getR() { return r; }
         public int getG() { return g; }
         public int getB() { return b; }
+
+        @Override
+        public String serialize() {
+            return String.format(
+                    "#%02X%02X%02X",
+                    this.getR(), this.getG(), this.getB()
+            );
+        }
+
+        @Override
+        public TestColor deserialize(String value) {
+            String s = value.substring(1);
+            int r = Integer.parseInt(s.substring(0, 2), 16);
+            int g = Integer.parseInt(s.substring(2, 4), 16);
+            int b = Integer.parseInt(s.substring(4, 6), 16);
+            return new TestColor(r, g, b);
+        }
+
+        @Override
+        public Class<String> getSerializedType() {
+            return String.class;
+        }
+
+        @Override
+        public Predicate<String> getSerializedPredicate() {
+            return s -> {
+                // If the format is wrong its not a valid color
+                if (s == null || !s.matches("^#[0-9A-Fa-f]{6}$")) return false;
+                // If the value deserializes properly its valid, otherwise it isn't
+                try {
+                    this.deserialize(s);
+                    return true;
+                } catch (Exception ignored) {
+                    return false;
+                }
+            };
+        }
+    }
+
+    public interface IPaCoConfigConverter<T, R> {
+        R serialize();
+        T deserialize(R value);
+        Class<R> getSerializedType();
+        Predicate<R> getSerializedPredicate();
     }
 }

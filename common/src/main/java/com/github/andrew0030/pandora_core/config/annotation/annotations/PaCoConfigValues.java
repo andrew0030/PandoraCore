@@ -76,9 +76,7 @@ public class PaCoConfigValues {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    public @interface CustomValue {
-
-    }
+    public @interface CustomValue {}
 
     /**
      * Used to add a comment above a Config entry.<br/>

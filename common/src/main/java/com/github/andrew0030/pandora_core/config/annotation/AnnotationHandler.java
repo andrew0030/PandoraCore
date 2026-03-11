@@ -2,13 +2,9 @@ package com.github.andrew0030.pandora_core.config.annotation;
 
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderCategory;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderEntry;
-import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
+import com.github.andrew0030.pandora_core.config.manager.*;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.util.StringUtil;
@@ -174,8 +170,9 @@ public class AnnotationHandler {
 
     private void handleBooleanField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.BooleanValue.class.getSimpleName(), boolean.class, Boolean.class);
+        field.setAccessible(true);
         try {
-            boolean defaultValue = (boolean) field.get(null);
+            boolean defaultValue = (boolean) this.getOrThrow(field);
             String key = category + field.getName();
             configSpec.define(key, defaultValue);
             ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
@@ -190,7 +187,7 @@ public class AnnotationHandler {
         PaCoConfigValues.IntegerValue integerAnnotation = field.getAnnotation(PaCoConfigValues.IntegerValue.class);
         field.setAccessible(true);
         try {
-            int defaultValue = (int) field.get(null);
+            int defaultValue = (int) this.getOrThrow(field);
             int minVal = integerAnnotation.minValue();
             int maxVal = integerAnnotation.maxValue();
             boolean showFullRange = integerAnnotation.showFullRange();
@@ -229,7 +226,7 @@ public class AnnotationHandler {
         PaCoConfigValues.ByteValue byteAnnotation = field.getAnnotation(PaCoConfigValues.ByteValue.class);
         field.setAccessible(true);
         try {
-            byte defaultValue = (byte) field.get(null);
+            byte defaultValue = (byte) this.getOrThrow(field);
             byte minVal = byteAnnotation.minValue();
             byte maxVal = byteAnnotation.maxValue();
             boolean showFullRange = byteAnnotation.showFullRange();
@@ -278,7 +275,7 @@ public class AnnotationHandler {
         PaCoConfigValues.ShortValue shortAnnotation = field.getAnnotation(PaCoConfigValues.ShortValue.class);
         field.setAccessible(true);
         try {
-            short defaultValue = (short) field.get(null);
+            short defaultValue = (short) this.getOrThrow(field);
             short minVal = shortAnnotation.minValue();
             short maxVal = shortAnnotation.maxValue();
             boolean showFullRange = shortAnnotation.showFullRange();
@@ -327,7 +324,7 @@ public class AnnotationHandler {
         PaCoConfigValues.DoubleValue doubleAnnotation = field.getAnnotation(PaCoConfigValues.DoubleValue.class);
         field.setAccessible(true);
         try {
-            double defaultValue = (double) field.get(null);
+            double defaultValue = (double) this.getOrThrow(field);
             double minVal = doubleAnnotation.minValue();
             double maxVal = doubleAnnotation.maxValue();
             boolean showFullRange = doubleAnnotation.showFullRange();
@@ -366,7 +363,7 @@ public class AnnotationHandler {
         PaCoConfigValues.FloatValue floatAnnotation = field.getAnnotation(PaCoConfigValues.FloatValue.class);
         field.setAccessible(true);
         try {
-            float defaultValue = (float) field.get(null);
+            float defaultValue = (float) this.getOrThrow(field);
             float minVal = floatAnnotation.minValue();
             float maxVal = floatAnnotation.maxValue();
             boolean showFullRange = floatAnnotation.showFullRange();
@@ -409,7 +406,7 @@ public class AnnotationHandler {
         PaCoConfigValues.LongValue longAnnotation = field.getAnnotation(PaCoConfigValues.LongValue.class);
         field.setAccessible(true);
         try {
-            long defaultValue = (long) field.get(null);
+            long defaultValue = (long) this.getOrThrow(field);
             long minVal = longAnnotation.minValue();
             long maxVal = longAnnotation.maxValue();
             boolean showFullRange = longAnnotation.showFullRange();
@@ -457,7 +454,7 @@ public class AnnotationHandler {
         this.checkFieldValidity(field, PaCoConfigValues.StringValue.class.getSimpleName(), String.class);
         field.setAccessible(true);
         try {
-            String defaultValue = (String) field.get(null);
+            String defaultValue = (String) this.getOrThrow(field);
             String key = category + field.getName();
             configSpec.define(key, defaultValue);
             ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
@@ -472,13 +469,7 @@ public class AnnotationHandler {
         PaCoConfigValues.ListValue listAnnotation = field.getAnnotation(PaCoConfigValues.ListValue.class);
         field.setAccessible(true);
         try {
-            List<?> defaultValue = (List<?>) field.get(null);
-            if (defaultValue == null)
-                throw new IllegalArgumentException(String.format(
-                        "Field: '%s' in Class: '%s' cannot have a null list as a default value.",
-                        field.getName(),
-                        this.manager.getConfigClass().getName()
-                ));
+            List<?> defaultValue = (List<?>) getOrThrow(field);
             String key = category + field.getName();
             configSpec.defineList(key, defaultValue, element -> listAnnotation.elementType().isInstance(element));
             ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
@@ -497,7 +488,7 @@ public class AnnotationHandler {
             ));
         field.setAccessible(true);
         try {
-            Enum<?> defaultValue = (Enum<?>) field.get(null);
+            Enum<?> defaultValue = (Enum<?>) this.getOrThrow(field);
             Class<? extends Enum> enumClass = (Class<? extends Enum>) field.getType();
             Object[] enumConstants = enumClass.getEnumConstants();
             List<String> enumNames = Arrays.stream(enumConstants)
@@ -529,34 +520,26 @@ public class AnnotationHandler {
     }
 
     private void handleCustomField(Field field, String category) {
-        if (!PaCoMainConfig.IPaCoConfigConverter.class.isAssignableFrom(field.getType()))
+        if (!IPaCoConfigConverter.class.isAssignableFrom(field.getType()))
             throw new IllegalArgumentException(String.format(
                     "Field: '%s' in Class: '%s' object must implement IPaCoConfigConverter for CustomValue annotation.",
                     field.getName(),
                     this.manager.getConfigClass().getName()
             ));
-
-        // TODO probably perform null check for all "defaultValue" cases to ensure there wont be any null pointer exceptions
-
-        PaCoConfigValues.CustomValue customAnnotation = field.getAnnotation(PaCoConfigValues.CustomValue.class);
         field.setAccessible(true);
         try {
-
-            Object defaultValue = field.get(null);
-            PaCoMainConfig.IPaCoConfigConverter<?, ?> converter = (PaCoMainConfig.IPaCoConfigConverter<?, ?>) defaultValue;
+            Object defaultValue = this.getOrThrow(field);
+            IPaCoConfigConverter<?, ?> converter = (IPaCoConfigConverter<?, ?>) defaultValue;
             String key = category + field.getName();
-
             Object serializedDefault = converter.serialize();
             Class<?> expectedType = converter.getSerializedType();
-            Predicate<Object> predicate = obj -> {
-                if (!expectedType.isInstance(obj))
+            configSpec.define(key, serializedDefault, value -> {
+                if (!expectedType.isInstance(value))
                     return false;
-                Object casted = expectedType.cast(obj);
-                Predicate<Object> inner = (Predicate<Object>) converter.getSerializedPredicate();
-                return inner.test(casted);
-            };
-            configSpec.define(key, serializedDefault, predicate);
-
+                Object casted = expectedType.cast(value);
+                Predicate<Object> predicate = (Predicate<Object>) converter.getSerializedPredicate();
+                return predicate.test(casted);
+            });
             ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
             if (holder instanceof ConfigDataHolderEntry holderEntry)
                 this.dataHolders.put(key, holderEntry
@@ -566,17 +549,12 @@ public class AnnotationHandler {
                             throw new IllegalArgumentException(String.format("Custom config value '%s' is not expected type '%s'.", key, expectedType.getSimpleName()));
                         }).setPath(key)
                 );
-
-
-
-
-
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private <T, R> Object deserializeHelper(PaCoMainConfig.IPaCoConfigConverter<T, R> converter, Object value) {
+    private <T, R> Object deserializeHelper(IPaCoConfigConverter<T, R> converter, Object value) {
         Class<R> type = converter.getSerializedType();
         R casted = type.cast(value);
         return converter.deserialize(casted);
@@ -605,5 +583,25 @@ public class AnnotationHandler {
                     Arrays.stream(types).map(clazz -> "'" + clazz.getSimpleName() + "'").collect(Collectors.joining(" or ")),
                     annotationName
             ));
+    }
+
+    /**
+     * Gets and returns the value of the given {@link Field} as an {@link Object}.
+     * This method does not ensure the field is static or set to be accessible!
+     *
+     * @param field The {@link Field} used for value retrieval
+     * @return The value assigned to the given {@link Field}
+     * @throws IllegalAccessException if the {@code field} object is enforcing Java
+     * language access control and the underlying field is inaccessible
+     */
+    private Object getOrThrow(Field field) throws IllegalAccessException {
+        Object defaultObject = field.get(null);
+        if (defaultObject == null)
+            throw new IllegalArgumentException(String.format(
+                    "Invalid value for field '%s' in class '%s': Null values are not allowed.",
+                    field.getName(),
+                    this.manager.getConfigClass().getName()
+            ));
+        return defaultObject;
     }
 }

@@ -4,14 +4,12 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.ConfigType;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
+import com.github.andrew0030.pandora_core.config.manager.IPaCoConfigConverter;
 import net.minecraft.util.Mth;
-import net.minecraft.util.StringUtil;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 //TODO: create a config system using NightConfig
 // - Probably add annotations as its a nice clean and simple way to create configs
@@ -279,12 +277,5 @@ public class PaCoMainConfig {
                 }
             };
         }
-    }
-
-    public interface IPaCoConfigConverter<T, R> {
-        R serialize();
-        T deserialize(R value);
-        Class<R> getSerializedType();
-        Predicate<R> getSerializedPredicate();
     }
 }

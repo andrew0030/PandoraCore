@@ -27,7 +27,7 @@ Systems TODO:
   - [ ] More annotations that can be used to control how certain entries should affect the game/menu
   - [ ] Add TranslatableComponent support for entry description and key
   - [ ] Maybe add some sort of wrapper for forge's config system
-  - [ ] Maybe add support for custom Objects? (Probably dont need this tbh)
+  - [x] Maybe add support for custom Objects?
 - NetworkSystem
   - [x] Implement network system made by GiantLuigi4
   - [x] Swap to platform services instead of self mixin

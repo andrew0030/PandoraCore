@@ -207,6 +207,10 @@ public class PaCoMainConfig {
         @PaCoConfigValues.Comment("Comment above a Boolean List")
         @PaCoConfigValues.ListValue(elementType = Boolean.class)
         public static List<Boolean> booleanList = Arrays.asList(false, true, true, false, true);
+
+        @PaCoConfigValues.Comment("Comment above a Enum List")
+        @PaCoConfigValues.ListValue(elementType = Enums.Difficulty.class)
+        public static List<Enums.Difficulty> enumList = Arrays.asList(Enums.Difficulty.EASY, Enums.Difficulty.EASY, Enums.Difficulty.MEDIUM, Enums.Difficulty.HARD);
     }
 
     @PaCoConfig.Comment("This Category contains Enums")
@@ -226,26 +230,23 @@ public class PaCoMainConfig {
     @PaCoConfig.Category("customValues")
     public static class CustomValues {
         @PaCoConfigValues.Comment("Custom object handled by PaCo's config system")
-        @PaCoConfigValues.CustomValue
+        @PaCoConfigValues.CustomValue(converter = ColorConverter.class)
         public static TestColor color = new TestColor(30, 40, 50);
+
+        @PaCoConfigValues.Comment("A List of custom objects handled by PaCo's config system")
+        @PaCoConfigValues.CustomListValue(converter = ColorConverter.class)
+        public static List<TestColor> colors = Arrays.asList(new TestColor(0, 10, 20), new TestColor(30, 40, 50), new TestColor(60, 70, 80));
     }
 
-    public static class TestColor implements IPaCoConfigConverter<TestColor, String> {
-        private final int r,g,b;
-        public TestColor(int r, int g, int b) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-        }
-        public int getR() { return r; }
-        public int getG() { return g; }
-        public int getB() { return b; }
-
+    // TestColor class used to check if custom object serializing works
+    public record TestColor(int r, int g, int b) {}
+    // The TestColor class converter
+    public static class ColorConverter implements IPaCoConfigConverter<TestColor, String> {
         @Override
-        public String serialize() {
+        public String serialize(TestColor color) {
             return String.format(
                     "#%02X%02X%02X",
-                    this.getR(), this.getG(), this.getB()
+                    color.r(), color.g(), color.b()
             );
         }
 
@@ -261,6 +262,11 @@ public class PaCoMainConfig {
         @Override
         public Class<String> getSerializedType() {
             return String.class;
+        }
+
+        @Override
+        public Class<TestColor> getDeserializedType() {
+            return TestColor.class;
         }
 
         @Override

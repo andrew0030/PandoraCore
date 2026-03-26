@@ -23,11 +23,12 @@ import java.util.function.Predicate;
  */
 public interface IPaCoConfigConverter<T, R> {
     /**
-     * Serializes the current object into its config representation.<br/>
+     * Serializes a runtime object into the corresponding configuration value.
      *
+     * @param value The deserialized configuration value
      * @return The serialized representation of this object
      */
-    R serialize();
+    R serialize(T value);
 
     /**
      * Deserializes a configuration value into the corresponding runtime object.
@@ -44,6 +45,14 @@ public interface IPaCoConfigConverter<T, R> {
      * @return The class of the serialized representation type
      */
     Class<R> getSerializedType();
+
+    /**
+     * Returns the type used to represent the deserialized form of this
+     * object during runtime.
+     *
+     * @return The class of the deserialized representation type
+     */
+    Class<T> getDeserializedType();
 
     /**
      * Returns a predicate used to validate serialized values before they are

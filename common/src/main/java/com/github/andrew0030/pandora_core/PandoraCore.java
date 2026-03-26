@@ -77,6 +77,7 @@ public class PandoraCore {
         PaCoBrewingRecipes.BREWING_RECIPES.register();
 
         System.out.println("The color is: " + PaCoMainConfig.CustomValues.color);
+        System.out.println("The colors list is: " + PaCoMainConfig.CustomValues.colors);
     }
 
     /** A {@link Collection} containing a {@link ModDataHolder} for each loaded mod. */

@@ -28,6 +28,7 @@ Systems TODO:
   - [ ] Add TranslatableComponent support for entry description and key
   - [ ] Maybe add some sort of wrapper for forge's config system
   - [x] Maybe add support for custom Objects?
+  - [x] Maybe add support for lists of custom Objects?
 - NetworkSystem
   - [x] Implement network system made by GiantLuigi4
   - [x] Swap to platform services instead of self mixin

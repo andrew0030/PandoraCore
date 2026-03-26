@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class AnnotationHandler {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "AnnotationHandler");
     private final Map<Class<? extends Annotation>, BiConsumer<Field, String>> annotationHandlers = new HashMap<>();
+    private final Map<Class<?>, IPaCoConfigConverter<?, ?>> converterCache = new HashMap<>();
     private final Map<String, ConfigDataHolder> dataHolders = new LinkedHashMap<>();
     private final ConfigSpec configSpec = new ConfigSpec();
     private final PaCoConfigManager manager;
@@ -91,18 +93,19 @@ public class AnnotationHandler {
      * <strong>Note</strong>: This method ensures type safety.
      */
     private void initConfigCaches() {
-        this.annotationHandlers.put(PaCoConfigValues.BooleanValue.class, this::handleBooleanField); // Boolean & boolean
-        this.annotationHandlers.put(PaCoConfigValues.IntegerValue.class, this::handleIntegerField); // Integer & int
-        this.annotationHandlers.put(PaCoConfigValues.ByteValue.class, this::handleByteField);       // Byte & byte
-        this.annotationHandlers.put(PaCoConfigValues.ShortValue.class, this::handleShortField);     // Short & short
-        this.annotationHandlers.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);   // Double & double
-        this.annotationHandlers.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);     // Float & float
-        this.annotationHandlers.put(PaCoConfigValues.LongValue.class, this::handleLongField);       // Long & long
-        this.annotationHandlers.put(PaCoConfigValues.StringValue.class, this::handleStringField);   // String
-        this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);       // List
-        this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);       // Enum
-        this.annotationHandlers.put(PaCoConfigValues.CustomValue.class, this::handleCustomField);   // Custom Classes
-        this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);           // Comments
+        this.annotationHandlers.put(PaCoConfigValues.BooleanValue.class, this::handleBooleanField);       // Boolean & boolean
+        this.annotationHandlers.put(PaCoConfigValues.IntegerValue.class, this::handleIntegerField);       // Integer & int
+        this.annotationHandlers.put(PaCoConfigValues.ByteValue.class, this::handleByteField);             // Byte & byte
+        this.annotationHandlers.put(PaCoConfigValues.ShortValue.class, this::handleShortField);           // Short & short
+        this.annotationHandlers.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);         // Double & double
+        this.annotationHandlers.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);           // Float & float
+        this.annotationHandlers.put(PaCoConfigValues.LongValue.class, this::handleLongField);             // Long & long
+        this.annotationHandlers.put(PaCoConfigValues.StringValue.class, this::handleStringField);         // String
+        this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);             // List
+        this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);             // Enum
+        this.annotationHandlers.put(PaCoConfigValues.CustomValue.class, this::handleCustomField);         // Custom Classes
+        this.annotationHandlers.put(PaCoConfigValues.CustomListValue.class, this::handleCustomListField); // Custom Classes List
+        this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);                 // Comments
 
         this.processConfigClass(this.manager.getConfigClass(), null);
     }
@@ -520,25 +523,27 @@ public class AnnotationHandler {
     }
 
     private void handleCustomField(Field field, String category) {
-        if (!IPaCoConfigConverter.class.isAssignableFrom(field.getType()))
-            throw new IllegalArgumentException(String.format(
-                    "Field: '%s' in Class: '%s' object must implement IPaCoConfigConverter for CustomValue annotation.",
-                    field.getName(),
-                    this.manager.getConfigClass().getName()
-            ));
+        PaCoConfigValues.CustomValue customAnnotation = field.getAnnotation(PaCoConfigValues.CustomValue.class);
         field.setAccessible(true);
         try {
             Object defaultValue = this.getOrThrow(field);
-            IPaCoConfigConverter<?, ?> converter = (IPaCoConfigConverter<?, ?>) defaultValue;
+            Class<? extends IPaCoConfigConverter<?, ?>> converterClass = customAnnotation.converter();
+            IPaCoConfigConverter<?, ?> converter = this.getConverter(converterClass);
+            if (!converter.getDeserializedType().isAssignableFrom(field.getType()))
+                throw new IllegalArgumentException(String.format(
+                        "Field '%s' type '%s' does not match converter expected type '%s'",
+                        field.getName(),
+                        field.getType().getSimpleName(),
+                        converter.getDeserializedType().getSimpleName()
+                ));
             String key = category + field.getName();
-            Object serializedDefault = converter.serialize();
+            Object serializedDefault = ((IPaCoConfigConverter<Object, Object>) converter).serialize(defaultValue);
             Class<?> expectedType = converter.getSerializedType();
             configSpec.define(key, serializedDefault, value -> {
                 if (!expectedType.isInstance(value))
                     return false;
-                Object casted = expectedType.cast(value);
                 Predicate<Object> predicate = (Predicate<Object>) converter.getSerializedPredicate();
-                return predicate.test(casted);
+                return predicate.test(value);
             });
             ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
             if (holder instanceof ConfigDataHolderEntry holderEntry)
@@ -552,6 +557,85 @@ public class AnnotationHandler {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void handleCustomListField(Field field, String category) {
+        this.checkFieldValidity(field, PaCoConfigValues.CustomListValue.class.getSimpleName(), List.class);
+        PaCoConfigValues.CustomListValue customListAnnotation = field.getAnnotation(PaCoConfigValues.CustomListValue.class);
+        field.setAccessible(true);
+        try {
+            List<?> defaultList = (List<?>) this.getOrThrow(field);
+            Class<? extends IPaCoConfigConverter<?, ?>> converterClass = customListAnnotation.converter();
+            IPaCoConfigConverter<?, ?> converter = this.getConverter(converterClass);
+            String key = category + field.getName();
+            List<Object> serializedDefaults = new ArrayList<>();
+            Class<?> serializedType = converter.getSerializedType();
+            Class<?> deserializedType = converter.getDeserializedType();
+            for (Object element : defaultList) {
+                if (!deserializedType.isInstance(element))
+                    throw new IllegalArgumentException(String.format("Element in list '%s' is not of type '%s'", key, deserializedType.getSimpleName()));
+                serializedDefaults.add(((IPaCoConfigConverter<Object, Object>) converter).serialize(element));
+            }
+            configSpec.defineList(key, serializedDefaults, element -> {
+                if (!serializedType.isInstance(element))
+                    return false;
+                Predicate<Object> predicate = (Predicate<Object>) converter.getSerializedPredicate();
+                return predicate.test(element);
+            });
+            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            if (holder instanceof ConfigDataHolderEntry holderEntry) {
+                this.dataHolders.put(key, holderEntry.setConverter(value -> {
+                        if (!(value instanceof List<?> rawList))
+                            throw new IllegalArgumentException(String.format("Expected list for custom list value '%s'", key));
+                        List<Object> deserialized = new ArrayList<>();
+                        for (Object element : rawList) {
+                            if (!converter.getSerializedType().isInstance(element))
+                                throw new IllegalArgumentException(String.format("Invalid element type '%s' in list '%s'", element.getClass().getSimpleName(), key));
+                            deserialized.add(this.deserializeHelper(converter, element));
+                        }
+                        return deserialized;
+                    }).setPath(key)
+                );
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Loads cached converters for the given {@code class}, and or creates a new instances and caches them if needed.
+     *
+     * @param key The {@link Class} that will be used as the {@code key} for the cache
+     * @return An {@link IPaCoConfigConverter} instance that corresponds to the given {@code key}
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends IPaCoConfigConverter<?, ?>> T getConverter(Class<T> key) {
+        return (T) this.converterCache.computeIfAbsent(key, converter -> {
+            try {
+                // This should technically never fail as the annotation requires it, but better safe than sorry
+                if (!IPaCoConfigConverter.class.isAssignableFrom(converter)) {
+                    throw new IllegalArgumentException(String.format(
+                            "Class: '%s' must implement IPaCoConfigConverter to be a valid converter.",
+                            converter.getName()
+                    ));
+                }
+                // Creates a new instance from the class constructor
+                Constructor<?> constructor = converter.getDeclaredConstructor();
+                if (!Modifier.isPublic(constructor.getModifiers()))
+                    constructor.setAccessible(true);
+                return (IPaCoConfigConverter<?, ?>) constructor.newInstance();
+            } catch (NoSuchMethodException e) {
+                // The converter class needs to have a no-arg constructor
+                throw new IllegalArgumentException(String.format(
+                        "Converter: '%s' must have a no-arg constructor", converter.getName()
+                ));
+            } catch (Exception e) {
+                // Not sure why it would fail otherwise...
+                throw new RuntimeException(String.format(
+                        "Failed to instantiate converter: '%s'", converter.getName()
+                ), e);
+            }
+        });
     }
 
     private <T, R> Object deserializeHelper(IPaCoConfigConverter<T, R> converter, Object value) {

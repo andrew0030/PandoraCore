@@ -1,5 +1,7 @@
 package com.github.andrew0030.pandora_core.config.annotation.annotations;
 
+import com.github.andrew0030.pandora_core.config.manager.IPaCoConfigConverter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -76,7 +78,15 @@ public class PaCoConfigValues {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    public @interface CustomValue {}
+    public @interface CustomValue {
+        Class<? extends IPaCoConfigConverter<?, ?>> converter();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CustomListValue {
+        Class<? extends IPaCoConfigConverter<?, ?>> converter();
+    }
 
     /**
      * Used to add a comment above a Config entry.<br/>

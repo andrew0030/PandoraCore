@@ -12,6 +12,9 @@ import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.fabricmc.loader.api.metadata.ModOrigin;
 import net.fabricmc.loader.api.metadata.Person;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
@@ -281,6 +284,18 @@ public class FabricModDataHolder extends ModDataHolder {
                 return Optional.empty();
             }
         }
+        return Optional.empty();
+    }
+
+    //TODO maybe add minecraft to the variables ?
+    @Override
+    public Optional<Screen> getConfigScreen(Screen current) {
+        Minecraft mc = Minecraft.getInstance();
+        // Opens the Minecraft "Options" screen as the config
+        if (this.isMinecraft)
+            return Optional.of(new OptionsScreen(current, mc.options));
+
+        // TODO implement a config screen registration system (maybe also read modmenu/catalogue as a user QoL feature?)
         return Optional.empty();
     }
 }

@@ -207,10 +207,6 @@ public class PaCoMainConfig {
         @PaCoConfigValues.Comment("Comment above a Boolean List")
         @PaCoConfigValues.ListValue(elementType = Boolean.class)
         public static List<Boolean> booleanList = Arrays.asList(false, true, true, false, true);
-
-        @PaCoConfigValues.Comment("Comment above a Enum List")
-        @PaCoConfigValues.ListValue(elementType = Enums.Difficulty.class)
-        public static List<Enums.Difficulty> enumList = Arrays.asList(Enums.Difficulty.EASY, Enums.Difficulty.EASY, Enums.Difficulty.MEDIUM, Enums.Difficulty.HARD);
     }
 
     @PaCoConfig.Comment("This Category contains Enums")

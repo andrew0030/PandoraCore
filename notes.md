@@ -62,6 +62,7 @@ Systems TODO:
   - [ ] Look into mod ordering and libs on Quilt
   - [ ] Try improving compatibility with connector
   - [ ] Maybe a config driven way to hide mods from the list (could be good for libraries)
+  - [x] On Fabric exiting the Minecraft options screen using "ESC" returns to TitleScreen rather than PaCoScreen, should be fixed as a QoL feature
 - PaCo Config Screen
   - [ ] Create config screen that can take any number of components and dynamically adjust to it
   - [ ] Hook mod config system into it

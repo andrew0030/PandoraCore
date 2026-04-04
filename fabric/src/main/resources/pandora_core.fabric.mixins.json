@@ -10,9 +10,11 @@
     "world.GameTestServerMixin"
   ],
   "client": [
+    "accessor.OptionsScreenAccessor",
     "compat.gui.AetherTitleScreenMixin",
     "compat.gui.CatalogueModListScreenMixin",
     "compat.gui.ModsScreenMixin",
+    "compat.gui.Screen_OptionsScreenMixin",
     "fixes.EffectInstanceMixin",
     "fixes.ShaderInstanceMixin",
     "world.IntegratedServerMixin"

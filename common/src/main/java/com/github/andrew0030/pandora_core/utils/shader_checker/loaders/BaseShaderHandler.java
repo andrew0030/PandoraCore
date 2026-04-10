@@ -37,7 +37,7 @@ public abstract class BaseShaderHandler {
      * Each subclass should check if shaders are active using the {@link BaseShaderHandler#handle},
      * initialized by {@link BaseShaderHandler#initMethodHandle()}.<br/>
      * Note: Make sure to check if {@link BaseShaderHandler#handle} is <strong>null</strong> as it's
-     * only initialized of the mod is actually loaded.
+     * only initialized if the mod is actually loaded.
      */
     public abstract boolean isShaderLoaded();
 }

@@ -23,6 +23,10 @@ public class ModWarningFactory implements ModWarningProvider {
         }
     }
 
+    //TODO: Restructure this to be a static method without interface, that way people can
+    // create and "register" warning factories without needing PaCo to compile. This should
+    // also have the added benefit, that invocation through method handles becomes easier.
+    @Override
     public Supplier<List<Component>> getWarnings() {
         return () -> {
             List<Component> warnings = new ArrayList<>();

@@ -25,7 +25,7 @@
             "com.github.andrew0030.pandora_core.PandoraCoreClientFabric"
         ],
         "modmenu": [
-            "com.github.andrew0030.pandora_core.config.modmenu.ModMenuConfig"
+            "com.github.andrew0030.pandora_core.config.factories.ModMenuConfigFactory"
         ]
     },
     "mixins": [
@@ -45,10 +45,11 @@
             "background": "background.png",
             "blurIcon": false,
             "updateURL": "https://raw.githubusercontent.com/andrew0030/Pandoras-Creatures/refs/heads/1.16.5/src/main/resources/assets/pandoras_creatures/update.json",
-            "warningFactory": "com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory"
+            "warningFactory": "com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory",
+            "configFactory": "com.github.andrew0030.pandora_core.config.factories.SimpleConfigFactory"
         },
         "catalogue": {
-            "configFactory": "com.github.andrew0030.pandora_core.config.catalogue.CatalogueConfig"
+            "configFactory": "com.github.andrew0030.pandora_core.config.factories.SimpleConfigFactory"
         }
     }
 }

@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.utils.data_holders;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BackgroundContentElement;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BannerContentElement;
+import com.github.andrew0030.pandora_core.config.factory_manager.ConfigScreenFactoryManager;
 import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class FabricModDataHolder extends ModDataHolder {
@@ -49,6 +51,7 @@ public class FabricModDataHolder extends ModDataHolder {
     private final List<String> authors = new ArrayList<>();
     private final List<String> credits = new ArrayList<>();
     private final boolean isMinecraft;
+    private final Optional<BiFunction<Screen, ModContainer, Screen>> configScreenFactory;
 
     public FabricModDataHolder(ModContainer modContainer) {
         this.container = modContainer;
@@ -181,6 +184,9 @@ public class FabricModDataHolder extends ModDataHolder {
 
         // Simple boolean to quickly check if this data holder is the minecraft data holder
         this.isMinecraft = this.getModId().equals("minecraft");
+
+        // Screen factory used to open the config screen
+        this.configScreenFactory = ConfigScreenFactoryManager.getConfigScreenFactory(this.getModId());
     }
 
     @Override
@@ -287,15 +293,12 @@ public class FabricModDataHolder extends ModDataHolder {
         return Optional.empty();
     }
 
-    //TODO maybe add minecraft to the variables ?
     @Override
-    public Optional<Screen> getConfigScreen(Screen current) {
-        Minecraft mc = Minecraft.getInstance();
+    public Optional<Screen> getConfigScreen(Minecraft mc, Screen current) {
         // Opens the Minecraft "Options" screen as the config
         if (this.isMinecraft)
             return Optional.of(new OptionsScreen(current, mc.options));
-
-        // TODO implement a config screen registration system (maybe also read modmenu/catalogue as a user QoL feature?)
-        return Optional.empty();
+        // Opens the ConfigScreen if one was specified. Check order is: PaCo -> catalogue -> modmenu
+        return this.configScreenFactory.flatMap(factory -> Optional.ofNullable(factory.apply(current, this.container)));
     }
 }

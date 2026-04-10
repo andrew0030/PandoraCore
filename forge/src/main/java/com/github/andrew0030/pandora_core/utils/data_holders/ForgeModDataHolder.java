@@ -272,9 +272,8 @@ public class ForgeModDataHolder extends ModDataHolder {
         }
     }
 
-    //TODO maybe add minecraft to the variables ?
-    public Optional<Screen> getConfigScreen(Screen current) {
-        Minecraft mc = Minecraft.getInstance();
+    @Override
+    public Optional<Screen> getConfigScreen(Minecraft mc, Screen current) {
         // Opens the Minecraft "Options" screen as the config
         if (this.isMinecraft)
             return Optional.of(new OptionsScreen(current, mc.options));

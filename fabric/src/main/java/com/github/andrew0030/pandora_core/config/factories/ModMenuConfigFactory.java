@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.config.modmenu;
+package com.github.andrew0030.pandora_core.config.factories;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
@@ -9,7 +9,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screens.TitleScreen;
 
 @Environment(EnvType.CLIENT)
-public class ModMenuConfig implements ModMenuApi {
+public class ModMenuConfigFactory implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return screen -> {
@@ -19,4 +19,16 @@ public class ModMenuConfig implements ModMenuApi {
             return new PaCoScreen(null, screen);
         };
     }
+
+    //TODO: remove this when done with tests!
+//    @Override
+//    public Map<String, ConfigScreenFactory<?>> getProvidedConfigScreenFactories() {
+//        Map<String, ConfigScreenFactory<?>> modConfigFactories = new HashMap<>();
+//        FabricLoader.getInstance().getAllMods().forEach(container -> {
+//            String id = container.getMetadata().getId();
+//            if (id.equals(PandoraCore.MOD_ID)) return;
+//            modConfigFactories.put(id, (currentScreen) -> new PaCoScreen(null, currentScreen));
+//        });
+//        return modConfigFactories;
+//    }
 }

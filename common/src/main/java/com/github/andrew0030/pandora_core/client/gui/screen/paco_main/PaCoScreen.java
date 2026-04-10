@@ -366,7 +366,7 @@ public class PaCoScreen extends Screen {
         //TODO remove when done testing
         if (keyCode == GLFW.GLFW_KEY_E) {
             if (this.minecraft != null && this.selectedModButton != null) {
-                this.selectedModButton.getModDataHolder().getConfigScreen(this).ifPresent(configScreen -> this.minecraft.setScreen(configScreen));
+                this.selectedModButton.getModDataHolder().getConfigScreen(this.minecraft, this).ifPresent(configScreen -> this.minecraft.setScreen(configScreen));
             }
         }
 

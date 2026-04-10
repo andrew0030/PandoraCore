@@ -35,7 +35,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     // Mod Menu
-    modImplementation  "maven.modrinth:modmenu:${modmenu_version}"
+    modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
     // MrCrayfish Config Mods
     modImplementation "curse.maven:catalogue-fabric-667377:4766089" // Catalogue
     // Title Screen Compatibility Mods

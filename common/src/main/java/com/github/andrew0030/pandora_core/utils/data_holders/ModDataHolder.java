@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.utils.data_holders;
 import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningProvider;
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
@@ -123,5 +124,5 @@ public abstract class ModDataHolder {
 
     public abstract Optional<String> getSha512Hash();
 
-    public abstract Optional<Screen> getConfigScreen(Screen current);
+    public abstract Optional<Screen> getConfigScreen(Minecraft mc, Screen current);
 }

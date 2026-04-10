@@ -23,7 +23,7 @@ public class PandoraCoreClientForge {
         //TODO probably alter this a bit so it opens the actual config screen directly?
         ModLoadingContext.get().registerExtensionPoint(
                 ConfigScreenHandler.ConfigScreenFactory.class,
-                () -> new ConfigScreenHandler.ConfigScreenFactory((mcClient, screen) -> {
+                () -> new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> {
                     if (screen instanceof IPaCoParentScreenGetter pacoParentScreenGetter) {
                         if (pacoParentScreenGetter.pandoraCore$getParentScreen() instanceof TitleScreen titleScreen) {
                             return new PaCoScreen(titleScreen, screen);

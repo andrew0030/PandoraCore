@@ -20,7 +20,7 @@ import com.github.andrew0030.pandora_core.test.networking.PaCoNetworking;
 import com.github.andrew0030.pandora_core.test.particle.PaCoParticles;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
-import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory;
+import com.github.andrew0030.pandora_core.utils.mod_warnings.PaCoWarningFactory;
 import com.github.andrew0030.pandora_core.utils.update_checker.PaCoUpdateChecker;
 import com.github.andrew0030.pandora_core.world.modifier.Modifier;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +57,7 @@ public class PandoraCore {
     public static void init() {
         Services.PLATFORM.getModDataHolders().forEach(holder -> PandoraCore.MOD_HOLDERS.put(holder.getModId(), holder));
         PaCoUpdateChecker.checkForUpdates();
-        ModWarningFactory.init();
+        PaCoWarningFactory.init();
 
         // Configs
         PaCoConfigManager.register(PaCoMainConfig.class);

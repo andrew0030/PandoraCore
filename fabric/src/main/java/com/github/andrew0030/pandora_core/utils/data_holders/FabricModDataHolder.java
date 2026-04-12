@@ -265,7 +265,9 @@ public class FabricModDataHolder extends ModDataHolder {
     @Override
     public List<Component> getModWarnings() {
         if (this.modWarnings == null) return NO_WARNINGS;
-        return this.modWarnings.get();
+        List<Component> list = this.modWarnings.get();
+        if (list == null) return NO_WARNINGS;
+        return list;
     }
 
     @Override

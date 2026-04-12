@@ -1,13 +1,18 @@
 package com.github.andrew0030.pandora_core.utils.data_holders;
 
-import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningProvider;
+import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +21,7 @@ import java.util.function.Supplier;
 
 /** Holder class to store mod data. */
 public abstract class ModDataHolder {
+    private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "ModDataHolder");
     protected static final List<Component> NO_WARNINGS = new ArrayList<>();
     private Optional<UpdateInfo> info = Optional.empty();
 
@@ -102,23 +108,27 @@ public abstract class ModDataHolder {
     protected Supplier<List<Component>> loadWarningsFromFactory(String className) {
         try {
             Class<?> factoryClass = Class.forName(className);
-            // Ensures the class implements ModWarningProvider
-            if (!ModWarningProvider.class.isAssignableFrom(factoryClass))
-                throw new RuntimeException(className + " does not implement ModWarningProvider.");
-            // Makes sure there is a no-argument constructor
+            // The expected signature: () -> List<Component>
+            MethodType mt = MethodType.methodType(List.class);
+            MethodHandle handle;
             try {
-                factoryClass.getDeclaredConstructor();
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Class " + className + " must have a no-argument constructor.", e);
+                handle = MethodHandles.publicLookup().findStatic(factoryClass, "getWarningFactory", mt);
+            } catch (NoSuchMethodException | IllegalAccessException e) {
+                LOGGER.error("Failed to locate 'getWarningFactory' in warning factory: {}", className, e);
+                return null;
             }
-            // Instantiates the class
-            ModWarningProvider provider = (ModWarningProvider) factoryClass.getDeclaredConstructor().newInstance();
-            return provider.getWarnings();
-
+            // Lambda captures the method handle
+            return () -> {
+                try {
+                    return (List<Component>) handle.invoke();
+                } catch (Throwable t) {
+                    LOGGER.error("Failed to invoke warning factory: {}", className, t);
+                    return List.of();
+                }
+            };
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Warning factory class not found: " + className, e);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to instantiate or invoke warning factory: " + className, e);
+            LOGGER.error("Warning factory class not found: {}", className, e);
+            return null;
         }
     }
 

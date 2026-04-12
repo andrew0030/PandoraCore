@@ -2,7 +2,7 @@ package com.github.andrew0030.pandora_core.mixin.ctm;
 
 import com.github.andrew0030.pandora_core.client.ctm.CTMJsonHelper;
 import com.github.andrew0030.pandora_core.client.ctm.CTMUnbakedModel;
-import com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory;
+import com.github.andrew0030.pandora_core.utils.mod_warnings.PaCoWarningFactory;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.UnbakedModel;
@@ -35,7 +35,7 @@ public class ModelBakeryMixin {
 
         // If Sodium (pre 0.6.0) is installed and Indium isn't we skip CTM rendering as it wouldn't work
         // "isCTMDisabled" is initialized during setup so by the time it gets called here it's ready to go
-        if (ModWarningFactory.isCTMDisabled)
+        if (PaCoWarningFactory.isCTMDisabled)
             return model;
         // If the model has a CTM type and isn't rendered in the inventory we wrap it and use it for CTM rendering
         if (CTMJsonHelper.hasCTM(id) && !id.toString().endsWith("#inventory"))

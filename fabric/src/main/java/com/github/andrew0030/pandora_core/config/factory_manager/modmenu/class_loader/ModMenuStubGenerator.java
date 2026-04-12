@@ -5,23 +5,23 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 class ModMenuStubGenerator {
-    private static final String API_NAME                   = "com/terraformersmc/modmenu/api/ModMenuApi";
-    private static final String CONFIG_SCREEN_FACTORY_NAME = "com/terraformersmc/modmenu/api/ConfigScreenFactory";
 
     /**
      * Stub for {@code ModMenuApi}, it is used when modmenu is absent.<br/>
      * All methods return safe defaults to satisfy the verifier.
      *
+     * @param name The internal name of the class
      * @return ASM bytecode for the stubbed {@code ModMenuApi} interface
      */
-    public static byte[] generateModMenuApiStub() {
+    public static byte[] generateModMenuApiStub(String name) {
+        String internalName = name.replaceAll("\\.", "/");
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
             @Override
             protected String getCommonSuperClass(String type1, String type2) {
                 return "java/lang/Object";
             }
         };
-        cw.visit(Opcodes.V17, Opcodes.ACC_PUBLIC | Opcodes.ACC_INTERFACE | Opcodes.ACC_ABSTRACT, API_NAME, null, "java/lang/Object", null);
+        cw.visit(Opcodes.V17, Opcodes.ACC_PUBLIC | Opcodes.ACC_INTERFACE | Opcodes.ACC_ABSTRACT, internalName, null, "java/lang/Object", null);
 
         // Default (instance) methods:
         // They return null/void defaults to satisfy callers when ModMenu isn't loaded
@@ -41,16 +41,18 @@ class ModMenuStubGenerator {
      * Stub for {@code ConfigScreenFactory}, it is used to invoke the "create" method.<br/>
      * Enables reflection on mod lambdas without the real API present.
      *
+     * @param name The internal name of the class
      * @return ASM bytecode for the stubbed {@code ConfigScreenFactory} interface
      */
-    public static byte[] generateConfigScreenFactoryStub() {
+    public static byte[] generateConfigScreenFactoryStub(String name) {
+        String internalName = name.replaceAll("\\.", "/");
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
             @Override
             protected String getCommonSuperClass(String type1, String type2) {
                 return "java/lang/Object";
             }
         };
-        cw.visit(Opcodes.V17, Opcodes.ACC_PUBLIC | Opcodes.ACC_INTERFACE | Opcodes.ACC_ABSTRACT, CONFIG_SCREEN_FACTORY_NAME, null, "java/lang/Object", null);
+        cw.visit(Opcodes.V17, Opcodes.ACC_PUBLIC | Opcodes.ACC_INTERFACE | Opcodes.ACC_ABSTRACT, internalName, null, "java/lang/Object", null);
 
         // The functional interface method: create(Screen)
         addAbstractMethod(cw, "create", "(Lnet/minecraft/client/gui/screens/Screen;)Lnet/minecraft/client/gui/screens/Screen;"); // (Screen) -> Screen

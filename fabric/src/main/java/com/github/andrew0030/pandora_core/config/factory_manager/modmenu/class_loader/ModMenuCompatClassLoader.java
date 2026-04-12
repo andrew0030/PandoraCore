@@ -12,6 +12,8 @@ import java.util.Set;
 
 @ApiStatus.Internal
 public class ModMenuCompatClassLoader extends ClassLoader {
+    private static final String API_NAME            = "com.terraformersmc.modmenu.api.ModMenuApi";
+    private static final String SCREEN_FACTORY_NAME = "com.terraformersmc.modmenu.api.ConfigScreenFactory";
     private final Map<String, byte[]> stubs = new HashMap<>();
     private final Set<String> modmenuFactoryPaths = new HashSet<>();
 
@@ -25,8 +27,8 @@ public class ModMenuCompatClassLoader extends ClassLoader {
         // Creates a new class loader instance, using the games class loader as the parent
         ModMenuCompatClassLoader loader = new ModMenuCompatClassLoader(Minecraft.class.getClassLoader());
         // Registers the custom modmenu stubs (minimal in-memory bytecode definitions), to the class loader
-        loader.stubs.put("com.terraformersmc.modmenu.api.ModMenuApi", ModMenuStubGenerator.generateModMenuApiStub());
-        loader.stubs.put("com.terraformersmc.modmenu.api.ConfigScreenFactory", ModMenuStubGenerator.generateConfigScreenFactoryStub());
+        loader.stubs.put(API_NAME, ModMenuStubGenerator.generateModMenuApiStub(API_NAME));
+        loader.stubs.put(SCREEN_FACTORY_NAME, ModMenuStubGenerator.generateConfigScreenFactoryStub(SCREEN_FACTORY_NAME));
         // Registers the classes this loader should load, rather than delegating to the parent loader,
         // this is important because we don't want to load every class referenced within!
         loader.modmenuFactoryPaths.addAll(modmenuFactoryPaths);

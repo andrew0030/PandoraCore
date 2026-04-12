@@ -29,12 +29,11 @@ issueTrackerURL="${issue_tracker_url}"
     side = "BOTH"
 
 [modproperties.${mod_id}]
-    pandoracoreIcon="${mod_id}.png"
-#    pandoracoreBackground="background.png"
-    pandoracoreBackground="background.png"
-    pandoracoreBanner=":assets/pandora_core/textures/test.png"
-    pandoracoreBlurIcon=false
-    pandoracoreBlurBackground=true
-    pandoracoreUpdateURL="https://raw.githubusercontent.com/andrew0030/Pandoras-Creatures/refs/heads/1.16.5/src/main/resources/assets/pandoras_creatures/update.json"
-    pandoracoreWarningFactory="com.github.andrew0030.pandora_core.utils.mod_warnings.ModWarningFactory"
-    catalogueImageIcon="${mod_id}.png"
+    pandoracoreIcon = "${mod_id}.png"
+    pandoracoreBackground = "background.png"
+    pandoracoreBanner = ":assets/pandora_core/textures/test.png"
+    pandoracoreBlurIcon = false
+    pandoracoreBlurBackground = true
+    pandoracoreUpdateURL = "https://raw.githubusercontent.com/andrew0030/Pandoras-Creatures/refs/heads/1.16.5/src/main/resources/assets/pandoras_creatures/update.json"
+    pandoracoreWarningFactory = "com.github.andrew0030.pandora_core.utils.mod_warnings.PaCoWarningFactory"
+    catalogueImageIcon = "${mod_id}.png"

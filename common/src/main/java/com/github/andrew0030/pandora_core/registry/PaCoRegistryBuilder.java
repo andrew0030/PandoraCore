@@ -27,7 +27,7 @@ public class PaCoRegistryBuilder {
     }
 
     /**
-     * Creates a new dynamic registry specification for the given {@code resourceKey} and {@code codec}.
+     * Creates a new dynamic (data pack) registry specification for the given {@code resourceKey} and {@code codec}.
      *
      * <p>The entries of the registry will be loaded from data packs at the file path
      * {@code data/<entry namespace>/<registry namespace>/<registry path>/<entry path>.json}.
@@ -116,7 +116,7 @@ public class PaCoRegistryBuilder {
     }
 
     /**
-     * Immutable descriptor for a dynamic registry.
+     * Immutable descriptor for a dynamic (data pack) registry.
      *
      * <p>Obtained by calling {@link PaCoRegistryBuilder#dynamic(ResourceKey, Codec)}.</p>
      *
@@ -135,7 +135,7 @@ public class PaCoRegistryBuilder {
         }
 
         /**
-         * Causes the dynamic registry to synchronize, using the given {@code netCodec}.
+         * Causes the dynamic (data pack) registry to synchronize, using the given {@code netCodec}.
          *
          * @param netCodec The network {@link Codec} of the registry contents.
          *                 Can be a reduced variant of the normal {@link Codec}

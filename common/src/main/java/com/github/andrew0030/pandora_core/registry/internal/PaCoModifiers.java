@@ -5,8 +5,6 @@ import com.github.andrew0030.pandora_core.registry.PaCoRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryBuilder;
 import com.github.andrew0030.pandora_core.world.modifier.*;
 import com.mojang.serialization.Codec;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.function.Supplier;
 
@@ -28,12 +26,4 @@ public class PaCoModifiers {
     // For now there won't be a "REMOVE_TEMPLATE_POOL_ELEMENTS", because there is no easy way to differentiate between instances, and I don't really need it
     public static final Supplier<Codec<? extends Modifier>> ADD_STRUCTURE_SET_STRUCTURES    = MODIFIER_TYPES.add("add_structure_set_structures", () -> AddStructureSetStructuresModifier.CODEC);
     public static final Supplier<Codec<? extends Modifier>> REMOVE_STRUCTURE_SET_STRUCTURES = MODIFIER_TYPES.add("remove_structure_set_structures", () -> RemoveStructureSetStructuresModifier.CODEC);
-
-    @SuppressWarnings("unchecked")
-    public static Registry<Codec<? extends Modifier>> getRegistry() {
-        Registry<Codec<? extends Modifier>> registry = (Registry<Codec<? extends Modifier>>) BuiltInRegistries.REGISTRY.get(PaCoRegistryKeys.MODIFIER_TYPE.location());
-        if (registry == null)
-            throw new NullPointerException("Attempted to get 'MODIFIER_TYPES' registry, before it was registered!");
-        return registry;
-    }
 }

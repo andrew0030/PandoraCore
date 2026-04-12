@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 public interface Modifier {
     Codec<Modifier> CODEC = ExtraCodecs.lazyInitializedCodec(
-        () -> PaCoModifiers.getRegistry().byNameCodec()
+        () -> PaCoModifiers.MODIFIER_TYPES.getRegistry().byNameCodec()
     ).dispatch(Modifier::codec, Function.identity());
 
     /** @return The {@link Codec} used to (de)serialize this {@link Modifier}. */

@@ -63,9 +63,12 @@ Systems TODO:
   - [ ] Try improving compatibility with connector
   - [ ] Maybe a config driven way to hide mods from the list (could be good for libraries)
   - [x] On Fabric exiting the Minecraft options screen using "ESC" returns to TitleScreen rather than PaCoScreen, should be fixed as a QoL feature
+  - [ ] Add (optional) fade in to config screens. This will make the transition to config screens by other mods look nicer
 - PaCo Config Screen
   - [ ] Create config screen that can take any number of components and dynamically adjust to it
   - [ ] Hook mod config system into it
+- Warning Factory
+  - [x] Rewrite WarningFactory system. Instead of an interface, it will use a **specific** static method, which will be invoked with a method handle
 - Update Checker
   - [x] Swap CompletableFuture system to an Update Checker Thread
   - [x] Add automatic Modrinth update checker using modrinth's API (similar to what modmenu does)
@@ -121,6 +124,12 @@ Systems TODO:
   - [x] ~~Maybe add a modifier that allows removing entries from jigsaw structure piece pools (if they can be identified)~~ Too annoying and I don't need it
   - [x] Add some sorta phase system like forges `Phase` enum, to ensure removing happens after adding
   - [ ] Expand/wrap `StructurePoolElement`, and use it to allow for additional properties, such as `min_count` and or `max_count`, _Maybe worth the required effort?_
+- Data-Driven Modifiers
+  - [ ] Expand `world-generation` related modifiers.
+    - [ ] Maybe modifying the noise so make mountains taller/oceans deeper?
+    - [ ] Modern cave system? (legacy is already covered by `add_carvers`)
+  - [ ] Add modifiers for `loot-pools` and or `loot-tables`. They should improve compatibility for `Swampier Swamps` & `Table Top Craft`, as they will no longer have to overwrite jsons
+  - [ ] Add modifiers for `advancements`. Just like loot related modifiers, this will greatly improve compatibility, as advancements can be tweaked without replacing them
 - Shader Patcher
   - [ ] Look into creating dummy ShaderInstance copies to avoid awkward uniform management?
   - [ ] Allow injecting custom methods

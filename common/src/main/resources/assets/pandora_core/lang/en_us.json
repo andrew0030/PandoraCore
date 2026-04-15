@@ -27,7 +27,13 @@
   "gui.pandora_core.paco.content.mod.update.type.alpha": "alpha",
   "gui.pandora_core.paco.content.mod.update.type.beta": "beta",
   "gui.pandora_core.paco.content.mod.update.type.release": "release",
+  "gui.pandora_core.paco.content.mod.config.key": "Open Config",
+  "gui.pandora_core.narrate.slider.scroll_bar.mods_panel": "mods panel scrollbar",
+  "gui.pandora_core.narrate.slider.scroll_bar.content_panel": "content panel scrollbar",
 
   "warnings.pandora_core.opti_fine.post_shader": "[OptiFine] detected, post shaders have been disabled!",
-  "warnings.pandora_core.sodium.indium": "[Sodium] detected and [Indium] is missing, CTM has been disabled!"
+  "warnings.pandora_core.sodium.indium": "[Sodium] detected and [Indium] is missing, CTM has been disabled!",
+
+  "narration.pandora_core.slider.vertical.usage.focused": "Press up or down keyboard buttons to change value",
+  "narration.pandora_core.slider.2d.usage.focused": "Press arrow keyboard buttons to change value"
 }

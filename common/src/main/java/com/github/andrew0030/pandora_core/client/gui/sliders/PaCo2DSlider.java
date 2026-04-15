@@ -7,6 +7,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -768,5 +770,17 @@ public class PaCo2DSlider extends AbstractSliderButton
     /** @return Whether the slider handle should be highlighted. */
     protected boolean shouldHighlightHandle() {
         return this.isHovered || this.canChangeValue;
+    }
+
+    @Override
+    public void updateWidgetNarration(NarrationElementOutput output) {
+        output.add(NarratedElementType.TITLE, this.createNarrationMessage());
+        if (this.active) {
+            if (this.isFocused()) {
+                output.add(NarratedElementType.USAGE, Component.translatable("narration.pandora_core.slider.2d.usage.focused"));
+            } else {
+                output.add(NarratedElementType.USAGE, Component.translatable("narration.slider.usage.hovered"));
+            }
+        }
     }
 }

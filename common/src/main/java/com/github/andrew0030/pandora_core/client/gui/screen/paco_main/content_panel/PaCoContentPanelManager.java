@@ -10,19 +10,18 @@ import com.github.andrew0030.pandora_core.utils.update_checker.UpdateInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class PaCoContentPanelManager {
     // Just a boolean that can be toggled to get some debug overlays inside the content panel.
     public static final boolean DEBUG_MODE = false;
     // Content Panel | With Active Mod
+    public static final Component SCROLLBAR = Component.translatable("gui.pandora_core.narrate.slider.scroll_bar.content_panel");
     public static final Component MOD_VERSION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.version.key");
     public static final Component MOD_WARNING_KEY = Component.translatable("gui.pandora_core.paco.content.mod.warning.key");
     public static final Component MOD_UPDATE_KEY = Component.translatable("gui.pandora_core.paco.content.mod.update.key");
@@ -32,10 +31,12 @@ public class PaCoContentPanelManager {
     public static final Component MOD_CREDITS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.credits.key");
     public static final Component MOD_CONTRIBUTORS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.contributors.key");
     public static final Component MOD_LICENSE_KEY = Component.translatable("gui.pandora_core.paco.content.mod.license.key");
+    public static final Component OPEN_CONFIG_KEY = Component.translatable("gui.pandora_core.paco.content.mod.config.key");
     // Content Panel | No Active Mod
-    // TODO
+    // TODO implement "No Active Mod" section
     private final List<BaseContentElement> elements = new ArrayList<>();
-    private final Set<IClickableContentElement> clickableElements = new HashSet<>();
+    private final Set<BaseClickableElement> clickableElements = new LinkedHashSet<>();
+    private final Minecraft minecraft;
     private final PaCoScreen screen;
     private int posX;
     private final int posY;
@@ -44,7 +45,8 @@ public class PaCoContentPanelManager {
     private int contentHeight = 0;
     private boolean hasScrollBar;
 
-    public PaCoContentPanelManager(PaCoScreen screen) {
+    public PaCoContentPanelManager(Minecraft minecraft, PaCoScreen screen) {
+        this.minecraft = minecraft;
         this.screen = screen;
         this.posX = screen.modsPanelWidth + PaCoScreen.PADDING_FOUR;
         this.posY = screen.contentMenuHeightStart;
@@ -63,7 +65,16 @@ public class PaCoContentPanelManager {
         int paddingY = 8;
         this.elements.add(new BackgroundContentElement(this));
         this.elements.add(new BannerContentElement(this, 0, -this.getContentHeight())); // Since the banner is the second element added, moving it up by height moves it to 0
-        this.elements.add(new TitleContentElement(this, paddingX, -16, holder.getModName()));
+        Optional<Screen> configScreen = holder.getConfigScreen(this.minecraft, this.getScreen());
+        if (configScreen.isPresent()) {
+            ConfigButtonElement element = new ConfigButtonElement(this, paddingX + 1, -18, OPEN_CONFIG_KEY.getString(), () -> {
+                this.minecraft.setScreen(configScreen.get());
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            });
+            this.clickableElements.add(element);
+            this.elements.add(element);
+        }
+        this.elements.add(new TitleContentElement(this, paddingX, -16, configScreen.isPresent() ? "   " + holder.getModName() : holder.getModName()));
         this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
         if (holder.hasModWarnings()) // We only add warnings if there are any
             this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_WARNING_KEY.getString(), holder.getModWarnings().stream().map(Component::getString).toList(), "• ").setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR));
@@ -104,11 +115,15 @@ public class PaCoContentPanelManager {
                     new PaCoVerticalSlider(posX, posY, 6, sliderHeight, 0, (this.getContentHeight() - this.getScreen().contentMenuHeight), 0, 1)
                             .setSilent(true)
                             .setTextHidden(true)
+                            .setNarrationMessage(SCROLLBAR)
                             .setHandleSize(8, Math.max(8, this.getHeight() - (this.getContentHeight() - this.getHeight()) - PaCoScreen.PADDING_FOUR))
                             .setSliderTexture(PaCoScreen.TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                             .setHandleTexture(PaCoScreen.TEXTURE, 12, 54, 20, 54, 8, 18, 1)
             );
         }
+
+        // Adds all clickable elements from the section to the screen as widgets
+        this.getScreen().addContentWidgets(clickableElements);
     }
 
     public void clearElements() {
@@ -164,9 +179,5 @@ public class PaCoContentPanelManager {
 
     public int getHeight() {
         return this.height;
-    }
-
-    public Set<IClickableContentElement> getClickableElements() {
-        return this.clickableElements;
     }
 }

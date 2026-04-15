@@ -6,8 +6,7 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModBu
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModImageManager;
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BaseContentElement;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.IClickableContentElement;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BaseClickableElement;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
@@ -46,6 +45,7 @@ public class PaCoScreen extends Screen {
     public static final Component NO_MATCHES = Component.translatable("gui.pandora_core.paco.no_matches");
     public static final Component NO_WARNINGS = Component.translatable("gui.pandora_core.paco.no_warnings");
     public static final Component NO_UPDATES = Component.translatable("gui.pandora_core.paco.no_updates");
+    public static final Component SCROLLBAR = Component.translatable("gui.pandora_core.narrate.slider.scroll_bar.mods_panel");
     // Managers
     public final ModImageManager imageManager = new ModImageManager();
     public PaCoContentPanelManager contentPanelManager;
@@ -57,7 +57,8 @@ public class PaCoScreen extends Screen {
     private TitleScreen titleScreen = null;
     private Screen previousScreen = null;
     // Widgets
-    private final List<Renderable> panelModButtons = new ArrayList<>();
+    private final List<Renderable> modPanelButtons = new ArrayList<>();
+    private final List<BaseClickableElement> contentPanelButtons = new ArrayList<>();
     public PaCoEditBox searchBox;
     public ModsFilterButton filterButton;
     public PaCoSlider modsScrollBar;
@@ -158,7 +159,8 @@ public class PaCoScreen extends Screen {
         this.searchBox = null;
         ModsFilterButton.FilterType filterType = this.filterButton != null ? this.filterButton.getFilterType() : ModsFilterButton.FilterType.NONE;
         this.filterButton = null;
-        this.panelModButtons.clear(); // We clear the list (needed because resize would cause duplicates otherwise)
+        this.modPanelButtons.clear(); // We clear the list (needed because resize would cause duplicates otherwise)
+        this.contentPanelButtons.clear();
         this.modsScrollBar = null;
         this.contentScrollBar = null;
         // Search Box
@@ -185,6 +187,7 @@ public class PaCoScreen extends Screen {
             this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PADDING_TWO, 6, this.modButtonsPanelLength + PADDING_ONE, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
                     .setSilent(true)
                     .setTextHidden(true)
+                    .setNarrationMessage(SCROLLBAR)
                     .setHandleSize(8, this.modsHandleHeight)
                     .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                     .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
@@ -194,7 +197,7 @@ public class PaCoScreen extends Screen {
         if (activeSearchText != null)
             this.searchBox.setValue(activeSearchText);
 
-        this.contentPanelManager = new PaCoContentPanelManager(this);
+        this.contentPanelManager = new PaCoContentPanelManager(this.minecraft, this);
     }
 
     @Override
@@ -283,7 +286,7 @@ public class PaCoScreen extends Screen {
         // Renders Mod Buttons
         PaCoGuiUtils.enableScissor(graphics, 5, this.modButtonsStart, this.modButtonWidth, this.modButtonsPanelLength);
         graphics.pose().pushPose();
-        for (Renderable renderable : this.panelModButtons)
+        for (Renderable renderable : this.modPanelButtons)
             renderable.render(graphics, mouseX, mouseY, partialTick);
         graphics.pose().popPose();
         graphics.disableScissor();
@@ -399,26 +402,6 @@ public class PaCoScreen extends Screen {
     public void renderBackground(@NotNull GuiGraphics graphics) {}
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == GLFW.GLFW_MOUSE_BUTTON_1) { // left-click
-            for (IClickableContentElement clicked : this.contentPanelManager.getClickableElements()) {
-                BaseContentElement element = clicked.getElement();
-                int textWidth = element.getWidth();
-                int textHeight = this.font.lineHeight;
-
-                // Checks if mouse is within bounds
-                if (mouseY >= this.contentMenuHeightStart && mouseY <= this.contentMenuHeightStop &&
-                    mouseX >= element.getX() && mouseX <= element.getX() + textWidth &&
-                    mouseY >= element.getY() && mouseY <= element.getY() + textHeight) {
-                    // Triggers the click logic of the element
-                    clicked.onClicked();
-                }
-            }
-        }
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         // Mods Panel Scroll
         if (this.modsScrollBar != null && PaCoGuiUtils.isMouseWithin(mouseX, mouseY, 0, this.modButtonsStart, this.modsPanelWidth, this.modButtonsPanelLength)) {
@@ -469,12 +452,26 @@ public class PaCoScreen extends Screen {
         }
     }
 
+    public void addContentWidgets(@Nullable Set<BaseClickableElement> elements) {
+        // If there already are any clickable elements, we re,pve them from the widgets
+        if (!this.contentPanelButtons.isEmpty())
+            for (BaseClickableElement element : this.contentPanelButtons)
+                this.removeWidget(element);
+        // We clear the contentPanelButtons list and add all clickable elements (if there are any)
+        this.contentPanelButtons.clear();
+        if (elements != null)
+            this.contentPanelButtons.addAll(elements);
+        // We go over all added elements and add them as widgets
+        for (BaseClickableElement element : this.contentPanelButtons)
+            this.addWidget(element);
+    }
+
     /**
-     * Adds the given widget to {@link PaCoScreen#panelModButtons} and calls {@link Screen#addWidget(GuiEventListener)}.
+     * Adds the given widget to {@link PaCoScreen#modPanelButtons} and calls {@link Screen#addWidget(GuiEventListener)}.
      * @param widget The widget that will be added to the Mods Panel.
      */
     private void addModToPanel(AbstractWidget widget) {
-        this.panelModButtons.add(widget);
+        this.modPanelButtons.add(widget);
         this.addWidget(widget);
     }
 
@@ -531,8 +528,8 @@ public class PaCoScreen extends Screen {
             newModButtons.add(modButton);
         }
         // We refresh the "panelModButtons" list, this is used as a "renderable" alternative
-        this.panelModButtons.clear();
-        this.panelModButtons.addAll(newModButtons);
+        this.modPanelButtons.clear();
+        this.modPanelButtons.addAll(newModButtons);
         // We remove all the ModButtons and the scrollbar from "children" and "narratables"
         // This happens up here, so we can remove the scroll bar before creating the new one#
         this.children.removeIf(element -> element instanceof ModButton || element == this.modsScrollBar);
@@ -543,6 +540,7 @@ public class PaCoScreen extends Screen {
             this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PADDING_TWO, 6, this.modButtonsPanelLength + PADDING_ONE, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
                     .setSilent(true)
                     .setTextHidden(true)
+                    .setNarrationMessage(SCROLLBAR)
                     .setHandleSize(8, this.modsHandleHeight)
                     .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                     .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);

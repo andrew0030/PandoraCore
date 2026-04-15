@@ -58,12 +58,15 @@ Systems TODO:
   - [x] Add support for [FancyMenu](https://www.curseforge.com/minecraft/mc-mods/fancymenu), which currently gets replaced with panorama
   - [x] Add support for [PackMenu](https://www.curseforge.com/minecraft/mc-mods/packmenu), which currently renders buttons in background
   - [ ] Add links section or buttons to the content panel for hope page and or issues
+  - [x] Add a config screen button to the content panel (for mods that have/provide a valid config screen)
   - [x] Maybe add banner support
   - [ ] Look into mod ordering and libs on Quilt
   - [ ] Try improving compatibility with connector
   - [ ] Maybe a config driven way to hide mods from the list (could be good for libraries)
   - [x] On Fabric exiting the Minecraft options screen using "ESC" returns to TitleScreen rather than PaCoScreen, should be fixed as a QoL feature
   - [ ] Add (optional) fade in to config screens. This will make the transition to config screens by other mods look nicer
+  - [x] Fine tune the narration of widgets
+  - [ ] Maybe fine tune the keyboard navigation (scroll bars could maybe navigate from center of the slider instead?)
 - PaCo Config Screen
   - [ ] Create config screen that can take any number of components and dynamically adjust to it
   - [ ] Hook mod config system into it
@@ -129,7 +132,12 @@ Systems TODO:
     - [ ] Maybe modifying the noise so make mountains taller/oceans deeper?
     - [ ] Modern cave system? (legacy is already covered by `add_carvers`)
   - [ ] Add modifiers for `loot-pools` and or `loot-tables`. They should improve compatibility for `Swampier Swamps` & `Table Top Craft`, as they will no longer have to overwrite jsons
+    - [ ] Maybe allow removing/modifying `loot-pools` by checking for 1:1 matches (given `loot-pools` don't have ids)
   - [ ] Add modifiers for `advancements`. Just like loot related modifiers, this will greatly improve compatibility, as advancements can be tweaked without replacing them
+    - [ ] Maybe allow messing with the position in the advancement menu?
+- Gradle
+  - [ ] Implement more modern multi-loader project structure
+  - [ ] Split all test code into a `tests` module, so test code can be kept around while easily disabling it for production
 - Shader Patcher
   - [ ] Look into creating dummy ShaderInstance copies to avoid awkward uniform management?
   - [ ] Allow injecting custom methods

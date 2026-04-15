@@ -156,7 +156,7 @@ public class ModButton extends AbstractButton {
     /** Moves the {@link ModButton} up/down and adds padding if needed to avoid the gradient, or being hidden post resizing the {@link PaCoScreen}. */
     public void moveButtonIntoFocus(boolean moveToTop) {
         if (this.screen.modsScrollBar == null) return;
-        int padding = 16; // We use padding so because the gradient would interfere with the buttons otherwise.
+        int padding = 16; // We use padding because the gradient would interfere with the buttons otherwise.
         if (this.getY() < this.screen.modButtonsStart + padding) { // Top Area
             int pixels = this.screen.modButtonsStart - this.getY();
             this.screen.modsScrollBar.setValue(this.screen.modsScrollBar.getValue() - (pixels + padding));
@@ -178,6 +178,7 @@ public class ModButton extends AbstractButton {
             // We unselect this button if it's already selected
             manager.clearElements();
             this.screen.setContentScrollBar(null);
+            this.screen.addContentWidgets(null);
             this.setSelected(false);
             this.screen.selectedModButton = null;
         } else {
@@ -188,6 +189,7 @@ public class ModButton extends AbstractButton {
             this.setSelected(true);
             this.screen.selectedModButton = this;
             this.screen.setContentScrollBar(null);
+            this.screen.addContentWidgets(null);
             manager.buildContentPanel(this.getModDataHolder());
         }
     }

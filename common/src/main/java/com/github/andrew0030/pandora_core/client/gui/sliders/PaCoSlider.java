@@ -28,6 +28,7 @@ public class PaCoSlider extends AbstractSliderButton {
     protected double stepSize;
     protected Component prefix;
     protected Component suffix;
+    protected MutableComponent narrationMessage;
     protected boolean isSilent = false;
     protected int sliderTextureWidth;
     protected int sliderTextureHeight;
@@ -123,6 +124,21 @@ public class PaCoSlider extends AbstractSliderButton {
     public PaCoSlider setSuffix(@Nullable Component suffix) {
         this.suffix = suffix;
         this.updateMessage();
+        return this;
+    }
+
+    /**
+     * Used to set a custom narration message, for {@link #createNarrationMessage()}.<br/>
+     * Notes:<ul>
+     *     <li><strong>null</strong> can be passed to use the slider default.</li>
+     *     <li>The result of {@link #getMessage()} can be added, by using {@code %s} in the lang json.</li>
+     * </ul>
+     * @param narrationMessage The {@link Component} that will be used for narration
+     */
+    public PaCoSlider setNarrationMessage(@Nullable Component narrationMessage) {
+        this.narrationMessage = null;
+        if (narrationMessage != null)
+            this.narrationMessage = Component.translatable(narrationMessage.getString(), this.getMessage());
         return this;
     }
 
@@ -682,5 +698,13 @@ public class PaCoSlider extends AbstractSliderButton {
     /** @return Whether the slider handle should be highlighted. */
     protected boolean shouldHighlightHandle() {
         return this.isHovered || this.canChangeValue;
+    }
+
+    @NotNull
+    @Override
+    protected MutableComponent createNarrationMessage() {
+        if (this.narrationMessage != null)
+            return narrationMessage;
+        return Component.translatable("gui.narrate.slider", this.getMessage());
     }
 }

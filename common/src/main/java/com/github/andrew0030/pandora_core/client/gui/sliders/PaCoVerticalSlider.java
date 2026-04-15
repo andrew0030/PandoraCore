@@ -1,6 +1,9 @@
 package com.github.andrew0030.pandora_core.client.gui.sliders;
 
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.CommonInputs;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 public class PaCoVerticalSlider extends PaCoSlider {
@@ -74,5 +77,17 @@ public class PaCoVerticalSlider extends PaCoSlider {
     @Override
     public int getHandleY() {
         return this.getY() + (int)(this.value * (double)(this.height - this.handleHeight));
+    }
+
+    @Override
+    public void updateWidgetNarration(NarrationElementOutput output) {
+        output.add(NarratedElementType.TITLE, this.createNarrationMessage());
+        if (this.active) {
+            if (this.isFocused()) {
+                output.add(NarratedElementType.USAGE, Component.translatable("narration.pandora_core.slider.vertical.usage.focused"));
+            } else {
+                output.add(NarratedElementType.USAGE, Component.translatable("narration.slider.usage.hovered"));
+            }
+        }
     }
 }

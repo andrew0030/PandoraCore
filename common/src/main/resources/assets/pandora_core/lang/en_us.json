@@ -18,6 +18,7 @@
   "gui.pandora_core.paco.content.mod.update.key": "Update Available:",
   "gui.pandora_core.paco.content.mod.update.page": "Open Download Page",
   "gui.pandora_core.paco.content.mod.description.key": "Description:",
+  "gui.pandora_core.paco.content.mod.links.key": "Links:",
   "gui.pandora_core.paco.content.mod.authors.key": "Author(s):",
   "gui.pandora_core.paco.content.mod.credits.key": "Credits:",
   "gui.pandora_core.paco.content.mod.contributors.key": "Contributor(s):",
@@ -28,6 +29,10 @@
   "gui.pandora_core.paco.content.mod.update.type.beta": "beta",
   "gui.pandora_core.paco.content.mod.update.type.release": "release",
   "gui.pandora_core.paco.content.mod.config.key": "Open Config",
+  "gui.pandora_core.paco.content.mod.homepage.key": "Open Homepage",
+  "gui.pandora_core.paco.content.mod.issues.key": "Open Issue Tracker",
+  "gui.pandora_core.paco.content.mod.sources.key": "Open Sources",
+
   "gui.pandora_core.narrate.slider.scroll_bar.mods_panel": "mods panel scrollbar",
   "gui.pandora_core.narrate.slider.scroll_bar.content_panel": "content panel scrollbar",
 

@@ -1,10 +1,12 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements;
 
+import com.github.andrew0030.pandora_core.client.PaCoClientTicker;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.Mth;
 
 public class ConfigButtonElement extends BaseClickableElement {
     private final int size = 18;
@@ -25,7 +27,18 @@ public class ConfigButtonElement extends BaseClickableElement {
         int u = 0;
         if (this.isHoveredOrFocused())
             u = this.size;
-        graphics.blit(PaCoScreen.TEXTURE, this.getX(), this.getY(), u, 180, this.size, this.size);
+
+        float time = (PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick()) * 0.16F;
+        float pulse = 0.5F + 0.5F * Mth.sin(time);
+        float scaleOffset = 1.0F + (2.0F / 18.0F) * pulse;
+        graphics.pose().pushPose();
+        graphics.pose().translate(this.getX(), this.getY(), 0);
+        // TODO: Have a discussion with team about config button pulsing
+//        graphics.pose().translate(9, 9, 0);
+//        graphics.pose().scale(scaleOffset, scaleOffset, 1);
+//        graphics.pose().translate(-9, -9, 0);
+        graphics.blit(PaCoScreen.TEXTURE, 0, 0, u, 180, this.size, this.size);
+        graphics.pose().popPose();
 
         // Debug Outline
         if (PaCoContentPanelManager.DEBUG_MODE)

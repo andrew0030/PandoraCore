@@ -40,6 +40,7 @@ dependencies {
     modImplementation "curse.maven:catalogue-fabric-667377:4766089" // Catalogue
     // Title Screen Compatibility Mods
     modCompileOnly "curse.maven:aether-255308:6800393" // The Aether
+    modCompileOnly "curse.maven:fancymenu-367706:7256727" // FancyMenu
 
     // exp4j (Expression Parsing)
     modImplementation "net.objecthunter:exp4j:0.4.8"

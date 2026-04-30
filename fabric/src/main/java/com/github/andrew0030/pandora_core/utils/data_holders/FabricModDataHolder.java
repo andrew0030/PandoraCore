@@ -22,13 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -47,6 +43,7 @@ public class FabricModDataHolder extends ModDataHolder {
     private Optional<Boolean> blurBackground = Optional.empty();
     private Optional<Boolean> blurBanner = Optional.empty();
     private Optional<URL> updateURL = Optional.empty();
+    private final Map<String, URL> contactURLs = new HashMap<>();
     private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
     private final List<String> credits = new ArrayList<>();
@@ -99,17 +96,7 @@ public class FabricModDataHolder extends ModDataHolder {
                     Optional.ofNullable(pandoracoreObj.get("updateURL"))
                             .filter(updateURLVal -> updateURLVal.getType() == CustomValue.CvType.STRING)
                             .map(CustomValue::getAsString)
-                            .ifPresent(val -> {
-                                if (val.trim().isEmpty() || val.contains("myurl.me") || val.contains("example.invalid")) {
-                                    this.updateURL = Optional.empty();
-                                } else {
-                                    try {
-                                        this.updateURL = Optional.of(new URL(val));
-                                    } catch (MalformedURLException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                            });
+                            .ifPresent(this::toURL);
                     // Mod Warnings
                     Optional.ofNullable(pandoracoreObj.get("warningFactory"))
                             .filter(factoryVal -> factoryVal.getType() == CustomValue.CvType.STRING)
@@ -181,6 +168,14 @@ public class FabricModDataHolder extends ModDataHolder {
 
         this.authors.addAll(this.metadata.getAuthors().stream().map(Person::getName).toList());
         this.credits.addAll(this.metadata.getContributors().stream().map(Person::getName).toList());
+
+        // Extracts the homepage/issues/sources URL(s) if they are specified
+        Map<String, String> contact = this.metadata.getContact().asMap();
+        for (String key : new String[]{"homepage", "issues", "sources"}) {
+            String urlStr = contact.get(key);
+            if (urlStr != null)
+                this.toURL(urlStr).ifPresent(url -> this.contactURLs.put(key, url));
+        }
 
         // Simple boolean to quickly check if this data holder is the minecraft data holder
         this.isMinecraft = this.getModId().equals("minecraft");
@@ -260,6 +255,11 @@ public class FabricModDataHolder extends ModDataHolder {
     @Override
     public Optional<URL> getUpdateURL() {
         return this.updateURL;
+    }
+
+    @Override
+    public Map<String, URL> getContactURLs() {
+        return this.contactURLs;
     }
 
     @Override

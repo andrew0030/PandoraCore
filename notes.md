@@ -56,8 +56,9 @@ Systems TODO:
   - [ ] Replace Fabric's placeholder background
   - [ ] Replace Forge's placeholder background
   - [x] Add support for [FancyMenu](https://www.curseforge.com/minecraft/mc-mods/fancymenu), which currently gets replaced with panorama
+    - [ ] Add config option to disable element hiding or to adjust what kind of elements get hidden
   - [x] Add support for [PackMenu](https://www.curseforge.com/minecraft/mc-mods/packmenu), which currently renders buttons in background
-  - [ ] Add links section or buttons to the content panel for hope page and or issues
+  - [x] Add links section or buttons to the content panel for home page and or issues
   - [x] Add a config screen button to the content panel (for mods that have/provide a valid config screen)
   - [x] Maybe add banner support
   - [ ] Look into mod ordering and libs on Quilt
@@ -81,6 +82,7 @@ Systems TODO:
   - [x] Maybe look into abstracting custom Registry registration
 - Random Render Stuff
   - [x] Create abstraction for BEWLERs
+    - [ ] Implement the overhauled BEWLR system that allows for any item to have a BEWLR attached to it
 - Sounds
   - [x] Get sounds to play
   - [x] Figure out looped sounds
@@ -135,6 +137,8 @@ Systems TODO:
     - [ ] Maybe allow removing/modifying `loot-pools` by checking for 1:1 matches (given `loot-pools` don't have ids)
   - [ ] Add modifiers for `advancements`. Just like loot related modifiers, this will greatly improve compatibility, as advancements can be tweaked without replacing them
     - [ ] Maybe allow messing with the position in the advancement menu?
+- Advancements
+  - [ ] Maybe add an `item_placed_in_container` advancement trigger
 - Gradle
   - [ ] Implement more modern multi-loader project structure
   - [ ] Split all test code into a `tests` module, so test code can be kept around while easily disabling it for production

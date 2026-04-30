@@ -6,6 +6,7 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginFabric",
   "mixins": [
+    "compat.gui.FancyMenuAbstractElementMixin",
     "world.DedicatedServerMixin",
     "world.GameTestServerMixin"
   ],

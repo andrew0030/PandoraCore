@@ -35,6 +35,7 @@ public class ForgeModDataHolder extends ModDataHolder {
     private Optional<Boolean> blurBackground = Optional.empty();
     private Optional<Boolean> blurBanner = Optional.empty();
     private Optional<URL> updateURL = Optional.empty();
+    private final Map<String, URL> contactURLs = new HashMap<>();
     private Supplier<List<Component>> modWarnings;
     private final List<String> authors = new ArrayList<>();
     private final List<String> credits = new ArrayList<>();
@@ -146,6 +147,13 @@ public class ForgeModDataHolder extends ModDataHolder {
         ((ModInfo) modInfo).getConfigElement("authors").map(Object::toString).ifPresent(string -> this.authors.addAll(Arrays.stream(string.replaceAll(" (and|&) ", ",").split("(?<=:)|[,;]")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
         ((ModInfo) modInfo).getConfigElement("credits").map(Object::toString).ifPresent(string -> this.credits.addAll(Arrays.stream(string.replaceAll("^[\\r\\n]+|[\\r\\n]+$", "").split("\\n")).map(String::trim).filter(s -> !s.isEmpty()).toList()));
 
+        // Extracts the homepage/issues URL(s) if they are specified
+        ((ModInfo) modInfo).getConfigElement("displayURL").map(Object::toString).flatMap(this::toURL).ifPresent(url -> this.contactURLs.put("homepage", url));
+        URL issueURL = ((ModInfo) modInfo).getOwningFile().getIssueURL();
+        if (issueURL != null)
+            this.contactURLs.put("issues", issueURL);
+        // TODO: check if its possible to include an optional "sources" entry, which PaCo could attempt to extract
+
         // Simple boolean to quickly check if this data holder is the minecraft data holder
         this.isMinecraft = this.getModId().equals("minecraft");
     }
@@ -219,6 +227,11 @@ public class ForgeModDataHolder extends ModDataHolder {
     @Override
     public Optional<URL> getUpdateURL() {
         return this.updateURL;
+    }
+
+    @Override
+    public Map<String, URL> getContactURLs() {
+        return this.contactURLs;
     }
 
     @Override

@@ -169,6 +169,10 @@ public class ModButton extends AbstractButton {
         }
     }
 
+    //TODO: Add logic to directly open the config screen of the mouse is over the mod icon.
+    // Additionally the button should also display some kind of config icon when hovered.
+    // The reason this wont be its own widget, is to keep it exclusive to mouse only navigation.
+    // Maybe modify narration to play the "open config" button if the mouse is over the icon
     @Override
     public void onPress() {
         ModButton currentButton = this.screen.selectedModButton;

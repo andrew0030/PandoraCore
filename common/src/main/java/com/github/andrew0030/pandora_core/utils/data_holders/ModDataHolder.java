@@ -13,9 +13,12 @@ import org.slf4j.Logger;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -77,6 +80,9 @@ public abstract class ModDataHolder {
     /** @return An {@link URL} pointing to an update JSON file, used to check for updates. */
     public abstract Optional<URL> getUpdateURL();
 
+    /** @return A {@link Map} with its {@code keys} used for context (e.g. homepage, issues) and their corresponding {@link URL}. */
+    public abstract Map<String, URL> getContactURLs();
+
     /**
      * @return An {@link Optional} containing the {@link UpdateInfo} of this mod.
      * If no update URL is provided this will return an empty {@link Optional}.
@@ -135,4 +141,22 @@ public abstract class ModDataHolder {
     public abstract Optional<String> getSha512Hash();
 
     public abstract Optional<Screen> getConfigScreen(Minecraft mc, Screen current);
+
+    /**
+     * Converts the given {@link String} to an {@link URL}.
+     *
+     * @param string The {@link String} that will be converted
+     * @return The @return {@link URL} retrieved from the given {@code string}.
+     */
+    protected Optional<URL> toURL(String string) {
+        if (string != null && !string.trim().isEmpty() && !string.contains("myurl.me") && !string.contains("example.invalid")) {
+            try {
+                URL url = URI.create(string).toURL();
+                return Optional.of(url);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Optional.empty();
+    }
 }

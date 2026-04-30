@@ -15,6 +15,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
+import java.net.URL;
 import java.util.*;
 
 public class PaCoContentPanelManager {
@@ -27,11 +28,15 @@ public class PaCoContentPanelManager {
     public static final Component MOD_UPDATE_KEY = Component.translatable("gui.pandora_core.paco.content.mod.update.key");
     public static final Component MOD_UPDATE_PAGE = Component.translatable("gui.pandora_core.paco.content.mod.update.page");
     public static final Component MOD_DESCRIPTION_KEY = Component.translatable("gui.pandora_core.paco.content.mod.description.key");
+    public static final Component MOD_LINKS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.links.key");
     public static final Component MOD_AUTHORS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.authors.key");
     public static final Component MOD_CREDITS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.credits.key");
     public static final Component MOD_CONTRIBUTORS_KEY = Component.translatable("gui.pandora_core.paco.content.mod.contributors.key");
     public static final Component MOD_LICENSE_KEY = Component.translatable("gui.pandora_core.paco.content.mod.license.key");
     public static final Component OPEN_CONFIG_KEY = Component.translatable("gui.pandora_core.paco.content.mod.config.key");
+    public static final Component OPEN_HOMEPAGE_KEY = Component.translatable("gui.pandora_core.paco.content.mod.homepage.key");
+    public static final Component OPEN_ISSUES_KEY = Component.translatable("gui.pandora_core.paco.content.mod.issues.key");
+    public static final Component OPEN_SOURCES_KEY = Component.translatable("gui.pandora_core.paco.content.mod.sources.key");
     // Content Panel | No Active Mod
     // TODO implement "No Active Mod" section
     private final List<BaseContentElement> elements = new ArrayList<>();
@@ -93,6 +98,43 @@ public class PaCoContentPanelManager {
             }
         }
         this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_DESCRIPTION_KEY.getString(), holder.getModDescription()).setValueColor(PaCoColor.color(160, 160, 160)));
+        if (!holder.getContactURLs().isEmpty()) {
+            this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_LINKS_KEY.getString(), "").setValueColor(PaCoColor.color(160, 160, 160)));
+            // Homepage
+            URL homepageURL = holder.getContactURLs().get("homepage");
+            boolean isFirstLink = true; // We add a pixel of extra padding after the first link, the reason is "it just looks better"
+            if (homepageURL != null) {
+                ClickableTextElement homepage = new ClickableTextElement(this, paddingX + 12, isFirstLink ? 0 : 1, OPEN_HOMEPAGE_KEY.getString(), () -> {
+                    ConfirmLinkScreen.confirmLinkNow(homepageURL.toString(), this.getScreen(), false);
+                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                });
+                this.clickableElements.add(homepage);
+                this.elements.add(homepage);
+                isFirstLink = false;
+            }
+            // Issues
+            URL issuesURL = holder.getContactURLs().get("issues");
+            if (issuesURL != null) {
+                ClickableTextElement issues = new ClickableTextElement(this, paddingX + 12, isFirstLink ? 0 : 1, OPEN_ISSUES_KEY.getString(), () -> {
+                    ConfirmLinkScreen.confirmLinkNow(issuesURL.toString(), this.getScreen(), false);
+                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                });
+                this.clickableElements.add(issues);
+                this.elements.add(issues);
+                isFirstLink = false;
+            }
+            // Sources
+            URL sourcesURL = holder.getContactURLs().get("sources");
+            if (sourcesURL != null) {
+                ClickableTextElement sources = new ClickableTextElement(this, paddingX + 12, isFirstLink ? 0 : 1, OPEN_SOURCES_KEY.getString(), () -> {
+                    ConfirmLinkScreen.confirmLinkNow(sourcesURL.toString(), this.getScreen(), false);
+                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                });
+                this.clickableElements.add(sources);
+                this.elements.add(sources);
+                isFirstLink = false;
+            }
+        }
         if (holder.hasModAuthors()) // We only add the authors if there are any specified
             this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_AUTHORS_KEY.getString(), holder.getModAuthors()).setValueColor(PaCoColor.color(160, 160, 160)));
         if (holder.hasModCredits())

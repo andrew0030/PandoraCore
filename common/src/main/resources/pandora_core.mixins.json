@@ -46,7 +46,6 @@
     "post_shader.GameRenderer_PostShaderMixin",
     "post_shader.PostChainMixin",
     "post_shader.PostPassMixin",
-    "render.BlockEntityWithoutLevelRendererMixin",
     "render.UsageAccessorMixin",
     "render.VBOAccessorMixin",
     "render.WindowMixin",
@@ -66,6 +65,7 @@
     "shader.AbstractUniformMixin",
     "shader.ShaderInstanceMixin",
     "shader.UniformMixin",
+    "render.ItemRendererMixin",
     "test.ShaderTemplateTest"
   ],
   "server": [],

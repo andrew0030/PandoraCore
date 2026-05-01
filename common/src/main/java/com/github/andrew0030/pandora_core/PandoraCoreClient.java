@@ -11,6 +11,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShade
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.registry.test.PaCoBlockEntities;
 import com.github.andrew0030.pandora_core.registry.test.PaCoBlocks;
+import com.github.andrew0030.pandora_core.registry.test.PaCoItems;
 import com.github.andrew0030.pandora_core.test.InstancingTestBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.test.PaCoBlockRenderTypes;
 import com.github.andrew0030.pandora_core.test.PaCoColorHandlers;
@@ -20,6 +21,7 @@ import com.github.andrew0030.pandora_core.test.particle.PaCoParticleProviders;
 import com.github.andrew0030.pandora_core.utils.LogicalSide;
 
 import java.util.List;
+import java.util.Set;
 
 public class PandoraCoreClient {
     public static final TemplateShaderResourceLoader templateShaderLoader = new TemplateShaderResourceLoader();
@@ -53,7 +55,7 @@ public class PandoraCoreClient {
         PaCoPostShaders.init();
 
         // TODO: remove this when done with testing
-        PaCoClientManager.registerItemBEWLR(PaCoBlocks.TEST.get(), TestBEWLR::new);
+        PaCoClientManager.registerItemBEWLR(Set.of(PaCoBlocks.TEST.get(), PaCoItems.FUNK.get()), TestBEWLR::new);
     }
 
     /** Thread Safe Client Init */

@@ -15,12 +15,9 @@ public class PaCoClientManager {
     /**
      * Registers a {@link BlockEntityWithoutLevelRenderer} (BEWLR) for the specified {@link ItemLike} object.
      *
-     * <p><strong>Important:</strong> The item's JSON model must use the parent model {@code "builtin/entity"}
-     * in order for the custom renderer to take effect.
-     *
      * <p>Here is a list of when to call it, on each loader:<br/>
-     * <strong>Forge</strong>: Inside FMLClientSetupEvent.<br/>
-     * <strong>Fabric</strong>: Inside ClientModInitializer#onInitializeClient.
+     * <strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.<br/>
+     * <strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.
      *
      * @param item     The {@link ItemLike} to associate with the custom renderer. Must not be null.
      * @param renderer The {@link Function} used to initialize the renderer. Must not be null.
@@ -35,12 +32,9 @@ public class PaCoClientManager {
     /**
      * Registers a {@link BlockEntityWithoutLevelRenderer} (BEWLR) for the specified {@link ItemLike} object.
      *
-     * <p><strong>Important:</strong> The item's JSON model must use the parent model {@code "builtin/entity"}
-     * in order for the custom renderer to take effect.
-     *
      * <p>Here is a list of when to call it, on each loader:<br/>
-     * <strong>Forge</strong>: Inside FMLClientSetupEvent.<br/>
-     * <strong>Fabric</strong>: Inside ClientModInitializer#onInitializeClient.
+     * <strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.<br/>
+     * <strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.
      *
      * @param item     The {@link ItemLike} to associate with the custom renderer. Must not be null.
      * @param renderer The {@link BiFunction} used to initialize the renderer. Must not be null.
@@ -55,12 +49,9 @@ public class PaCoClientManager {
     /**
      * Registers a {@link BlockEntityWithoutLevelRenderer} (BEWLR) for the specified {@link ItemLike} objects.
      *
-     * <p><strong>Important:</strong> The item's JSON models must use the parent model {@code "builtin/entity"}
-     * in order for the custom renderer to take effect.
-     *
      * <p>Here is a list of when to call it, on each loader:<br/>
-     * <strong>Forge</strong>: Inside FMLClientSetupEvent.<br/>
-     * <strong>Fabric</strong>: Inside ClientModInitializer#onInitializeClient.
+     * <strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.<br/>
+     * <strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.
      *
      * @param items    A {@link Set} containing {@link ItemLike} instances, to associate with the custom renderer. Must not be null.
      * @param renderer The {@link Function} used to initialize the renderer. Must not be null.
@@ -76,12 +67,9 @@ public class PaCoClientManager {
     /**
      * Registers a {@link BlockEntityWithoutLevelRenderer} (BEWLR) for the specified {@link ItemLike} objects.
      *
-     * <p><strong>Important:</strong> The item's JSON models must use the parent model {@code "builtin/entity"}
-     * in order for the custom renderer to take effect.
-     *
      * <p>Here is a list of when to call it, on each loader:<br/>
-     * <strong>Forge</strong>: Inside FMLClientSetupEvent.<br/>
-     * <strong>Fabric</strong>: Inside ClientModInitializer#onInitializeClient.
+     * <strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.<br/>
+     * <strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.
      *
      * @param items    A {@link Set} containing {@link ItemLike} instances, to associate with the custom renderer. Must not be null.
      * @param renderer The {@link BiFunction} used to initialize the renderer. Must not be null.

@@ -82,7 +82,7 @@ Systems TODO:
   - [x] Maybe look into abstracting custom Registry registration
 - Random Render Stuff
   - [x] Create abstraction for BEWLERs
-    - [ ] Implement the overhauled BEWLR system that allows for any item to have a BEWLR attached to it
+    - [x] Implement the overhauled BEWLR system that allows for any item to have a BEWLR attached to it
 - Sounds
   - [x] Get sounds to play
   - [x] Figure out looped sounds

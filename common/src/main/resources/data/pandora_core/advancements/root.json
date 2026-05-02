@@ -1,0 +1,36 @@
+{
+  "display": {
+    "title": {
+      "text": "Metal in Hopper"
+    },
+    "description": {
+      "text": "Place 5 gold/copper ingots, or 10 iron ingots into a hopper!"
+    },
+    "icon": {
+      "item": "pandora_core:funk"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "minecraft:textures/block/stripped_oak_log.png"
+  },
+  "criteria": {
+    "metal_ingot_in_hopper": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "minecraft:hopper",
+        "items": [
+          {
+            "items": ["minecraft:iron_ingot"],
+            "count": { "min": 10 }
+          },
+          {
+            "items": ["minecraft:gold_ingot", "minecraft:copper_ingot"],
+            "count": { "min": 5 }
+          }
+        ]
+      }
+    }
+  }
+}

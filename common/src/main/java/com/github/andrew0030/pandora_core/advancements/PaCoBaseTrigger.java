@@ -21,6 +21,7 @@ public class PaCoBaseTrigger extends SimpleCriterionTrigger<PaCoBaseTrigger.Trig
         this.id = id;
     }
 
+    @Override
     public @NotNull ResourceLocation getId() {
         return this.id;
     }

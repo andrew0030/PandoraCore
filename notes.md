@@ -138,7 +138,11 @@ Systems TODO:
   - [ ] Add modifiers for `advancements`. Just like loot related modifiers, this will greatly improve compatibility, as advancements can be tweaked without replacing them
     - [ ] Maybe allow messing with the position in the advancement menu?
 - Advancements
-  - [ ] Maybe add an `item_placed_in_container` advancement trigger
+  - [x] Maybe add an `item_placed_in_container` advancement trigger
+- Data Fixer Utils
+  - Maybe look into adding some utils for data fixers
+- Byte Dump System
+  - [ ] Add a mixin annotation to dump binaries (useful to debug what kind of unholy patches OptiFine and others have done)
 - Gradle
   - [ ] Implement more modern multi-loader project structure
   - [ ] Split all test code into a `tests` module, so test code can be kept around while easily disabling it for production

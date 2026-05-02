@@ -38,6 +38,10 @@ accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers
 # Used to make the SimpleParticleType constructor accessible so we can use it like on forge.
 accessible method net/minecraft/core/particles/SimpleParticleType <init> (Z)V # SimpleParticleType
 
+# Used to access CriteriaTriggers.register, forge makes this public,
+# so in order to access it in common and fabric we need to add an AW.
+accessible method net/minecraft/advancements/CriteriaTriggers register (Lnet/minecraft/advancements/CriterionTrigger;)Lnet/minecraft/advancements/CriterionTrigger;
+
 # Used to access EntityRenderers.register, forge makes this public,
 # so in order to access it in common and fabric we need to add an AW.
 accessible method net/minecraft/client/renderer/entity/EntityRenderers register (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/client/renderer/entity/EntityRendererProvider;)V

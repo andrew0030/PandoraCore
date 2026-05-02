@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryBuilder;
+import com.github.andrew0030.pandora_core.registry.internal.PaCoCriteriaTriggers;
 import com.github.andrew0030.pandora_core.registry.internal.PaCoModifiers;
 import com.github.andrew0030.pandora_core.registry.internal.PaCoRegistryKeys;
 import com.github.andrew0030.pandora_core.registry.internal.PaCoStructurePoolElementTypes;
@@ -75,7 +76,9 @@ public class PandoraCore {
         // TODO remove when done testing
         PaCoFlammables.FLAMMABLES.register();
         PaCoBrewingRecipes.BREWING_RECIPES.register();
+        PaCoCriteriaTriggers.init(); //TODO: remove root.json advancement when done testing
 
+        //TODO remove when done testing config system
         System.out.println("The color is: " + PaCoMainConfig.CustomValues.color);
         System.out.println("The colors list is: " + PaCoMainConfig.CustomValues.colors);
     }

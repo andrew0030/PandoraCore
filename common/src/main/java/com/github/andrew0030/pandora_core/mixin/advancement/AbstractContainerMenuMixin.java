@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.mixin.advancement;
 
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoCheckInventory;
+import com.github.andrew0030.pandora_core.mixin_interfaces.container.IPaCoCheckInventory;
+import com.github.andrew0030.pandora_core.mixin_interfaces.container.IPaCoExpandedMenuId;
 import com.github.andrew0030.pandora_core.registry.internal.PaCoCriteriaTriggers;
 import com.github.andrew0030.pandora_core.utils.SideChecker;
 import net.minecraft.core.NonNullList;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 @Mixin(AbstractContainerMenu.class)
-public abstract class AbstractContainerMenuMixin {
+public abstract class AbstractContainerMenuMixin implements IPaCoExpandedMenuId {
     @Shadow @Final public NonNullList<Slot> slots;
     @Shadow @Final @Nullable private MenuType<?> menuType;
     @Shadow @Final private Set<Slot> quickcraftSlots;
@@ -40,8 +41,8 @@ public abstract class AbstractContainerMenuMixin {
 
     @Inject(method = "clicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;doClick(IILnet/minecraft/world/inventory/ClickType;Lnet/minecraft/world/entity/player/Player;)V"))
     public void injectBeforeDoClick(int slotId, int button, ClickType type, Player player, CallbackInfo ci) {
-        // We can't properly tell what menu is open without it having a type, thus menus without type are ignored
-        if (this.menuType == null) return;
+        // We can't properly tell what menu is open without it having a type or alt menu id, thus menus without them are ignored
+        if (this.menuType == null && this.pandoraCore$getExpandedMenuId() == null) return;
         // We only want to trigger an advancement on stack insertion, meaning we only need server
         if (!SideChecker.isServerPlayer(player)) return;
         // Cleanup, just in case to avoid state leaking if an exception occurred
@@ -72,8 +73,8 @@ public abstract class AbstractContainerMenuMixin {
 
     @Inject(method = "clicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;doClick(IILnet/minecraft/world/inventory/ClickType;Lnet/minecraft/world/entity/player/Player;)V", shift = At.Shift.AFTER))
     public void injectAfterDoClick(int slotId, int button, ClickType type, Player player, CallbackInfo ci) {
-        // We cant properly tell what menu is open without it having a type, thus menus without type are ignored
-        if (this.menuType == null) return;
+        // We can't properly tell what menu is open without it having a type or alt menu id, thus menus without them are ignored
+        if (this.menuType == null && this.pandoraCore$getExpandedMenuId() == null) return;
         // We only want to trigger an advancement on stack insertion, meaning we only need server
         if (!SideChecker.isServerPlayer(player)) return;
         ServerPlayer serverPlayer = (ServerPlayer) player;
@@ -88,7 +89,7 @@ public abstract class AbstractContainerMenuMixin {
                     List<ItemStack> itemStacks = new ArrayList<>(this.pandoraCore$targetIndexCache.size());
                     for (int idx : this.pandoraCore$targetIndexCache)
                         itemStacks.add(this.slots.get(idx).getItem());
-                    PaCoCriteriaTriggers.ITEM_PLACED_IN_CONTAINER.trigger(serverPlayer, this.menuType, itemStacks);
+                    PaCoCriteriaTriggers.ITEM_PLACED_IN_CONTAINER.trigger(serverPlayer, this.menuType, this.pandoraCore$getExpandedMenuId(), itemStacks);
                 }
             }
             // --- QUICK_MOVE ---
@@ -99,7 +100,7 @@ public abstract class AbstractContainerMenuMixin {
                     List<ItemStack> itemStacks = new ArrayList<>(this.pandoraCore$targetIndexCache.size());
                     for (int idx : this.pandoraCore$targetIndexCache)
                         itemStacks.add(this.slots.get(idx).getItem());
-                    PaCoCriteriaTriggers.ITEM_PLACED_IN_CONTAINER.trigger(serverPlayer, this.menuType, itemStacks);
+                    PaCoCriteriaTriggers.ITEM_PLACED_IN_CONTAINER.trigger(serverPlayer, this.menuType, this.pandoraCore$getExpandedMenuId(), itemStacks);
                 }
             }
             // --- PICKUP ---
@@ -112,7 +113,7 @@ public abstract class AbstractContainerMenuMixin {
                 Slot slot = this.slots.get(slotId);
                 if (((IPaCoCheckInventory) slot.container).pandoraCore$isInventory()) return;
                 if (this.pandoraCore$carriedStackCache.isEmpty()) return;
-                PaCoCriteriaTriggers.ITEM_PLACED_IN_CONTAINER.trigger(serverPlayer, this.menuType, List.of(slot.getItem()));
+                PaCoCriteriaTriggers.ITEM_PLACED_IN_CONTAINER.trigger(serverPlayer, this.menuType, this.pandoraCore$getExpandedMenuId(), List.of(slot.getItem()));
             }
             // --- SWAP ---
             // Gets triggered when items are swapped e.g. the player uses hotkeys to swap a hotbar item and the hovered item.
@@ -122,7 +123,7 @@ public abstract class AbstractContainerMenuMixin {
                 // Checks what successfully ended up in our slots
                 Slot slot = this.slots.get(slotId);
                 if (((IPaCoCheckInventory) slot.container).pandoraCore$isInventory()) return;
-                PaCoCriteriaTriggers.ITEM_PLACED_IN_CONTAINER.trigger(serverPlayer, this.menuType, List.of(slot.getItem()));
+                PaCoCriteriaTriggers.ITEM_PLACED_IN_CONTAINER.trigger(serverPlayer, this.menuType, this.pandoraCore$getExpandedMenuId(), List.of(slot.getItem()));
             }
         } finally {
             // Cleanup, just in case to avoid state leaking if an exception occurred

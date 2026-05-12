@@ -143,26 +143,30 @@ public class PaCoItemPlacedInContainerTrigger extends SimpleCriterionTrigger<PaC
         return new TriggerInstance(predicate, menu, items);
     }
 
-    public void trigger(ServerPlayer player, MenuType<?> menuType, List<ItemStack> insertedItems) {
+    public void trigger(ServerPlayer player, MenuType<?> menuType, ResourceLocation expandedMenuId, List<ItemStack> insertedItems) {
         ResourceLocation menuId = BuiltInRegistries.MENU.getKey(menuType);
-        this.trigger(player, instance -> instance.matches(menuId, insertedItems));
+        this.trigger(player, menuId, expandedMenuId, insertedItems);
+    }
+
+    public void trigger(ServerPlayer player, ResourceLocation menuId, ResourceLocation expandedMenuId, List<ItemStack> insertedItems) {
+        this.trigger(player, instance -> instance.matches(menuId, expandedMenuId, insertedItems));
     }
 
     /** Holds the parsed conditions for a single criterion using this trigger. */
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ResourceLocation menu;
+        private final ResourceLocation menuId;
         private final ItemPredicate[] predicates;
 
-        public TriggerInstance(ContextAwarePredicate predicate, ResourceLocation menu, ItemPredicate[] predicates) {
+        public TriggerInstance(ContextAwarePredicate predicate, ResourceLocation menuId, ItemPredicate[] predicates) {
             super(ID, predicate);
-            this.menu = menu;
+            this.menuId = menuId;
             this.predicates = predicates;
         }
 
         @Override
         public @NotNull JsonObject serializeToJson(@NotNull SerializationContext context) {
             JsonObject json = super.serializeToJson(context);
-            json.addProperty("menu", this.menu.toString());
+            json.addProperty("menu", this.menuId.toString());
             if (this.predicates.length > 0) {
                 JsonArray array = new JsonArray();
                 for (ItemPredicate predicate : this.predicates)
@@ -172,9 +176,11 @@ public class PaCoItemPlacedInContainerTrigger extends SimpleCriterionTrigger<PaC
             return json;
         }
 
-        public boolean matches(ResourceLocation actualMenu, List<ItemStack> insertedItems) {
+        public boolean matches(ResourceLocation targetMenuId, ResourceLocation targetAltMenuId, List<ItemStack> insertedItems) {
+            // If no ID was specified we can't target a menu
+            if (this.menuId == null) return false;
             // If we aren't in the desired menu it is not a match
-            if (this.menu != null && !this.menu.equals(actualMenu)) return false;
+            if (!this.menuId.equals(targetMenuId) && !this.menuId.equals(targetAltMenuId)) return false;
             // Checks if there are any predicates
             boolean isPredicatesEmpty = this.predicates.length == 0;
 

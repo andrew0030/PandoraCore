@@ -1,14 +1,8 @@
 {
   "display": {
-    "title": {
-      "text": "Metal in Hopper"
-    },
-    "description": {
-      "text": "Place 5 gold/copper ingots, or 10 iron ingots into a hopper!"
-    },
-    "icon": {
-      "item": "pandora_core:funk"
-    },
+    "title": { "text": "Metal in any Hopper" },
+    "description": { "text": "Place 5 gold/copper ingots, or 10 iron ingots into any hopper!" },
+    "icon": { "item": "pandora_core:funk" },
     "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,

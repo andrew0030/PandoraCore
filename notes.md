@@ -139,8 +139,7 @@ Systems TODO:
     - [ ] Maybe allow messing with the position in the advancement menu?
 - Advancements
   - [x] Maybe add an `item_placed_in_container` advancement trigger
-- Data Fixer Utils
-  - Maybe look into adding some utils for data fixers
+    - [ ] Clean up test advancements once a tests module exists
 - Byte Dump System
   - [ ] Add a mixin annotation to dump binaries (useful to debug what kind of unholy patches OptiFine and others have done)
 - Gradle

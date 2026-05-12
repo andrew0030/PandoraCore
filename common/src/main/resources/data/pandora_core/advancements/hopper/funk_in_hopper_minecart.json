@@ -1,0 +1,25 @@
+{
+  "display": {
+    "title": { "text": "Funk in a Hopper Minecart" },
+    "description": { "text": "Place a funk inside of a hopper minecart." },
+    "icon": { "item": "minecraft:hopper_minecart" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "pandora_core:root",
+  "criteria": {
+    "funk_in_hopper_minecart": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_hopper_minecart",
+        "items": [
+          {
+            "items": ["pandora_core:funk"]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "display": {
+    "title": { "text": "Barrel in Barrel" },
+    "description": { "text": "Place a barrel inside of a barrel." },
+    "icon": { "item": "minecraft:barrel" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "pandora_core:root",
+  "criteria": {
+    "barrel_in_barrel": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_barrel",
+        "items": [
+          {
+            "items": ["minecraft:barrel"]
+          }
+        ]
+      }
+    }
+  }
+}

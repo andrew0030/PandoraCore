@@ -1,0 +1,23 @@
+{
+  "display": {
+    "title": { "text": "Sell out to a Wandering Trader" },
+    "description": { "text": "Give a wandering trader an emerald." },
+    "icon": { "item": "minecraft:emerald" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "pandora_core:root",
+  "criteria": {
+    "sell_out_wandering_trader": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_wandering_trader",
+        "items": [
+          { "items": ["minecraft:emerald"] }
+        ]
+      }
+    }
+  }
+}

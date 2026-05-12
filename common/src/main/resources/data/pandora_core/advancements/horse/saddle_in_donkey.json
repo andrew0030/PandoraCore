@@ -1,0 +1,25 @@
+{
+  "display": {
+    "title": { "text": "Saddled a Donkey" },
+    "description": { "text": "Place a saddle on a donkey." },
+    "icon": { "item": "minecraft:saddle" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "pandora_core:root",
+  "criteria": {
+    "saddle_in_donkey": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_donkey",
+        "items": [
+          {
+            "items": ["minecraft:saddle"]
+          }
+        ]
+      }
+    }
+  }
+}

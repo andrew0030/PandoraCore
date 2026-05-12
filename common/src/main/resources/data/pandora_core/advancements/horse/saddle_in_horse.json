@@ -1,0 +1,25 @@
+{
+  "display": {
+    "title": { "text": "Saddled a Horse" },
+    "description": { "text": "Place a saddle on a horse." },
+    "icon": { "item": "minecraft:saddle" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "pandora_core:root",
+  "criteria": {
+    "saddle_in_horse": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_horse",
+        "items": [
+          {
+            "items": ["minecraft:saddle"]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "display": {
+    "title": { "text": "Arrow in Dropper" },
+    "description": { "text": "Place an arrow inside of a dropper." },
+    "icon": { "item": "minecraft:dropper" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "pandora_core:root",
+  "criteria": {
+    "arrow_in_dropper": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_dropper",
+        "items": [
+          { "items": ["minecraft:arrow"] }
+        ]
+      }
+    }
+  }
+}

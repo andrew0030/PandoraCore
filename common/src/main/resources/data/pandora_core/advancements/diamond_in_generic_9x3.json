@@ -1,0 +1,25 @@
+{
+  "display": {
+    "title": { "text": "Diamond in Generic 9x3" },
+    "description": { "text": "Place a Diamond inside of a generic 9x3 menu." },
+    "icon": { "item": "minecraft:diamond" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "pandora_core:root",
+  "criteria": {
+    "barrel_in_barrel": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "minecraft:generic_9x3",
+        "items": [
+          {
+            "items": ["minecraft:diamond"]
+          }
+        ]
+      }
+    }
+  }
+}

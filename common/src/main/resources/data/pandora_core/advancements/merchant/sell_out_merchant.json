@@ -1,0 +1,23 @@
+{
+  "display": {
+    "title": { "text": "Sell out to a Merchant" },
+    "description": { "text": "Give a merchant an emerald." },
+    "icon": { "item": "minecraft:emerald" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "pandora_core:root",
+  "criteria": {
+    "sell_out_merchant": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "minecraft:merchant",
+        "items": [
+          { "items": ["minecraft:emerald"] }
+        ]
+      }
+    }
+  }
+}

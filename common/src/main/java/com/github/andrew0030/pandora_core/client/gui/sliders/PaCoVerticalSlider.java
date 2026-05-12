@@ -90,4 +90,32 @@ public class PaCoVerticalSlider extends PaCoSlider {
             }
         }
     }
+
+    @Override
+    protected int getNavRectPosX() {
+        return this.getX();
+    }
+
+    @Override
+    protected int getNavRectPosY() {
+        return switch (this.focusRectangleMode) {
+            case FULL_BOUNDS -> this.getY();
+            case HANDLE_START -> this.getHandleY();
+            case HANDLE_CENTER -> (this.getHandleY() + (this.handleHeight / 2));
+        };
+    }
+
+    @Override
+    protected int getNavRectWidth() {
+        return this.getWidth();
+    }
+
+    @Override
+    protected int getNavRectHeight() {
+        return switch (this.focusRectangleMode) {
+            case FULL_BOUNDS -> this.getHeight();
+            case HANDLE_START -> this.handleHeight;
+            case HANDLE_CENTER -> this.handleHeight / 2;
+        };
+    }
 }

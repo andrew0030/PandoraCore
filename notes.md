@@ -67,7 +67,7 @@ Systems TODO:
   - [x] On Fabric exiting the Minecraft options screen using "ESC" returns to TitleScreen rather than PaCoScreen, should be fixed as a QoL feature
   - [ ] Add (optional) fade in to config screens. This will make the transition to config screens by other mods look nicer
   - [x] Fine tune the narration of widgets
-  - [ ] Maybe fine tune the keyboard navigation (scroll bars could maybe navigate from center of the slider instead?)
+  - [x] Maybe fine tune the keyboard navigation (scroll bars could maybe navigate from center of the slider instead?)
 - PaCo Config Screen
   - [ ] Create config screen that can take any number of components and dynamically adjust to it
   - [ ] Hook mod config system into it

@@ -7,6 +7,7 @@ import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModIm
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BaseClickableElement;
+import com.github.andrew0030.pandora_core.client.gui.sliders.FocusRectangleMode;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
@@ -189,6 +190,7 @@ public class PaCoScreen extends Screen {
                     .setTextHidden(true)
                     .setNarrationMessage(SCROLLBAR)
                     .setHandleSize(8, this.modsHandleHeight)
+                    .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
                     .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                     .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
             this.addWidget(this.modsScrollBar);
@@ -542,6 +544,7 @@ public class PaCoScreen extends Screen {
                     .setTextHidden(true)
                     .setNarrationMessage(SCROLLBAR)
                     .setHandleSize(8, this.modsHandleHeight)
+                    .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
                     .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                     .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
             newModButtons.add(this.modsScrollBar); // We add the scroll bar to the end of the list, as we will require that structure bellow any ways

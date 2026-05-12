@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.CommonInputs;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -52,6 +53,7 @@ public class PaCo2DSlider extends AbstractSliderButton
     // Slider Handle Stuff
     protected int handleWidth;
     protected int handleHeight;
+    protected FocusRectangleMode focusRectangleMode = FocusRectangleMode.FULL_BOUNDS;
     protected int handleTextureWidth;
     protected int handleTextureHeight;
     protected int handleSliceSize;
@@ -200,6 +202,22 @@ public class PaCo2DSlider extends AbstractSliderButton
      */
     public PaCo2DSlider setHandleSize(int width, int height) {
         return this.setHandleWidth(width).setHandleHeight(height);
+    }
+
+    /**
+     * Used to specify how this slider's bounding rectangle is calculated for keyboard navigation.<br/>
+     * <strong>Note:</strong> this logic is only applied to navigating {@code out-of} the slider.<br/>
+     * Available Modes:
+     * <ul>
+     *   <li>{@link FocusRectangleMode#FULL_BOUNDS} - Uses the full slider bounds. This is the default.</li>
+     *   <li>{@link FocusRectangleMode#HANDLE_START} - Anchors the navigation rectangle to the handle's top-left corner.</li>
+     *   <li>{@link FocusRectangleMode#HANDLE_CENTER} - Anchors the navigation rectangle to the handle's center.</li>
+     * </ul>
+     * @param mode The {@link FocusRectangleMode} to apply
+     */
+    public PaCo2DSlider setFocusReactangleMode(FocusRectangleMode mode) {
+        this.focusRectangleMode = mode;
+        return this;
     }
 
     /**
@@ -782,5 +800,52 @@ public class PaCo2DSlider extends AbstractSliderButton
                 output.add(NarratedElementType.USAGE, Component.translatable("narration.slider.usage.hovered"));
             }
         }
+    }
+
+    @NotNull
+    @Override
+    public ScreenRectangle getRectangle() {
+        // If the slider isn't focused, meaning we are "navigating into", we return
+        // the default rectangle, as we only want to affect "navigating out-of".
+        if (!this.isFocused())
+            return super.getRectangle();
+        // Creates a custom rectangle, based on the selected mode
+        return new ScreenRectangle(this.getNavRectPosX(), this.getNavRectPosY(), this.getNavRectWidth(), this.getNavRectHeight());
+    }
+
+    /** Determines where the navigation rectangle's start position on the {@code x-axis} should be. */
+    protected int getNavRectPosX() {
+        return switch (this.focusRectangleMode) {
+            case FULL_BOUNDS -> this.getX();
+            case HANDLE_START -> this.getHandleX();
+            case HANDLE_CENTER -> (this.getHandleX() + (this.handleWidth / 2));
+        };
+    }
+
+    /** Determines where the navigation rectangle's start position on the {@code y-axis} should be. */
+    protected int getNavRectPosY() {
+        return switch (this.focusRectangleMode) {
+            case FULL_BOUNDS -> this.getY();
+            case HANDLE_START -> this.getHandleY();
+            case HANDLE_CENTER -> (this.getHandleY() + (this.handleHeight / 2));
+        };
+    }
+
+    /** Determines the navigation rectangle's {@code width}. */
+    protected int getNavRectWidth() {
+        return switch (this.focusRectangleMode) {
+            case FULL_BOUNDS -> this.getWidth();
+            case HANDLE_START -> this.handleWidth;
+            case HANDLE_CENTER -> this.handleWidth / 2;
+        };
+    }
+
+    /** Determines the navigation rectangle's {@code height}. */
+    protected int getNavRectHeight() {
+        return switch (this.focusRectangleMode) {
+            case FULL_BOUNDS -> this.getHeight();
+            case HANDLE_START -> this.handleHeight;
+            case HANDLE_CENTER -> this.handleHeight / 2;
+        };
     }
 }

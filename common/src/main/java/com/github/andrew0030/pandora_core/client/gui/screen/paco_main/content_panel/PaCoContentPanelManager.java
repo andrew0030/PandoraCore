@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_p
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.*;
+import com.github.andrew0030.pandora_core.client.gui.sliders.FocusRectangleMode;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
@@ -159,6 +160,7 @@ public class PaCoContentPanelManager {
                             .setTextHidden(true)
                             .setNarrationMessage(SCROLLBAR)
                             .setHandleSize(8, Math.max(8, this.getHeight() - (this.getContentHeight() - this.getHeight()) - PaCoScreen.PADDING_FOUR))
+                            .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
                             .setSliderTexture(PaCoScreen.TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                             .setHandleTexture(PaCoScreen.TEXTURE, 12, 54, 20, 54, 8, 18, 1)
             );

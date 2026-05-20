@@ -58,6 +58,9 @@ dependencies {
     shade "com.electronwill.night-config:core:3.8.1"
     shade "com.electronwill.night-config:toml:3.8.1"
 
+    modRuntimeOnly "curse.maven:swampier_swamps-687298:4580758" // swampier swamps
+    modImplementation "curse.maven:cloth-config-348521:5729104"
+
     // Performance Monitoring
     modRuntimeOnly "curse.maven:spark-361579:4738953" // Spark
     // Render Mods To Test Shader Patcher

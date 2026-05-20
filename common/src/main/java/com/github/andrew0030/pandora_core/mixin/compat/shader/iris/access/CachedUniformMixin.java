@@ -1,8 +1,8 @@
-package com.github.andrew0030.pandora_core.mixin.shader;
+package com.github.andrew0030.pandora_core.mixin.compat.shader.iris.access;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPacoDirtyable;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoModTracker;
-import com.mojang.blaze3d.shaders.Uniform;
+import net.irisshaders.iris.uniforms.custom.cached.CachedUniform;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -10,14 +10,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Uniform.class)
-public abstract class UniformMixin implements IPacoDirtyable, IPaCoModTracker {
+@Mixin(value = CachedUniform.class, remap = false)
+public class CachedUniformMixin implements IPacoDirtyable, IPaCoModTracker {
 	@Shadow
-	protected abstract void markDirty();
+	private boolean changed;
 	
 	@Override
 	public void pandoraCore$markDirty() {
-		markDirty();
+		changed = true;
 	}
 	
 	@Unique
@@ -25,7 +25,7 @@ public abstract class UniformMixin implements IPacoDirtyable, IPaCoModTracker {
 	@Unique
 	boolean pandoraCore$shouldTrack = false;
 	
-	@Inject(at = @At("HEAD"), method = "markDirty")
+	@Inject(at = @At("HEAD"), method = "update")
 	public void preMarkDirty(CallbackInfo ci) {
 		if (pandoraCore$shouldTrack) {
 			pandoraCore$modCount++;
@@ -54,7 +54,7 @@ public abstract class UniformMixin implements IPacoDirtyable, IPaCoModTracker {
 			boolean st = pandoraCore$shouldTrack;
 			// need to not increment
 			pandoraCore$shouldTrack = false;
-			markDirty();
+			changed = true;
 			pandoraCore$shouldTrack = st;
 			return true;
 		}

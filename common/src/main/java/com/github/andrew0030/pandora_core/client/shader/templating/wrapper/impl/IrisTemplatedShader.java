@@ -10,11 +10,24 @@ import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.TemplatedProgram;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment.AttachmentSpecifier;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment.ShaderAttachment;
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPacoDirtyable;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoModTracker;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoModTrackerListable;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPacoAccessInitializables;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPacoCustomUniformAccessor;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPacoUniformInitalizerAccessor;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.shaders.AbstractUniform;
+import net.irisshaders.iris.gl.program.ProgramUniforms;
+import net.irisshaders.iris.gl.uniform.Uniform;
+import net.irisshaders.iris.pipeline.programs.ExtendedShader;
 import net.irisshaders.iris.shadows.ShadowRenderingState;
+import net.irisshaders.iris.uniforms.custom.CustomUniforms;
+import net.irisshaders.iris.uniforms.custom.cached.CachedUniform;
 import net.minecraft.client.renderer.ShaderInstance;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -70,9 +83,9 @@ public class IrisTemplatedShader extends TemplatedShader {
             // log error
             program.validate("Iris/Oculus:Base");
 
-            program.setFirstBind(() -> {
-                FIRST_BIND = true;
-            });
+            program.setFirstBind(() -> firstBind(vanilla));
+	        program.setPreBind(() -> preBind(vanilla));
+	        program.setPostClear(() -> postClear(vanilla));
         }
         if (vanillaShadow != null) {
             List<ShaderAttachment> attachments = new ArrayList<>();
@@ -106,15 +119,59 @@ public class IrisTemplatedShader extends TemplatedShader {
             programShadow.validate("Iris/Oculus:Shadow");
             this.programShadow = programShadow;
 
-            programShadow.setFirstBind(() -> {
-                FIRST_BIND = true;
-            });
+            programShadow.setFirstBind(() -> firstBind(vanillaShadow));
+            programShadow.setPreBind(() -> preBind(vanillaShadow));
+            programShadow.setPostClear(() -> postClear(vanillaShadow));
         } else {
             programShadow = BlackHoleProgram.INSTANCE;
         }
     }
-
-    public static boolean isFirstBind() {
+	
+	private void firstBind(ShaderInstance vanilla) {
+		FIRST_BIND = true;
+	}
+	
+	private Map<CachedUniform, Integer> uniformModCounts = new HashMap<>();
+	ImmutableList<Uniform> cachedInit;
+	
+	private void postClear(ShaderInstance vanilla) {
+		ExtendedShader ext = (ExtendedShader) vanilla;
+		ProgramUniforms progUniforms = ((IPacoAccessInitializables)ext).pandoraCore$getUniforms();
+		IPacoUniformInitalizerAccessor accessor = (IPacoUniformInitalizerAccessor) progUniforms;
+		accessor.pandoraCore$setInitializer(cachedInit);
+	}
+	
+	private void preBind(ShaderInstance vanilla) {
+		ExtendedShader ext = (ExtendedShader) vanilla;
+		
+		CustomUniforms uniforms = ((IPacoCustomUniformAccessor) ext).pandoraCore$getCustomUniforms();
+		
+		ProgramUniforms progUniforms = ((IPacoAccessInitializables)ext).pandoraCore$getUniforms();
+		IPacoUniformInitalizerAccessor accessor = (IPacoUniformInitalizerAccessor) progUniforms;
+		cachedInit = accessor.pandoraCore$getInitializer();
+		accessor.pandoraCore$setInitializer(accessor.pandoraCore$getCachedInitializer());
+		
+		for (IPaCoModTracker mt : ((IPaCoModTrackerListable) uniforms).pandoraCore$listTrackers()) {
+			CachedUniform uniform = (CachedUniform) mt;
+			Integer i = uniformModCounts.getOrDefault(uniform, null);
+			if (i != null) {
+				if (mt.pandoraCore$dirtyIfNotMod(i)) {
+					// update mod count
+					uniformModCounts.put(uniform, mt.pandoraCore$mod());
+					((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
+				}
+			} else {
+				// cache mod and assume it needs to be uploaded
+				uniformModCounts.put(uniform, mt.pandoraCore$mod());
+				((IPacoDirtyable) uniform).pandoraCore$markDirty();
+				((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
+			}
+		}
+		
+//		System.out.println(ext);
+	}
+	
+	public static boolean isFirstBind() {
         return FIRST_BIND;
     }
 

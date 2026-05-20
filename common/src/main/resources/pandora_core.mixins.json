@@ -46,6 +46,8 @@
     "compat.shader.iris.access.ProgramImagesMixin",
     "compat.shader.iris.access.ProgramSamplerMixin",
     "compat.shader.iris.access.ProgramUniformsMixin",
+	"compat.shader.iris.access.CachedUniformMixin",
+	"compat.shader.iris.access.CustomUniformsMixin",
     "compat.shader.vanilla.GlStateManagerMixin",
     "compat.shader.vanilla.ProgramMixin",
     "compat.shader.vanilla.ShaderInstance_CacheShadersMixin",

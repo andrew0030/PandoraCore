@@ -5,13 +5,21 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShade
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.attachment.ShaderAttachment;
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPacoDirtyable;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoModTracker;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoUniformListable;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.AbstractUniform;
+import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
+import net.irisshaders.iris.gl.IrisRenderSystem;
+import net.irisshaders.iris.gl.state.StateUpdateNotifiers;
+import net.irisshaders.iris.gl.texture.TextureType;
+import net.irisshaders.iris.texture.pbr.PBRTextureManager;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.lwjgl.opengl.GL20;
 import org.slf4j.Logger;
@@ -28,14 +36,33 @@ public class TemplatedProgram extends BaseProgram {
     public Map<String, Integer> attributeLocations = new HashMap<>();
 
     Runnable firstBind;
+    Runnable preBind;
+    Runnable postBind;
+    Runnable postClear;
 
     public TemplatedProgram setFirstBind(Runnable firstBind) {
         this.firstBind = firstBind;
         return this;
     }
-
-    ShaderInstance from;
+	
+	public TemplatedProgram setPreBind(Runnable preBind) {
+		this.preBind = preBind;
+		return this;
+	}
+	
+	public TemplatedProgram setPostBind(Runnable postBind) {
+		this.postBind = postBind;
+		return this;
+	}
+	
+	public TemplatedProgram setPostClear(Runnable postClear) {
+		this.postClear = postClear;
+		return this;
+	}
+	
+	ShaderInstance from;
     int id;
+	Map<Uniform, Integer> uniformModCounts = new HashMap<>();
 
     public TemplatedProgram(ShaderInstance from, List<ShaderAttachment> attachments) {
         this.from = from;
@@ -65,13 +92,49 @@ public class TemplatedProgram extends BaseProgram {
     }
 
     public void bind() {
-        RenderSystem.setShader(() -> from);
+	    if (firstBind != null) {
+		    firstBind.run();
+		    firstBind = null;
+	    }
+	    
+	    for (Uniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
+		    IPaCoModTracker mt = (IPaCoModTracker) uniform;
+		    Integer i = uniformModCounts.getOrDefault(uniform, null);
+		    if (i != null) {
+			    if (mt.pandoraCore$dirtyIfNotMod(i)) {
+				    // update mod count
+				    uniformModCounts.put(uniform, mt.pandoraCore$mod());
+				    ((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
+			    }
+		    } else {
+			    // cache mod and assume it needs to be uploaded
+			    uniformModCounts.put(uniform, mt.pandoraCore$mod());
+			    ((IPacoDirtyable) uniform).pandoraCore$markDirty();
+			    ((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
+		    }
+	    }
+		from.markDirty();
+		
         ((IPaCoConditionallyBindable) from).pandoraCore$disableBind();
-        GL20.glUseProgram(id);
-        if (firstBind != null) {
-            firstBind.run();
-            firstBind = null;
-        }
+		
+//	    IrisRenderSystem.unbindAllSamplers();
+//	    IrisRenderSystem.bindTextureToUnit(TextureType.TEXTURE_2D.getGlType(), 0, 0);
+//	    IrisRenderSystem.bindTextureToUnit(TextureType.TEXTURE_2D.getGlType(), 1, 0);
+//	    IrisRenderSystem.bindTextureToUnit(TextureType.TEXTURE_2D.getGlType(), 2, 0);
+		
+	    if (preBind != null)
+			preBind.run();
+		
+	    GL20.glUseProgram(id);
+//		if (false) {
+			RenderSystem.setShader(() -> from);
+			from.apply();
+//		}
+	    
+	    if (postBind != null)
+		    postBind.run();
+	    
+//	    PBRTextureManager.notifyPBRTexturesChanged();
     }
 
     public void close() {
@@ -84,6 +147,8 @@ public class TemplatedProgram extends BaseProgram {
     public void clear() {
         ((IPaCoConditionallyBindable) from).pandoraCore$enableBind();
         from.clear();
+	    postClear.run();
+	    RenderSystem.setShader(() -> null);
     }
 
 

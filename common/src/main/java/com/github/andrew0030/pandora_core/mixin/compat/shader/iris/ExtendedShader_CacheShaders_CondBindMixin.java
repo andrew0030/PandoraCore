@@ -4,7 +4,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.i
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.IrisTemplatedShader;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPacoAccessInitializer;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPacoUniformIniitalizerAccessor;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPacoUniformInitalizerAccessor;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.gl.blending.AlphaTest;
@@ -57,7 +57,7 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
 
         bakSamplers = ((IPacoAccessInitializer) samplers).pandoraCore$getInitializer();
         bakImages = ((IPacoAccessInitializer) images).pandoraCore$getInitializer();
-        bakUniforms = ((IPacoUniformIniitalizerAccessor) uniforms).pandoraCore$getInitializer();
+        bakUniforms = ((IPacoUniformInitalizerAccessor) uniforms).pandoraCore$getInitializer();
     }
 
     @Unique
@@ -76,11 +76,11 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
 
             firstApply = ((IPacoAccessInitializer) samplers).pandoraCore$getInitializer() != null;
 
-            if (!IrisTemplatedShader.isFirstBind()) {
-                ((IPacoAccessInitializer) samplers).pandoraCore$setInitializer(null);
-                ((IPacoAccessInitializer) images).pandoraCore$setInitializer(null);
-                ((IPacoUniformIniitalizerAccessor) uniforms).pandoraCore$setInitializer(null);
-            }
+//            if (!IrisTemplatedShader.isFirstBind()) {
+//                ((IPacoAccessInitializer) samplers).pandoraCore$setInitializer(null);
+//                ((IPacoAccessInitializer) images).pandoraCore$setInitializer(null);
+//                ((IPacoUniformInitalizerAccessor) uniforms).pandoraCore$setInitializer(null);
+//            }
         }
     }
 
@@ -91,11 +91,11 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
                 IrisTemplatedShader.setBound();
             }
 
-            if (firstApply) {
-                ((IPacoAccessInitializer) samplers).pandoraCore$setInitializer(bakSamplers);
-                ((IPacoAccessInitializer) images).pandoraCore$setInitializer(bakImages);
-                ((IPacoUniformIniitalizerAccessor) uniforms).pandoraCore$setInitializer(bakUniforms);
-            }
+//            if (firstApply) {
+//                ((IPacoAccessInitializer) samplers).pandoraCore$setInitializer(bakSamplers);
+//                ((IPacoAccessInitializer) images).pandoraCore$setInitializer(bakImages);
+//                ((IPacoUniformInitalizerAccessor) uniforms).pandoraCore$setInitializer(bakUniforms);
+//            }
         }
     }
 

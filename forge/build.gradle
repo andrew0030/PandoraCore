@@ -75,7 +75,11 @@ repositories {
         name = 'BlameJared'
         url = 'https://maven.blamejared.com'
     }
+    maven { url "https://central.sonatype.com/repository/maven-snapshots" }
 }
+
+project.ext.lwjglVersion = "3.4.2-SNAPSHOT"
+project.ext.lwjglNatives = "natives-windows"
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
@@ -121,6 +125,11 @@ dependencies {
     implementation fg.deobf("curse.maven:oculus-581495:6020952") // Oculus
 
     implementation fg.deobf("org.andrew:ttc:1.0")
+
+    implementation fg.deobf("curse.maven:vivecraft-667903:6208688")
+
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    minecraftLibrary "org.lwjgl:lwjgl-renderdoc"
 
     // FlatDir
 //    if (file("libs").exists()) {

@@ -146,10 +146,10 @@ Systems TODO:
   - [ ] Implement more modern multi-loader project structure
   - [ ] Split all test code into a `tests` module, so test code can be kept around while easily disabling it for production
 - Shader Patcher
-  - [ ] Look into creating dummy ShaderInstance copies to avoid awkward uniform management?
-  - [ ] Allow injecting custom methods
-  - [ ] Allow utilization of predefined variables to optimize shaders
-  - [ ] Rewrite the patcher
+  - [x] Alter uniform dirty tracking to support multiple shaders tied to one instance
+  - [x] Allow injecting custom methods
+  - [x] Allow utilization of predefined variables to optimize shaders
+  - [ ] Rewrite the patcher?
   - [ ] Rewrite template manager?
 - Instancer
   - [x] Batching system

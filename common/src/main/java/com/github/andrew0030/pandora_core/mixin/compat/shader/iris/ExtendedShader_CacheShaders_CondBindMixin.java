@@ -4,7 +4,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.i
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.IrisTemplatedShader;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPacoAccessInitializer;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPacoUniformInitalizerAccessor;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPaCoUniformInitalizerAccessor;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.gl.blending.AlphaTest;
@@ -55,17 +55,17 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
         IrisTemplateLoader.bindShader(string, (ShaderInstance) (Object) this);
 
 
-        bakSamplers = ((IPacoAccessInitializer) samplers).pandoraCore$getInitializer();
-        bakImages = ((IPacoAccessInitializer) images).pandoraCore$getInitializer();
-        bakUniforms = ((IPacoUniformInitalizerAccessor) uniforms).pandoraCore$getInitializer();
+//        bakSamplers = ((IPacoAccessInitializer) samplers).pandoraCore$getInitializer();
+//        bakImages = ((IPacoAccessInitializer) images).pandoraCore$getInitializer();
+//        bakUniforms = ((IPaCoUniformInitalizerAccessor) uniforms).pandoraCore$getInitializer();
     }
 
-    @Unique
-    List<GlUniform1iCall> bakSamplers = new ArrayList<>();
-    @Unique
-    List<GlUniform1iCall> bakImages = new ArrayList<>();
-    @Unique
-    ImmutableList<Uniform> bakUniforms;
+//    @Unique
+//    List<GlUniform1iCall> bakSamplers = new ArrayList<>();
+//    @Unique
+//    List<GlUniform1iCall> bakImages = new ArrayList<>();
+//    @Unique
+//    ImmutableList<Uniform> bakUniforms;
     @Unique
     boolean firstApply = false;
 
@@ -74,7 +74,7 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
         if (((IPaCoConditionallyBindable) this).isDisableBind()) {
             lastApplied = (ExtendedShader) (Object) this;
 
-            firstApply = ((IPacoAccessInitializer) samplers).pandoraCore$getInitializer() != null;
+//            firstApply = ((IPacoAccessInitializer) samplers).pandoraCore$getInitializer() != null;
 
 //            if (!IrisTemplatedShader.isFirstBind()) {
 //                ((IPacoAccessInitializer) samplers).pandoraCore$setInitializer(null);

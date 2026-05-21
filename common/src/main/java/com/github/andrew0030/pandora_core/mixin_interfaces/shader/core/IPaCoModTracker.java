@@ -20,4 +20,8 @@ public interface IPaCoModTracker {
 	 * @return whether or not it got marked dirty
 	 */
 	boolean pandoraCore$dirtyIfNotMod(int expectedMods);
+	
+	void pandoraCore$isolate();
+	
+	void pandoraCore$release();
 }

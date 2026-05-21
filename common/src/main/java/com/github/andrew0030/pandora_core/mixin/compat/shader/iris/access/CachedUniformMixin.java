@@ -15,15 +15,19 @@ public class CachedUniformMixin implements IPacoDirtyable, IPaCoModTracker {
 	@Shadow
 	private boolean changed;
 	
-	@Override
-	public void pandoraCore$markDirty() {
-		changed = true;
-	}
-	
 	@Unique
 	int pandoraCore$modCount = 0;
 	@Unique
 	boolean pandoraCore$shouldTrack = false;
+	@Unique
+	boolean pandoraCore$wasDirty = false;
+	@Unique
+	boolean pandoraCore$changed = false;
+	
+	@Override
+	public void pandoraCore$markDirty() {
+		changed = true;
+	}
 	
 	@Inject(at = @At("HEAD"), method = "update")
 	public void preMarkDirty(CallbackInfo ci) {
@@ -32,6 +36,18 @@ public class CachedUniformMixin implements IPacoDirtyable, IPaCoModTracker {
 			pandoraCore$shouldTrack = false;
 		}
 	}
+	
+	@Override
+	public void pandoraCore$isolate() {
+		pandoraCore$changed = false;
+		pandoraCore$wasDirty = changed;
+	}
+	
+	@Override
+	public void pandoraCore$release() {
+		changed = pandoraCore$wasDirty || pandoraCore$changed;
+	}
+	
 	
 	@Override
 	public int pandoraCore$mod() {

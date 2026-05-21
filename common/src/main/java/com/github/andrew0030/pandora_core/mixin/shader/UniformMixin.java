@@ -15,6 +15,9 @@ public abstract class UniformMixin implements IPacoDirtyable, IPaCoModTracker {
 	@Shadow
 	protected abstract void markDirty();
 	
+	@Shadow
+	private boolean dirty;
+	
 	@Override
 	public void pandoraCore$markDirty() {
 		markDirty();
@@ -24,13 +27,29 @@ public abstract class UniformMixin implements IPacoDirtyable, IPaCoModTracker {
 	int pandoraCore$modCount = 0;
 	@Unique
 	boolean pandoraCore$shouldTrack = false;
+	@Unique
+	boolean pandoraCore$wasDirty = false;
+	@Unique
+	boolean pandoraCore$changed = false;
 	
 	@Inject(at = @At("HEAD"), method = "markDirty")
 	public void preMarkDirty(CallbackInfo ci) {
+		pandoraCore$changed = true;
 		if (pandoraCore$shouldTrack) {
 			pandoraCore$modCount++;
 			pandoraCore$shouldTrack = false;
 		}
+	}
+	
+	@Override
+	public void pandoraCore$isolate() {
+		pandoraCore$changed = false;
+		pandoraCore$wasDirty = dirty;
+	}
+	
+	@Override
+	public void pandoraCore$release() {
+		dirty = pandoraCore$wasDirty || pandoraCore$changed;
 	}
 	
 	@Override

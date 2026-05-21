@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.compat.shader.iris.access;
 
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPacoUniformInitalizerAccessor;
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPaCoUniformInitalizerAccessor;
 import com.google.common.collect.ImmutableList;
 import net.irisshaders.iris.gl.program.ProgramUniforms;
 import net.irisshaders.iris.gl.uniform.Uniform;
@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ProgramUniforms.class)
-public class ProgramUniformsMixin implements IPacoUniformInitalizerAccessor {
+public class ProgramUniformsMixin implements IPaCoUniformInitalizerAccessor {
     @Shadow private ImmutableList<Uniform> once;
     private ImmutableList<Uniform> cacheOnce;
 

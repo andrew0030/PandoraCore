@@ -17,6 +17,7 @@ import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.irisshaders.iris.gl.IrisRenderSystem;
+import net.irisshaders.iris.gl.program.GlUniform1iCall;
 import net.irisshaders.iris.gl.state.StateUpdateNotifiers;
 import net.irisshaders.iris.gl.texture.TextureType;
 import net.irisshaders.iris.texture.pbr.PBRTextureManager;
@@ -100,6 +101,9 @@ public class TemplatedProgram extends BaseProgram {
 	    for (Uniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
 		    IPaCoModTracker mt = (IPaCoModTracker) uniform;
 		    Integer i = uniformModCounts.getOrDefault(uniform, null);
+			
+			mt.pandoraCore$isolate();
+			
 		    if (i != null) {
 			    if (mt.pandoraCore$dirtyIfNotMod(i)) {
 				    // update mod count
@@ -147,7 +151,12 @@ public class TemplatedProgram extends BaseProgram {
     public void clear() {
         ((IPaCoConditionallyBindable) from).pandoraCore$enableBind();
         from.clear();
-	    postClear.run();
+		if (postClear != null)
+		    postClear.run();
+	    for (Uniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
+		    IPaCoModTracker mt = (IPaCoModTracker) uniform;
+		    mt.pandoraCore$release();
+	    }
 	    RenderSystem.setShader(() -> null);
     }
 

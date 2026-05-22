@@ -1,47 +1,92 @@
 plugins {
-    id 'idea'
-    id 'java'
-    id 'maven-publish'
-    id 'org.spongepowered.gradle.vanilla'
-}
-
-base {
-    archivesName = "${mod_id}-common-${minecraft_version}"
-}
-
-minecraft {
-    version(minecraft_version)
-    if(file("src/main/resources/${mod_id}.accesswidener").exists()){
-        accessWideners(file("src/main/resources/${mod_id}.accesswidener"))
-    }
-}
-
-repositories {
-    flatDir { dirs '../libs' }
-    maven { url "https://www.cursemaven.com" }
-//    maven { url 'https://jitpack.io' }
-    maven {
-        name = 'BlameJared'
-        url = 'https://maven.blamejared.com'
-    }
+    id 'multiloader-common'
+    id 'net.neoforged.moddev.legacyforge'
 }
 
 dependencies {
-    compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
-    compileOnly group: 'org.ow2.asm', name: 'asm-tree', version: '9.6'
-
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-
+    compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
+    // MixinExtras (PaCo bundles mixinextras, so it is safe to use it in common)
+    compileOnly group: 'io.github.llamalad7', name: 'mixinextras-common', version: mixinextras_version
+    annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: mixinextras_version
     // exp4j (Expression Parsing)
     compileOnly "net.objecthunter:exp4j:0.4.8"
     // NightConfig (Config System)
     compileOnly "com.electronwill.night-config:core:3.8.1" // Core
     compileOnly "com.electronwill.night-config:toml:3.8.1" // Toml
+    // ASM Tree (for mixin plugin)
+    implementation "org.ow2.asm:asm-tree:9.6"
+    // Javax Annotations
+    compileOnly "javax.annotation:javax.annotation-api:1.3.2"
 
-    compileOnly "curse.maven:embeddium-908741:5681725" // Embeddium
-    compileOnly "curse.maven:oculus-581495:6020952" // Oculus
-
+    modCompileOnly "curse.maven:embeddium-908741:5681725" // Embeddium
+    modCompileOnly "curse.maven:oculus-581495:6020952" // Oculus
     // glsl preprocessor (shader patcher)
     compileOnly "a:glsl_parser:${glsl_parser_version}"
     compileOnly "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+}
+
+legacyForge {
+    // NOTE: neoForm exists for 1.20.2 and onwards
+    // neoFormVersion = neo_form_version
+    mcpVersion = minecraft_version
+    // Automatically enables AccessTransformers if the file exists
+    def at = file('src/main/resources/META-INF/accesstransformer.cfg')
+    if (at.exists()) {
+        accessTransformers.from(at.absolutePath)
+    }
+    // Adds parchment mappings to the common module
+    parchment {
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
+    }
+}
+
+// Custom consumable configs, for loader modules to pull common code/resources, without bundling duplicates
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+// Additional source sets to retrieve from the common module
+// NOTE: If the source sets contain their own mixins.json, they need to be
+// added to the fabric.mod.json and the build.gradle in the forge module
+def extraSourceIds = []
+extraSourceIds.add('tests')
+// Registers the extra source sets specified above
+extraSourceIds.each { id ->
+    sourceSets.main {
+        java { srcDir "src/${id}/java" }
+        resources { srcDir "src/${id}/resources" }
+    }
+}
+// Creates the artifact lists for the loader modules to use
+artifacts {
+    commonJava([file('src/main/java')] + extraSourceIds.collect { file("src/${it}/java") })
+    commonResources([file('src/main/resources')] + extraSourceIds.collect { file("src/${it}/resources") })
+}
+
+// Implement mcgradleconventions loader attribute (variant-aware resolution)
+// Tags configs with loader='common', so loader modules consume the correct base variant
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
+    configurations.named("$variant") {
+        attributes {
+            attribute(loaderAttribute, 'common')
+        }
+    }
+}
+sourceSets.configureEach {
+    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant->
+        configurations.named("$variant") {
+            attributes {
+                attribute(loaderAttribute, 'common')
+            }
+        }
+    }
 }

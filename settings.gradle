@@ -1,31 +1,51 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
-        maven {
-            name = 'Forge'
-            url = 'https://maven.minecraftforge.net/'
+        gradlePluginPortal() // NeoForge/moddev plugins resolve here
+        mavenCentral()
+
+        // FABRIC
+        // --------------------------------------------------------------------------------
+        // NOTE: For MC < 26.1 (obfuscated mappings), legacy 'fabric-loom' plugin markers
+        // use group ID 'fabric-loom' (NOT net.fabricmc), so we must explicitly include it.
+        // When updating to MC 26.1+, we can remove includeGroup('fabric-loom') and switch
+        // to the modern plugin ID: 'net.fabricmc.fabric-loom' in the build gradle.
+        // --------------------------------------------------------------------------------
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Fabric'
+                    url = uri('https://maven.fabricmc.net')
+                }
+            }
+            filter {
+                includeGroupAndSubgroups('net.fabricmc')
+                includeGroup('fabric-loom') // REQUIRED for legacy loom plugin markers (MC < 26.1)
+            }
         }
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
-        maven {
-            name = 'Sponge Snapshots'
-            url = 'https://repo.spongepowered.org/repository/maven-public/'
-        }
-        maven {
-            name = 'ParchmentMC'
-            url = 'https://maven.parchmentmc.org'
+
+        // FORGE
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Forge'
+                    url = uri('https://maven.minecraftforge.net')
+                }
+            }
+            filter {
+                includeGroupAndSubgroups('net.minecraftforge')
+            }
         }
     }
 }
 
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+    // Versions 1.0.0 and after require Java 17 or later and Gradle 7.6 or later.
+    // Versions prior to 1.0.0 require Java 8 or later and Gradle from 7.6 to 8.14.x.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
 // This should match the folder name of the project, or else IDEA may complain (see https://youtrack.jetbrains.com/issue/IDEA-317606)
 rootProject.name = 'PandoraCore'
-include("common")
-include("fabric")
-include("forge")
+include('common')
+include('fabric')
+include('forge')

@@ -1,39 +1,23 @@
 plugins {
-    id 'java'
-    id 'idea'
-    id 'maven-publish'
+    id 'multiloader-loader'
     id 'fabric-loom'
-    id 'com.gradleup.shadow' version '8.3.3'
+    id 'com.gradleup.shadow'
 }
 
-base {
-    archivesName = "${mod_id}-fabric-${minecraft_version}"
-}
-
-configurations {
-    shade
-}
-
-repositories {
-    flatDir { dirs '../libs' }
-    maven { url "https://www.cursemaven.com" }
-    maven { url "https://api.modrinth.com/maven/" }
-//    maven { url 'https://jitpack.io' }
-    maven {
-        name = 'BlameJared'
-        url = 'https://maven.blamejared.com'
-    }
-}
+configurations { shade }
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.layered() {
+    // Adds parchment mappings to the fabric module
+    mappings loom.layered {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${minecraft_version}:${mapping_version}@zip")
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
     }
+    // NOTE: In MC 26.1 and onwards fabric uses (implementation) instead of (modImplementation)
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    // PaCo includes mixinextras so we have access to a newer version on older fabric-loader versions
+    include group: 'io.github.llamalad7', name: 'mixinextras-fabric', version: mixinextras_version
     // Mod Menu
     modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
     // MrCrayfish Config Mods
@@ -43,23 +27,23 @@ dependencies {
     modCompileOnly "curse.maven:fancymenu-367706:7256727" // FancyMenu
 
     // exp4j (Expression Parsing)
-    modImplementation "net.objecthunter:exp4j:0.4.8"
+    implementation "net.objecthunter:exp4j:0.4.8"
     shade "net.objecthunter:exp4j:0.4.8"
     // glsl preprocessor (shader patching)
-    modImplementation "local_slim:glsl_parser:${glsl_parser_version}"
+    implementation "local_slim:glsl_parser:${glsl_parser_version}"
     shade ("local_slim:glsl_parser:${glsl_parser_version}")
-    modImplementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+    implementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
     shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
         exclude group: "org.ow2.asm"
     }
     // NightConfig (Config System)
-    modImplementation "com.electronwill.night-config:core:3.8.1" // Core
-    modImplementation "com.electronwill.night-config:toml:3.8.1" // Toml
+    implementation "com.electronwill.night-config:core:3.8.1" // Core
+    implementation "com.electronwill.night-config:toml:3.8.1" // Toml
     shade "com.electronwill.night-config:core:3.8.1"
     shade "com.electronwill.night-config:toml:3.8.1"
 
     modRuntimeOnly "curse.maven:swampier_swamps-687298:4580758" // swampier swamps
-    modImplementation "curse.maven:cloth-config-348521:5729104"
+    modRuntimeOnly "curse.maven:cloth-config-348521:5729104" // cloth config
 
     // Performance Monitoring
     modRuntimeOnly "curse.maven:spark-361579:4738953" // Spark
@@ -67,55 +51,67 @@ dependencies {
 //    modRuntimeOnly "curse.maven:indium-459496:6237037" // Indium
     modCompileOnly "curse.maven:sodium-394468:6260639" // Sodium
     modCompileOnly "curse.maven:irisshaders-455508:6258195" // Iris
-
-    implementation project(":common")
 }
 
 loom {
-    if (project(":common").file("src/main/resources/${mod_id}.accesswidener").exists()) {
-        accessWidenerPath.set(project(":common").file("src/main/resources/${mod_id}.accesswidener"))
+    // Automatically enables AccessWideners if the file exists
+    def aw = file("src/main/resources/${mod_id}.accesswidener")
+    if (aw.exists()) {
+        accessWidenerPath.set(aw)
     }
+    // Obfuscated MC code still requires a refmap
     mixin {
         defaultRefmapName.set("${mod_id}.refmap.json")
     }
+    // The (:fabric) run configurations
     runs {
-        client {
-            client()
-            setConfigName("fabric client")
+        configureEach {
+            setConfigName("Fabric ${it.name.capitalize()}") // Unified run config names across all loaders
             ideConfigGenerated(true)
-            runDir("run")
+            def dir = "runs/${it.name}"
+            file(dir).mkdirs() // Ensures the directory exists before launch
+            runDir(dir)
         }
-        server {
-            server()
-            setConfigName("fabric server")
-            ideConfigGenerated(true)
-            runDir("run")
-        }
+        client { client() }
+        server { server() }
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    source(project(":common").sourceSets.main.allSource)
-}
-
-processResources {
-    from project(":common").sourceSets.main.resources
-}
-
 shadowJar {
+    archiveClassifier.set('') // Output as the main jar (no classifier)
     configurations = [project.configurations.shade] // Limits shaded libs to what was specified by "shade"
-    archiveClassifier = tasks.named("jar").flatMap { jar -> jar.archiveClassifier } // Ensures JAR names match so remap works
-    destinationDirectory = tasks.named("jar").flatMap { jar -> jar.destinationDirectory } // Ensures output paths are consistent
+    // Relocates packages to avoid conflicts
     relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
-    relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
+//    relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
     relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
     relocate 'tfc.glsl', "${project.group}.shadowed.tfc.glsl"
+    // Minimizes specified projects
+    // NOTE: By using include inside minimize, it functions like a whitelist
     minimize {
         include(dependency("io.github.ocelot:.*:.*"))
         include(dependency("local_slim:.*:.*"))
     }
 }
-
 // Makes sure that the remapJar task depends on the shadowJar task.
-// This means that the shadow JAR will be built before the remapJar task.
+// This means that the shadow jar will be built before the remapJar task.
 remapJar.dependsOn shadowJar
+
+// Implement mcgradleconventions loader attribute (variant-aware resolution)
+// Tags configs with loader='fabric' to ensure fabric-specific dependency resolution
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements', 'includeInternal', 'modCompileClasspath'].each { variant ->
+    configurations.named("$variant") {
+        attributes {
+            attribute(loaderAttribute, 'fabric')
+        }
+    }
+}
+sourceSets.configureEach {
+    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant->
+        configurations.named("$variant") {
+            attributes {
+                attribute(loaderAttribute, 'fabric')
+            }
+        }
+    }
+}

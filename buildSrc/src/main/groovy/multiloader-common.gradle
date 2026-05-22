@@ -1,0 +1,169 @@
+import groovy.json.JsonOutput
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+base { archivesName = "${mod_id}-${project.name}-${minecraft_version}" }
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+    // Used to generate a source and javadoc jar alongside the main jar during build
+    // NOTE: When the project is first built, these are required!
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenCentral()
+    // https://docs.gradle.org/current/userguide/declaring_repositories.html#declaring_content_exclusively_found_in_one_repository
+    // Mixin
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Sponge'
+                url = 'https://repo.spongepowered.org/repository/maven-public'
+            }
+        }
+        filter { includeGroupAndSubgroups('org.spongepowered') }
+    }
+    // Parchment
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'ParchmentMC'
+                url = 'https://maven.parchmentmc.org/'
+            }
+        }
+        filter { includeGroup('org.parchmentmc.data') }
+    }
+    // CurseForge
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'CurseForge'
+                url "https://cursemaven.com"
+            }
+        }
+        filter { includeGroup "curse.maven" }
+    }
+    // Modrinth
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter { includeGroup "maven.modrinth" }
+    }
+    // BlameJared Maven
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+    }
+    // The libs folder in the root project
+    flatDir {
+        dirs '../libs'
+    }
+}
+
+sourcesJar {
+    // Bundles the LICENSE and NOTICE in the -sources.jar
+    from rootProject.file('LICENSE')
+    from rootProject.file('NOTICE')
+}
+
+jar {
+    // Bundles the LICENSE and NOTICE in the .jar
+    from rootProject.file('LICENSE')
+    from rootProject.file('NOTICE')
+
+    // The manifest metadata
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_name,
+                'Specification-Vendor'  : mod_author,
+                'Specification-Version' : project.jar.archiveVersion,
+                'Implementation-Title'  : project.name,
+                'Implementation-Version': project.jar.archiveVersion,
+                'Implementation-Vendor' : mod_author,
+                'Built-On-Minecraft'    : minecraft_version
+        ])
+    }
+}
+
+processResources {
+    var expandProps = [
+            // Project
+            'version'                        : version,
+            'group'                          : project.group, // Else we target the task's group.
+            'java_version'                   : java_version,
+            // Mod Options
+            'mod_name'                       : mod_name,
+            'mod_author'                     : mod_author,
+            'mod_id'                         : mod_id,
+            'license'                        : license,
+            'description'                    : project.description,
+            'display_url'                    : display_url,
+            'issue_tracker_url'              : issue_tracker_url,
+            // Common
+            'minecraft_version'              : minecraft_version,
+            // Fabric
+            'fabric_version'                 : fabric_version,
+            'fabric_loader_version'          : fabric_loader_version,
+            'fabric_loader_version_range'    : toFabricVersionRange(fabric_loader_version_range),
+            'fabric_minecraft_version_range' : toFabricVersionRange(minecraft_version_range),
+            'fabric_mod_credits'             : "TODO", // JSON array format
+            // Forge
+            'forge_version'                  : forge_version,
+            'forge_loader_version_range'     : forge_loader_version_range,
+            'forge_minecraft_version_range'  : minecraft_version_range,
+            'forge_mod_credits'              : mod_credits
+    ]
+    // TOML uses raw expandProps, JSON needs escaped newlines
+    var jsonExpandProps = expandProps.collectEntries {
+        key, value -> [(key): value instanceof String ? value.replace("\n", "\\\\n") : value]
+    }
+    // Replaces the placeholder Strings in the TOML/JSON files
+    filesMatching(['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']) { expand expandProps }
+    filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json']) { expand jsonExpandProps }
+    // Re-runs task if any expanded properties change
+    inputs.properties(expandProps)
+}
+
+ // Converts Forge style version ranges [x,y) to Fabric format >=x <y-
+ // Passes through formats that are already in Fabric style (>=, ^, ~, *, exact version) unchanged.
+static String toFabricVersionRange(String range) {
+    if (!range || range == '*' || (!range.startsWith('[') && !range.startsWith('('))) return range ?: '*'
+    range = range.trim()
+    // Bounds types
+    def lowerInclusive = range.startsWith('[')
+    def upperInclusive = range.endsWith(']')
+    // Removes outer brackets and splits by comma
+    def inner = range.substring(1, range.length() - 1).trim()
+    def parts = inner.split(',', 2).collect { it.trim() }
+    def result = []
+    // Lower bound
+    if (parts[0]) result.add(lowerInclusive ? ">=${parts[0]}" : ">${parts[0]}")
+    // Upper bound (if present)
+    if (parts.size() > 1 && parts[1]) result.add(upperInclusive ? "<=${parts[1]}" : "<${parts[1]}-")
+    // Space = AND in Fabric
+    return result.join(' ')
+}
+
+// Maven publishing config
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifactId base.archivesName.get()
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url System.getenv('local_maven_url')
+        }
+    }
+}

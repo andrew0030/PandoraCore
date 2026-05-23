@@ -21,6 +21,7 @@ import net.irisshaders.iris.gl.program.ProgramUniforms;
 import net.irisshaders.iris.gl.uniform.Uniform;
 import net.irisshaders.iris.pipeline.programs.ExtendedShader;
 import net.irisshaders.iris.shadows.ShadowRenderingState;
+import net.irisshaders.iris.uniforms.SystemTimeUniforms;
 import net.irisshaders.iris.uniforms.custom.CustomUniforms;
 import net.irisshaders.iris.uniforms.custom.cached.CachedUniform;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -63,7 +64,8 @@ public class IrisTemplatedShader extends TemplatedShader {
 						specifier.source, specifier.type,
 						apply, vanilla,
 						specifier.preprocess, mapper,
-						processor, struct.location
+						processor, struct.location,
+						"iris/main/"
 				);
 				attachments.add(attachment);
 				
@@ -97,7 +99,8 @@ public class IrisTemplatedShader extends TemplatedShader {
 						specifier.source, specifier.type,
 						apply, vanillaShadow,
 						specifier.preprocess, mapper,
-						processor, struct.location
+						processor, struct.location,
+						"iris/shadow/"
 				);
 				attachments.add(attachment);
 				
@@ -128,9 +131,14 @@ public class IrisTemplatedShader extends TemplatedShader {
 		Map<CachedUniform, Integer> uniformModCounts = new HashMap<>();
 		// caches parent value so that it can be reset
 		Map<Uniform, Object> uniformValueCache = new HashMap<>();
+		long[] lastTick = new long[2];
+		int[] lastFrame = new int[2];
 		
-		program.setPreBind(() -> preBind(vanilla, uniformModCounts, uniformValueCache));
-		program.setPostClear(() -> postClear(vanilla, uniformModCounts, uniformValueCache));
+		Map<Uniform, Object> parCache = new HashMap<>();
+		Map<Uniform, Object> selfCache = new HashMap<>();
+		
+		program.setPreBind(() -> preBind(vanilla, uniformModCounts, uniformValueCache, lastTick, lastFrame, parCache, selfCache));
+		program.setPostClear(() -> postClear(vanilla, uniformModCounts, uniformValueCache, lastTick, lastFrame, parCache, selfCache));
 	}
 	
 	private void firstBind(ShaderInstance vanilla) {
@@ -141,25 +149,69 @@ public class IrisTemplatedShader extends TemplatedShader {
 	List<GlUniform1iCall> initSamplers;
 	List<GlUniform1iCall> initImages;
 	
-	private void preBind(ShaderInstance vanilla, Map<CachedUniform, Integer> uniformModCounts, Map<Uniform, Object> uniformValueCache) {
+	private void preBind(
+			ShaderInstance vanilla, Map<CachedUniform, Integer> uniformModCounts,
+			Map<Uniform, Object> uniformValueCache, long[] lastTick, int[] lastFrame,
+			Map<Uniform, Object> parCache, Map<Uniform, Object> selfCache
+	) {
 		ExtendedShader ext = (ExtendedShader) vanilla;
 		
 		CustomUniforms uniforms = ((IPacoCustomUniformAccessor) ext).pandoraCore$getCustomUniforms();
 		
 		ProgramUniforms progUniforms = ((IPacoAccessInitializables) ext).pandoraCore$getUniforms();
-		IPaCoUniformInitalizerAccessor accessor = (IPaCoUniformInitalizerAccessor) progUniforms;
+		IPacoInitCachable<ImmutableList<Uniform>> accessor = (IPacoInitCachable<ImmutableList<Uniform>>) progUniforms;
+		
+		IPaCoFrameTickAccessor ft = (IPaCoFrameTickAccessor) progUniforms;
+		lastTick[0] = ft.getLastTick();
+		lastFrame[0] = ft.getLastFrame();
+		
+		{
+			for (Uniform uniform : ft.getDynamic()) {
+				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
+				parCache.put(uniform, reducer.getCachedValue());
+				
+				Object o = selfCache.getOrDefault(uniform, null);
+				reducer.setCachedValue(o);
+			}
+			// TODO: call the method from iris code for consistency
+			long tick = ft.accessGetCurrentTick();
+			if (lastTick[1] != tick) {
+				ft.setLastTick(tick);
+				
+				for (Uniform uniform : ft.getPerTick()) {
+					IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
+					parCache.put(uniform, reducer.getCachedValue());
+					
+					Object o = selfCache.getOrDefault(uniform, null);
+					reducer.setCachedValue(o);
+				}
+			}
+			
+			int frame = SystemTimeUniforms.COUNTER.getAsInt();
+			if (lastFrame[1] != frame) {
+				ft.setLastFrame(frame);
+				
+				for (Uniform uniform : ft.getPerFrame()) {
+					IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
+					parCache.put(uniform, reducer.getCachedValue());
+					
+					Object o = selfCache.getOrDefault(uniform, null);
+					reducer.setCachedValue(o);
+				}
+			}
+		}
 		
 		IPacoInitCachable<List<GlUniform1iCall>> samplers = (IPacoInitCachable<List<GlUniform1iCall>>) ((IPacoAccessInitializables) ext).pandoraCore$getSamplers();
 		IPacoInitCachable<List<GlUniform1iCall>> images = (IPacoInitCachable<List<GlUniform1iCall>>) ((IPacoAccessInitializables) ext).pandoraCore$getImages();
 		
-		cachedInit = accessor.pandoraCore$getInitializer();
+		cachedInit = accessor.pandoraCore$getCurrentInitializer();
 		initSamplers = samplers.pandoraCore$getCurrentInitializer();
 		initImages = images.pandoraCore$getCurrentInitializer();
 		
 		uniformValueCache.clear();
 		
 		if (FIRST_BIND) {
-			accessor.pandoraCore$setInitializer(accessor.pandoraCore$getCachedInitializer());
+			accessor.pandoraCore$setInitializer(accessor.pandoraCore$getInitializer());
 			
 			for (Uniform uniform : accessor.pandoraCore$getInitializer()) {
 				try {
@@ -198,10 +250,14 @@ public class IrisTemplatedShader extends TemplatedShader {
 //		System.out.println(ext);
 	}
 	
-	private void postClear(ShaderInstance vanilla, Map<CachedUniform, Integer> uniformModCounts, Map<Uniform, Object> uniformValueCache) {
+	private void postClear(
+			ShaderInstance vanilla, Map<CachedUniform, Integer> uniformModCounts,
+			Map<Uniform, Object> uniformValueCache, long[] lastTick, int[] lastFrame,
+			Map<Uniform, Object> parCache, Map<Uniform, Object> selfCache
+	) {
 		ExtendedShader ext = (ExtendedShader) vanilla;
 		ProgramUniforms progUniforms = ((IPacoAccessInitializables) ext).pandoraCore$getUniforms();
-		IPaCoUniformInitalizerAccessor accessor = (IPaCoUniformInitalizerAccessor) progUniforms;
+		IPacoInitCachable<ImmutableList<Uniform>> accessor = (IPacoInitCachable<ImmutableList<Uniform>>) progUniforms;
 		IPacoInitCachable<List<GlUniform1iCall>> samplers = (IPacoInitCachable<List<GlUniform1iCall>>) ((IPacoAccessInitializables) ext).pandoraCore$getSamplers();
 		IPacoInitCachable<List<GlUniform1iCall>> images = (IPacoInitCachable<List<GlUniform1iCall>>) ((IPacoAccessInitializables) ext).pandoraCore$getImages();
 		
@@ -216,6 +272,36 @@ public class IrisTemplatedShader extends TemplatedShader {
 		}
 		
 		uniformValueCache.forEach((k, v) -> ((IPaCoPainReducer) k).setCachedValue(v));
+		
+		IPaCoFrameTickAccessor ft = (IPaCoFrameTickAccessor) progUniforms;
+		lastTick[1] = ft.getLastTick();
+		lastFrame[1] = ft.getLastFrame();
+		ft.setLastTick(lastTick[0]);
+		ft.setLastFrame(lastFrame[0]);
+		
+		{
+			for (Uniform uniform : ft.getDynamic()) {
+				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
+				selfCache.put(uniform, reducer.getCachedValue());
+				
+				Object o = parCache.getOrDefault(uniform, null);
+				reducer.setCachedValue(o);
+			}
+			for (Uniform uniform : ft.getPerFrame()) {
+				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
+				selfCache.put(uniform, reducer.getCachedValue());
+				
+				Object o = parCache.getOrDefault(uniform, null);
+				reducer.setCachedValue(o);
+			}
+			for (Uniform uniform : ft.getPerTick()) {
+				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
+				selfCache.put(uniform, reducer.getCachedValue());
+				
+				Object o = parCache.getOrDefault(uniform, null);
+				reducer.setCachedValue(o);
+			}
+		}
 	}
 	
 	public static boolean isFirstBind() {

@@ -47,7 +47,8 @@ public class VanillaTemplatedShader extends TemplatedShader {
                     specifier.source, specifier.type,
                     apply, vanilla,
                     specifier.preprocess, mapper,
-                    processor, struct.location
+                    processor, struct.location,
+		            "vanilla/"
             );
             attachments.add(attachment);
 

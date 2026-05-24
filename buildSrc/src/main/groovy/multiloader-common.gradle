@@ -1,5 +1,3 @@
-import groovy.json.JsonOutput
-
 plugins {
     id 'java-library'
     id 'maven-publish'
@@ -10,9 +8,8 @@ base { archivesName = "${mod_id}-${project.name}-${minecraft_version}" }
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(java_version)
     // Used to generate a source and javadoc jar alongside the main jar during build
-    // NOTE: When the project is first built, these are required!
-    withSourcesJar()
-    withJavadocJar()
+//    withSourcesJar()
+//    withJavadocJar()
 }
 
 repositories {
@@ -63,13 +60,11 @@ repositories {
         name = 'BlameJared'
         url = 'https://maven.blamejared.com'
     }
-    // The libs folder in the root project
-    flatDir {
-        dirs '../libs'
-    }
+    // The root libs folder, and the libs folders in all modules
+    flatDir { dirs rootProject.file('libs'), project.file('libs') }
 }
 
-sourcesJar {
+tasks.findByName('sourcesJar')?.configure {
     // Bundles the LICENSE and NOTICE in the -sources.jar
     from rootProject.file('LICENSE')
     from rootProject.file('NOTICE')

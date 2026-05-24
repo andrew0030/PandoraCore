@@ -52,8 +52,7 @@ dependencies {
     modCompileOnly "curse.maven:sodium-394468:6260639" // Sodium
     modCompileOnly "curse.maven:irisshaders-455508:6258195" // Iris
 
-    implementation("javax.annotation:javax.annotation-api:1.3.2")
-    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 }
 
 loom {
@@ -80,12 +79,15 @@ loom {
     }
 }
 
+// Excludes the Forge specific AccessTransformer from Fabric resources
+processResources { exclude 'META-INF/accesstransformer.cfg' }
+
 shadowJar {
     archiveClassifier.set('') // Output as the main jar (no classifier)
     configurations = [project.configurations.shade] // Limits shaded libs to what was specified by "shade"
     // Relocates packages to avoid conflicts
     relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
-//    relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
+    relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
     relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
     relocate 'tfc.glsl', "${project.group}.shadowed.tfc.glsl"
     // Minimizes specified projects
@@ -102,12 +104,10 @@ remapJar.dependsOn shadowJar
 // Implement mcgradleconventions loader attribute (variant-aware resolution)
 // Tags configs with loader='fabric' to ensure fabric-specific dependency resolution
 def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
-['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements', 'includeInternal', 'modCompileClasspath'].each { variant ->
-    configurations.named("$variant") {
-        attributes {
-            attribute(loaderAttribute, 'fabric')
-        }
-    }
+configurations.matching {
+    it.name in ['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements', 'includeInternal', 'modCompileClasspath']
+}.configureEach {
+    attributes.attribute(loaderAttribute, 'fabric')
 }
 sourceSets.configureEach {
     [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant->

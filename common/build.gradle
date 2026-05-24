@@ -16,8 +16,7 @@ dependencies {
     // ASM Tree (for mixin plugin)
     implementation "org.ow2.asm:asm-tree:9.6"
     // Javax Annotations
-    compileOnly "javax.annotation:javax.annotation-api:1.3.2"
-    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 
     modCompileOnly "curse.maven:embeddium-908741:5681725" // Embeddium
     modCompileOnly "curse.maven:oculus-581495:6020952" // Oculus
@@ -58,7 +57,9 @@ configurations {
 // NOTE: If the source sets contain their own mixins.json, they need to be
 // added to the fabric.mod.json and the build.gradle in the forge module
 def extraSourceIds = []
-extraSourceIds.add('tests')
+//extraSourceIds.add('tests') // TODO: Add tests source set, and ensure its excluded in production
+extraSourceIds.add('instancer')
+extraSourceIds.add('templater')
 // Registers the extra source sets specified above
 extraSourceIds.each { id ->
     sourceSets.main {
@@ -75,12 +76,10 @@ artifacts {
 // Implement mcgradleconventions loader attribute (variant-aware resolution)
 // Tags configs with loader='common', so loader modules consume the correct base variant
 def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
-['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
-    configurations.named("$variant") {
-        attributes {
-            attribute(loaderAttribute, 'common')
-        }
-    }
+configurations.matching {
+    it.name in ['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements']
+}.configureEach {
+    attributes.attribute(loaderAttribute, 'common')
 }
 sourceSets.configureEach {
     [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant->

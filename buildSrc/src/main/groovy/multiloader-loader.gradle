@@ -33,12 +33,12 @@ processResources {
     from(configurations.commonResources)
 }
 // Javadoc
-tasks.named('javadoc', Javadoc).configure {
+tasks.findByName('javadoc')?.configure {
     dependsOn(configurations.commonJava)
     source(configurations.commonJava)
 }
 // Sources
-tasks.named('sourcesJar', Jar) {
+tasks.findByName('sourcesJar')?.configure {
     dependsOn(configurations.commonJava)
     from(configurations.commonJava)
     dependsOn(configurations.commonResources)

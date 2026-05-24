@@ -14,8 +14,10 @@ mixin {
     // - The config will be injected into all of our run configurations
     // - The config name will be added to the manifest of all obfuscated jars (in the MixinConfigs key)
     config("${mod_id}.mixins.json")
-//    config("${mod_id}.tests.mixins.json")
     config("${mod_id}.forge.mixins.json")
+//    config("${mod_id}.tests.mixins.json")
+    config("${mod_id}.instancer.mixins.json")
+    config("${mod_id}.templater.mixins.json")
 }
 
 legacyForge {
@@ -40,7 +42,6 @@ legacyForge {
             dir.asFile.mkdirs() // Ensures the directory exists before launch
             setGameDirectory(dir)
         }
-
         client { client() }
         server { server() }
 //        data { data()
@@ -81,15 +82,15 @@ dependencies {
     modRuntimeOnly "curse.maven:yungs-better-end-island-901344:5193815" // YUNG's Better End Island
 
     // exp4j (Expression Parsing)
-    implementation "net.objecthunter:exp4j:0.4.8"
     additionalRuntimeClasspath "net.objecthunter:exp4j:0.4.8"
-    shade "net.objecthunter:exp4j:0.4.8"
+    implementation             "net.objecthunter:exp4j:0.4.8"
+    shade                      "net.objecthunter:exp4j:0.4.8"
     // glsl parser (shader patching)
-    implementation "local_slim:glsl_parser:${glsl_parser_version}"
     additionalRuntimeClasspath "local_slim:glsl_parser:${glsl_parser_version}"
-    shade ("local_slim:glsl_parser:${glsl_parser_version}")
-    implementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+    implementation             "local_slim:glsl_parser:${glsl_parser_version}"
+    shade                      "local_slim:glsl_parser:${glsl_parser_version}"
     additionalRuntimeClasspath "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+    implementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
     shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
         exclude group: "org.ow2.asm"
     }
@@ -106,7 +107,7 @@ dependencies {
     modImplementation "curse.maven:embeddium-908741:5681725" // Embeddium
     modImplementation "curse.maven:oculus-581495:6020952" // Oculus
 
-//    implementation "org.andrew:ttc:1.0"
+    modImplementation "org.andrew:ttc:1.0"
 
 //    implementation "curse.maven:vivecraft-667903:6208688"
 
@@ -151,12 +152,10 @@ assemble.dependsOn shadowJar
 // Implement mcgradleconventions loader attribute (variant-aware resolution)
 // Tags configs with loader='forge' to ensure forge-specific dependency resolution
 def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
-['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
-    configurations.named("$variant") {
-        attributes {
-            attribute(loaderAttribute, 'forge')
-        }
-    }
+configurations.matching {
+    it.name in ['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements']
+}.configureEach {
+    attributes.attribute(loaderAttribute, 'forge')
 }
 sourceSets.configureEach {
     [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName, it.getTaskName(null, 'jarJar')].each { variant ->

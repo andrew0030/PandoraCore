@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.compat.shader.vanilla;
 
+import com.github.andrew0030.pandora_core.client.shader.optifine.OptifineAccessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.impl.VanillaTemplateLoader;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.mojang.blaze3d.shaders.Program;
@@ -44,8 +45,10 @@ public class ShaderInstance_CacheSrc_CondBindableMixin implements IPaCoCondition
 
     @Inject(at = @At("HEAD"), method = "apply")
     public void preApply(CallbackInfo ci) {
-        if (pandoraCore$disableBind)
-            lastProgramId = programId;
+        if (pandoraCore$disableBind) {
+	        lastProgramId = programId;
+	        OptifineAccessor.lieToOFAboutProgram(programId);
+        }
     }
 
     @Inject(at = @At("HEAD"), method = "clear", cancellable = true)

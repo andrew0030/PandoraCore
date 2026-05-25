@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManag
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.ShaderCapabilities;
 import com.github.andrew0030.pandora_core.client.shader.templating.loader.ShaderCapability;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program.TemplatedProgram;
 import me.jellysquid.mods.sodium.client.gl.shader.ShaderLoader;
 import net.minecraft.resources.ResourceLocation;
 
@@ -25,6 +26,12 @@ public class ShaderWrapper {
 
     TemplatedShader activeUnwrap;
 
+	// TODO: loader priority based on paco render state
+	// in GUI->vanilla loader
+	// in world->iris/optifine if enabled, elsewise vanilla
+	// elsewise, other mods can manage render state themselves if they need to
+	// render state should define required capabilities and loader priority, both nullable
+	// by default, choose highest loader that matches required capabilities, or highest loader if no capabilities are requested
     public TemplatedShader unwrap(
             ShaderCapability... requestedCapabilities
     ) {
@@ -93,4 +100,8 @@ public class ShaderWrapper {
     public int getAttributeLocation(String name) {
         return activeUnwrap.getAttributeLocation(name);
     }
+	
+	public TemplatedShader getActiveUnwrap() {
+		return activeUnwrap;
+	}
 }

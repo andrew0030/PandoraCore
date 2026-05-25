@@ -81,6 +81,8 @@ public class ShaderTransformer {
                 }
             }
         }
+		
+		tree.fixDirectives();
 
 //        System.out.println("QWERTYUIOP");
     }

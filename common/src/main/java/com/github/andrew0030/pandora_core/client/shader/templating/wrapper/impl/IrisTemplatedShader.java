@@ -375,4 +375,9 @@ public class IrisTemplatedShader extends TemplatedShader {
 			return program.getAttributeLocation(name);
 		}
 	}
+	
+	@Override
+	public boolean isVanilla() {
+		return false;
+	}
 }

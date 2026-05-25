@@ -77,4 +77,6 @@ public abstract class TemplatedShader {
     }
 
     public abstract int getAttributeLocation(String name);
+	
+	public abstract boolean isVanilla();
 }

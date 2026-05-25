@@ -118,4 +118,9 @@ public class VanillaTemplatedShader extends TemplatedShader {
     public int getAttributeLocation(String name) {
         return program.getAttributeLocation(name);
     }
+	
+	@Override
+	public boolean isVanilla() {
+		return true;
+	}
 }

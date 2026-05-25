@@ -93,7 +93,8 @@
     "shader.AbstractUniformMixin",
     "shader.ShaderInstanceMixin",
     "shader.UniformMixin",
-    "test.ShaderTemplateTest"
+    "test.ShaderTemplateTest",
+	  "RenderDoc"
   ],
   "server": [],
   "injectors": {

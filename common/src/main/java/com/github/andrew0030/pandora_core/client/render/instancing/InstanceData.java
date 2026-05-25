@@ -27,7 +27,7 @@ public class InstanceData {
         ByteBuffer newBuffer = MemoryUtil.memAlloc(buffer.capacity() * 2);
         int pos = buffer.position();
         newBuffer.put(buffer.position(0));
-        MemoryUtil.memFree(buffer);
+        MemoryUtil.nmemFree(MemoryUtil.memAddress(buffer));
         buffer = newBuffer.position(pos);
         grown = true;
     }
@@ -162,7 +162,7 @@ public class InstanceData {
 
     public void close() {
         GlStateManager._glDeleteBuffers(glBuffer);
-        MemoryUtil.memFree(buffer);
+	    MemoryUtil.nmemFree(MemoryUtil.memAddress(buffer));
     }
 
     public int drawCount() {

@@ -7,6 +7,7 @@ import com.github.andrew0030.pandora_core.client.render.instancing.InstanceForma
 import com.github.andrew0030.pandora_core.client.render.instancing.engine.BatchData;
 import com.github.andrew0030.pandora_core.client.render.instancing.engine.BatchKey;
 import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
+import com.github.andrew0030.pandora_core.client.utils.shader.PaCoShaderStateShard;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.LightTexture;
@@ -82,10 +83,13 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
         ));
         RenderType type = PaCoRenderTypes.type;
         type.setupRenderState();
-        RenderSystem.getShader().apply();
-        vbo.bind();
-        data.flush();
-        vbo.unbindVBO();
+	    PaCoShaderStateShard shaderShard = PaCoRenderTypes.shaderStateShard;
+	    if (shaderShard.shouldRender()) {
+		    RenderSystem.getShader().apply();
+		    vbo.bind();
+		    data.flush();
+		    vbo.unbindVBO();
+	    }
         type.clearRenderState();
         RenderSystem.setShaderFogShape(FogShape.CYLINDER);
     }

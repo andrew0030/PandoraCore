@@ -44,4 +44,9 @@ public class VoidShader extends TemplatedShader {
     public int getAttributeLocation(String name) {
         return -1;
     }
+	
+	@Override
+	public boolean isVanilla() {
+		return true;
+	}
 }

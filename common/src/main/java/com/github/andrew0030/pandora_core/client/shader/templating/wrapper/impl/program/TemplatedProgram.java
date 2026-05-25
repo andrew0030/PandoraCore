@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.program;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.shader.optifine.OptifineAccessor;
 import com.github.andrew0030.pandora_core.client.shader.templating.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
@@ -12,15 +13,9 @@ import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoUnif
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.AbstractUniform;
-import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
-import net.irisshaders.iris.gl.IrisRenderSystem;
-import net.irisshaders.iris.gl.program.GlUniform1iCall;
-import net.irisshaders.iris.gl.state.StateUpdateNotifiers;
-import net.irisshaders.iris.gl.texture.TextureType;
-import net.irisshaders.iris.texture.pbr.PBRTextureManager;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.lwjgl.opengl.GL20;
 import org.slf4j.Logger;

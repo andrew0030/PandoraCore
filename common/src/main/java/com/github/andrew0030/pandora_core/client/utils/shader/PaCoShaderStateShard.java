@@ -2,12 +2,18 @@ package com.github.andrew0030.pandora_core.client.utils.shader;
 
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
 import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
+import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.blackhole.VoidShader;
+import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
+
+import java.util.function.Supplier;
 
 public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
     Runnable setup;
     Runnable clear;
+	Supplier<Boolean> isVoid;
+	Supplier<Boolean> canDraw;
 
     // only useful for immediate use render types
     public PaCoShaderStateShard(TemplatedShader shader) {
@@ -17,6 +23,18 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
             shader.upload();
         };
         clear = shader::clear;
+		
+		isVoid = () -> shader == VoidShader.INSTANCE;
+	    canDraw = () -> {
+		    if (isVoid.get()) return false;
+		    
+		    // TODO: render state aware
+		    if (ShaderChecker.isShaderActive()) {
+			    return !shader.isVanilla();
+		    }
+		    
+		    return true;
+	    };
     }
 
     public PaCoShaderStateShard(ShaderWrapper shaderWrapper) {
@@ -26,6 +44,17 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
             shaderWrapper.upload();
         };
         clear = shaderWrapper::clear;
+	    isVoid = () -> shaderWrapper.getActiveUnwrap() == VoidShader.INSTANCE;
+	    canDraw = () -> {
+		    if (isVoid.get()) return false;
+		    
+			// TODO: render state aware
+		    if (ShaderChecker.isShaderActive()) {
+			    return !shaderWrapper.getActiveUnwrap().isVanilla();
+		    }
+		    
+		    return true;
+	    };
     }
 
     // might as well
@@ -44,4 +73,12 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
     public void clearRenderState() {
         clear.run();
     }
+	
+	public boolean isVoid() {
+		return isVoid.get();
+	}
+	
+	public boolean shouldRender() {
+		return canDraw.get();
+	}
 }

@@ -52,34 +52,12 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
     @Inject(at = @At("TAIL"), method = "<init>")
     public void postInit(ResourceProvider resourceFactory, String string, VertexFormat vertexFormat, boolean usesTessellation, GlFramebuffer writingToBeforeTranslucent, GlFramebuffer writingToAfterTranslucent, BlendModeOverride blendModeOverride, AlphaTest alphaTest, Consumer uniformCreator, BiConsumer samplerCreator, boolean isIntensity, IrisRenderingPipeline parent, List bufferBlendOverrides, CustomUniforms customUniforms, CallbackInfo ci) {
         IrisTemplateLoader.bindShader(string, (ShaderInstance) (Object) this);
-
-
-//        bakSamplers = ((IPacoAccessInitializer) samplers).pandoraCore$getInitializer();
-//        bakImages = ((IPacoAccessInitializer) images).pandoraCore$getInitializer();
-//        bakUniforms = ((IPaCoUniformInitalizerAccessor) uniforms).pandoraCore$getInitializer();
-    }
-
-//    @Unique
-//    List<GlUniform1iCall> bakSamplers = new ArrayList<>();
-//    @Unique
-//    List<GlUniform1iCall> bakImages = new ArrayList<>();
-//    @Unique
-//    ImmutableList<Uniform> bakUniforms;
-    @Unique
-    boolean firstApply = false;
+	}
 
     @Inject(at = @At("HEAD"), method = "apply")
     public void preApply(CallbackInfo ci) {
         if (((IPaCoConditionallyBindable) this).isDisableBind()) {
             lastApplied = (ExtendedShader) (Object) this;
-
-//            firstApply = ((IPacoAccessInitializer) samplers).pandoraCore$getInitializer() != null;
-
-//            if (!IrisTemplatedShader.isFirstBind()) {
-//                ((IPacoAccessInitializer) samplers).pandoraCore$setInitializer(null);
-//                ((IPacoAccessInitializer) images).pandoraCore$setInitializer(null);
-//                ((IPacoUniformInitalizerAccessor) uniforms).pandoraCore$setInitializer(null);
-//            }
         }
     }
 
@@ -89,12 +67,6 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
             if (IrisTemplatedShader.isFirstBind()) {
                 IrisTemplatedShader.setBound();
             }
-
-//            if (firstApply) {
-//                ((IPacoAccessInitializer) samplers).pandoraCore$setInitializer(bakSamplers);
-//                ((IPacoAccessInitializer) images).pandoraCore$setInitializer(bakImages);
-//                ((IPacoUniformInitalizerAccessor) uniforms).pandoraCore$setInitializer(bakUniforms);
-//            }
         }
     }
 

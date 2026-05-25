@@ -14,8 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.io.InputStream;
 
 @Mixin(value = Program.class, priority = 999)
-public abstract class ProgramMixin implements IPaCoAccessibleProgram {
-    @Shadow private int id;
+public abstract class ProgramMixin {
 
     @Inject(at = @At("RETURN"), method = "compileShaderInternal")
     private static void postCompile(
@@ -30,10 +29,5 @@ public abstract class ProgramMixin implements IPaCoAccessibleProgram {
             VanillaTemplateLoader.cancel();
             IrisTemplateLoader.link();
         }
-    }
-
-    @Override
-    public int pandoraCore$getId() {
-        return id;
     }
 }

@@ -1,0 +1,46 @@
+plugins {
+    id 'multiloader-common'
+}
+
+// Lets loader modules consume commonJava/commonResources from :common
+configurations {
+    commonJava { canBeResolved = true }
+    commonResources { canBeResolved = true }
+}
+
+dependencies {
+    // This automatically wires up :common with variant-aware attributes
+    compileOnly(project(':common')) {
+        def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+        attributes {
+            attribute(loaderAttribute, 'common')
+        }
+    }
+    // Pulls code/resources from :common's consumable channel
+    commonJava project(path: ':common', configuration: 'commonJava')
+    commonResources project(path: ':common', configuration: 'commonResources')
+}
+
+// These tasks automatically pull in common sources/resources
+// Java
+tasks.named('compileJava', JavaCompile) {
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
+}
+// Resources
+processResources {
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+}
+// Javadoc
+tasks.findByName('javadoc')?.configure {
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
+}
+// Sources
+tasks.findByName('sourcesJar')?.configure {
+    dependsOn(configurations.commonJava)
+    from(configurations.commonJava)
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+}

@@ -5,10 +5,10 @@
     "name": "${mod_name}",
     "description": "${description}",
     "authors": [
-        "${mod_authors}"
+        "${mod_author}"
     ],
     "contributors": [
-        ${fabric_mod_credits}
+        "${fabric_mod_credits}"
     ],
     "contact": {
         "homepage": "${display_url}",
@@ -30,14 +30,16 @@
     },
     "mixins": [
         "${mod_id}.mixins.json",
-        "${mod_id}.fabric.mixins.json"
+        "${mod_id}.fabric.mixins.json",
+        "${mod_id}.instancer.mixins.json",
+        "${mod_id}.templater.mixins.json"
     ],
     "accessWidener": "${mod_id}.accesswidener",
     "depends": {
-        "fabricloader": ">=0.15",
-        "fabric": "*",
-        "minecraft": "${minecraft_version_range_fabric}",
-        "java": ">=17"
+        "fabricloader": "${fabric_loader_version_range}",
+        "fabric-api": "*",
+        "minecraft": "${fabric_minecraft_version_range}",
+        "java": ">=${java_version}"
     },
     "custom": {
         "pandoracore": {

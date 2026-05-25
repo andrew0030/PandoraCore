@@ -4,7 +4,7 @@
   "package": "com.github.andrew0030.pandora_core.mixin",
   "refmap": "${mod_id}.refmap.json",
   "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginCommon",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_${java_version}",
   "mixins": [
     "accessor.BiomeAccessor",
     "accessor.BiomeGenerationSettingsAccessor",
@@ -99,5 +99,8 @@
   "server": [],
   "injectors": {
     "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
   }
 }

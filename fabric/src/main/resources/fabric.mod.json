@@ -7,7 +7,9 @@
     "authors": [
         "${mod_author}"
     ],
-    "contributors": ["TODO"],
+    "contributors": [
+        "${fabric_mod_credits}"
+    ],
     "contact": {
         "homepage": "${display_url}",
         "issues": "${issue_tracker_url}"

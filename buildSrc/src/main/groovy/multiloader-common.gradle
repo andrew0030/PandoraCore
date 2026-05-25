@@ -110,7 +110,7 @@ processResources {
             'fabric_loader_version'          : fabric_loader_version,
             'fabric_loader_version_range'    : toFabricVersionRange(fabric_loader_version_range),
             'fabric_minecraft_version_range' : toFabricVersionRange(minecraft_version_range),
-            'fabric_mod_credits'             : "TODO", // JSON array format
+            'fabric_mod_credits'             : mod_credits?.readLines()?.collect { it.trim() }?.findAll { it }?.collect { it.replace('"', '\\"') }?.join('", "') ?: '',
             // Forge
             'forge_version'                  : forge_version,
             'forge_loader_version_range'     : forge_loader_version_range,

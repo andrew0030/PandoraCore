@@ -1,11 +1,11 @@
 package com.github.andrew0030.pandora_core.test;
 
 import com.github.andrew0030.pandora_core.client.render.BufferBuilderUtils;
-import com.github.andrew0030.pandora_core.client.render.collective.CollectiveBufferBuilder;
-import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
-import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
-import com.github.andrew0030.pandora_core.client.render.instancing.InstanceDataElement;
-import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
+import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveBufferBuilder;
+import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveDrawData;
+import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveVBO;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceDataElement;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.client.render.obj.ObjModel;
 import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
 import com.mojang.blaze3d.shaders.FogShape;

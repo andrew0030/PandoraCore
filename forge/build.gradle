@@ -126,29 +126,6 @@ jar {
         manifest.attributes.put("MixinConfigs", mixins)
 }
 
-shadowJar {
-    dependsOn 'reobfJar'
-    finalizedBy('reobfShadowJar')
-    archiveClassifier.set('') // Output as the main jar (no classifier)
-    configurations = [project.configurations.shade] // Limits shaded libs to what was specified by "shade"
-    // Relocates packages to avoid conflicts
-    relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
-    relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
-    relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
-    relocate 'tfc.glsl', "${project.group}.shadowed.tfc.glsl"
-    // Minimizes specified projects
-    // NOTE: By using include inside minimize, it functions like a whitelist
-    minimize {
-        include(dependency("io.github.ocelot:.*:.*"))
-        include(dependency("local_slim:.*:.*"))
-    }
-}
-// Tells ModDev to reobfuscate the shadowJar output
-obfuscation.reobfuscate(tasks.named('shadowJar'), sourceSets.main)
-// Makes sure that the assemble task depends on the shadowJar task.
-// This means that the shadow jar will be built before the final assembly of the project.
-assemble.dependsOn shadowJar
-
 // Implement mcgradleconventions loader attribute (variant-aware resolution)
 // Tags configs with loader='forge' to ensure forge-specific dependency resolution
 def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
@@ -166,3 +143,29 @@ sourceSets.configureEach {
         }
     }
 }
+
+shadowJar {
+    archiveClassifier.set("a")
+    from { jar.outputs.files }
+    configurations = [project.configurations.shade] // Limits shaded libs to what was specified by "shade"
+    relocate 'net.objecthunter', "${project.group}.shadowed.objecthunter"
+    relocate 'io.github.ocelot', "${project.group}.shadowed.github.ocelot"
+    relocate 'com.electronwill.nightconfig', "${project.group}.shadowed.electronwill.nightconfig"
+    relocate 'tfc.glsl', "${project.group}.shadowed.tfc.glsl"
+    finalizedBy('reobfShadowJar')
+    dependsOn "reobfJar"
+    minimize {
+        include(dependency("io.github.ocelot:.*:.*"))
+        include(dependency("local_slim:.*:.*"))
+    }
+}
+// This block configures how the shadowJar will be reobfuscated.
+//reobf {
+//    shadowJar {} // Specifies that the reobfuscation will operate on the shadowJar.
+//}
+obfuscation.reobfuscate(tasks.named('shadowJar'), sourceSets.main)
+// Makes sure that the assemble task depends on the shadowJar task.
+// This means that the shadow JAR will be built before the final assembly of the project.
+assemble.dependsOn shadowJar
+
+jar.finalizedBy('reobfJar')

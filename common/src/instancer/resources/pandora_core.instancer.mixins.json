@@ -1,12 +1,27 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.github.andrew0030.pandora_core.mixin",
+  "package": "com.github.andrew0030.pandora_core.modules.instancer.mixin",
   "refmap": "${mod_id}.refmap.json",
   "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginCommon",
   "compatibilityLevel": "JAVA_${java_version}",
   "mixins": [],
-  "client": [],
+  "client": [
+	  "engine.EngineAttacher",
+	  "render.vanilla.BlockEntityTypeMixin",
+	  "render.vanilla.CompilationResultMixin",
+	  "render.vanilla.CompiledChunkMixin",
+	  "render.vanilla.LevelRendererMixin",
+	  "render.vanilla.RebuildTaskMixin",
+	  "render.sodium.BuiltSectionMixin",
+	  "render.sodium.ChunkBuilderMeshingTaskMixin",
+	  "render.sodium.RenderListMixin",
+	  "render.sodium.RenderSectionMixin",
+	  "render.sodium.SectionBuilderMixin",
+	  "render.sodium.SodiumRendererMixin",
+	  "render.iris.ShadowPassMixin",
+	  "render.iris.ShadowRendererMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1

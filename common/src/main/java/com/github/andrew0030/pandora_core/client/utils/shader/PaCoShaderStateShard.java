@@ -1,8 +1,8 @@
 package com.github.andrew0030.pandora_core.client.utils.shader;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.TemplatedShader;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.impl.blackhole.VoidShader;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.ShaderWrapper;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.VoidShader;
 import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;

@@ -1,0 +1,18 @@
+package com.github.andrew0030.pandora_core.modules.templater.mixin.vanilla;
+
+import com.github.andrew0030.pandora_core.modules.templater.loader.impl.VanillaTemplateLoader;
+import com.mojang.blaze3d.platform.GlStateManager;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
+
+@Mixin(value = GlStateManager.class, remap = false)
+public class GlStateManagerMixin {
+    @Inject(at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL20C;nglShaderSource(IIJJ)V"), method = "glShaderSource")
+    private static void preShaderSource(int shader, List<String> shaderData, CallbackInfo ci) {
+        VanillaTemplateLoader.shaderSource(shaderData);
+    }
+}

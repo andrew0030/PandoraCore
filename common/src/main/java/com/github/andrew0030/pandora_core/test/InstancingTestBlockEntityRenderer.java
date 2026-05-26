@@ -1,12 +1,12 @@
 package com.github.andrew0030.pandora_core.test;
 
 import com.github.andrew0030.pandora_core.block_entities.InstancingTestBlockEntity;
-import com.github.andrew0030.pandora_core.client.render.collective.CollectiveDrawData;
-import com.github.andrew0030.pandora_core.client.render.collective.CollectiveVBO;
-import com.github.andrew0030.pandora_core.client.render.instancing.InstanceFormat;
-import com.github.andrew0030.pandora_core.client.render.instancing.engine.BatchData;
-import com.github.andrew0030.pandora_core.client.render.instancing.engine.BatchKey;
-import com.github.andrew0030.pandora_core.client.render.renderers.instancing.InstancedBlockEntityRenderer;
+import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveDrawData;
+import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveVBO;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchKey;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.client.utils.shader.PaCoShaderStateShard;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;

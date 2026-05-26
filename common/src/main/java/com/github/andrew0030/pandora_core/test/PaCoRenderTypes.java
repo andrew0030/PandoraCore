@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.test;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
-import com.github.andrew0030.pandora_core.client.shader.templating.wrapper.ShaderWrapper;
+import com.github.andrew0030.pandora_core.modules.templater.TemplateManager;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.ShaderWrapper;
 import com.github.andrew0030.pandora_core.client.utils.shader.PaCoShaderStateShard;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;

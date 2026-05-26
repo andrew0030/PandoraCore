@@ -1,0 +1,23 @@
+package com.github.andrew0030.pandora_core.modules.templater.mixin.iris;
+
+import com.github.andrew0030.pandora_core.modules.templater.loader.impl.iris.IrisTemplateLoader;
+import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
+import net.irisshaders.iris.shaderpack.programs.ProgramSet;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(value = IrisRenderingPipeline.class)
+public class IrisPipelineMixin {
+    @Inject(at = @At("TAIL"), method = "<init>")
+    public void postInit(ProgramSet programSet, CallbackInfo ci) {
+//        IrisTemplateLoader.doLoad();
+        IrisTemplateLoader.getInstance().performReload();
+    }
+
+    @Inject(at = @At("HEAD"), method = "destroyShaders", remap = false)
+    public void preDestroyShaders(CallbackInfo ci) {
+        IrisTemplateLoader.getInstance().dumpShaders();
+    }
+}

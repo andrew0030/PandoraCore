@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.gui.debug;
 
-import com.github.andrew0030.pandora_core.client.shader.templating.TemplateManager;
+import com.github.andrew0030.pandora_core.modules.templater.TemplateManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.DebugScreenOverlay;
 import org.spongepowered.asm.mixin.Mixin;

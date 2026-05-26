@@ -1,7 +1,7 @@
-//import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformation;
-//import com.github.andrew0030.pandora_core.client.shader.templating.TemplateTransformationParser;
-//import com.github.andrew0030.pandora_core.client.shader.templating.transformer.VariableMapper;
-//import com.github.andrew0030.pandora_core.client.shader.templating.transformer.impl.DefaultTransformationProcessor;
+//import com.github.andrew0030.pandora_core.templater.TemplateTransformation;
+//import com.github.andrew0030.pandora_core.templater.TemplateTransformationParser;
+//import com.github.andrew0030.pandora_core.templater.transformer.VariableMapper;
+//import com.github.andrew0030.pandora_core.templater.transformer.impl.DefaultTransformationProcessor;
 //
 //import java.io.InputStream;
 //

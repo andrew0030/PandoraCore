@@ -119,7 +119,6 @@ dependencies {
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 jar {
-    finalizedBy('reobfJar')
     // Gets the list of configs registered via mixin.config(...)
     def mixins = mixin.configs.get().join(',')
     if (mixins)
@@ -129,6 +128,9 @@ jar {
 shadowJar {
     dependsOn 'reobfJar'
     finalizedBy('reobfShadowJar')
+    // NOTE: Since shadow jar 9.0.0-rc1 the ShadowTask#from() behaves like AbstractCopyTask#from(), so we need
+    // FileTree#zipTree() to extract the files. See: https://github.com/GradleUp/shadow/releases/tag/9.0.0-rc1
+    from zipTree(reobfJar.archiveFile) // In moddev gradle we need to specify the input
     archiveClassifier.set('') // Output as the main jar (no classifier)
     configurations = [project.configurations.shade] // Limits shaded libs to what was specified by "shade"
     // Relocates packages to avoid conflicts

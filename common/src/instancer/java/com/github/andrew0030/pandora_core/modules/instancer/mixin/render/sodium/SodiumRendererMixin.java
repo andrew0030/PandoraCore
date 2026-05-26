@@ -7,6 +7,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.In
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.sodium.RenderListAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.sodium.SodiumRendererAccessor;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
+import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -42,6 +43,8 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
 
     @Inject(at = @At("HEAD"), method = "renderBlockEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderBuffers;Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;Lnet/minecraft/client/Camera;F)V")
     public void preRenderBEs(PoseStack matrices, RenderBuffers bufferBuilders, Long2ObjectMap<SortedSet<BlockDestructionProgress>> blockBreakingProgressions, Camera camera, float tickDelta, CallbackInfo ci) {
+	    PaCoRenderState.setupWorld();
+		
         PacoInstancingLevel instancingLevel = (PacoInstancingLevel) world;
         InstanceManager manager = instancingLevel.getManager();
 
@@ -85,6 +88,8 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
 
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();
+		
+	    PaCoRenderState.resetInstancerState();
     }
 
     @Override

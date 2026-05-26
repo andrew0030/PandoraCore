@@ -8,6 +8,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.so
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.sodium.SodiumRendererAccessor;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPaCoShadowRendererAccessor;
+import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -36,6 +37,8 @@ import java.util.Iterator;
 public abstract class ShadowPassMixin {
     @Inject(at = @At("HEAD"), method = "renderBlockEntities")
     private static void preRenderBEs(ShadowRenderer shadowRenderer, MultiBufferSource.BufferSource bufferSource, PoseStack modelView, Camera camera, double cameraX, double cameraY, double cameraZ, float tickDelta, boolean hasEntityFrustum, boolean lightsOnly, CallbackInfoReturnable<Integer> cir) {
+	    PaCoRenderState.setupWorld();
+		
         ClientLevel level = ((IPaCoShadowRendererAccessor) shadowRenderer).getActiveLevel();
         LevelRendererAccessor levelRenderer = ((IPaCoShadowRendererAccessor) shadowRenderer).getRenderer();
 
@@ -84,5 +87,7 @@ public abstract class ShadowPassMixin {
 
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();
+		
+	    PaCoRenderState.resetInstancerState();
     }
 }

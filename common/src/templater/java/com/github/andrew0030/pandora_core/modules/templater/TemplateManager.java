@@ -127,8 +127,17 @@ public class TemplateManager {
         ShaderWrapper wrapper = WRAPPERS.get(location);
         if (wrapper != null) wrapper.clearCache();
     }
-
-    public void beginReload() {
+	
+	public static TemplateLoader chooseLoader(ShaderCapability[] preferredCapabilities) {
+		for (TemplateLoader loader : LOADERS) {
+			if (loader.supports(preferredCapabilities)) {
+				return loader;
+			}
+		}
+		return LOADERS.get(0);
+	}
+	
+	public void beginReload() {
         for (TemplateLoader loader : LOADERS) {
             loader.beginReload();
         }

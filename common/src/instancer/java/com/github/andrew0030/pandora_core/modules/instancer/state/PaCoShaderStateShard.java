@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.client.utils.shader;
+package com.github.andrew0030.pandora_core.modules.instancer.state;
 
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.ShaderWrapper;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
@@ -48,8 +48,10 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
 	    canDraw = () -> {
 		    if (isVoid.get()) return false;
 		    
-			// TODO: render state aware
-		    if (ShaderChecker.isShaderActive()) {
+			// TODO: is this sufficient shader state tracking?
+		    if (PaCoRenderState.isGUI()) {
+			    return shaderWrapper.getActiveUnwrap().isVanilla();
+		    } else if (ShaderChecker.isShaderActive()) {
 			    return !shaderWrapper.getActiveUnwrap().isVanilla();
 		    }
 		    

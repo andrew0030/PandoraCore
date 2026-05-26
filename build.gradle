@@ -15,5 +15,5 @@ plugins {
     id 'net.neoforged.moddev.legacyforge' version '2.0.141' apply false
     // SHADOW JAR
     // See https://github.com/GradleUp/shadow#compatibility-matrix for new versions
-    id 'com.gradleup.shadow' version '8.3.3' apply false
+    id 'com.gradleup.shadow' version '9.2.2' apply false
 }

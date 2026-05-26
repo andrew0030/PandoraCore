@@ -7,7 +7,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceF
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchKey;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
-import com.github.andrew0030.pandora_core.client.utils.shader.PaCoShaderStateShard;
+import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoShaderStateShard;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.LightTexture;

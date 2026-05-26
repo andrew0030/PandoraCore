@@ -2,7 +2,7 @@ package com.github.andrew0030.pandora_core.test;
 
 import com.github.andrew0030.pandora_core.modules.templater.TemplateManager;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.ShaderWrapper;
-import com.github.andrew0030.pandora_core.client.utils.shader.PaCoShaderStateShard;
+import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoShaderStateShard;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderStateShard;

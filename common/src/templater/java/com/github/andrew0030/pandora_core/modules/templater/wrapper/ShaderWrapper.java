@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.modules.templater.wrapper;
 
+import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateManager;
 import com.github.andrew0030.pandora_core.modules.templater.loader.ShaderCapabilities;
 import com.github.andrew0030.pandora_core.modules.templater.loader.ShaderCapability;
@@ -75,7 +76,7 @@ public class ShaderWrapper {
     }
 
     public void apply() {
-        activeUnwrap = unwrap();
+        activeUnwrap = unwrap(PaCoRenderState.getPreferredCapabilities());
         activeUnwrap.apply();
     }
 

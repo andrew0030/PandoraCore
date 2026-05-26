@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.Pa
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.BlockEntityTypeAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.InstancingResults;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
+import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -34,6 +35,8 @@ public class LevelRendererMixin {
 
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
     public void preRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
+	    PaCoRenderState.setupWorld();
+		
         Lighting.setupLevel(RenderSystem.getModelViewMatrix());
         RenderSystem.setupShaderLights(
                 GameRenderer.getRendertypeEntitySolidShader()
@@ -66,5 +69,7 @@ public class LevelRendererMixin {
 
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();
+	    
+	    PaCoRenderState.resetInstancerState();
     }
 }

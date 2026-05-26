@@ -26,17 +26,17 @@ public abstract class InstanceRenderer<T, Y> {
 
     public abstract boolean shouldRender(T object, Vec3 pCameraPos);
 
-    public void render(Level level, T object, Y pos) {
+    public void render(Level level, T object, Y pos, float pct) {
         if (level instanceof PacoInstancingLevel instancingLevel) {
             BatchData data = instancingLevel.getManager().getData(this);
 //            if (data == null) data = makeData();
             if (data == null) data = new BatchData(this::makeData);
-            render(level, object, pos, data);
+            render(level, object, pos, data, pct);
             instancingLevel.getManager().markForFrame(this, data);
         }
     }
 
-    public abstract void render(Level level, T object, Y pos, BatchData data);
+    public abstract void render(Level level, T object, Y pos, BatchData data, float pct);
 
     public abstract void flush(Level level, BatchData data);
 

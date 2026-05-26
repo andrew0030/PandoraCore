@@ -46,7 +46,7 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
     }
 
     @Override
-    public void render(Level level, InstancingTestBlockEntity object, BlockPos pos, BatchData batches) {
+    public void render(Level level, InstancingTestBlockEntity object, BlockPos pos, BatchData batches, float pct) {
         CollectiveDrawData data = batches.buildBatch(STANDARD_KEY);
 
         Matrix3f matrix3f = new Matrix3f();

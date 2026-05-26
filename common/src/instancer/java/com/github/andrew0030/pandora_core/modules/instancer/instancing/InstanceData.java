@@ -27,7 +27,7 @@ public class InstanceData {
         ByteBuffer newBuffer = MemoryUtil.memAlloc(buffer.capacity() * 2);
         int pos = buffer.position();
         newBuffer.put(buffer.position(0));
-        MemoryUtil.nmemFree(MemoryUtil.memAddress(buffer));
+        MemoryUtil.memFree(buffer);
         buffer = newBuffer.position(pos);
         grown = true;
     }

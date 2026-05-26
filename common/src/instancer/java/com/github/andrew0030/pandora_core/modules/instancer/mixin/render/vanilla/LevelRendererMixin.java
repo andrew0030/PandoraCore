@@ -61,7 +61,7 @@ public class LevelRendererMixin {
                 if (renderer.shouldRender(
                         be, $$4.getPosition()
                 )) {
-                    renderer.render(level, be, be.getBlockPos());
+                    renderer.render(level, be, be.getBlockPos(), $$1);
                 }
             }
         }

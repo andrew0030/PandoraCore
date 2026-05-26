@@ -37,6 +37,11 @@ public class CollectiveDrawData {
     }
 
     public CollectiveDrawData writeMesh(CollectiveBufferBuilder.MeshRange range) {
+		if (this.activeRange == range) {
+			written.add(writing);
+			return this;
+		}
+		
         writing = datas.get(range);
         activeRange = range;
         if (writing == null) {
@@ -47,6 +52,10 @@ public class CollectiveDrawData {
         written.add(writing);
         return this;
     }
+	
+	public InstanceData getWriting() {
+		return writing;
+	}
 
     public CollectiveDrawData writeInstance(int instance) {
         writing.writeInstance(instance);

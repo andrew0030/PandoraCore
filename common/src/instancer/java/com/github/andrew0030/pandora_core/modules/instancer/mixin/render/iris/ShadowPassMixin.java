@@ -78,7 +78,7 @@ public abstract class ShadowPassMixin {
                     if (beRenderer.shouldRender(
                             be, camera.getPosition()
                     )) {
-                        beRenderer.render(level, be, be.getBlockPos());
+                        beRenderer.render(level, be, be.getBlockPos(), tickDelta);
                     }
                 }
             }

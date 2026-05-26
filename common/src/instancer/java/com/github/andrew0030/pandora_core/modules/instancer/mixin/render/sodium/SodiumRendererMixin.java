@@ -79,7 +79,7 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
                     if (renderer.shouldRender(
                             be, camera.getPosition()
                     )) {
-                        renderer.render(world, be, be.getBlockPos());
+                        renderer.render(world, be, be.getBlockPos(), tickDelta);
                     }
                 }
             }

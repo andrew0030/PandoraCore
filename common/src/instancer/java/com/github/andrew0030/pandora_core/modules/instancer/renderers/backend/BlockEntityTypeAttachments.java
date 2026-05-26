@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.modules.instancer.renderers.backend;
 
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
-import com.github.andrew0030.pandora_core.modules.instancer.renderers.registry.InstancedBERendererRegistry;
+import com.github.andrew0030.pandora_core.modules.instancer.registry.InstancedBERendererRegistry;
 import org.jetbrains.annotations.ApiStatus;
 
 /**

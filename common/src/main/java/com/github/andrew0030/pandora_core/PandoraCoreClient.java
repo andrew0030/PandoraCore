@@ -5,7 +5,7 @@ import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
 import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.client.registry.PaCoModelLayers;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
-import com.github.andrew0030.pandora_core.modules.instancer.renderers.registry.InstancedBERendererRegistry;
+import com.github.andrew0030.pandora_core.modules.instancer.registry.InstancedBERendererRegistry;
 import com.github.andrew0030.pandora_core.client.shader.compute.ComputeLoader;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.platform.Services;

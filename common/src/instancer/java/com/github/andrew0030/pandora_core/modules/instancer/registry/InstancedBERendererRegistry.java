@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.modules.instancer.renderers.registry;
+package com.github.andrew0030.pandora_core.modules.instancer.registry;
 
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.BlockEntityTypeAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;

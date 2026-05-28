@@ -7,52 +7,60 @@ plugins {
 configurations { shade }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version}"
+    // ################## Template Dependencies ##################
+    minecraft group: 'com.mojang', name: 'minecraft', version: minecraft_version
     // Adds parchment mappings to the fabric module
     mappings loom.layered {
         officialMojangMappings()
         parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
     }
     // NOTE: In MC 26.1 and onwards fabric uses (implementation) instead of (modImplementation)
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    modImplementation group: 'net.fabricmc', name: 'fabric-loader', version: fabric_loader_version
+    modImplementation group: 'net.fabricmc.fabric-api', name: 'fabric-api', version: fabric_version
     // PaCo includes mixinextras so we have access to a newer version on older fabric-loader versions
     include group: 'io.github.llamalad7', name: 'mixinextras-fabric', version: mixinextras_version
-    // Mod Menu
-    modCompileOnly "maven.modrinth:modmenu:${modmenu_version}"
-    // MrCrayfish Config Mods
-    modImplementation "curse.maven:catalogue-fabric-667377:4766089" // Catalogue
-    // Title Screen Compatibility Mods
-    modCompileOnly "curse.maven:aether-255308:6800393" // The Aether
-    modCompileOnly "curse.maven:fancymenu-367706:7256727" // FancyMenu
+    // Findbugs is required to have access to annotations (such as javax)
+    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 
+    // ################## Included Dependencies ##################
     // exp4j (Expression Parsing)
-    implementation "net.objecthunter:exp4j:0.4.8"
-    shade "net.objecthunter:exp4j:0.4.8"
-    // glsl preprocessor (shader patching)
-    implementation "local_slim:glsl_parser:${glsl_parser_version}"
-    shade ("local_slim:glsl_parser:${glsl_parser_version}")
-    implementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
-    shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
+    implementation group: 'net.objecthunter', name: 'exp4j', version: exp4j_version
+    shade          group: 'net.objecthunter', name: 'exp4j', version: exp4j_version
+    // glsl parser (Shader Patching)
+    implementation group: 'local_slim', name: 'glsl_parser', version: glsl_parser_version
+    shade          group: 'local_slim', name: 'glsl_parser', version: glsl_parser_version
+    // glsl processor (Parsing GLSL Source Code To A Tree)
+    implementation group: 'io.github.ocelot', name: 'glsl-processor', version: glsl_processor_version
+    shade(group: 'io.github.ocelot', name: 'glsl-processor', version: glsl_processor_version) {
         exclude group: "org.ow2.asm"
     }
     // NightConfig (Config System)
-    implementation "com.electronwill.night-config:core:3.8.1" // Core
-    implementation "com.electronwill.night-config:toml:3.8.1" // Toml
-    shade "com.electronwill.night-config:core:3.8.1"
-    shade "com.electronwill.night-config:toml:3.8.1"
+    implementation group: 'com.electronwill.night-config', name: 'core', version: night_config_version // Core
+    shade          group: 'com.electronwill.night-config', name: 'core', version: night_config_version
+    implementation group: 'com.electronwill.night-config', name: 'toml', version: night_config_version // Toml
+    shade          group: 'com.electronwill.night-config', name: 'toml', version: night_config_version
 
-    modRuntimeOnly "curse.maven:swampier_swamps-687298:4580758" // swampier swamps
-    modRuntimeOnly "curse.maven:cloth-config-348521:5729104" // cloth config
+    // ############### Compatibility Dependencies ################
+    // Title Screen Compatibility
+    modCompileOnly "curse.maven:fancymenu-367706:7256727"           // FancyMenu
+    modCompileOnly "curse.maven:aether-255308:6800393"              // The Aether
+    modImplementation "curse.maven:catalogue-fabric-667377:4766089" // Catalogue
 
-    // Performance Monitoring
+    // ############ Debugging/Profiling Dependencies #############
+    // Spark (Performance Monitoring)
     modRuntimeOnly "curse.maven:spark-361579:4738953" // Spark
-    // Render Mods To Test Shader Patcher
-//    modRuntimeOnly "curse.maven:indium-459496:6237037" // Indium
-    modCompileOnly "curse.maven:sodium-394468:6260639" // Sodium
-    modCompileOnly "curse.maven:irisshaders-455508:6258195" // Iris
 
-    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    // ################### Tests Dependencies ####################
+    // Mod Menu (PaCoScreen Tests)
+    modCompileOnly "maven.modrinth:modmenu:7.2.2" // Mod Menu
+    // My Mods (PaCoScreen Tests)
+    modRuntimeOnly "curse.maven:swampier_swamps-687298:4580758" // Swampier Swamps
+    // Required by Swampier Swamps
+    modRuntimeOnly "curse.maven:cloth-config-348521:5729104" // Cloth Config
+    // Render Mods To Test Shader Patcher
+//  modRuntimeOnly "curse.maven:indium-459496:6237037"      // Indium
+    modCompileOnly "curse.maven:sodium-394468:6260639"      // Sodium
+    modCompileOnly "curse.maven:irisshaders-455508:6258195" // Iris
 }
 
 loom {

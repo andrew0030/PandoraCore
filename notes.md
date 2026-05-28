@@ -143,7 +143,7 @@ Systems TODO:
 - Byte Dump System
   - [ ] Add a mixin annotation to dump binaries (useful to debug what kind of unholy patches OptiFine and others have done)
 - Gradle
-  - [ ] Implement more modern multi-loader project structure
+  - [x] Implement more modern multi-loader project structure
   - [ ] Split all test code into a `tests` module, so test code can be kept around while easily disabling it for production
 - Shader Patcher
   - [x] Alter uniform dirty tracking to support multiple shaders tied to one instance

@@ -29,7 +29,7 @@
         ]
     },
     "mixins": [
-        "${mod_id}.mixins.json",
+        "${mod_id}.mixins.json${fabric_optional_tests_mixin}",
         "${mod_id}.fabric.mixins.json",
         "${mod_id}.instancer.mixins.json",
         "${mod_id}.templater.mixins.json"

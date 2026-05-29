@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl;
 
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateTransformation;
+import com.github.andrew0030.pandora_core.modules.templater.itf.INamedShader;
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
@@ -45,7 +46,7 @@ public class VanillaTemplatedShader extends TemplatedShader {
             );
             ShaderAttachment attachment = new ShaderAttachment(
                     specifier.source, specifier.type,
-                    apply, vanilla,
+                    apply, (INamedShader) vanilla,
                     specifier.preprocess, mapper,
                     processor, struct.location,
 		            "vanilla/"

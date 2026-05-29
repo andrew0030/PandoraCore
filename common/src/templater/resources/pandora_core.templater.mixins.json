@@ -35,6 +35,13 @@
 	  "vanilla.ShaderInstance_CacheShadersMixin",
 	  "vanilla.ShaderInstance_CacheSrc_CondBindableMixin",
 	  "vanilla.ShaderLoaderDeferenceMixin",
+
+	  "optifine.ShadersMixin",
+	  "optifine.ProgramMixin",
+	  "optifine.access.VertexFormatAccessor",
+	  "optifine.access.VertexFormatElementMixin",
+	  "optifine.dmp.DoDump",
+	  "optifine.GlStateManagerMixin"
   ],
   "server": [],
   "injectors": {

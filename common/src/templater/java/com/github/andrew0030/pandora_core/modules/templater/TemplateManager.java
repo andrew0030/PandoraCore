@@ -4,10 +4,12 @@ import com.github.andrew0030.pandora_core.modules.templater.loader.ShaderCapabil
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.loader.impl.VanillaTemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.loader.impl.iris.IrisTemplateLoader;
+import com.github.andrew0030.pandora_core.modules.templater.loader.impl.optifine.OptifineTemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.ShaderWrapper;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.VoidShader;
 import com.github.andrew0030.pandora_core.platform.Services;
+import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -72,6 +74,9 @@ public class TemplateManager {
                         Services.PLATFORM.isModLoaded("oculus")
         )
             LOADERS.add(new IrisTemplateLoader());
+		if (ShaderChecker.OF_HANDLER.isLoaded())
+			LOADERS.add(new OptifineTemplateLoader());
+		
         LOADERS.add(new VanillaTemplateLoader());
     }
 

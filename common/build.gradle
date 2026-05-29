@@ -23,6 +23,9 @@ dependencies {
     // glsl preprocessor (shader patcher)
     compileOnly "a:glsl_parser:${glsl_parser_version}"
     compileOnly "io.github.ocelot:glsl-processor:${glsl_processor_version}"
+
+    // shells
+    compileOnly "a:OFShell:1.0"
 }
 
 legacyForge {

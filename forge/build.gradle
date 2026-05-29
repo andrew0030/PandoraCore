@@ -113,6 +113,9 @@ dependencies {
 
 //    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 //    minecraftLibrary "org.lwjgl:lwjgl-renderdoc"
+
+    // shells
+    compileOnly "a:OFShell:1.0"
 }
 
 // Includes generated resources (for DataGen output)

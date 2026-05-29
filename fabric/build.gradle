@@ -53,6 +53,9 @@ dependencies {
     modCompileOnly "curse.maven:irisshaders-455508:6258195" // Iris
 
     compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+
+    // shells
+    compileOnly "a:OFShell:1.0"
 }
 
 loom {

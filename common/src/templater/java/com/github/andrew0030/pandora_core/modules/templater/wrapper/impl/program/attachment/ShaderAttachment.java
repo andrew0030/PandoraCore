@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment;
 
 import com.github.andrew0030.pandora_core.modules.templater.TemplateTransformation;
+import com.github.andrew0030.pandora_core.modules.templater.itf.INamedShader;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -21,11 +22,11 @@ public class ShaderAttachment {
     AttachmentType type;
 
     public ShaderAttachment(
-            String source, AttachmentType type,
-            TemplateTransformation transformation,
-            ShaderInstance vanilla, boolean processSource,
-            VariableMapper mapper, TransformationProcessor processor,
-            ResourceLocation location, String dumpMeta
+		    String source, AttachmentType type,
+		    TemplateTransformation transformation,
+		    INamedShader vanilla, boolean processSource,
+		    VariableMapper mapper, TransformationProcessor processor,
+		    ResourceLocation location, String dumpMeta
     ) {
         this.type = type;
 
@@ -53,7 +54,7 @@ public class ShaderAttachment {
             GL20.glDeleteShader(id);
             try {
 	            dumpShader(location, source, type, dumpMeta + "failed/");
-                throw new IOException("Couldn't compile " + location.toString() + " from " + vanilla.getName() + " program (" + vanilla.getName() + ", " + location + ") : " + $$7);
+                throw new IOException("Couldn't compile " + location.toString() + " from " + vanilla.pandoraCore$getName() + " program (" + vanilla.pandoraCore$getName() + ", " + location + ") : " + $$7);
             } catch (Throwable err) {
                 throw new RuntimeException(err);
             }

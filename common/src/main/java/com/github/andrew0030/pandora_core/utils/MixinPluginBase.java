@@ -135,35 +135,35 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
 
     @Override
     public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-//	    try {
-//		    File fl = new File("paco_bytecode_dump/" + targetClass.name.substring(targetClass.name.lastIndexOf("/") + 1) + "-pre.class");
-//		    if (!fl.exists()) {
-//				fl.getParentFile().mkdirs();
-//		    }
-//		    FileOutputStream outputStream = new FileOutputStream(fl);
-//		    ClassWriter writer = new ClassWriter(0);
-//		    targetClass.accept(writer);
-//		    outputStream.write(writer.toByteArray());
-//		    outputStream.flush();
-//		    outputStream.close();
-//	    } catch (IOException e) {
-//		    e.printStackTrace();
-//		    System.out.println("Failed to transform class " + targetClassName + " with mixin " + mixinClassName);
-//	    }
+	    try {
+		    File fl = new File("paco_bytecode_dump/" + targetClass.name.substring(targetClass.name.lastIndexOf("/") + 1) + "-pre.class");
+		    if (!fl.exists()) {
+				fl.getParentFile().mkdirs();
+		    }
+		    FileOutputStream outputStream = new FileOutputStream(fl);
+		    ClassWriter writer = new ClassWriter(0);
+		    targetClass.accept(writer);
+		    outputStream.write(writer.toByteArray());
+		    outputStream.flush();
+		    outputStream.close();
+	    } catch (IOException e) {
+		    e.printStackTrace();
+		    System.out.println("Failed to transform class " + targetClassName + " with mixin " + mixinClassName);
+	    }
     }
 
     @Override
     public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-//        try {
-//	        FileOutputStream outputStream = new FileOutputStream("paco_bytecode_dump/" + targetClass.name.substring(targetClass.name.lastIndexOf("/") + 1) + "-post.class");
-//			ClassWriter writer = new ClassWriter(0);
-//			targetClass.accept(writer);
-//			outputStream.write(writer.toByteArray());
-//			outputStream.flush();
-//			outputStream.close();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			System.out.println("Failed to transform class " + targetClassName + " with mixin " + mixinClassName);
-//		}
+        try {
+	        FileOutputStream outputStream = new FileOutputStream("paco_bytecode_dump/" + targetClass.name.substring(targetClass.name.lastIndexOf("/") + 1) + "-post.class");
+			ClassWriter writer = new ClassWriter(0);
+			targetClass.accept(writer);
+			outputStream.write(writer.toByteArray());
+			outputStream.flush();
+			outputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Failed to transform class " + targetClassName + " with mixin " + mixinClassName);
+		}
     }
 }

@@ -2,7 +2,8 @@
   "template": {
     "vanilla": "minecraft:shaders/core/rendertype_entity_solid",
     "core": "pandora_core:shaders/core/chess",
-    "iris": "entities_solid"
+    "iris": "entities_solid",
+    "optifine": "entities"
   },
   "transformer": {
     "vsh": "pandora_core:shaders/paco/templated/entity_instanced.vsh"

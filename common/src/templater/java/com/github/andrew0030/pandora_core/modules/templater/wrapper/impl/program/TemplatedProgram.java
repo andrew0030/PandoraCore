@@ -83,7 +83,7 @@ public class TemplatedProgram extends BaseProgram {
             Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
         }
         GL20.glLinkProgram(id);
-        TemplatedShader.bindAttributes(this, id, index, transformation);
+        TemplatedShader.bindAttributes(attributeLocations, id, index, transformation);
     }
 
     public void bind() {

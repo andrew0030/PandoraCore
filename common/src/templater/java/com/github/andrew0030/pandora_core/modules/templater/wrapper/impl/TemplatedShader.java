@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl;
 
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BaseProgram;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.TemplatedProgram;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import net.minecraft.resources.ResourceLocation;
@@ -27,7 +28,7 @@ public abstract class TemplatedShader {
         this.template = template;
     }
 
-    public static void bindAttributes(TemplatedProgram shader, int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
+    public static void bindAttributes(Map<String, Integer> attributeLocations, int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
         for (String vertexAttribute : transformation.getInstanceData()) {
             String type = transformation.getAttributeType(vertexAttribute);
             if (type.startsWith("mat")) {
@@ -37,11 +38,11 @@ public abstract class TemplatedShader {
                     String txt = vertexAttribute + "_" + i;
 
                     int aid = GL32.glGetAttribLocation(id, txt);
-                    shader.attributeLocations.put(txt, aid);
+                    attributeLocations.put(txt, aid);
                 }
             } else {
                 int aid = GL32.glGetAttribLocation(id, vertexAttribute);
-                shader.attributeLocations.put(vertexAttribute, aid);
+                attributeLocations.put(vertexAttribute, aid);
             }
         }
     }

@@ -32,6 +32,7 @@ public class RenderDoc {
 //			System.load("renderdoc.dll");
 //		} catch (Throwable ignored) {
 //		}
+		System.load("C:\\Program Files\\RenderDoc\\renderdoc.dll");
 		initialized = true;
 	}
 }

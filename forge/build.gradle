@@ -5,19 +5,89 @@ plugins {
 }
 
 configurations { shade }
-//configurations { additionalRuntimeClasspath }
 
 mixin {
     // Obfuscated MC code still requires a refmap
     add(sourceSets.main, "${mod_id}.refmap.json")
-    // This is apparently needed on forge to make mixins work, according to the wiki:
-    // - The config will be injected into all of our run configurations
-    // - The config name will be added to the manifest of all obfuscated jars (in the MixinConfigs key)
+    // Specifies the paths to the mixin configurations
     config("${mod_id}.mixins.json")
     config("${mod_id}.forge.mixins.json")
-//    config("${mod_id}.tests.mixins.json")
     config("${mod_id}.instancer.mixins.json")
     config("${mod_id}.templater.mixins.json")
+    // The tests source set can easily be disabled in the gradle properties
+    if (include_tests.toBoolean()) {
+        config("${mod_id}.tests.mixins.json")
+    }
+}
+
+dependencies {
+    // ################## Template Dependencies ##################
+    // Applies Mixin AP: Gotta be declare for LegacyForge refmap gen
+    annotationProcessor group: 'org.spongepowered', name: 'mixin', version: '0.8.5', classifier: 'processor'
+    // Forge includes mixin-extras as an optional dependency since 1.21.10 (version 60.0.16)
+    // But since we are in an older version we need to include it ourselves
+    annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: mixinextras_version
+    compileOnly         group: 'io.github.llamalad7', name: 'mixinextras-common', version: mixinextras_version
+    implementation group: 'io.github.llamalad7', name: 'mixinextras-forge', version: mixinextras_version
+    jarJar         group: 'io.github.llamalad7', name: 'mixinextras-forge', version: mixinextras_version
+
+    // ################## Included Dependencies ##################
+    // exp4j (Expression Parsing)
+    javaLibRuntime group: 'net.objecthunter', name: 'exp4j', version: exp4j_version
+    implementation group: 'net.objecthunter', name: 'exp4j', version: exp4j_version
+    shade          group: 'net.objecthunter', name: 'exp4j', version: exp4j_version
+    // glsl parser (Shader Patching)
+    javaLibRuntime group: 'local_slim', name: 'glsl_parser', version: glsl_parser_version
+    implementation group: 'local_slim', name: 'glsl_parser', version: glsl_parser_version
+    shade          group: 'local_slim', name: 'glsl_parser', version: glsl_parser_version
+    // glsl processor (Parsing GLSL Source Code To A Tree)
+    javaLibRuntime group: 'io.github.ocelot', name: 'glsl-processor', version: glsl_processor_version
+    implementation group: 'io.github.ocelot', name: 'glsl-processor', version: glsl_processor_version
+    shade(group: 'io.github.ocelot', name: 'glsl-processor', version: glsl_processor_version) {
+        exclude group: "org.ow2.asm"
+    }
+    // NightConfig (Config System)
+    // We shade because forges version is outdated...
+    shade group: 'com.electronwill.night-config', name: 'core', version: night_config_version
+    shade group: 'com.electronwill.night-config', name: 'toml', version: night_config_version
+
+    // ############### Compatibility Dependencies ################
+    // Title Screen Compatibility
+    modCompileOnly "curse.maven:fancymenu-367706:7256735"            // FancyMenu
+    modCompileOnly "curse.maven:packmenu-358191:5503481"             // PackMenu
+    modCompileOnly "curse.maven:aether-255308:6134920"               // The Aether
+    modCompileOnly "curse.maven:ice-and-fire-dragons-264231:5633453" // Ice and Fire: Dragons
+    modImplementation "curse.maven:catalogue-459701:4766090"         // Catalogue
+
+    // ############ Debugging/Profiling Dependencies #############
+    // Atlas Viewer (Atlas Stitch Monitoring)
+    modRuntimeOnly "curse.maven:atlasviewer-633577:4882554" // AtlasViewer
+    // Spark (Performance Monitoring)
+    modRuntimeOnly "curse.maven:spark-361579:4738952" // Spark
+
+    // ################### Tests Dependencies ####################
+    // MrCrayfish (Config Screen Tests)
+    modCompileOnly "curse.maven:configured-457570:5180900" // Configured
+    // My Mods (PaCoScreen Tests)
+    modRuntimeOnly "curse.maven:swampier-swamps-632591:4578599" // Swampier Swamps
+    modRuntimeOnly "curse.maven:online-detector-454487:4574905" // Online Detector
+    // Yung Mods (PaCoScreen Tests)
+    modRuntimeOnly "curse.maven:yungs-api-421850:5331703"               // YUNG's API
+    modRuntimeOnly "curse.maven:yungs-better-witch-huts-631401:4769489" // YUNG's Better Witch Huts
+    modRuntimeOnly "curse.maven:yungs-better-end-island-901344:5193815" // YUNG's Better End Island
+    // Render Mods To Test Shader Patcher
+    modImplementation "curse.maven:embeddium-908741:5681725" // Embeddium
+    modImplementation "curse.maven:oculus-581495:6020952"    // Oculus
+    // Custom TTC Build (Templater/Instancer Tests)
+    modImplementation "org.andrew:ttc:1.0" // Table Top Craft
+}
+
+/**
+ * Avoids calling "additionalRuntimeClasspath" until plugins are applied.
+ * This allows for the dependencies block to be above the legacyForge block.
+ */
+def javaLibRuntime(Object... dependencyNotation) {
+    afterEvaluate { dependencies.additionalRuntimeClasspath(dependencyNotation) }
 }
 
 legacyForge {
@@ -51,71 +121,6 @@ legacyForge {
     }
     // Tells ModDev which source set contains the mod code/resources
     mods { "${mod_id}" { sourceSet sourceSets.main } }
-}
-
-// must come after legacyForge block
-// "additionalRuntimeClasspath" is defined by the legacForge block... for some reason
-dependencies {
-    // Applies Mixin AP: Gotta be declare for LegacyForge refmap gen
-    annotationProcessor group: 'org.spongepowered', name: 'mixin', version: '0.8.5', classifier: 'processor'
-    // Forge includes mixin-extras as an optional dependency since 1.21.10 (version 60.0.16)
-    // But since we are in an older version we need to include it ourselves
-    compileOnly group: 'io.github.llamalad7', name: 'mixinextras-common', version: mixinextras_version
-    annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: mixinextras_version
-    implementation group: 'io.github.llamalad7', name: 'mixinextras-forge', version: mixinextras_version
-    jarJar group: 'io.github.llamalad7', name: 'mixinextras-forge', version: mixinextras_version
-    // MrCrayfish Config Mods
-    modImplementation "curse.maven:catalogue-459701:4766090" // Catalogue
-    modCompileOnly "curse.maven:configured-457570:5180900" // Configured
-    // Title Screen Compatibility Mods
-    modCompileOnly "curse.maven:packmenu-358191:5503481" // PackMenu
-    modCompileOnly "curse.maven:ice-and-fire-dragons-264231:5633453" // Ice and Fire: Dragons
-    modCompileOnly "curse.maven:aether-255308:6134920" // The Aether
-    modCompileOnly "curse.maven:fancymenu-367706:7256735" // FancyMenu
-    // My Mods (PaCo Screen Tests)
-    modRuntimeOnly "curse.maven:swampier-swamps-632591:4578599" // Swampier Swamps
-//    runtimeOnly fg.deobf("curse.maven:table-top-craft-467136:5318681") // Table Top Craft
-    modRuntimeOnly "curse.maven:online-detector-454487:4574905" // Online Detector
-    // Yung Mods (PaCo Screen Tests)
-    modRuntimeOnly "curse.maven:yungs-api-421850:5331703" // YUNG's API
-    modRuntimeOnly "curse.maven:yungs-better-witch-huts-631401:4769489" // YUNG's Better Witch Huts
-    modRuntimeOnly "curse.maven:yungs-better-end-island-901344:5193815" // YUNG's Better End Island
-
-    // exp4j (Expression Parsing)
-    additionalRuntimeClasspath "net.objecthunter:exp4j:0.4.8"
-    implementation             "net.objecthunter:exp4j:0.4.8"
-    shade                      "net.objecthunter:exp4j:0.4.8"
-    // glsl parser (shader patching)
-    additionalRuntimeClasspath "local_slim:glsl_parser:${glsl_parser_version}"
-    implementation             "local_slim:glsl_parser:${glsl_parser_version}"
-    shade                      "local_slim:glsl_parser:${glsl_parser_version}"
-    additionalRuntimeClasspath "io.github.ocelot:glsl-processor:${glsl_processor_version}"
-    implementation "io.github.ocelot:glsl-processor:${glsl_processor_version}"
-    shade ("io.github.ocelot:glsl-processor:${glsl_processor_version}") {
-        exclude group: "org.ow2.asm"
-    }
-    // NightConfig (Config System)
-    // We shade because forges version is outdated...
-    shade "com.electronwill.night-config:core:3.8.1"
-    shade "com.electronwill.night-config:toml:3.8.1"
-
-    // Atlas Viewer (Atlas Stitch Monitoring)
-    modRuntimeOnly "curse.maven:atlasviewer-633577:4882554" // AtlasViewer
-    // Performance Monitoring
-    modRuntimeOnly "curse.maven:spark-361579:4738952" // Spark
-    // Render Mods To Test Shader Patcher
-    modImplementation "curse.maven:embeddium-908741:5681725" // Embeddium
-    modImplementation "curse.maven:oculus-581495:6020952" // Oculus
-
-    modImplementation "org.andrew:ttc:1.0"
-
-//    implementation "curse.maven:vivecraft-667903:6208688"
-
-//    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
-//    minecraftLibrary "org.lwjgl:lwjgl-renderdoc"
-
-    // shells
-    compileOnly "a:OFShell:1.0"
 }
 
 // Includes generated resources (for DataGen output)

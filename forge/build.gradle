@@ -58,6 +58,7 @@ dependencies {
     modCompileOnly "curse.maven:aether-255308:6134920"               // The Aether
     modCompileOnly "curse.maven:ice-and-fire-dragons-264231:5633453" // Ice and Fire: Dragons
     modImplementation "curse.maven:catalogue-459701:4766090"         // Catalogue
+    compileOnly "a:OFShell:1.0"
 
     // ############ Debugging/Profiling Dependencies #############
     // Atlas Viewer (Atlas Stitch Monitoring)

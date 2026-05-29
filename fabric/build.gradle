@@ -45,6 +45,7 @@ dependencies {
     modCompileOnly "curse.maven:fancymenu-367706:7256727"           // FancyMenu
     modCompileOnly "curse.maven:aether-255308:6800393"              // The Aether
     modImplementation "curse.maven:catalogue-fabric-667377:4766089" // Catalogue
+    compileOnly "a:OFShell:1.0"
 
     // ############ Debugging/Profiling Dependencies #############
     // Spark (Performance Monitoring)

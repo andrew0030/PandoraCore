@@ -28,6 +28,7 @@ dependencies {
     // ############### Compatibility Dependencies ################
     modCompileOnly "curse.maven:embeddium-908741:5681725" // Embeddium
     modCompileOnly "curse.maven:oculus-581495:6020952"    // Oculus
+    compileOnly "a:OFShell:1.0"
 }
 
 legacyForge {

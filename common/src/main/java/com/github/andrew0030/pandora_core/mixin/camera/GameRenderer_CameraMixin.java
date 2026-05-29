@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.mixin.camera;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoCameraTransforms;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
@@ -12,7 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
 public class GameRenderer_CameraMixin {
@@ -25,13 +25,11 @@ public class GameRenderer_CameraMixin {
     }
 
     // Used to modify the Fov
-    @Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
-    private void applyPaCoCameraFov(Camera camera, float partialTicks, boolean useFOVSetting, CallbackInfoReturnable<Double> cir) {
-        double fov = cir.getReturnValue();
+    @ModifyReturnValue(method = "getFov", at = @At("RETURN"))
+    private double applyPaCoCameraFov(double fov, Camera camera, float partialTicks, boolean useFOVSetting) {
         // Checks if the fov is already out of bounds due to some other mod
-        if (fov < 1.0 || fov > 179.0) return;
+        if (fov < 1.0 || fov > 179.0) return fov;
         // Applies the fov offset and keeps the value within 1-179 to avoid breaking/inverting rendering
-        fov = Mth.clamp(fov + ((IPaCoCameraTransforms) camera).pandoraCore$getFovOffset(), 1, 179);
-        cir.setReturnValue(fov);
+        return Mth.clamp(fov + ((IPaCoCameraTransforms) camera).pandoraCore$getFovOffset(), 1, 179);
     }
 }

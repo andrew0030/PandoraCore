@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(ShaderUniform2i.class)
+@Mixin(value = ShaderUniform2i.class, remap = false)
 public class Vector2IUMixin implements IPaCoPainReducer {
 	@Shadow
 	private int[][] programValues;

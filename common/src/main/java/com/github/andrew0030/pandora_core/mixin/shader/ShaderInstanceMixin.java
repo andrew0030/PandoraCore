@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.mixin.shader;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoUniformListable;
+import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.Uniform;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.spongepowered.asm.mixin.Final;
@@ -16,7 +17,7 @@ public class ShaderInstanceMixin implements IPaCoUniformListable {
     private List<Uniform> uniforms;
 
     @Override
-    public Iterable<Uniform> pandoraCore$listUniforms() {
-        return uniforms;
+    public Iterable<AbstractUniform> pandoraCore$listUniforms() {
+        return (Iterable<AbstractUniform>) (Object) uniforms;
     }
 }

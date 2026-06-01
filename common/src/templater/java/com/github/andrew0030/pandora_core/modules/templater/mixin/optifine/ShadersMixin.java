@@ -1,12 +1,12 @@
 package com.github.andrew0030.pandora_core.modules.templater.mixin.optifine;
 
-import com.github.andrew0030.pandora_core.modules.templater.loader.impl.iris.IrisTemplateLoader;
+import com.github.andrew0030.pandora_core.modules.templater.itf.IPaCoExtOFProgram;
 import com.github.andrew0030.pandora_core.modules.templater.loader.impl.optifine.OptifineTemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.optifine.OFTemplatedProgram;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.optifine.OFVtxAttribute;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.Shaders;
 import net.optifine.util.LineBuffer;
@@ -16,7 +16,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -94,6 +93,13 @@ public abstract class ShadersMixin {
 	@Inject(at = @At("RETURN"), method = "setupProgram")
 	private static void finishProgram(Program program, String vShaderPath, String gShaderPath, String fShaderPath, CallbackInfo ci) {
 		OptifineTemplateLoader.bindShader(program.getName(), program);
+		
+		IPaCoExtOFProgram ext = (IPaCoExtOFProgram) program;
+		for (OFVtxAttribute value : OFVtxAttribute.values()) {
+			if (value.progUseAttrib.get()) {
+				ext.pandoraCore$enableAttrib(value);
+			}
+		}
 	}
 	
 //	@WrapOperation(method = "useProgram", at= @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glUseProgram(I)V"))
@@ -103,10 +109,15 @@ public abstract class ShadersMixin {
 //		}
 //	}
 	
-	@Redirect(method = "useProgram", at= @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glUseProgram(I)V"))
-	private static void swapProgram(int i) {
+	@WrapOperation(method = "useProgram", at= @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glUseProgram(I)V"))
+	private static void swapProgram(int i, Operation<Void> original) {
+		if (OptifineAccessor.FALSE_BIND) {
+			// do nothing!
+			return;
+		}
+		
 		if (OFTemplatedProgram.useProgram == null) {
-			GlStateManager._glUseProgram(i);
+			original.call(i);
 //			original.call(i);
 		} else {
 //			activeProgramID = OFTemplatedProgram.useProgram.getId();
@@ -118,4 +129,13 @@ public abstract class ShadersMixin {
 			checkGLError("paco-bindInstanced");
 		}
 	}
+	
+//	@WrapOperation(method = "useProgram", at = @At(value = "INVOKE", target = "Lnet/optifine/shaders/Shaders;setProgramUniforms(Lnet/optifine/shaders/ProgramStage;)V"))
+//	private static void wrapSetUforms(ProgramStage stage, Operation<Void> original) {
+//		if (OptifineAccessor.FALSE_BIND) {
+//			return;
+//		}
+//
+//		original.call(stage);
+//	}
 }

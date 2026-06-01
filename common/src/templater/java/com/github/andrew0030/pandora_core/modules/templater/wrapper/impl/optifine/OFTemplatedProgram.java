@@ -1,18 +1,13 @@
 package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.optifine;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPacoDirtyable;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoModTracker;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoUniformListable;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
-import com.github.andrew0030.pandora_core.modules.templater.itf.IVertexFormatAccess;
-import com.github.andrew0030.pandora_core.modules.templater.itf.IVertexFormatElementAccess;
-import com.github.andrew0030.pandora_core.modules.templater.mixin.optifine.access.VertexFormatAccessor;
+import com.github.andrew0030.pandora_core.modules.templater.itf.IPaCoExtOFProgram;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BaseProgram;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.ShaderAttachment;
+import com.github.andrew0030.pandora_core.utils.debug.RenderDebugger;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -20,15 +15,12 @@ import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.renderer.GameRenderer;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.EXTDebugLabel;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.KHRDebug;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -113,72 +105,60 @@ public class OFTemplatedProgram extends BaseProgram {
 		int index = 0;
 		for (String elementAttributeName : DefaultVertexFormat.NEW_ENTITY.getElementAttributeNames()) {
 			Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
-			System.out.println(mapper.mapTo(null, elementAttributeName) + "->" + index);
+//			System.out.println(mapper.mapTo(null, elementAttributeName) + "->" + index);
 		}
+		IPaCoExtOFProgram extProg = (IPaCoExtOFProgram)vanilla;
+		for (OFVtxAttribute value : OFVtxAttribute.values()) {
+			int idx = value.id.get();
+			if (extProg.pandoraCore$usesAttrib(value)) {
+				Uniform.glBindAttribLocation(id, idx, value.ofName);
+				RenderDebugger.checkError(value.name());
+			}
+			if (index <= idx) {
+				index = idx + 1;
+			}
+		}
+		TemplatedShader.linkAttributes(id, index, transformation);
 		
 		GL20.glLinkProgram(id);
-		TemplatedShader.bindAttributes(attributeLocations, id, index, transformation);
+		TemplatedShader.bindAttributes(attributeLocations, id, transformation);
 	}
 	
 	public void bind() {
+		RenderDebugger.checkError("pre-bind");
 		if (firstBind != null) {
 			firstBind.run();
 			firstBind = null;
 		}
 
-//		System.out.println("AAAAAAAAAAAAAA");
-		
-//		for (Uniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
-//			IPaCoModTracker mt = (IPaCoModTracker) uniform;
-//			Integer i = uniformModCounts.getOrDefault(uniform, null);
-//
-//			mt.pandoraCore$isolate();
-//
-//			if (i != null) {
-//				if (mt.pandoraCore$dirtyIfNotMod(i)) {
-//					// update mod count
-//					uniformModCounts.put(uniform, mt.pandoraCore$mod());
-//					((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
-//				}
-//			} else {
-//				// cache mod and assume it needs to be uploaded
-//				uniformModCounts.put(uniform, mt.pandoraCore$mod());
-//				((IPacoDirtyable) uniform).pandoraCore$markDirty();
-//				((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
-//			}
-//		}
-////		from.markDirty();
-//
-//		((IPaCoConditionallyBindable) from).pandoraCore$disableBind();
-
 		useProgram = this;
+		RenderDebugger.checkError("first bind");
 		
-//	    IrisRenderSystem.unbindAllSamplers();
-//	    IrisRenderSystem.bindTextureToUnit(TextureType.TEXTURE_2D.getGlType(), 0, 0);
-//	    IrisRenderSystem.bindTextureToUnit(TextureType.TEXTURE_2D.getGlType(), 1, 0);
-//	    IrisRenderSystem.bindTextureToUnit(TextureType.TEXTURE_2D.getGlType(), 2, 0);
+		GL20.glUseProgram(id);
+		RenderDebugger.checkError("use prog");
+		
+		RenderDebugger.checkError("pre false-bind");
+		OptifineAccessor.falseBind(from);
 		
 		if (preBind != null)
 			preBind.run();
-		
-		GL20.glUseProgram(id);
+		RenderDebugger.checkError("pre bind");
 
 //		if (false) {
 		// TODO: I believe I do need to bind a proper vanilla shader
 		//       for now, I'll just go entity shader
 		RenderSystem.setShader(GameRenderer::getRendertypeEntitySolidShader);
+		RenderDebugger.checkError("use shader");
 //			RenderSystem.setShader(() -> from);
 //			from.apply();
-//		System.out.println("BBBBBBBBBBBBBBB");
-		OptifineAccessor.falseUnbind();
-//		System.out.println("CCCCCCCCCCC");
-		Shaders.useProgram(from);
+//		OptifineAccessor.falseUnbind();
+//		Shaders.useProgram(from);
 //		}
+		
+		OptifineAccessor.bindGbuffersTextures();
 		
 		if (postBind != null)
 			postBind.run();
-
-//	    PBRTextureManager.notifyPBRTexturesChanged();
 	}
 	
 	public void close() {
@@ -189,16 +169,11 @@ public class OFTemplatedProgram extends BaseProgram {
 	}
 	
 	public void clear() {
-//		((IPaCoConditionallyBindable) from).pandoraCore$enableBind();
-//        from.clear();
-		useProgram = null;
-		Shaders.useProgram(Shaders.ProgramNone);
+		RenderDebugger.checkError("pre clear");
 		if (postClear != null)
 			postClear.run();
-//		for (Uniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
-//			IPaCoModTracker mt = (IPaCoModTracker) uniform;
-//			mt.pandoraCore$release();
-//		}
+		useProgram = null;
+		Shaders.useProgram(Shaders.ProgramNone);
 		RenderSystem.setShader(() -> null);
 	}
 	

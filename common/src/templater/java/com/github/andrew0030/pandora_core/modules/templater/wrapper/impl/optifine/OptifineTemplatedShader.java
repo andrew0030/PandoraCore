@@ -1,33 +1,27 @@
 package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.optifine;
 
-import com.github.andrew0030.pandora_core.mixin_interfaces.IPacoDirtyable;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoModTracker;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoModTrackerListable;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.*;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateTransformation;
+import com.github.andrew0030.pandora_core.modules.templater.itf.ILocationedObject;
 import com.github.andrew0030.pandora_core.modules.templater.itf.INamedShader;
+import com.github.andrew0030.pandora_core.modules.templater.itf.PaCoOFUniformListable;
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.VoidShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BaseProgram;
-import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BlackHoleProgram;
-import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.TemplatedProgram;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.AttachmentSpecifier;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.ShaderAttachment;
-import com.google.common.collect.ImmutableList;
+import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import com.mojang.blaze3d.shaders.AbstractUniform;
-import net.irisshaders.iris.gl.program.GlUniform1iCall;
-import net.irisshaders.iris.gl.program.ProgramUniforms;
-import net.irisshaders.iris.gl.uniform.Uniform;
-import net.irisshaders.iris.pipeline.programs.ExtendedShader;
-import net.irisshaders.iris.shadows.ShadowRenderingState;
-import net.irisshaders.iris.uniforms.SystemTimeUniforms;
-import net.irisshaders.iris.uniforms.custom.CustomUniforms;
 import net.irisshaders.iris.uniforms.custom.cached.CachedUniform;
 import net.optifine.shaders.Program;
+import net.optifine.shaders.uniform.CustomUniforms;
+import net.optifine.shaders.uniform.ShaderUniformBase;
+import net.optifine.shaders.uniform.ShaderUniforms;
+import org.lwjgl.opengl.GL20;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +53,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 			List<ShaderAttachment> attachments = new ArrayList<>();
 			for (AttachmentSpecifier specifier : specifiers) {
 				if (specifier == null) continue;
-
+				
 				TemplateTransformation apply = struct.getTransformation(
 						specifier.type.strName(), transformers, transformations
 				);
@@ -71,11 +65,11 @@ public class OptifineTemplatedShader extends TemplatedShader {
 						"optifine/main/"
 				);
 				attachments.add(attachment);
-
+				
 				String srcFl = specifier.fileName + "." + specifier.type.strName();
 				sourceNames.add(srcFl);
 			}
-
+			
 			// make program
 			program = new OFTemplatedProgram(
 					vanilla,
@@ -83,10 +77,10 @@ public class OptifineTemplatedShader extends TemplatedShader {
 			);
 			program.link(vanilla, mapper, struct);
 			for (ShaderAttachment attachment : attachments) attachment.delete();
-
+			
 			// log error
 			program.validate("Optifine:Base");
-
+			
 			program.setFirstBind(() -> firstBind(vanilla));
 			setupProg(program, vanilla);
 		}
@@ -131,180 +125,88 @@ public class OptifineTemplatedShader extends TemplatedShader {
 	}
 	
 	private void setupProg(OFTemplatedProgram program, Program vanilla) {
-//		Map<CachedUniform, Integer> uniformModCounts = new HashMap<>();
-//		// caches parent value so that it can be reset
-//		Map<Uniform, Object> uniformValueCache = new HashMap<>();
-//		long[] lastTick = new long[2];
-//		int[] lastFrame = new int[2];
-//
-//		Map<Uniform, Object> parCache = new HashMap<>();
-//		Map<Uniform, Object> selfCache = new HashMap<>();
-//
-//		program.setPreBind(() -> preBind(vanilla, uniformModCounts, uniformValueCache, lastTick, lastFrame, parCache, selfCache));
-//		program.setPostClear(() -> postClear(vanilla, uniformModCounts, uniformValueCache, lastTick, lastFrame, parCache, selfCache));
+		Map<CachedUniform, Integer> uniformModCounts = new HashMap<>();
+		// caches parent value so that it can be reset
+		Map<IPaCoPainReducer, Object> uniformValueCache = new HashMap<>();
+		long[] lastTick = new long[2];
+		int[] lastFrame = new int[2];
+		
+		Map<IPaCoPainReducer, Object> parCache = new HashMap<>();
+		Map<IPaCoPainReducer, Object> selfCache = new HashMap<>();
+		Map<IPaCoPainReducer, Integer> uniformIds = new HashMap<>();
+		
+		program.setPreBind(() -> preBind(program.id, vanilla, uniformModCounts, uniformValueCache, lastTick, lastFrame, parCache, selfCache, uniformIds));
+		program.setPostClear(() -> postClear(vanilla, uniformModCounts, uniformValueCache, lastTick, lastFrame, parCache, selfCache, uniformIds));
 	}
 	
 	private void firstBind(Program vanilla) {
-//		FIRST_BIND = true;
+		FIRST_BIND = true;
 	}
 	
-//	ImmutableList<Uniform> cachedInit;
-//	List<GlUniform1iCall> initSamplers;
-//	List<GlUniform1iCall> initImages;
-	
 	private void preBind(
-			Program vanilla, Map<CachedUniform, Integer> uniformModCounts,
-			Map<Uniform, Object> uniformValueCache, long[] lastTick, int[] lastFrame,
-			Map<Uniform, Object> parCache, Map<Uniform, Object> selfCache
+			int progId, Program vanilla, Map<CachedUniform, Integer> uniformModCounts,
+			Map<IPaCoPainReducer, Object> uniformValueCache, long[] lastTick, int[] lastFrame,
+			Map<IPaCoPainReducer, Object> parCache, Map<IPaCoPainReducer, Object> selfCache,
+			Map<IPaCoPainReducer, Integer> uniformIds
 	) {
-//		ExtendedShader ext = (ExtendedShader) vanilla;
-//
-//		CustomUniforms uniforms = ((IPacoCustomUniformAccessor) ext).pandoraCore$getCustomUniforms();
-//
-//		ProgramUniforms progUniforms = ((IPacoAccessInitializables) ext).pandoraCore$getUniforms();
-//		IPacoInitCachable<ImmutableList<Uniform>> accessor = (IPacoInitCachable<ImmutableList<Uniform>>) progUniforms;
-//
-//		IPaCoFrameTickAccessor ft = (IPaCoFrameTickAccessor) progUniforms;
-//		lastTick[0] = ft.getLastTick();
-//		lastFrame[0] = ft.getLastFrame();
-//
-//		{
-//			for (Uniform uniform : ft.getDynamic()) {
-//				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-//				parCache.put(uniform, reducer.getCachedValue());
-//
-//				Object o = selfCache.getOrDefault(uniform, null);
-//				reducer.setCachedValue(o);
-//			}
-//			// TODO: call the method from iris code for consistency
-//			long tick = ft.accessGetCurrentTick();
-//			if (lastTick[1] != tick) {
-//				ft.setLastTick(tick);
-//
-//				for (Uniform uniform : ft.getPerTick()) {
-//					IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-//					parCache.put(uniform, reducer.getCachedValue());
-//
-//					Object o = selfCache.getOrDefault(uniform, null);
-//					reducer.setCachedValue(o);
-//				}
-//			}
-//
-//			int frame = SystemTimeUniforms.COUNTER.getAsInt();
-//			if (lastFrame[1] != frame) {
-//				ft.setLastFrame(frame);
-//
-//				for (Uniform uniform : ft.getPerFrame()) {
-//					IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-//					parCache.put(uniform, reducer.getCachedValue());
-//
-//					Object o = selfCache.getOrDefault(uniform, null);
-//					reducer.setCachedValue(o);
-//				}
-//			}
+//		System.out.println("PRE-BIND");
+		CustomUniforms uniforms = OptifineAccessor.getCustomUniforms();
+		ShaderUniforms progUniforms = OptifineAccessor.getShaderUniforms();
+		
+		PaCoOFUniformListable mtPU = ((PaCoOFUniformListable) progUniforms);
+		
+		if (FIRST_BIND) {
+			for (ShaderUniformBase uniformB : mtPU.getUforms()) {
+				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
+				int id = GL20.glGetUniformLocation(progId, uniformB.getName());
+				System.out.println(uniformB.getName() + " " + uniformB.getLocation() + "->" + id);
+				uniformIds.put(uniform, id);
+				
+				try {
+					uniformValueCache.put(uniform, uniform.getCachedValue());
+//					uniform.setCachedValue(null);
+					((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
+				} catch (Throwable err) {
+					err.printStackTrace();
+				}
+			}
+		} else {
+			for (ShaderUniformBase uniformB : mtPU.getUforms()) {
+//				System.out.println(uniformB.getName());
+				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
+				int id = uniformIds.get(uniform);
+				
+				uniformValueCache.put(uniform, uniform.getCachedValue());
+				uniform.setCachedValue(selfCache.get(uniform));
+				((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
+			}
+		}
+		
+//		if (uniforms != null) {
+//			uniforms.update();
 //		}
-//
-//		IPacoInitCachable<List<GlUniform1iCall>> samplers = (IPacoInitCachable<List<GlUniform1iCall>>) ((IPacoAccessInitializables) ext).pandoraCore$getSamplers();
-//		IPacoInitCachable<List<GlUniform1iCall>> images = (IPacoInitCachable<List<GlUniform1iCall>>) ((IPacoAccessInitializables) ext).pandoraCore$getImages();
-//
-//		cachedInit = accessor.pandoraCore$getCurrentInitializer();
-//		initSamplers = samplers.pandoraCore$getCurrentInitializer();
-//		initImages = images.pandoraCore$getCurrentInitializer();
-//
-//		uniformValueCache.clear();
-//
-//		if (FIRST_BIND) {
-//			accessor.pandoraCore$setInitializer(accessor.pandoraCore$getInitializer());
-//
-//			for (Uniform uniform : accessor.pandoraCore$getInitializer()) {
-//				try {
-//					uniformValueCache.put(uniform, ((IPaCoPainReducer) uniform).getCachedValue());
-//					((IPaCoPainReducer) uniform).setCachedValue(null);
-//				} catch (Throwable err) {
-//					err.printStackTrace();
-//				}
-//			}
-//		} else {
-//			// avoid repeating
-//			accessor.pandoraCore$setInitializer(null);
-//			samplers.pandoraCore$setInitializer(null);
-//			images.pandoraCore$setInitializer(null);
-//		}
-//
-//		for (IPaCoModTracker mt : ((IPaCoModTrackerListable) uniforms).pandoraCore$listTrackers()) {
-//			mt.pandoraCore$isolate();
-//
-//			CachedUniform uniform = (CachedUniform) mt;
-//			Integer i = uniformModCounts.getOrDefault(uniform, null);
-//			if (i != null) {
-//				if (mt.pandoraCore$dirtyIfNotMod(i)) {
-//					// update mod count
-//					uniformModCounts.put(uniform, mt.pandoraCore$mod());
-//					((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
-//				}
-//			} else {
-//				// cache mod and assume it needs to be uploaded
-//				uniformModCounts.put(uniform, mt.pandoraCore$mod());
-//				((IPacoDirtyable) uniform).pandoraCore$markDirty();
-//				((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
-//			}
-//		}
-//
-////		System.out.println(ext);
+		
+		FIRST_BIND = false;
 	}
 	
 	private void postClear(
 			Program vanilla, Map<CachedUniform, Integer> uniformModCounts,
-			Map<Uniform, Object> uniformValueCache, long[] lastTick, int[] lastFrame,
-			Map<Uniform, Object> parCache, Map<Uniform, Object> selfCache
+			Map<IPaCoPainReducer, Object> uniformValueCache, long[] lastTick, int[] lastFrame,
+			Map<IPaCoPainReducer, Object> parCache, Map<IPaCoPainReducer, Object> selfCache,
+			Map<IPaCoPainReducer, Integer> uniformIds
 	) {
-//		ExtendedShader ext = (ExtendedShader) vanilla;
-//		ProgramUniforms progUniforms = ((IPacoAccessInitializables) ext).pandoraCore$getUniforms();
-//		IPacoInitCachable<ImmutableList<Uniform>> accessor = (IPacoInitCachable<ImmutableList<Uniform>>) progUniforms;
-//		IPacoInitCachable<List<GlUniform1iCall>> samplers = (IPacoInitCachable<List<GlUniform1iCall>>) ((IPacoAccessInitializables) ext).pandoraCore$getSamplers();
-//		IPacoInitCachable<List<GlUniform1iCall>> images = (IPacoInitCachable<List<GlUniform1iCall>>) ((IPacoAccessInitializables) ext).pandoraCore$getImages();
-//
-//		accessor.pandoraCore$setInitializer(cachedInit);
-//		samplers.pandoraCore$setInitializer(initSamplers);
-//		images.pandoraCore$setInitializer(initImages);
-//
-//		CustomUniforms uniforms = ((IPacoCustomUniformAccessor) ext).pandoraCore$getCustomUniforms();
-//
-//		for (IPaCoModTracker mt : ((IPaCoModTrackerListable) uniforms).pandoraCore$listTrackers()) {
-//			mt.pandoraCore$release();
-//		}
-//
-//		uniformValueCache.forEach((k, v) -> ((IPaCoPainReducer) k).setCachedValue(v));
-//
-//		IPaCoFrameTickAccessor ft = (IPaCoFrameTickAccessor) progUniforms;
-//		lastTick[1] = ft.getLastTick();
-//		lastFrame[1] = ft.getLastFrame();
-//		ft.setLastTick(lastTick[0]);
-//		ft.setLastFrame(lastFrame[0]);
-//
-//		{
-//			for (Uniform uniform : ft.getDynamic()) {
-//				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-//				selfCache.put(uniform, reducer.getCachedValue());
-//
-//				Object o = parCache.getOrDefault(uniform, null);
-//				reducer.setCachedValue(o);
-//			}
-//			for (Uniform uniform : ft.getPerFrame()) {
-//				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-//				selfCache.put(uniform, reducer.getCachedValue());
-//
-//				Object o = parCache.getOrDefault(uniform, null);
-//				reducer.setCachedValue(o);
-//			}
-//			for (Uniform uniform : ft.getPerTick()) {
-//				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-//				selfCache.put(uniform, reducer.getCachedValue());
-//
-//				Object o = parCache.getOrDefault(uniform, null);
-//				reducer.setCachedValue(o);
-//			}
-//		}
+		CustomUniforms uniforms = OptifineAccessor.getCustomUniforms();
+		ShaderUniforms progUniforms = OptifineAccessor.getShaderUniforms();
+		
+		PaCoOFUniformListable mtPU = ((PaCoOFUniformListable) progUniforms);
+		
+		for (ShaderUniformBase uniformB : mtPU.getUforms()) {
+			IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
+			selfCache.put(uniform, uniform.getCachedValue());
+			Object o = parCache.getOrDefault(uniform, null);
+			uniform.setCachedValue(o);
+			((ILocationedObject) uniform).pandoraCore$virtualLocation(-1);
+		}
 	}
 	
 	public static boolean isFirstBind() {
@@ -321,7 +223,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 //			if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
 //				programShadow.bind();
 //			} else {
-				program.bind();
+			program.bind();
 //			}
 		} catch (Throwable err) {
 			err.printStackTrace();
@@ -350,7 +252,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 //		if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
 //			programShadow.clear();
 //		} else {
-			program.clear();
+		program.clear();
 //		}
 		super.clear();
 //		VoidShader.INSTANCE.clear();
@@ -379,7 +281,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 //		if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
 //			return programShadow.getAttributeLocation(name);
 //		} else {
-			return program.getAttributeLocation(name);
+		return program.getAttributeLocation(name);
 //		}
 //		return -1;
 	}

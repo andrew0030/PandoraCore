@@ -42,6 +42,7 @@
 		"optifine.access.VertexFormatElementMixin",
 		"optifine.dmp.DoDump",
 		"optifine.GlStateManagerMixin",
+		"optifine.ShaderUniformsMixin",
 		"optifine.access.literally_every_dtype.ShaderUBaseAccessor",
 		"optifine.access.literally_every_dtype.Matrix3UMixin",
 		"optifine.access.literally_every_dtype.Matrix4UMixin",
@@ -53,6 +54,12 @@
 		"optifine.access.literally_every_dtype.Vector3UMixin",
 		"optifine.access.literally_every_dtype.Vector4UMixin",
 		"optifine.access.literally_every_dtype.Vector4IUMixin",
+
+		"optifine.dbg.CompositeRenderTypeMixin",
+		"optifine.dbg.RenderTypeAccessor",
+		"optifine.dbg.CompositeStateAccessor",
+		"optifine.ShaderInstanceMixin",
+		"optifine.SVBMixin"
 	],
 	"server": [],
 	"injectors": {
@@ -62,6 +69,6 @@
 		"requireAnnotations": true
 	},
 	"mixinextras": {
-		"minVersion": "${mixinextras_version}"
+		"minVersion": "0.5.4"
 	}
 }

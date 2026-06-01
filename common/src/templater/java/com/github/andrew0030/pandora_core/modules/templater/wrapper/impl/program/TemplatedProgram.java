@@ -57,7 +57,7 @@ public class TemplatedProgram extends BaseProgram {
 	
 	ShaderInstance from;
     int id;
-	Map<Uniform, Integer> uniformModCounts = new HashMap<>();
+	Map<AbstractUniform, Integer> uniformModCounts = new HashMap<>();
 
     public TemplatedProgram(ShaderInstance from, List<ShaderAttachment> attachments) {
         this.from = from;
@@ -83,7 +83,7 @@ public class TemplatedProgram extends BaseProgram {
             Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
         }
         GL20.glLinkProgram(id);
-        TemplatedShader.bindAttributes(attributeLocations, id, index, transformation);
+        TemplatedShader.bindAttributes(attributeLocations, id, transformation);
     }
 
     public void bind() {
@@ -92,7 +92,7 @@ public class TemplatedProgram extends BaseProgram {
 		    firstBind = null;
 	    }
 	    
-	    for (Uniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
+	    for (AbstractUniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
 		    IPaCoModTracker mt = (IPaCoModTracker) uniform;
 		    Integer i = uniformModCounts.getOrDefault(uniform, null);
 			
@@ -147,7 +147,7 @@ public class TemplatedProgram extends BaseProgram {
         from.clear();
 		if (postClear != null)
 		    postClear.run();
-	    for (Uniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
+	    for (AbstractUniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
 		    IPaCoModTracker mt = (IPaCoModTracker) uniform;
 		    mt.pandoraCore$release();
 	    }

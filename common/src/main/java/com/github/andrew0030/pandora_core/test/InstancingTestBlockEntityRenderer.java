@@ -8,6 +8,8 @@ import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.Ba
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchKey;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoShaderStateShard;
+import com.github.andrew0030.pandora_core.utils.debug.RenderDebugger;
+import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.LightTexture;
@@ -20,6 +22,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.joml.Matrix3f;
 import org.joml.Random;
+import org.lwjgl.opengl.GL11;
 
 public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRenderer<InstancingTestBlockEntity> {
     public InstancingTestBlockEntityRenderer() {
@@ -33,7 +36,7 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
         public void flush(CollectiveDrawData data) {
             vbo.setupData(data, PaCoRenderTypes.shader);
             data.upload();
-            vbo.drawWithShader(
+	        vbo.drawWithShader(
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),
                     RenderSystem.getShader()
@@ -77,12 +80,12 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
     @Override
     public void flush(Level level, BatchData data) {
         RenderSystem.setShaderFogShape(FogShape.SPHERE);
-        RenderSystem.setShaderTexture(0, new ResourceLocation(
+	    RenderSystem.setShaderTexture(0, new ResourceLocation(
 //                "minecraft:dynamic/light_map_1"
                 "minecraft:textures/block/white_concrete.png"
         ));
-        RenderType type = PaCoRenderTypes.type;
-        type.setupRenderState();
+	    RenderType type = PaCoRenderTypes.type;
+	    type.setupRenderState();
 	    PaCoShaderStateShard shaderShard = PaCoRenderTypes.shaderStateShard;
 	    if (shaderShard.shouldRender()) {
 		    RenderSystem.getShader().apply();

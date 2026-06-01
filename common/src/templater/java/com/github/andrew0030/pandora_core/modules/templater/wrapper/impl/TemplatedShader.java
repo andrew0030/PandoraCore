@@ -2,8 +2,6 @@ package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl;
 
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
-import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BaseProgram;
-import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.TemplatedProgram;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL20;
@@ -28,7 +26,7 @@ public abstract class TemplatedShader {
         this.template = template;
     }
 
-    public static void bindAttributes(Map<String, Integer> attributeLocations, int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
+    public static void bindAttributes(Map<String, Integer> attributeLocations, int id, TemplateShaderResourceLoader.TemplateStruct transformation) {
         for (String vertexAttribute : transformation.getInstanceData()) {
             String type = transformation.getAttributeType(vertexAttribute);
             if (type.startsWith("mat")) {
@@ -46,8 +44,26 @@ public abstract class TemplatedShader {
             }
         }
     }
-
-    public abstract void apply();
+	
+	public static void linkAttributes(int id, int index, TemplateShaderResourceLoader.TemplateStruct transformation) {
+		for (String vertexAttribute : transformation.getInstanceData()) {
+			String type = transformation.getAttributeType(vertexAttribute);
+			if (type.startsWith("mat")) {
+				int count = type.charAt(3) - '0';
+				
+				for (int i = 0; i < count; i++) {
+					String txt = vertexAttribute + "_" + i;
+					System.out.println(txt + "->" + index);
+					GL32.glBindAttribLocation(id, index++, txt);
+				}
+			} else {
+				System.out.println(vertexAttribute + "->" + index);
+				GL32.glBindAttribLocation(id, index++, vertexAttribute);
+			}
+		}
+	}
+	
+	public abstract void apply();
 
     public abstract void upload();
 

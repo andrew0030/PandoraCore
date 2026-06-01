@@ -35,6 +35,7 @@
     "camera.CameraMixin",
     "camera.GameRenderer_CameraMixin",
     "compat.model.IrisPipelinePreparationMixin",
+    "compat.model.OptifinePipelinePreparationMixin",
     "ctm.ModelBakeryMixin",
     "gui.AbstractWidgetMixin",
     "gui.EditBoxMixin",

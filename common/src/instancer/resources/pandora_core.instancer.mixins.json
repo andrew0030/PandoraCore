@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "com.github.andrew0030.pandora_core.modules.instancer.mixin",
   "refmap": "${mod_id}.refmap.json",
-  "plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginCommon",
+  "plugin": "com.github.andrew0030.pandora_core.modules.instancer.MixinPluginInstancer",
   "compatibilityLevel": "JAVA_${java_version}",
   "mixins": [],
   "client": [

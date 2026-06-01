@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.EXTDebugLabel;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.slf4j.Logger;
 
@@ -143,6 +144,7 @@ public class OFTemplatedProgram extends BaseProgram {
 		if (preBind != null)
 			preBind.run();
 		RenderDebugger.checkError("pre bind");
+		OptifineAccessor.falseBind(Shaders.ProgramNone);
 
 //		if (false) {
 		// TODO: I believe I do need to bind a proper vanilla shader
@@ -152,10 +154,12 @@ public class OFTemplatedProgram extends BaseProgram {
 //			RenderSystem.setShader(() -> from);
 //			from.apply();
 //		OptifineAccessor.falseUnbind();
-//		Shaders.useProgram(from);
+		Shaders.useProgram(from);
 //		}
 		
 		OptifineAccessor.bindGbuffersTextures();
+//		GlStateManager._activeTexture(0 + GL20.GL_TEXTURE0);
+//		GlStateManager._bindTexture(RenderSystem.getShaderTexture(0));
 		
 		if (postBind != null)
 			postBind.run();
@@ -176,7 +180,6 @@ public class OFTemplatedProgram extends BaseProgram {
 		Shaders.useProgram(Shaders.ProgramNone);
 		RenderSystem.setShader(() -> null);
 	}
-	
 	
 	Map<String, AbstractUniform> uniforms = new Object2ObjectRBTreeMap<>();
 	ArrayList<Uniform> pacoUforms = new ArrayList<>();

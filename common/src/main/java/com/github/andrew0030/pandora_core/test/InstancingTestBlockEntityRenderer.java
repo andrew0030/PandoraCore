@@ -80,13 +80,13 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
     @Override
     public void flush(Level level, BatchData data) {
         RenderSystem.setShaderFogShape(FogShape.SPHERE);
-	    RenderSystem.setShaderTexture(0, new ResourceLocation(
-//                "minecraft:dynamic/light_map_1"
-                "minecraft:textures/block/white_concrete.png"
-        ));
 	    RenderType type = PaCoRenderTypes.type;
 	    type.setupRenderState();
 	    PaCoShaderStateShard shaderShard = PaCoRenderTypes.shaderStateShard;
+	    RenderSystem.setShaderTexture(0, new ResourceLocation(
+//                "minecraft:dynamic/light_map_1"
+			    "minecraft:textures/block/white_concrete.png"
+	    ));
 	    if (shaderShard.shouldRender()) {
 		    RenderSystem.getShader().apply();
 		    vbo.bind();

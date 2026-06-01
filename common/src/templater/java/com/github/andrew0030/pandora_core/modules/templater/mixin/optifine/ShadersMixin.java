@@ -8,6 +8,7 @@ import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.Optifine
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.optifine.shaders.Program;
+import net.optifine.shaders.ProgramStage;
 import net.optifine.shaders.Shaders;
 import net.optifine.util.LineBuffer;
 import org.lwjgl.opengl.GL20;
@@ -130,12 +131,12 @@ public abstract class ShadersMixin {
 		}
 	}
 	
-//	@WrapOperation(method = "useProgram", at = @At(value = "INVOKE", target = "Lnet/optifine/shaders/Shaders;setProgramUniforms(Lnet/optifine/shaders/ProgramStage;)V"))
-//	private static void wrapSetUforms(ProgramStage stage, Operation<Void> original) {
-//		if (OptifineAccessor.FALSE_BIND) {
-//			return;
-//		}
-//
-//		original.call(stage);
-//	}
+	@WrapOperation(method = "useProgram", at = @At(value = "INVOKE", target = "Lnet/optifine/shaders/Shaders;setProgramUniforms(Lnet/optifine/shaders/ProgramStage;)V"))
+	private static void wrapSetUforms(ProgramStage stage, Operation<Void> original) {
+		if (OptifineAccessor.FALSE_BIND) {
+			return;
+		}
+
+		original.call(stage);
+	}
 }

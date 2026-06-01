@@ -22,6 +22,7 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
     private final ArrayList<String> pkgLookup = new ArrayList<>();
     private final HashMap<String, ArrayList<String>> incompatibilityMap = new HashMap<>();
     private final HashMap<String, ArrayList<String>> dependenciesMap = new HashMap<>();
+    private final HashMap<String, ArrayList<String>> packageDependenciesMap = new HashMap<>();
 
     /** Only applies the given Mixin, if the Class it targets exists. */
     protected void addClassLookup(String mixin) {
@@ -50,6 +51,12 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
         ArrayList<String> dependency = new ArrayList<>(Arrays.asList(things));
         dependenciesMap.put(mixin, dependency);
     }
+	
+	protected void addPackageDependency(String packageName, String... things) {
+		if (!base.isEmpty()) packageName = base + "." + packageName;
+		ArrayList<String> dependency = new ArrayList<>(Arrays.asList(things));
+		packageDependenciesMap.put(packageName, dependency);
+	}
 
     public MixinPluginBase() {
     }
@@ -65,6 +72,16 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
     public boolean doesPkgNeedLookup(String name) {
         for (String s : pkgLookup) {
             if (name.startsWith(s)) return true;
+        }
+        return false;
+    }
+	
+    public boolean doesPkgNeedDepLookup(String name, String[] pkg) {
+        for (String s : packageDependenciesMap.keySet()) {
+            if (name.startsWith(s)) {
+				pkg[0] = s;
+				return true;
+            }
         }
         return false;
     }
@@ -109,6 +126,24 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
             ClassLoader loader = MixinPluginBase.class.getClassLoader();
             // tests if the classloader contains a .class file for the target
             for (String name : dependenciesMap.get(mixinClassName)) {
+                InputStream stream = loader.getResourceAsStream(name.replace('.', '/') + ".class");
+                if (stream == null) {
+                    return false;
+                } else {
+                    try {
+                        stream.close();
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+            return true;
+        }
+
+		String[] pkg = new String[1];
+        if (packageDependenciesMap.containsKey(mixinClassName) || doesPkgNeedDepLookup(mixinClassName, pkg)) {
+            ClassLoader loader = MixinPluginBase.class.getClassLoader();
+            // tests if the classloader contains a .class file for the target
+            for (String name : packageDependenciesMap.get(pkg[0])) {
                 InputStream stream = loader.getResourceAsStream(name.replace('.', '/') + ".class");
                 if (stream == null) {
                     return false;

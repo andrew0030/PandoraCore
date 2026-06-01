@@ -57,7 +57,7 @@ public class TransformVar extends InsertionAction {
     }
 
     public List<GlslSegment> afterInputVar(VariableMapper mapper, TemplateTransformation transformation, String type, String var, String snowflake, TransformationContext context) {
-		System.out.println(from.getName() + "==" + var + "?");
+//		System.out.println(from.getName() + "==" + var + "?");
 		
         String varMap = mapper.mapFrom(type, var);
         if (!varMap.equals(from.getName()))

@@ -94,14 +94,14 @@ public class NameMapper {
 	}
 	
 	public static String fromOF(String proposedType, String name) {
-		System.out.println("DE_MAPPING " + name);
-		System.out.println(name + "->" + OF_MAPPING_REVERSE.getOrDefault(name, name));
+//		System.out.println("DE_MAPPING " + name);
+//		System.out.println(name + "->" + OF_MAPPING_REVERSE.getOrDefault(name, name));
 		return OF_MAPPING_REVERSE.getOrDefault(name, name);
 	}
 	
 	public static String toOF(String proposedType, String name) {
-		System.out.println("MAPPING " + name);
-		System.out.println(name + "->" + OF_MAPPING.getOrDefault(name, name));
+//		System.out.println("MAPPING " + name);
+//		System.out.println(name + "->" + OF_MAPPING.getOrDefault(name, name));
 		return OF_MAPPING.getOrDefault(name, name);
 	}
 }

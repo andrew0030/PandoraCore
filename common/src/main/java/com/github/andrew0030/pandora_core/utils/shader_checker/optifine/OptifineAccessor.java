@@ -90,15 +90,15 @@ public class OptifineAccessor {
 	}
 	
 	public static void falseBind(Program from) {
-		FALSE_BIND = true;
-		Shaders.useProgram(from);
-		FALSE_BIND = false;
-//		Shaders.activeProgram = from;
-//		Shaders.activeProgramID = from.getId();
-//		getShaderUniforms().setProgram(from.getId());
-//		CustomUniforms cuforms = getCustomUniforms();
-//		if (cuforms != null)
-//			cuforms.setProgram(from.getId());
+//		FALSE_BIND = true;
+//		Shaders.useProgram(from);
+//		FALSE_BIND = false;
+		Shaders.activeProgram = from;
+		Shaders.activeProgramID = from.getId();
+		getShaderUniforms().setProgram(from.getId());
+		CustomUniforms cuforms = getCustomUniforms();
+		if (cuforms != null)
+			cuforms.setProgram(from.getId());
 	}
 	
 	public static void falseUnbind() {

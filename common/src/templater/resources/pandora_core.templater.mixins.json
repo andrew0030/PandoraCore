@@ -3,7 +3,7 @@
 	"minVersion": "0.8",
 	"package": "com.github.andrew0030.pandora_core.modules.templater.mixin",
 	"refmap": "${mod_id}.refmap.json",
-	"plugin": "com.github.andrew0030.pandora_core.utils.MixinPluginCommon",
+	"plugin": "com.github.andrew0030.pandora_core.modules.templater.MixinPluginTemplater",
 	"compatibilityLevel": "JAVA_${java_version}",
 	"mixins": [],
 	"client": [
@@ -50,7 +50,6 @@
 		"optifine.access.literally_every_dtype.IntUMixin",
 		"optifine.access.literally_every_dtype.Vector2IUMixin",
 		"optifine.access.literally_every_dtype.Vector2UMixin",
-		"optifine.access.literally_every_dtype.Vector3IUMixin",
 		"optifine.access.literally_every_dtype.Vector3UMixin",
 		"optifine.access.literally_every_dtype.Vector4UMixin",
 		"optifine.access.literally_every_dtype.Vector4IUMixin",

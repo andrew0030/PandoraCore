@@ -8,8 +8,13 @@ public class MixinPluginCommon extends MixinPluginBase {
         addPkgLookup("compat");
 //        addClassLookup("compat.gui.CatalogueModListScreenMixin");
 
-//        if (PaCoTesting.TEST_MODE) {
-//            addExclude("test.ShaderTemplateTest");
-//        }
+        if (PaCoTesting.TEST_MODE) {
+            addExclude("test.ShaderTemplateTest");
+        }
+		
+	    String patchForZink = System.getProperty("paco.patches.zink_windows");
+	    if (!(patchForZink != null && patchForZink.equals("true"))) {
+			addExclude("test.ZinkPatch");
+	    }
     }
 }

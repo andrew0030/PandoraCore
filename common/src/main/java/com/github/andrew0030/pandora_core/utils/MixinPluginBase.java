@@ -23,13 +23,22 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
     private final HashMap<String, ArrayList<String>> incompatibilityMap = new HashMap<>();
     private final HashMap<String, ArrayList<String>> dependenciesMap = new HashMap<>();
     private final HashMap<String, ArrayList<String>> packageDependenciesMap = new HashMap<>();
+    private final Set<String> excludes = new HashSet<>();
 
     /** Only applies the given Mixin, if the Class it targets exists. */
     protected void addClassLookup(String mixin) {
         classLookup.add(mixin);
     }
-
-    /**
+	
+	/**
+	 * Excludes a mixin from applying
+	 * @param mixin the mixin name
+	 */
+	protected void addExclude(String mixin) {
+		if (!base.isEmpty()) mixin = base + "." + mixin;
+		pkgLookup.add(mixin);
+	}
+	/**
      * Only applies Mixins in the given Package, if the Class they target exists.<br/>
      * Essentially the Package based bulk operation of using {@link MixinPluginBase#addClassLookup(String)}
      */
@@ -88,6 +97,9 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if (excludes.contains(mixinClassName))
+			return false;
+		
         if (classLookup.contains(mixinClassName) || doesPkgNeedLookup(mixinClassName)) {
             ClassLoader loader = MixinPluginBase.class.getClassLoader();
             // tests if the classloader contains a .class file for the target

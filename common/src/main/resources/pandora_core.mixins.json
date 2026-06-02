@@ -53,7 +53,8 @@
     "shader.ShaderInstanceMixin",
     "shader.UniformMixin",
     "test.ShaderTemplateTest",
-	  "RenderDoc"
+	  "test.RenderDoc",
+	  "test.ZinkPatch"
   ],
   "server": [],
   "injectors": {

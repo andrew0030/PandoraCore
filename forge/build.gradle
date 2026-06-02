@@ -27,19 +27,19 @@ dependencies {
     // Forge includes mixin-extras as an optional dependency since 1.21.10 (version 60.0.16)
     // But since we are in an older version we need to include it ourselves
     annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: mixinextras_version
-    compileOnly         group: 'io.github.llamalad7', name: 'mixinextras-common', version: mixinextras_version
+    compileOnly group: 'io.github.llamalad7', name: 'mixinextras-common', version: mixinextras_version
     implementation group: 'io.github.llamalad7', name: 'mixinextras-forge', version: mixinextras_version
-    jarJar         group: 'io.github.llamalad7', name: 'mixinextras-forge', version: mixinextras_version
+    jarJar group: 'io.github.llamalad7', name: 'mixinextras-forge', version: mixinextras_version
 
     // ################## Included Dependencies ##################
     // exp4j (Expression Parsing)
     javaLibRuntime group: 'net.objecthunter', name: 'exp4j', version: exp4j_version
     implementation group: 'net.objecthunter', name: 'exp4j', version: exp4j_version
-    shade          group: 'net.objecthunter', name: 'exp4j', version: exp4j_version
+    shade group: 'net.objecthunter', name: 'exp4j', version: exp4j_version
     // glsl parser (Shader Patching)
     javaLibRuntime group: 'local_slim', name: 'glsl_parser', version: glsl_parser_version
     implementation group: 'local_slim', name: 'glsl_parser', version: glsl_parser_version
-    shade          group: 'local_slim', name: 'glsl_parser', version: glsl_parser_version
+    shade group: 'local_slim', name: 'glsl_parser', version: glsl_parser_version
     // glsl processor (Parsing GLSL Source Code To A Tree)
     javaLibRuntime group: 'io.github.ocelot', name: 'glsl-processor', version: glsl_processor_version
     implementation group: 'io.github.ocelot', name: 'glsl-processor', version: glsl_processor_version
@@ -113,7 +113,10 @@ legacyForge {
             dir.asFile.mkdirs() // Ensures the directory exists before launch
             setGameDirectory(dir)
         }
-        client { client() }
+        client {
+            jvmArguments.add("-Dpaco.use.renderdoc=true")
+            client()
+        }
         server { server() }
 //        data { data()
 //            // Specifies the modid for data generation, where to output the resulting resource, and where to look for existing resources.

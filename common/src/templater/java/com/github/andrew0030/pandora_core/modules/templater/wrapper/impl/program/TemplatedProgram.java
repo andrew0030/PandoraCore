@@ -2,6 +2,8 @@ package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.progra
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
+import com.github.andrew0030.pandora_core.modules.templater.itf.ILocationedObject;
+import com.github.andrew0030.pandora_core.modules.templater.itf.INamedUniform;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.ShaderAttachment;
@@ -9,6 +11,7 @@ import com.github.andrew0030.pandora_core.mixin_interfaces.IPacoDirtyable;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoModTracker;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoUniformListable;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.uniform.UniformData;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.AbstractUniform;
@@ -57,7 +60,7 @@ public class TemplatedProgram extends BaseProgram {
 	
 	ShaderInstance from;
     int id;
-	Map<AbstractUniform, Integer> uniformModCounts = new HashMap<>();
+	Map<AbstractUniform, UniformData> uniformModCounts = new HashMap<>();
 
     public TemplatedProgram(ShaderInstance from, List<ShaderAttachment> attachments) {
         this.from = from;
@@ -94,21 +97,42 @@ public class TemplatedProgram extends BaseProgram {
 	    
 	    for (AbstractUniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
 		    IPaCoModTracker mt = (IPaCoModTracker) uniform;
-		    Integer i = uniformModCounts.getOrDefault(uniform, null);
+		    UniformData dat = uniformModCounts.getOrDefault(uniform, null);
+			int i = 0;
+			if (dat != null)
+				i = dat.modCount;
 			
 			mt.pandoraCore$isolate();
 			
-		    if (i != null) {
+		    if (dat != null) {
 			    if (mt.pandoraCore$dirtyIfNotMod(i)) {
 				    // update mod count
-				    uniformModCounts.put(uniform, mt.pandoraCore$mod());
+				    dat.modCount = mt.pandoraCore$mod();
 				    ((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
 			    }
+				
+			    ((ILocationedObject) uniform).pandoraCore$virtualLocation(dat.virtualLocation);
 		    } else {
+				String name = ((INamedUniform) uniform).pandoraCore$getName();
+				
+				if (name == null) {
+					dat = new UniformData(-1, 0);
+				} else {
+					dat = new UniformData(
+							Uniform.glGetUniformLocation(
+									id, name
+							),
+							0
+					);
+				}
+				
 			    // cache mod and assume it needs to be uploaded
-			    uniformModCounts.put(uniform, mt.pandoraCore$mod());
+			    dat.modCount = mt.pandoraCore$mod();
+			    uniformModCounts.put(uniform, dat);
 			    ((IPacoDirtyable) uniform).pandoraCore$markDirty();
 			    ((IPaCoModTracker) uniform).pandoraCore$enableModTracking();
+			    
+			    ((ILocationedObject) uniform).pandoraCore$virtualLocation(dat.virtualLocation);
 		    }
 	    }
 		from.markDirty();
@@ -150,6 +174,7 @@ public class TemplatedProgram extends BaseProgram {
 	    for (AbstractUniform uniform : ((IPaCoUniformListable) from).pandoraCore$listUniforms()) {
 		    IPaCoModTracker mt = (IPaCoModTracker) uniform;
 		    mt.pandoraCore$release();
+		    ((ILocationedObject) uniform).pandoraCore$virtualLocation(-1);
 	    }
 	    RenderSystem.setShader(() -> null);
     }

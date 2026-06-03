@@ -58,7 +58,10 @@
 		"optifine.dbg.RenderTypeAccessor",
 		"optifine.dbg.CompositeStateAccessor",
 		"optifine.ShaderInstanceMixin",
-		"optifine.SVBMixin"
+		"optifine.SVBMixin",
+
+		"vanilla.access.AbstractUniformMixin",
+		"vanilla.access.UniformMixin"
 	],
 	"server": [],
 	"injectors": {

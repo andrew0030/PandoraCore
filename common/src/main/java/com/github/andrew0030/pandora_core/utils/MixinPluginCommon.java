@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.utils;
 
 import com.github.andrew0030.pandora_core.PaCoTesting;
+import com.github.andrew0030.pandora_core.utils.debug.PaCoProperties;
 
 public class MixinPluginCommon extends MixinPluginBase {
     public MixinPluginCommon() {
@@ -12,8 +13,7 @@ public class MixinPluginCommon extends MixinPluginBase {
             addExclude("test.ShaderTemplateTest");
         }
 		
-	    String patchForZink = System.getProperty("paco.patches.zink_windows");
-	    if (!(patchForZink != null && patchForZink.equals("true"))) {
+	    if (!PaCoProperties.zinkPatch) {
 			addExclude("test.ZinkPatch");
 	    }
     }

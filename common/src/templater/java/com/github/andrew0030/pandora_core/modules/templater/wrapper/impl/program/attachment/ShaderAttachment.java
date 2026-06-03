@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.modules.templater.TemplateTransformati
 import com.github.andrew0030.pandora_core.modules.templater.itf.INamedShader;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
+import com.github.andrew0030.pandora_core.utils.debug.PaCoProperties;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +21,8 @@ import java.nio.charset.StandardCharsets;
 public class ShaderAttachment {
     int id;
     AttachmentType type;
+
+	private static final boolean doDump = PaCoProperties.shaderDump;
 
     public ShaderAttachment(
 		    String source, AttachmentType type,
@@ -64,6 +67,8 @@ public class ShaderAttachment {
     }
 	
 	private void dumpShader(ResourceLocation location, String source, AttachmentType type, String dumpMeta) {
+		if (!doDump) return;
+		
 		String pth = "paco_shader_dump/" + dumpMeta + location.getNamespace() + "/" + location.getPath() + "." + type.strName;
 		File fl = new File(pth);
 		

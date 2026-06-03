@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.test;
 
+import com.github.andrew0030.pandora_core.utils.debug.PaCoProperties;
 import net.minecraft.util.FrameTimer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,8 +19,7 @@ public class RenderDoc {
 		if (initialized) return;
 		
 		try {
-			String useRd = System.getProperty("paco.use.renderdoc");
-			if (useRd != null && useRd.equals("true")) {
+			if (PaCoProperties.renderdoc) {
 				System.out.println("Looking for renderdoc...");
 				String pth = System.getenv("PATH");
 				

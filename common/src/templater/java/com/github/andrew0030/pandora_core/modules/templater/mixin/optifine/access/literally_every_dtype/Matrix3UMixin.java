@@ -22,10 +22,10 @@ public class Matrix3UMixin implements IPaCoPainReducer {
 	
 	@Override
 	public void setCachedValue(Object object) {
-		if (object == null) {
-			matrixBuffer = MemoryUtil.memAllocFloat(9);
-		} else {
-			matrixBuffer = (FloatBuffer) object;
-		}
+//		if (object == null) {
+//			matrixBuffer = MemoryUtil.memAllocFloat(9);
+//		} else {
+//			matrixBuffer = (FloatBuffer) object;
+//		}
 	}
 }

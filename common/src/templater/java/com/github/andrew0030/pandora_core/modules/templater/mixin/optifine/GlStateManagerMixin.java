@@ -8,12 +8,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ShaderInstance.class)
+@Mixin(GlStateManager.class)
 public class GlStateManagerMixin {
-	@Inject(at= @At("HEAD"), method = "apply", cancellable = true)
-	private void preUseProg(CallbackInfo ci) {
-		if (OFTemplatedProgram.useProgram != null) {
-			ci.cancel();
-		}
-	}
+//	@Inject(at = @At("HEAD"), method = "_bindTexture", cancellable = true)
+//	private static void preUseProg(CallbackInfo ci) {
+//		if (OFTemplatedProgram.useProgram != null) {
+//			ci.cancel();
+//		}
+//	}
 }

@@ -14,5 +14,11 @@ public class MixinPluginInstancer extends MixinPluginBase {
 		    String dep = "me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer";
 		    addPackageDependency("render.sodium.", dep);
 	    }
+	    
+	    {
+		    String dep = "net.optifine.shaders.Shaders";
+		    addPackageDependency("render.optifine.", dep);
+			addIncompat("render.vanilla.LevelRendererMixin", dep);
+	    }
     }
 }

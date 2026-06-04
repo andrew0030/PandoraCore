@@ -20,7 +20,8 @@
 	  "render.sodium.SectionBuilderMixin",
 	  "render.sodium.SodiumRendererMixin",
 	  "render.iris.ShadowPassMixin",
-	  "render.iris.ShadowRendererMixin"
+	  "render.iris.ShadowRendererMixin",
+	  "render.optifine.LevelRendererMixin"
   ],
   "server": [],
   "injectors": {

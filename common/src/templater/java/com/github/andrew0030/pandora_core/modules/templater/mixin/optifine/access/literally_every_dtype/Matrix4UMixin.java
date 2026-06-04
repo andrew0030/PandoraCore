@@ -21,10 +21,10 @@ public class Matrix4UMixin implements IPaCoPainReducer {
 	
 	@Override
 	public void setCachedValue(Object object) {
-		if (object == null) {
-			matrixBuffer = MemoryUtil.memAllocFloat(16);
-		} else {
-			matrixBuffer = (FloatBuffer) object;
-		}
+//		if (object == null) {
+//			matrixBuffer = MemoryUtil.memAllocFloat(16);
+//		} else {
+//			matrixBuffer = (FloatBuffer) object;
+//		}
 	}
 }

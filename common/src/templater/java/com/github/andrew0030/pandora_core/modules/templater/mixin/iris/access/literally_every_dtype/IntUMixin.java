@@ -38,6 +38,7 @@ public class IntUMixin implements IPaCoPainReducer {
 		if (object == null) {
 			cacheNulled = true;
 		} else {
+			cacheNulled = false;
 			cachedValue = (int) object;
 		}
 	}

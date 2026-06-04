@@ -161,10 +161,10 @@ public class OptifineTemplatedShader extends TemplatedShader {
 				int id = GL20.glGetUniformLocation(progId, uniformB.getName());
 				System.out.println(uniformB.getName() + " " + uniformB.getLocation() + "->" + id);
 				uniformIds.put(uniform, id);
-				
+
 				try {
 					uniformValueCache.put(uniform, uniform.getCachedValue());
-//					uniform.setCachedValue(null);
+					uniform.setCachedValue(null);
 					((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
 				} catch (Throwable err) {
 					err.printStackTrace();
@@ -175,7 +175,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 //				System.out.println(uniformB.getName());
 				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
 				int id = uniformIds.get(uniform);
-				
+
 				uniformValueCache.put(uniform, uniform.getCachedValue());
 				uniform.setCachedValue(selfCache.get(uniform));
 				((ILocationedObject) uniform).pandoraCore$virtualLocation(id);

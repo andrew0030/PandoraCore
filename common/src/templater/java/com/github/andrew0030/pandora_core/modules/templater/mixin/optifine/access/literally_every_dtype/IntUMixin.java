@@ -35,6 +35,7 @@ public class IntUMixin implements IPaCoPainReducer {
 			cacheNulled = true;
 			programValues[((ShaderUniformBase) (Object) this).getProgram()] = 0;
 		} else {
+			cacheNulled = false;
 			programValues[((ShaderUniformBase) (Object) this).getProgram()] = (int) object;
 		}
 	}

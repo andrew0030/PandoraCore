@@ -28,9 +28,10 @@ public class Vector2UMixin implements IPaCoPainReducer {
 	public void setCachedValue(Object object) {
 		float[] obj = (float[]) object;
 		if (object == null) {
-			cacheNulled = true;
+//			cacheNulled = true;
 			programValues[((ShaderUniformBase) (Object) this).getProgram()] = new float[2];
 		} else {
+			cacheNulled = false;
 			programValues[((ShaderUniformBase) (Object) this).getProgram()] = obj;
 		}
 	}

@@ -33,6 +33,7 @@ public class FloatUMixin implements IPaCoPainReducer {
 		if (object == null) {
 			cacheNulled = true;
 		} else {
+			cacheNulled = false;
 			cachedValue = (float) object;
 		}
 	}

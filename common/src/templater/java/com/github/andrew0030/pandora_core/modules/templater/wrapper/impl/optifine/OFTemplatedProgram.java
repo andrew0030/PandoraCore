@@ -69,7 +69,7 @@ public class OFTemplatedProgram extends BaseProgram {
 		this.from = from;
 		
 		id = GL20.glCreateProgram();
-		EXTDebugLabel.glLabelObjectEXT(EXTDebugLabel.GL_PROGRAM_OBJECT_EXT, id, "PACO_SHADER");
+//		EXTDebugLabel.glLabelObjectEXT(EXTDebugLabel.GL_PROGRAM_OBJECT_EXT, id, "PACO_SHADER");
 		
 		for (ShaderAttachment attachment : attachments) {
 			GL20.glAttachShader(id, attachment.getId());
@@ -125,6 +125,8 @@ public class OFTemplatedProgram extends BaseProgram {
 		TemplatedShader.bindAttributes(attributeLocations, id, transformation);
 	}
 	
+	Program prevProg;
+	
 	public void bind() {
 		RenderDebugger.checkError("pre-bind");
 		if (firstBind != null) {
@@ -133,34 +135,24 @@ public class OFTemplatedProgram extends BaseProgram {
 		}
 
 		useProgram = this;
-		RenderDebugger.checkError("first bind");
-		
+		prevProg = Shaders.activeProgram;
+
 		GL20.glUseProgram(id);
-		RenderDebugger.checkError("use prog");
-		
-		RenderDebugger.checkError("pre false-bind");
+
 		OptifineAccessor.falseBind(from);
-		
+
 		if (preBind != null)
 			preBind.run();
-		RenderDebugger.checkError("pre bind");
 		OptifineAccessor.falseBind(Shaders.ProgramNone);
 
-//		if (false) {
 		// TODO: I believe I do need to bind a proper vanilla shader
 		//       for now, I'll just go entity shader
+		OptifineAccessor.falseUnbind();
 		RenderSystem.setShader(GameRenderer::getRendertypeEntitySolidShader);
-		RenderDebugger.checkError("use shader");
-//			RenderSystem.setShader(() -> from);
-//			from.apply();
-//		OptifineAccessor.falseUnbind();
 		Shaders.useProgram(from);
-//		}
-		
+
 		OptifineAccessor.bindGbuffersTextures();
-//		GlStateManager._activeTexture(0 + GL20.GL_TEXTURE0);
-//		GlStateManager._bindTexture(RenderSystem.getShaderTexture(0));
-		
+
 		if (postBind != null)
 			postBind.run();
 	}
@@ -177,7 +169,7 @@ public class OFTemplatedProgram extends BaseProgram {
 		if (postClear != null)
 			postClear.run();
 		useProgram = null;
-		Shaders.useProgram(Shaders.ProgramNone);
+		Shaders.useProgram(prevProg);
 		RenderSystem.setShader(() -> null);
 	}
 	

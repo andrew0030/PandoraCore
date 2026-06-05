@@ -6,6 +6,7 @@ import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.optifin
 import net.optifine.shaders.Program;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.EnumSet;
 
@@ -19,15 +20,16 @@ public abstract class ProgramMixin implements INamedShader, IPaCoExtOFProgram {
 		return getName();
 	}
 	
-	EnumSet<OFVtxAttribute> attributes = EnumSet.noneOf(OFVtxAttribute.class);
+	@Unique
+	EnumSet<OFVtxAttribute> pandoraCore$attributes = EnumSet.noneOf(OFVtxAttribute.class);
 	
 	@Override
 	public boolean pandoraCore$usesAttrib(OFVtxAttribute attribute) {
-		return attributes.contains(attribute);
+		return pandoraCore$attributes.contains(attribute);
 	}
 	
 	@Override
 	public void pandoraCore$enableAttrib(OFVtxAttribute attribute) {
-		attributes.add(attribute);
+		pandoraCore$attributes.add(attribute);
 	}
 }

@@ -21,7 +21,8 @@
 	  "render.sodium.SodiumRendererMixin",
 	  "render.iris.ShadowPassMixin",
 	  "render.iris.ShadowRendererMixin",
-	  "render.optifine.LevelRendererMixin"
+	  "render.optifine.LevelRendererMixin",
+	  "render.optifine.ShadowMapMixin"
   ],
   "server": [],
   "injectors": {

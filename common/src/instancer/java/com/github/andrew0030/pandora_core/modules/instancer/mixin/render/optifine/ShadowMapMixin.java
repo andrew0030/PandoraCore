@@ -12,21 +12,16 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.optifine.shaders.Shaders;
-import org.joml.Matrix4f;
+import net.optifine.shaders.ShadersRender;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -35,14 +30,36 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import javax.annotation.Nullable;
 import java.util.List;
 
-@Mixin(LevelRenderer.class)
-public class LevelRendererMixin implements OptifineInstanceListAccessor {
-	@Shadow
-	@Nullable
-	private ClientLevel level;
+@Mixin(ShadersRender.class)
+public class ShadowMapMixin {
+	private static float spct;
+	private static Camera camera;
+	private static PoseStack stack;
 	
-	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
-	public void preRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
+	@WrapOperation(
+			method = "renderShadowMap",
+			at = @At(value = "INVOKE", target = "Lnet/optifine/shaders/Shaders;setCameraShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V"),
+			remap = false
+	)
+	private static void matrix(
+			PoseStack matrixStack, Camera activeRenderInfo, float partialTicks, Operation<Void> original
+	) {
+		stack = matrixStack;
+		spct = partialTicks;
+		camera = activeRenderInfo;
+		
+		original.call(matrixStack, activeRenderInfo, partialTicks);
+	}
+	
+	@WrapOperation(
+			method = "renderShadowMap",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;getRenderInfosTileEntities()Ljava/util/List;"),
+			remap = false
+	)
+	private static List preRenderEnts(
+			LevelRenderer instance,
+			Operation<List> original
+	) {
 		PaCoRenderState.setupWorld();
 		
 		Lighting.setupLevel(RenderSystem.getModelViewMatrix());
@@ -54,15 +71,16 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
 		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
 		RenderSystem.getModelViewStack().translate(
-				-$$4.getPosition().x,
-				-$$4.getPosition().y,
-				-$$4.getPosition().z
+				-camera.getPosition().x,
+				-camera.getPosition().y,
+				-camera.getPosition().z
 		);
 		RenderSystem.applyModelViewMatrix();
 		
+		ClientLevel level = ((OptifineInstanceListAccessor)instance).getLevel();
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
-		List<LevelRenderer.RenderChunkInfo> infs = this.renderInfosInstancer;
+		List<LevelRenderer.RenderChunkInfo> infs = ((OptifineInstanceListAccessor)instance).getRenderInfosInstancer();
 //		System.out.println("aaa");
 		for (
 				LevelRenderer.RenderChunkInfo info : infs
@@ -71,9 +89,9 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 			for (BlockEntity be : ((InstancingResults) chnk).getAll()) {
 				InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
 				if (renderer.shouldRender(
-						be, $$4.getPosition()
+						be, camera.getPosition()
 				)) {
-					renderer.render(level, be, be.getBlockPos(), $$1);
+					renderer.render(level, be, be.getBlockPos(), spct);
 				}
 			}
 		}
@@ -83,60 +101,7 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		RenderSystem.applyModelViewMatrix();
 		
 		PaCoRenderState.resetInstancerState();
-	}
-	
-	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancer = new ObjectArrayList<>(1024);
-	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancerNormal = new ObjectArrayList<>(1024);
-	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancerShadow = new ObjectArrayList<>(1024);
-	
-	@WrapOperation(
-			method = "applyFrustum",
-			at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer$RenderChunkInfo;chunk:Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;", remap = true),
-			remap = false
-	)
-	public ChunkRenderDispatcher.RenderChunk wrapGetChunk(
-			LevelRenderer.RenderChunkInfo inf,
-			Operation<ChunkRenderDispatcher.RenderChunk> original
-	) {
-		ChunkRenderDispatcher.RenderChunk chnk = original.call(inf);
-		ChunkRenderDispatcher.CompiledChunk instance = chnk.getCompiledChunk();
 		
-		if (!((InstancingResults) instance).getAll().isEmpty()) {
-			renderInfosInstancer.add(inf);
-		}
-		
-		return chnk;
-	}
-	
-	@Inject(
-			at = @At("TAIL"),
-			method = "clearRenderInfos",
-			remap = false
-	)
-	public void postClear(CallbackInfo ci) {
-		renderInfosInstancer.clear();
-	}
-	
-	@Inject(
-			at = @At("TAIL"),
-			method = "setShadowRenderInfos",
-			remap = false
-	)
-	public void postSetSI(boolean shadowInfos, CallbackInfo ci) {
-		if (shadowInfos) {
-			this.renderInfosInstancer = this.renderInfosInstancerShadow;
-		} else {
-			this.renderInfosInstancer = this.renderInfosInstancerNormal;
-		}
-	}
-	
-	@Override
-	public ObjectArrayList<LevelRenderer.RenderChunkInfo> getRenderInfosInstancer() {
-		return renderInfosInstancer;
-	}
-	
-	@Override
-	public ClientLevel getLevel() {
-		return level;
+		return original.call(instance);
 	}
 }

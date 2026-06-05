@@ -35,6 +35,7 @@ public abstract class ShadersMixin {
 	@Inject(at = @At("HEAD"), method = "createGeomShader")
 	private static void preCreateG(Program program, String filename, CallbackInfoReturnable<Integer> cir) {
 		OptifineTemplateLoader.activeFile(filename);
+		OptifineTemplateLoader.bindShader(filename, program);
 	}
 	
 	@Inject(at = @At("HEAD"), method = "createVertShader")

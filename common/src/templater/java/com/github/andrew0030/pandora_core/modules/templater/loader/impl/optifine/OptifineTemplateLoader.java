@@ -24,11 +24,9 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.optifine.shaders.Program;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
+import tfc.glsl.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @ApiStatus.Internal
@@ -65,10 +63,21 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	
 	static boolean forceLoad = false;
 	
+	static Program activeProg;
+	
 	public static void link() {
 		System.out.println("LINK: " + ACTIVE);
-		if (ACTIVE != null)
-			sources.put(ACTIVE, new ReadOnlyList<>(SOURCE));
+		if (ACTIVE != null) {
+			ReadOnlyList<String> rol = new ReadOnlyList<>(SOURCE);
+			sources.put(ACTIVE, rol);
+			sourcesByExt.put(
+					Pair.of(
+							ACTIVE.substring(ACTIVE.lastIndexOf(".")),
+							activeProg
+					),
+					rol
+			);
+		}
 	}
 	
 	public static void cancel() {
@@ -78,13 +87,16 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Iris");
 	
 	private static final Map<String, Program> instances = new HashMap<>();
+	private static final Map<Pair<String, Program>, List<String>> sourcesByExt = new HashMap<>();
+	private static final Map<Program, String> names = new HashMap<>();
 	private static final List<String> deferredLoad = new ArrayList<>();
 	
 	public static void bindShader(String $$1, Program shaderInstance) {
 		System.out.println("BIND: " + $$1);
 		instances.put($$1, shaderInstance);
+		activeProg = shaderInstance;
+		names.put(shaderInstance, $$1);
 		if (!forceLoad)
-//            TemplateManager.reloadTemplate(INSTANCE, $$1);
 			deferredLoad.add($$1);
 	}
 	
@@ -93,6 +105,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	}
 	
 	private void getVertex(String template, boolean complete, AttachmentSpecifier[] specifiers) {
+		System.out.println(template + ".vsh");
 		List<String> res = sources.get(template + ".vsh");
 		StringBuilder out = new StringBuilder();
 		for (String re : res) out.append(re).append("\n");
@@ -103,6 +116,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	}
 	
 	private void getFragment(String template, boolean complete, AttachmentSpecifier[] specifiers) {
+		System.out.println(template + ".fsh");
 		List<String> res = sources.get(template + ".fsh");
 		StringBuilder out = new StringBuilder();
 		for (String re : res) out.append(re).append("\n");
@@ -123,6 +137,8 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 				template
 		);
 	}
+	
+	
 	
 	public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Function<String, TemplateTransformation> transformations) {
 		Map<String, String> transformers = struct.getTransformers();
@@ -160,17 +176,23 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 			System.out.println(instance);
 			if (specifiers[0] == null || specifiers[1] == null || instance == null)
 				return LoadResult.UNCACHED;
-
+			
+			String shadowTemplate = pth + templateShadow;
+			System.out.println("DERIVE SHADOW FROM: " + shadowTemplate);
+			
 			AttachmentSpecifier[] specifiersShadow = new AttachmentSpecifier[5];
-			Program instanceShadow = instances.get(pth + templateShadow);
+			Program instanceShadow = instances.get(templateShadow);
 			{
 				try {
-					getVertex(templateShadow, complete, specifiersShadow);
-					getFragment(templateShadow, complete, specifiersShadow);
-					getGeometry(templateShadow, complete, specifiersShadow);
+					getVertex(shadowTemplate, complete, specifiersShadow);
+					getFragment(shadowTemplate, complete, specifiersShadow);
+					getGeometry(shadowTemplate, complete, specifiersShadow);
 				} catch (Throwable err) {
 				}
 			}
+			System.out.println(specifiersShadow[0]);
+			System.out.println(specifiersShadow[1]);
+			System.out.println(instanceShadow);
 
 			super.load(manager, new OptifineTemplatedShader(
 					this, this,
@@ -248,5 +270,10 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	@Override
 	public void preload(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations) {
 		// no operation; not bound to resource manager
+	}
+	
+	@Override
+	public void performReload() {
+		super.performReload();
 	}
 }

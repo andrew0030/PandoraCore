@@ -19,7 +19,7 @@ public class ShaderUniformsMixin implements PaCoOFUniformListable {
 	private List<ShaderUniformBase> listUniforms;
 	
 	@Override
-	public Iterable<ShaderUniformBase> getUforms() {
+	public Iterable<ShaderUniformBase> pandoraCore$getUforms() {
 		return listUniforms;
 	}
 }

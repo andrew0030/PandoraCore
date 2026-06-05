@@ -12,12 +12,14 @@ import com.github.andrew0030.pandora_core.modules.templater.transformer.Variable
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.VoidShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BaseProgram;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BlackHoleProgram;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.AttachmentSpecifier;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.ShaderAttachment;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import net.irisshaders.iris.uniforms.custom.cached.CachedUniform;
 import net.optifine.shaders.Program;
+import net.optifine.shaders.Shaders;
 import net.optifine.shaders.uniform.CustomUniforms;
 import net.optifine.shaders.uniform.ShaderUniformBase;
 import net.optifine.shaders.uniform.ShaderUniforms;
@@ -84,44 +86,44 @@ public class OptifineTemplatedShader extends TemplatedShader {
 			program.setFirstBind(() -> firstBind(vanilla));
 			setupProg(program, vanilla);
 		}
-//		if (vanillaShadow != null) {
-//			List<ShaderAttachment> attachments = new ArrayList<>();
-//			for (AttachmentSpecifier specifier : specifiersShadow) {
-//				if (specifier == null) continue;
-//
-//				TemplateTransformation apply = struct.getTransformation(
-//						specifier.type.strName(), transformers, transformations
-//				);
-//				ShaderAttachment attachment = new ShaderAttachment(
-//						specifier.source, specifier.type,
-//						apply, vanillaShadow,
-//						specifier.preprocess, mapper,
-//						processor, struct.location,
-//						"iris/shadow/"
-//				);
-//				attachments.add(attachment);
-//
-//				String srcFl = specifier.fileName + "." + specifier.type.strName();
-//				sourceNames.add(srcFl);
-//			}
-//
-//			// make program
-//			TemplatedProgram programShadow = new TemplatedProgram(
-//					vanillaShadow,
-//					attachments
-//			);
-//			programShadow.link(vanillaShadow, mapper, struct);
-//			for (ShaderAttachment attachment : attachments) attachment.delete();
-//
-//			// log error
-//			programShadow.validate("Iris/Oculus:Shadow");
-//			this.programShadow = programShadow;
-//
-//			programShadow.setFirstBind(() -> firstBind(vanillaShadow));
-//			setupProg(programShadow, vanillaShadow);
-//		} else {
-//			programShadow = BlackHoleProgram.INSTANCE;
-//		}
+		if (vanillaShadow != null) {
+			List<ShaderAttachment> attachments = new ArrayList<>();
+			for (AttachmentSpecifier specifier : specifiersShadow) {
+				if (specifier == null) continue;
+				
+				TemplateTransformation apply = struct.getTransformation(
+						specifier.type.strName(), transformers, transformations
+				);
+				ShaderAttachment attachment = new ShaderAttachment(
+						specifier.source, specifier.type,
+						apply, (INamedShader) vanilla,
+						specifier.preprocess, mapper,
+						processor, struct.location,
+						"iris/shadow/"
+				);
+				attachments.add(attachment);
+				
+				String srcFl = specifier.fileName + "." + specifier.type.strName();
+				sourceNames.add(srcFl);
+			}
+			
+			// make program
+			OFTemplatedProgram programShadow = new OFTemplatedProgram(
+					vanillaShadow,
+					attachments
+			);
+			programShadow.link(vanillaShadow, mapper, struct);
+			for (ShaderAttachment attachment : attachments) attachment.delete();
+			
+			// log error
+			programShadow.validate("Iris/Oculus:Shadow");
+			this.programShadow = programShadow;
+			
+			programShadow.setFirstBind(() -> firstBind(vanillaShadow));
+			setupProg(programShadow, vanillaShadow);
+		} else {
+			programShadow = BlackHoleProgram.INSTANCE;
+		}
 	}
 	
 	private void setupProg(OFTemplatedProgram program, Program vanilla) {
@@ -156,12 +158,12 @@ public class OptifineTemplatedShader extends TemplatedShader {
 		PaCoOFUniformListable mtPU = ((PaCoOFUniformListable) progUniforms);
 		
 		if (FIRST_BIND) {
-			for (ShaderUniformBase uniformB : mtPU.getUforms()) {
+			for (ShaderUniformBase uniformB : mtPU.pandoraCore$getUforms()) {
 				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
 				int id = GL20.glGetUniformLocation(progId, uniformB.getName());
 				System.out.println(uniformB.getName() + " " + uniformB.getLocation() + "->" + id);
 				uniformIds.put(uniform, id);
-
+				
 				try {
 					uniformValueCache.put(uniform, uniform.getCachedValue());
 					uniform.setCachedValue(null);
@@ -171,17 +173,17 @@ public class OptifineTemplatedShader extends TemplatedShader {
 				}
 			}
 		} else {
-			for (ShaderUniformBase uniformB : mtPU.getUforms()) {
+			for (ShaderUniformBase uniformB : mtPU.pandoraCore$getUforms()) {
 //				System.out.println(uniformB.getName());
 				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
 				int id = uniformIds.get(uniform);
-
+				
 				uniformValueCache.put(uniform, uniform.getCachedValue());
 				uniform.setCachedValue(selfCache.get(uniform));
 				((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
 			}
 		}
-		
+
 //		if (uniforms != null) {
 //			uniforms.update();
 //		}
@@ -200,7 +202,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 		
 		PaCoOFUniformListable mtPU = ((PaCoOFUniformListable) progUniforms);
 		
-		for (ShaderUniformBase uniformB : mtPU.getUforms()) {
+		for (ShaderUniformBase uniformB : mtPU.pandoraCore$getUforms()) {
 			IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
 			selfCache.put(uniform, uniform.getCachedValue());
 			Object o = parCache.getOrDefault(uniform, null);
@@ -220,11 +222,11 @@ public class OptifineTemplatedShader extends TemplatedShader {
 	@Override
 	public void apply() {
 		try {
-//			if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
-//				programShadow.bind();
-//			} else {
-			program.bind();
-//			}
+			if (Shaders.isShadowPass) {
+				programShadow.bind();
+			} else {
+				program.bind();
+			}
 		} catch (Throwable err) {
 			err.printStackTrace();
 		}
@@ -233,29 +235,27 @@ public class OptifineTemplatedShader extends TemplatedShader {
 	
 	@Override
 	public void upload() {
-//		if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
-//			programShadow.upload();
-//		} else {
-//			program.upload();
-//		}
-		VoidShader.INSTANCE.upload();
+		if (Shaders.isShadowPass) {
+			programShadow.upload();
+		} else {
+			program.upload();
+		}
 	}
 	
 	@Override
 	public void destroy() {
 		program.close();
-//		programShadow.close();
+		programShadow.close();
 	}
 	
 	@Override
 	public void clear() {
-//		if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
-//			programShadow.clear();
-//		} else {
-		program.clear();
-//		}
+		if (Shaders.isShadowPass) {
+			programShadow.clear();
+		} else {
+			program.clear();
+		}
 		super.clear();
-//		VoidShader.INSTANCE.clear();
 	}
 	
 	public boolean matches(String mod, String active) {

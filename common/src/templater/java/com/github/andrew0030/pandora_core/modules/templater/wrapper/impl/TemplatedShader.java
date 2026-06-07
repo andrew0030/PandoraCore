@@ -2,7 +2,9 @@ package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl;
 
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
+import com.github.andrew0030.pandora_core.utils.debug.RenderDebugger;
 import com.mojang.blaze3d.shaders.AbstractUniform;
+import com.mojang.blaze3d.shaders.Uniform;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
@@ -34,13 +36,15 @@ public abstract class TemplatedShader {
 
                 for (int i = 0; i < count; i++) {
                     String txt = vertexAttribute + "_" + i;
-
+	                
                     int aid = GL32.glGetAttribLocation(id, txt);
-                    attributeLocations.put(txt, aid);
+//	                System.out.println(txt + "->" + aid);
+	                attributeLocations.put(txt, aid);
                 }
             } else {
-                int aid = GL32.glGetAttribLocation(id, vertexAttribute);
-                attributeLocations.put(vertexAttribute, aid);
+	            int aid = GL32.glGetAttribLocation(id, vertexAttribute);
+//	            System.out.println(vertexAttribute + "->" + aid);
+	            attributeLocations.put(vertexAttribute, aid);
             }
         }
     }
@@ -53,12 +57,14 @@ public abstract class TemplatedShader {
 				
 				for (int i = 0; i < count; i++) {
 					String txt = vertexAttribute + "_" + i;
-					System.out.println(txt + "->" + index);
-					GL32.glBindAttribLocation(id, index++, txt);
+//					System.out.println(txt + "->" + index);
+					Uniform.glBindAttribLocation(id, index++, txt);
+					RenderDebugger.checkError(txt);
 				}
 			} else {
-				System.out.println(vertexAttribute + "->" + index);
-				GL32.glBindAttribLocation(id, index++, vertexAttribute);
+//				System.out.println(vertexAttribute + "->" + index);
+				Uniform.glBindAttribLocation(id, index++, vertexAttribute);
+				RenderDebugger.checkError(vertexAttribute);
 			}
 		}
 	}

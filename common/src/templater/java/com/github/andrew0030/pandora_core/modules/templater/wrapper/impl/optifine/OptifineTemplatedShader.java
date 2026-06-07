@@ -86,44 +86,45 @@ public class OptifineTemplatedShader extends TemplatedShader {
 			program.setFirstBind(() -> firstBind(vanilla));
 			setupProg(program, vanilla);
 		}
-		if (vanillaShadow != null) {
-			List<ShaderAttachment> attachments = new ArrayList<>();
-			for (AttachmentSpecifier specifier : specifiersShadow) {
-				if (specifier == null) continue;
-				
-				TemplateTransformation apply = struct.getTransformation(
-						specifier.type.strName(), transformers, transformations
-				);
-				ShaderAttachment attachment = new ShaderAttachment(
-						specifier.source, specifier.type,
-						apply, (INamedShader) vanilla,
-						specifier.preprocess, mapper,
-						processor, struct.location,
-						"iris/shadow/"
-				);
-				attachments.add(attachment);
-				
-				String srcFl = specifier.fileName + "." + specifier.type.strName();
-				sourceNames.add(srcFl);
-			}
-			
-			// make program
-			OFTemplatedProgram programShadow = new OFTemplatedProgram(
-					vanillaShadow,
-					attachments
-			);
-			programShadow.link(vanillaShadow, mapper, struct);
-			for (ShaderAttachment attachment : attachments) attachment.delete();
-			
-			// log error
-			programShadow.validate("Iris/Oculus:Shadow");
-			this.programShadow = programShadow;
-			
-			programShadow.setFirstBind(() -> firstBind(vanillaShadow));
-			setupProg(programShadow, vanillaShadow);
-		} else {
-			programShadow = BlackHoleProgram.INSTANCE;
-		}
+//		if (vanillaShadow != null) {
+//			List<ShaderAttachment> attachments = new ArrayList<>();
+//			for (AttachmentSpecifier specifier : specifiersShadow) {
+//				if (specifier == null) continue;
+//
+//				TemplateTransformation apply = struct.getTransformation(
+//						specifier.type.strName(), transformers, transformations
+//				);
+//				ShaderAttachment attachment = new ShaderAttachment(
+//						specifier.source, specifier.type,
+//						apply, (INamedShader) vanilla,
+//						specifier.preprocess, mapper,
+//						processor, struct.location,
+//						"optifine/shadow/"
+//				);
+//				attachments.add(attachment);
+//
+//				String srcFl = specifier.fileName + "." + specifier.type.strName();
+//				sourceNames.add(srcFl);
+//			}
+//
+//			// make program
+//			OFTemplatedProgram programShadow = new OFTemplatedProgram(
+//					vanillaShadow,
+//					attachments
+//			);
+//			programShadow.link(vanillaShadow, mapper, struct);
+//			for (ShaderAttachment attachment : attachments) attachment.delete();
+//
+//			// log error
+//			programShadow.validate("Optifine:Shadow");
+//			this.programShadow = programShadow;
+//
+//			programShadow.setFirstBind(() -> firstBind(vanillaShadow));
+//			setupProg(programShadow, vanillaShadow);
+//		} else {
+//			programShadow = BlackHoleProgram.INSTANCE;
+//		}
+		programShadow = BlackHoleProgram.INSTANCE;
 	}
 	
 	private void setupProg(OFTemplatedProgram program, Program vanilla) {

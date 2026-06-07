@@ -16,6 +16,8 @@ import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import com.github.andrew0030.pandora_core.utils.toasts.icon.PaCoIcon;
+import com.github.andrew0030.pandora_core.utils.toasts.background.ToastBackground;
 import net.irisshaders.iris.pipeline.programs.ShaderKey;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -120,6 +122,8 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
                 template
         );
     }
+	
+	boolean firstFail = false;
 
     public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Function<String, TemplateTransformation> transformations) {
         Map<String, String> transformers = struct.getTransformers();
@@ -168,6 +172,15 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
             return LoadResult.LOADED;
         } catch (Throwable err) {
             LOGGER.error("Failed loading template template " + struct.location + " for shader " + template, err);
+	        if (firstFail) {
+		        firstFail = false;
+		        TemplateManager.postToast(
+				        PaCoIcon.FABRIC_20x20, ToastBackground.ERROR,
+				        "Shaders failed to load",
+				        "Objects may not render",
+				        PaCoIcon.PACO
+		        );
+	        }
             return LoadResult.FAILED;
         }
     }
@@ -197,6 +210,8 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
         sources.clear();
         instances.clear();
         deferredLoad.clear();
+		
+	    firstFail = true;
     }
 
     @Override

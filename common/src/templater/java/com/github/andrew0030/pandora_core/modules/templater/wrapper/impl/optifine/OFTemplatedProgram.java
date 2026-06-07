@@ -106,7 +106,6 @@ public class OFTemplatedProgram extends BaseProgram {
 		int index = 0;
 		for (String elementAttributeName : DefaultVertexFormat.NEW_ENTITY.getElementAttributeNames()) {
 			Uniform.glBindAttribLocation(id, index++, mapper.mapTo(null, elementAttributeName));
-//			System.out.println(mapper.mapTo(null, elementAttributeName) + "->" + index);
 		}
 		IPaCoExtOFProgram extProg = (IPaCoExtOFProgram)vanilla;
 		for (OFVtxAttribute value : OFVtxAttribute.values()) {

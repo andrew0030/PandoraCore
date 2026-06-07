@@ -10,10 +10,15 @@ import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.Templat
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.VoidShader;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
+import com.github.andrew0030.pandora_core.utils.toasts.icon.PaCoIcon;
+import com.github.andrew0030.pandora_core.utils.toasts.PaCoToast;
+import com.github.andrew0030.pandora_core.utils.toasts.background.ToastBackground;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.jellysquid.mods.sodium.client.gl.shader.ShaderLoader;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -195,4 +200,22 @@ public class TemplateManager {
             if (wrapper != null) wrapper.clearCache();
         }
     }
+	
+	public static void postToast(
+			PaCoIcon icon, ToastBackground bg,
+			String title, String message,
+			PaCoIcon mod
+	) {
+		PaCoToast toast = new PaCoToast(
+				Component.translatable(title),
+				Component.translatable(message)
+		);
+		
+		toast.setIcon(icon);
+		toast.setModIcon(mod);
+		
+		toast.setBG(bg);
+		
+		Minecraft.getInstance().getToasts().addToast(toast);
+	}
 }

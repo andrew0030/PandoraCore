@@ -162,7 +162,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 			for (ShaderUniformBase uniformB : mtPU.pandoraCore$getUforms()) {
 				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
 				int id = GL20.glGetUniformLocation(progId, uniformB.getName());
-				System.out.println(uniformB.getName() + " " + uniformB.getLocation() + "->" + id);
+//				System.out.println(uniformB.getName() + " " + uniformB.getLocation() + "->" + id);
 				uniformIds.put(uniform, id);
 				
 				try {

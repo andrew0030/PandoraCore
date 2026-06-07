@@ -16,6 +16,7 @@ import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program
 import com.github.andrew0030.pandora_core.utils.collection.DualKeyMap;
 import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import com.github.andrew0030.pandora_core.utils.toasts.background.ResizableToastBackground;
 import com.github.andrew0030.pandora_core.utils.toasts.icon.PaCoIcon;
 import com.github.andrew0030.pandora_core.utils.toasts.background.ToastBackground;
 import net.irisshaders.iris.pipeline.programs.ShaderKey;
@@ -175,7 +176,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
 	        if (firstFail) {
 		        firstFail = false;
 		        TemplateManager.postToast(
-				        PaCoIcon.FABRIC_20x20, ToastBackground.ERROR,
+				        PaCoIcon.FABRIC_20x20, ResizableToastBackground.ERROR,
 				        "Shaders failed to load",
 				        "Objects may not render",
 				        PaCoIcon.PACO

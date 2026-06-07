@@ -38,12 +38,16 @@ public class PaCoAnimatedIcon extends PaCoIcon{
 	}
 	
 	@Override
-	public void blit(GuiGraphics guiGraphics, int x, int y, long timeSinceActive) {
+	public void blit(
+			GuiGraphics guiGraphics,
+			int x, int y,
+			long displayTime, long activeTime
+	) {
 		int iconWidth = spriteWidth / numIconsPerRow;
 		int iconIndex = pixelX / iconWidth;
 		
 		double divisor = 1000d / fps;
-		int frame = (int) (timeSinceActive / divisor);
+		int frame = (int) (displayTime / divisor);
 		frame %= numFrames;
 		iconIndex = iconIndex + frame;
 		

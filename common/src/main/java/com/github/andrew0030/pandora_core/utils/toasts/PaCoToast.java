@@ -1,5 +1,8 @@
 package com.github.andrew0030.pandora_core.utils.toasts;
 
+import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
+import com.github.andrew0030.pandora_core.utils.toasts.background.AbstractToastBackground;
 import com.github.andrew0030.pandora_core.utils.toasts.background.ToastBackground;
 import com.github.andrew0030.pandora_core.utils.toasts.icon.PaCoIcon;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,10 +11,13 @@ import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 
 public class PaCoToast implements Toast {
+	private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Toasts");
+	
 	private final Component title;
 	@Nullable
 	private final Component message;
@@ -20,7 +26,7 @@ public class PaCoToast implements Toast {
 	
 	private int colorTitle = -1, colorMessage = -1;
 	
-	ToastBackground BG = ToastBackground.ADVANCEMENT;
+	AbstractToastBackground BG = ToastBackground.ADVANCEMENT;
 	int numSlots = 1;
 	
 	public PaCoToast(Component title, @Nullable Component message) {
@@ -28,8 +34,21 @@ public class PaCoToast implements Toast {
 		this.message = message;
 	}
 	
-	public PaCoToast setBG(ToastBackground BG) {
+	boolean resizableBG = false;
+	
+	public PaCoToast setBG(AbstractToastBackground BG) {
 		this.BG = BG;
+		resizableBG = BG.canBeResized();
+		return this;
+	}
+	
+	int width = 160;
+	
+	public PaCoToast setWidth(int width) {
+		this.width = width;
+		if (!resizableBG) {
+			LOGGER.warn("setWidth called on a toast that has a non-resizable BG. This is not recommended.");
+		}
 		return this;
 	}
 	
@@ -64,6 +83,9 @@ public class PaCoToast implements Toast {
 	
 	public PaCoToast setNumSlots(int numSlots) {
 		this.numSlots = numSlots;
+		if (!resizableBG) {
+			LOGGER.warn("setNumSlots called on a toast that has a non-resizable BG. This is not recommended.");
+		}
 		return this;
 	}
 	
@@ -72,16 +94,17 @@ public class PaCoToast implements Toast {
 	long spawnTime;
 	
 	@Override
-	public Visibility render(GuiGraphics guiGraphics, ToastComponent toastComponent, long l) {
+	public Visibility render(GuiGraphics guiGraphics, ToastComponent toastComponent, long activeTime) {
 		if (spawnTime == 0) spawnTime = System.currentTimeMillis();
-		l = System.currentTimeMillis() - spawnTime;
-		l -= 400;
-		System.out.println(l);
+		long slideInAnim = 600; // takes 600 ms for the toast to slide in
+		long logoAnim = 200; // we want the logo to slide in/out for 200 ms
+		long displayTime = System.currentTimeMillis() - spawnTime;
+		displayTime -= (slideInAnim - logoAnim);
 		
-		float extend = Mth.clamp(l / 200f, 0, 1);
+		float extend = Mth.clamp(displayTime / (float) logoAnim, 0, 1);
 		float retreat = 1;
 		if (hidden) {
-			retreat = 1 - Mth.clamp(((l - 200) - hideAt) / 200f, 0, 1);
+			retreat = 1 - Mth.clamp(((displayTime - logoAnim) - hideAt) / (float) logoAnim, 0, 1);
 		}
 		float offset = extend * retreat;
 		
@@ -95,16 +118,18 @@ public class PaCoToast implements Toast {
 			modIcon.blit(
 					guiGraphics,
 					0, (int) center,
-					l
+					displayTime, activeTime
 			);
 			stk.popPose();
 		}
 		
-		BG.blit(guiGraphics);
+		BG.blit(guiGraphics, width(), height());
 		
 		if (icon != null) {
 			icon.blit(
-					guiGraphics, 6, 6, l
+					guiGraphics,
+					6, 6,
+					displayTime, activeTime
 			);
 		}
 		
@@ -115,22 +140,27 @@ public class PaCoToast implements Toast {
 			guiGraphics.drawString(toastComponent.getMinecraft().font, this.message, 30, 18, colorMessage | -16777216, false);
 		}
 		
-		if (ttl != -1 && l > ttl) {
+		if (ttl != -1 && activeTime > ttl) {
 			if (!hidden) {
 				hidden = true;
-				hideAt = l;
+				hideAt = displayTime;
 			}
 			return Visibility.HIDE;
 		}
 		
 		hidden = visibility == Visibility.HIDE;
-		hideAt = l;
+		hideAt = displayTime;
 		return visibility;
 	}
 	
 	@Override
 	public int height() {
 		return numSlots * 32;
+	}
+	
+	@Override
+	public int width() {
+		return width;
 	}
 	
 	@Override

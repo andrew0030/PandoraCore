@@ -10,6 +10,7 @@ import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.Templat
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.VoidShader;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
+import com.github.andrew0030.pandora_core.utils.toasts.background.AbstractToastBackground;
 import com.github.andrew0030.pandora_core.utils.toasts.icon.PaCoIcon;
 import com.github.andrew0030.pandora_core.utils.toasts.PaCoToast;
 import com.github.andrew0030.pandora_core.utils.toasts.background.ToastBackground;
@@ -202,7 +203,7 @@ public class TemplateManager {
     }
 	
 	public static void postToast(
-			PaCoIcon icon, ToastBackground bg,
+			PaCoIcon icon, AbstractToastBackground bg,
 			String title, String message,
 			PaCoIcon mod
 	) {
@@ -214,7 +215,9 @@ public class TemplateManager {
 		toast.setIcon(icon);
 		toast.setModIcon(mod);
 		
-		toast.setBG(bg);
+		toast.setBG(bg)
+				.setNumSlots(1)
+				.setWidth(160);
 		
 		Minecraft.getInstance().getToasts().addToast(toast);
 	}

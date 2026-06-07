@@ -76,4 +76,9 @@ public class ToastBackground extends AbstractToastBackground {
 	public void blit(GuiGraphics guiGraphics) {
 		guiGraphics.blit(guiTex, 0, 0, pixelX, pixelY, width, height);
 	}
+	
+	@Override
+	public boolean canBeResized() {
+		return false;
+	}
 }

@@ -59,7 +59,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	}
 	
 	public static void shaderSource(List<String> $$1) {
-		System.out.println("SOURCE: " + ACTIVE);
+//		System.out.println("SOURCE: " + ACTIVE);
 		SOURCE.addAll($$1);
 	}
 	
@@ -68,11 +68,11 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	static Program activeProg;
 	
 	public static void link() {
-		System.out.println("LINK: " + ACTIVE);
+//		System.out.println("LINK: " + ACTIVE);
 		if (ACTIVE != null) {
 			ReadOnlyList<String> rol = new ReadOnlyList<>(SOURCE);
 			sources.put(ACTIVE, rol);
-			System.out.println("SOURCE FOR: " + ACTIVE.substring(ACTIVE.lastIndexOf(".")));
+//			System.out.println("SOURCE FOR: " + ACTIVE.substring(ACTIVE.lastIndexOf(".")));
 			sourcesByExt.put(
 					Pair.of(
 							ACTIVE.substring(ACTIVE.lastIndexOf(".")),
@@ -97,7 +97,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	private static final List<String> deferredLoad = new ArrayList<>();
 	
 	public static void bindShader(String $$1, Program shaderInstance) {
-		System.out.println("BIND: " + $$1);
+//		System.out.println("BIND: " + $$1);
 		instances.put($$1, shaderInstance);
 		activeProg = shaderInstance;
 		names.put(shaderInstance, $$1);
@@ -110,7 +110,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	}
 	
 	private void getVertex(String templateName, Program template, boolean complete, AttachmentSpecifier[] specifiers) {
-		System.out.println(template + " .vsh");
+//		System.out.println(template + " .vsh");
 		List<String> res = sourcesByExt.get(Pair.of(".vsh", template));
 		StringBuilder out = new StringBuilder();
 		for (String re : res) out.append(re).append("\n");
@@ -121,7 +121,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	}
 	
 	private void getFragment(String templateName, Program template, boolean complete, AttachmentSpecifier[] specifiers) {
-		System.out.println(template + " .fsh");
+//		System.out.println(template + " .fsh");
 		List<String> res = sourcesByExt.get(Pair.of(".fsh", template));
 		StringBuilder out = new StringBuilder();
 		for (String re : res) out.append(re).append("\n");
@@ -145,7 +145,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	
 	private Program resolveHighestProgram(Program prog) {
 		while (true) {
-			System.out.println("RESOLVE: " + prog);
+//			System.out.println("RESOLVE: " + prog);
 			if (progsWithSrcs.contains(prog)) {
 				return prog;
 			}
@@ -180,7 +180,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 			Program instance = instances.get("gbuffers_" + template);
 			Program refInstance = resolveHighestProgram(instance);
 			try {
-				System.out.println("DERIVE FROM: " + gbuffer + template);
+//				System.out.println("DERIVE FROM: " + gbuffer + template);
 				
 				getVertex(gbuffer + template, refInstance, complete, specifiers);
 				getFragment(gbuffer + template, refInstance, complete, specifiers);
@@ -189,15 +189,15 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 				return LoadResult.UNCACHED;
 			}
 			
-			System.out.println(specifiers[0]);
-			System.out.println(specifiers[1]);
+//			System.out.println(specifiers[0]);
+//			System.out.println(specifiers[1]);
 			
-			System.out.println(instance);
+//			System.out.println(instance);
 			if (specifiers[0] == null || specifiers[1] == null || instance == null)
 				return LoadResult.UNCACHED;
 			
 			String shadowTemplate = pth + templateShadow;
-			System.out.println("DERIVE SHADOW FROM: " + shadowTemplate);
+//			System.out.println("DERIVE SHADOW FROM: " + shadowTemplate);
 			
 			AttachmentSpecifier[] specifiersShadow = new AttachmentSpecifier[5];
 			Program instanceShadow = instances.get(templateShadow);
@@ -210,9 +210,9 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 				} catch (Throwable err) {
 				}
 			}
-			System.out.println(specifiersShadow[0]);
-			System.out.println(specifiersShadow[1]);
-			System.out.println(instanceShadow);
+//			System.out.println(specifiersShadow[0]);
+//			System.out.println(specifiersShadow[1]);
+//			System.out.println(instanceShadow);
 
 			super.load(manager, new OptifineTemplatedShader(
 					this, this,

@@ -102,7 +102,9 @@ public class PaCoIcon {
 	}
 	
 	public void blit(
-			GuiGraphics guiGraphics, int x, int y, long timeSinceActive
+			GuiGraphics guiGraphics,
+			int x, int y,
+			long displayTime, long activeTime
 	) {
 		guiGraphics.blit(guiTex, x, y, displayWidth, displayHeight, pixelX, pixelY, width, height, spriteWidth, spriteHeight);
 	}

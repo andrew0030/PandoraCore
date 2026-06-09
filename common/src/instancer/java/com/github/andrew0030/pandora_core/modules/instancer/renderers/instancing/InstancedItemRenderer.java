@@ -6,6 +6,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceF
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.builtin.ItemDrawData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchKey;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstancingEnvironment;
 import com.github.andrew0030.pandora_core.test.PaCoRenderTypes;
 import com.github.andrew0030.pandora_core.test.TemplateShaderTest;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -18,7 +19,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
-public abstract class InstancedItemRenderer extends InstanceRenderer<ItemStack, ItemDrawData> {
+public abstract class InstancedItemRenderer extends InstanceRenderer<InstancingEnvironment, ItemStack, ItemDrawData> {
 	public InstancedItemRenderer(InstanceFormat format) {
 		super(format);
 	}

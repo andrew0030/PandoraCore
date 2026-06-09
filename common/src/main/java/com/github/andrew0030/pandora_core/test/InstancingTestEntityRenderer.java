@@ -6,6 +6,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.collective.Collectiv
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchKey;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoShaderStateShard;
@@ -49,7 +50,9 @@ public class InstancingTestEntityRenderer extends InstancedEntityRenderer<TestEn
     }
 
     @Override
-    public void render(Level level, TestEntity object, Vec3 pos, BatchData batches, float pct, Vec3 cameraPos) {
+    public void render(PacoInstancingLevel ilevel, TestEntity object, Vec3 pos, BatchData batches, float pct, Vec3 cameraPos) {
+	    Level level = (Level) ilevel;
+		
         CollectiveDrawData data = batches.buildBatch(STANDARD_KEY);
 
         Matrix3f matrix3f = new Matrix3f();
@@ -76,7 +79,7 @@ public class InstancingTestEntityRenderer extends InstancedEntityRenderer<TestEn
     }
 
     @Override
-    public void flush(Level level, BatchData data) {
+    public void flush(PacoInstancingLevel ilevel, BatchData data) {
         RenderSystem.setShaderFogShape(FogShape.SPHERE);
 	    RenderType type = PaCoRenderTypes.type;
 	    type.setupRenderState();

@@ -73,11 +73,11 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 				if (renderer.shouldRender(
 						be, $$4.getPosition()
 				)) {
-					renderer.render(level, be, be.getBlockPos(), $$1, $$4.getPosition());
+					renderer.render((PacoInstancingLevel) level, be, be.getBlockPos(), $$1, $$4.getPosition());
 				}
 			}
 		}
-		manager.drawFrame(level);
+		manager.drawFrame((PacoInstancingLevel) level);
 		
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();

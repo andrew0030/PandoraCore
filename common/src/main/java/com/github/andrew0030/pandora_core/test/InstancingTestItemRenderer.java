@@ -6,6 +6,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceF
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.builtin.ItemDrawData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchKey;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstancingEnvironment;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstanceRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedItemRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoShaderStateShard;
@@ -29,37 +30,19 @@ public class InstancingTestItemRenderer extends InstancedItemRenderer {
 	
 	private final BatchKey STANDARD_KEY = new BatchKey() {
 		public void flush(CollectiveDrawData data) {
-			RenderSystem.setShaderFogShape(FogShape.SPHERE);
-			RenderType type = PaCoRenderTypes.typeItem;
-			type.setupRenderState();
-			PaCoShaderStateShard shaderShard = PaCoRenderTypes.itemShaderStateShard;
-			RenderSystem.setShaderTexture(0, new ResourceLocation(
-					"minecraft:textures/block/white_concrete.png"
-			));
-			if (shaderShard.shouldRender()) {
-				RenderSystem.getShader().apply();
-				vbo.overrideFormat(TemplateShaderTest.FORMAT_MAT4);
-				vbo.bind();
-				
-				vbo.setupData(data, PaCoRenderTypes.shaderItem);
-				data.upload();
-				vbo.drawWithShader(
-						RenderSystem.getModelViewMatrix(),
-						RenderSystem.getProjectionMatrix(),
-						RenderSystem.getShader()
-				);
-				
-				vbo.unbindVBO();
-				vbo.overrideFormat(null);
-			}
-			type.clearRenderState();
-			RenderSystem.setShaderFogShape(FogShape.CYLINDER);
+			vbo.setupData(data, PaCoRenderTypes.shaderItem);
+			data.upload();
+			vbo.drawWithShader(
+					RenderSystem.getModelViewMatrix(),
+					RenderSystem.getProjectionMatrix(),
+					RenderSystem.getShader()
+			);
 		}
 	};
 	
 	@Override
 	public void render(
-			Level level, ItemStack object,
+			InstancingEnvironment env, ItemStack object,
 			ItemDrawData drawData, BatchData batches,
 			float pct, Vec3 cameraPos
 	) {
@@ -79,6 +62,23 @@ public class InstancingTestItemRenderer extends InstancedItemRenderer {
 	}
 	
 	@Override
-	public void flush(Level level, BatchData data) {
+	public void flush(InstancingEnvironment env, BatchData data) {
+		RenderSystem.setShaderFogShape(FogShape.SPHERE);
+		RenderType type = PaCoRenderTypes.typeItem;
+		type.setupRenderState();
+		PaCoShaderStateShard shaderShard = PaCoRenderTypes.itemShaderStateShard;
+		RenderSystem.setShaderTexture(0, new ResourceLocation(
+				"minecraft:textures/block/white_concrete.png"
+		));
+		if (shaderShard.shouldRender()) {
+			RenderSystem.getShader().apply();
+			vbo.overrideFormat(TemplateShaderTest.FORMAT_MAT4);
+			vbo.bind();
+			data.flush();
+			vbo.unbindVBO();
+			vbo.overrideFormat(null);
+		}
+		type.clearRenderState();
+		RenderSystem.setShaderFogShape(FogShape.CYLINDER);
 	}
 }

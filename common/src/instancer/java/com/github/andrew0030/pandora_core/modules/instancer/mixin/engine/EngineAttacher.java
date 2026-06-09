@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.WritableLevelData;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,4 +36,9 @@ public class EngineAttacher implements PacoInstancingLevel {
     public InstanceManager getManager() {
         return pandoraCore$manager;
     }
+	
+	@Override
+	public @Nullable Level getLevel() {
+		return (Level) (Object) this;
+	}
 }

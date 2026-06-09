@@ -1,32 +1,20 @@
 package com.github.andrew0030.pandora_core.modules.instancer.instancing.builtin;
 
 import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveDrawData;
-import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveVBO;
-import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
-import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
-import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchKey;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.*;
 import com.github.andrew0030.pandora_core.modules.instancer.itf.ItemRendererAccessor;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.ItemAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedItemRenderer;
-import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoShaderStateShard;
-import com.github.andrew0030.pandora_core.test.PaCoRenderTypes;
-import com.github.andrew0030.pandora_core.test.TemplateShaderTest;
-import com.mojang.blaze3d.shaders.FogShape;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,20 +25,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Random;
 
 public class ItemEntityInstancer extends InstancedEntityRenderer<ItemEntity> {
+	public static final ItemEntityInstancer INSTANCE = new ItemEntityInstancer();
+	
 	private final RandomSource random = RandomSource.create();
 	ItemRenderer itemRenderer;
+	InstanceManager internalManager = new InstanceManager();
+	ItemInstancingEnv internalEnv = new ItemInstancingEnv(internalManager);
 	
-	CollectiveVBO vbo;
-	
-	public ItemEntityInstancer(InstanceFormat format) {
-		super(format);
+	private ItemEntityInstancer() {
+		super(null);
 		itemRenderer = Minecraft.getInstance().getItemRenderer();
-		this.vbo = TemplateShaderTest.collectiveVBO;
 	}
 	
 	private int getRenderAmount(ItemStack stack) {
@@ -71,7 +57,14 @@ public class ItemEntityInstancer extends InstancedEntityRenderer<ItemEntity> {
 	InstancedItemRenderer renderer;
 	
 	@Override
-	public void render(Level level, ItemEntity object, Vec3 pos, BatchData data, float pct, Vec3 cameraPos) {
+	public void render(PacoInstancingLevel instancingLevel, ItemEntity object, Vec3 pos, float pct, Vec3 cameraPos) {
+		render(instancingLevel, object, pos, null, pct, cameraPos);
+	}
+	
+	@Override
+	public void render(PacoInstancingLevel ilevel, ItemEntity object, Vec3 pos, BatchData data, float pct, Vec3 cameraPos) {
+		Level level = (Level) ilevel;
+		
 		ItemStack stk = object.getItem();
 		Item item = stk.getItem();
 		InstancedItemRenderer renderer = ((ItemAttachments) item).pandoraCore$getInstancedRenderer();
@@ -146,21 +139,12 @@ public class ItemEntityInstancer extends InstancedEntityRenderer<ItemEntity> {
 			}
 			
 			pose.scale(scaleX, scaleY, scaleZ);
-//			writeInstance(
-//					level,
-//					data,
-//					pose.last().pose(),
-//					object.getLightProbePosition(pct)
-//			);
 			drawData.matr = pose;
 			this.renderer = renderer;
 			renderer.render(
-					level,
-					stk,
-					drawData,
-					data,
-					pct,
-					cameraPos
+					ilevel,
+					stk, drawData,
+					pct, cameraPos
 			);
 			
 			pose.popPose();
@@ -170,58 +154,9 @@ public class ItemEntityInstancer extends InstancedEntityRenderer<ItemEntity> {
 		}
 	}
 	
-	private final BatchKey STANDARD_KEY = new BatchKey() {
-		public void flush(CollectiveDrawData data) {
-			vbo.setupData(data, PaCoRenderTypes.shaderItem);
-			data.upload();
-			vbo.drawWithShader(
-					RenderSystem.getModelViewMatrix(),
-					RenderSystem.getProjectionMatrix(),
-					RenderSystem.getShader()
-			);
-		}
-	};
-	
-	private void writeInstance(
-			Level level,
-			BatchData batches,
-			Matrix4f matr, Vec3 probe
-	) {
-//		CollectiveDrawData data = batches.buildBatch(STANDARD_KEY);
-//
-//		data.writeMesh(TemplateShaderTest.queenRange);
-//		data.ensureInstance();
-//		data.activateData();
-//		data.writeMatrix(matr);
-//		BlockPos bp = BlockPos.containing(probe);
-//		int $$0 = LightTexture.pack(
-//				level.getBrightness(LightLayer.BLOCK, bp),
-//				level.getBrightness(LightLayer.SKY, bp)
-//		);
-//		data.writeInt($$0);
-//
-//		data.finishInstance();
-	}
-	
 	@Override
-	public void flush(Level level, BatchData data) {
-//		RenderSystem.setShaderFogShape(FogShape.SPHERE);
-//		RenderType type = PaCoRenderTypes.typeItem;
-//		type.setupRenderState();
-//		PaCoShaderStateShard shaderShard = PaCoRenderTypes.itemShaderStateShard;
-//		RenderSystem.setShaderTexture(0, new ResourceLocation(
-//				"minecraft:textures/block/white_concrete.png"
-//		));
-//		if (shaderShard.shouldRender()) {
-//			RenderSystem.getShader().apply();
-//			vbo.overrideFormat(TemplateShaderTest.FORMAT_MAT4);
-//			vbo.bind();
-		data.flush();
-//			vbo.unbindVBO();
-//			vbo.overrideFormat(null);
-//		}
-//		type.clearRenderState();
-//		RenderSystem.setShaderFogShape(FogShape.CYLINDER);
+	public void flush(PacoInstancingLevel env, BatchData data) {
+		// no-op
 	}
 	
 	@Override

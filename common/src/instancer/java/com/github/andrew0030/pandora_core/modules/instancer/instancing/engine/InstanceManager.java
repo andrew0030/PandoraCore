@@ -7,14 +7,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 
 import java.lang.ref.Cleaner;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class InstanceManager {
     Map<InstanceRenderer, BatchData> data = new HashMap<>();
     Map<InstanceRenderer, BatchData> thisFrame = new HashMap();
+	Set<InstanceRenderer> nullInvoke = new HashSet<>();
 
     static class DoClean implements Runnable {
         Map<InstanceRenderer, BatchData> data = new HashMap<>();
@@ -52,9 +50,11 @@ public class InstanceManager {
 
     public void markFrame() {
         for (BatchData value : thisFrame.values()) {
-            value.markFrame();
+            if (value != null)
+				value.markFrame();
         }
         thisFrame.clear();
+		nullInvoke.clear();
     }
 
     public BatchData getData(InstanceRenderer renderer) {
@@ -62,16 +62,22 @@ public class InstanceManager {
     }
 
     public void markForFrame(InstanceRenderer renderer, BatchData data) {
-        this.data.put(renderer, data);
-        thisFrame.put(renderer, data);
+		if (data != null) {
+			Object o = thisFrame.put(renderer, data);
+			if (o == null)
+				this.data.put(renderer, data);
+		} else {
+			nullInvoke.add(renderer);
+		}
     }
 
-    public void drawFrame(Level level) {
+    public void drawFrame(InstancingEnvironment env) {
         thisFrame.forEach((k, v) -> {
-            k.flush(level, v);
+            k.flush(env, v);
         });
+	    for (InstanceRenderer instanceRenderer : nullInvoke)
+		    instanceRenderer.flush(env, null);
         VertexBuffer.unbind();
-//        System.gc();
     }
 
     public void close() {

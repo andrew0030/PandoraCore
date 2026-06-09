@@ -69,7 +69,7 @@ public class PandoraCoreClient {
 		
 		// not test code!
 	    // do not remove!
-	    InstancedRendererRegistry.register(EntityType.ITEM, new ItemEntityInstancer(TemplateShaderTest.FORMAT));
+	    InstancedRendererRegistry.register(EntityType.ITEM, ItemEntityInstancer.INSTANCE);
 		
 	    // Entities
         PaCoEntities.registerEntityRenderers();

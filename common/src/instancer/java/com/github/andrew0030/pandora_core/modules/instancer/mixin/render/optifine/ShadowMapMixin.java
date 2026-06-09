@@ -91,11 +91,11 @@ public class ShadowMapMixin {
 				if (renderer.shouldRender(
 						be, camera.getPosition()
 				)) {
-					renderer.render(level, be, be.getBlockPos(), spct, camera.getPosition());
+					renderer.render((PacoInstancingLevel) level, be, be.getBlockPos(), spct, camera.getPosition());
 				}
 			}
 		}
-		manager.drawFrame(level);
+		manager.drawFrame((PacoInstancingLevel) level);
 		
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();

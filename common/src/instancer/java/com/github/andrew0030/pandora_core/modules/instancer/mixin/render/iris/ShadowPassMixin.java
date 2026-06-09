@@ -78,12 +78,12 @@ public abstract class ShadowPassMixin {
                     if (beRenderer.shouldRender(
                             be, camera.getPosition()
                     )) {
-                        beRenderer.render(level, be, be.getBlockPos(), tickDelta, camera.getPosition());
+                        beRenderer.render((PacoInstancingLevel) level, be, be.getBlockPos(), tickDelta, camera.getPosition());
                     }
                 }
             }
         });
-        manager.drawFrame(level);
+        manager.drawFrame((PacoInstancingLevel) level);
 
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();

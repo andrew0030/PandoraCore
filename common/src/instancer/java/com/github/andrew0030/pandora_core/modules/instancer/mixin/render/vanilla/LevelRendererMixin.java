@@ -70,11 +70,11 @@ public class LevelRendererMixin {
 				if (renderer.shouldRender(
 						entity, $$4.getPosition()
 				)) {
-					renderer.render(level, entity, entity.getPosition($$1), $$1, $$4.getPosition());
+					renderer.render((PacoInstancingLevel) level, entity, entity.getPosition($$1), $$1, $$4.getPosition());
 				}
 			}
 		}
-		manager.drawFrame(level);
+		manager.drawFrame((PacoInstancingLevel) level);
 		
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();
@@ -110,11 +110,11 @@ public class LevelRendererMixin {
 				if (renderer.shouldRender(
 						be, $$4.getPosition()
 				)) {
-					renderer.render(level, be, be.getBlockPos(), $$1, $$4.getPosition());
+					renderer.render((PacoInstancingLevel) level, be, be.getBlockPos(), $$1, $$4.getPosition());
 				}
 			}
 		}
-		manager.drawFrame(level);
+		manager.drawFrame((PacoInstancingLevel) level);
 		
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();

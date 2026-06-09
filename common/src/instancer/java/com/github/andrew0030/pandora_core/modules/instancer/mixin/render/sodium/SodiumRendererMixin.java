@@ -79,12 +79,12 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
                     if (renderer.shouldRender(
                             be, camera.getPosition()
                     )) {
-                        renderer.render(world, be, be.getBlockPos(), tickDelta, camera.getPosition());
+                        renderer.render((PacoInstancingLevel) world, be, be.getBlockPos(), tickDelta, camera.getPosition());
                     }
                 }
             }
         });
-        manager.drawFrame(world);
+        manager.drawFrame((PacoInstancingLevel) world);
 
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();

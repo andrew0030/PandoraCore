@@ -39,6 +39,22 @@ public class BatchData {
         return data;
     }
 
+    protected CollectiveDrawData nextData(Supplier<CollectiveDrawData> datagen) {
+        if (!inactiveData.isEmpty()) {
+            return inactiveData.removeFirst();
+        }
+        return datagen.get();
+    }
+
+    public CollectiveDrawData buildBatch(BatchKey key, Supplier<CollectiveDrawData> datagen) {
+        CollectiveDrawData data = datas.get(key);
+        if (data == null) {
+            data = nextData();
+            datas.put(key, data);
+        }
+        return data;
+    }
+
     public void flush() {
         datas.forEach(BatchKey::flush);
     }

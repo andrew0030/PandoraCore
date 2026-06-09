@@ -73,7 +73,7 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 				if (renderer.shouldRender(
 						be, $$4.getPosition()
 				)) {
-					renderer.render(level, be, be.getBlockPos(), $$1);
+					renderer.render(level, be, be.getBlockPos(), $$1, $$4.getPosition());
 				}
 			}
 		}

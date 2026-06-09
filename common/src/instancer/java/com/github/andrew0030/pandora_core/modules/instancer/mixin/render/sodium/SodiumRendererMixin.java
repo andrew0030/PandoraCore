@@ -56,11 +56,11 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
         RenderSystem.getModelViewStack().pushPose();
         RenderSystem.getModelViewStack().last().pose().mul(matrices.last().pose());
         RenderSystem.getModelViewStack().last().normal().mul(matrices.last().normal());
-        RenderSystem.getModelViewStack().translate(
-                -camera.getPosition().x,
-                -camera.getPosition().y,
-                -camera.getPosition().z
-        );
+//        RenderSystem.getModelViewStack().translate(
+//                -camera.getPosition().x,
+//                -camera.getPosition().y,
+//                -camera.getPosition().z
+//        );
         RenderSystem.applyModelViewMatrix();
 
         manager.markFrame();
@@ -79,7 +79,7 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
                     if (renderer.shouldRender(
                             be, camera.getPosition()
                     )) {
-                        renderer.render(world, be, be.getBlockPos(), tickDelta);
+                        renderer.render(world, be, be.getBlockPos(), tickDelta, camera.getPosition());
                     }
                 }
             }

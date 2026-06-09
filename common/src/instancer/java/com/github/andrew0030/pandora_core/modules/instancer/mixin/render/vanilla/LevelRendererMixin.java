@@ -3,8 +3,10 @@ package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.vanill
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.BlockEntityTypeAttachments;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.EntityTypeAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.InstancingResults;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -16,6 +18,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -29,47 +32,93 @@ import javax.annotation.Nullable;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
-    @Shadow @Final private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
-
-    @Shadow @Nullable private ClientLevel level;
-
-    @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
-    public void preRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
-	    PaCoRenderState.setupWorld();
-
-        Lighting.setupLevel(RenderSystem.getModelViewMatrix());
-        RenderSystem.setupShaderLights(
-                GameRenderer.getRendertypeEntitySolidShader()
-        );
-
-        RenderSystem.getModelViewStack().pushPose();
-        RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
-        RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
-        RenderSystem.getModelViewStack().translate(
-                -$$4.getPosition().x,
-                -$$4.getPosition().y,
-                -$$4.getPosition().z
-        );
-        RenderSystem.applyModelViewMatrix();
-
-        InstanceManager manager = ((PacoInstancingLevel)level).getManager();
-        manager.markFrame();
-        for (LevelRenderer.RenderChunkInfo info : this.renderChunksInFrustum) {
-            ChunkRenderDispatcher.CompiledChunk chnk = info.chunk.getCompiledChunk();
-            for (BlockEntity be : ((InstancingResults) chnk).getAll()) {
-                InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments)be.getType()).pandoraCore$getInstancedRenderer();
-                if (renderer.shouldRender(
-                        be, $$4.getPosition()
-                )) {
-                    renderer.render(level, be, be.getBlockPos(), $$1);
-                }
-            }
-        }
-        manager.drawFrame(level);
-
-        RenderSystem.getModelViewStack().popPose();
-        RenderSystem.applyModelViewMatrix();
-
-	    PaCoRenderState.resetInstancerState();
-    }
+	@Shadow
+	@Final
+	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
+	
+	@Shadow
+	@Nullable
+	private ClientLevel level;
+	
+	//    @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
+	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunksInFrustum:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;", ordinal = 0), method = "renderLevel")
+	public void preRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
+		PaCoRenderState.setupWorld();
+		
+		Lighting.setupLevel(RenderSystem.getModelViewMatrix());
+		RenderSystem.setupShaderLights(
+				GameRenderer.getRendertypeEntitySolidShader()
+		);
+		
+		RenderSystem.getModelViewStack().pushPose();
+		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
+		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
+//		RenderSystem.getModelViewStack().translate(
+//				-$$4.getPosition().x,
+//				-$$4.getPosition().y,
+//				-$$4.getPosition().z
+//		);
+		RenderSystem.applyModelViewMatrix();
+		
+		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+		manager.markFrame();
+		// TODO: optimize this loop
+		for(Entity entity : this.level.entitiesForRendering()) {
+			EntityTypeAttachments attachments = ((EntityTypeAttachments) entity.getType());
+			InstancedEntityRenderer renderer = attachments.pandoraCore$getInstancedRenderer();
+			if (renderer != null) {
+				if (renderer.shouldRender(
+						entity, $$4.getPosition()
+				)) {
+					renderer.render(level, entity, entity.getPosition($$1), $$1, $$4.getPosition());
+				}
+			}
+		}
+		manager.drawFrame(level);
+		
+		RenderSystem.getModelViewStack().popPose();
+		RenderSystem.applyModelViewMatrix();
+		
+		PaCoRenderState.resetInstancerState();
+	}
+	
+	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunksInFrustum:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;", ordinal = 0), method = "renderLevel")
+	public void preRenderBlockEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
+		PaCoRenderState.setupWorld();
+		
+		Lighting.setupLevel(RenderSystem.getModelViewMatrix());
+		RenderSystem.setupShaderLights(
+				GameRenderer.getRendertypeEntitySolidShader()
+		);
+		
+		RenderSystem.getModelViewStack().pushPose();
+		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
+		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
+//		RenderSystem.getModelViewStack().translate(
+//				-$$4.getPosition().x,
+//				-$$4.getPosition().y,
+//				-$$4.getPosition().z
+//		);
+		RenderSystem.applyModelViewMatrix();
+		
+		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+		manager.markFrame();
+		for (LevelRenderer.RenderChunkInfo info : this.renderChunksInFrustum) {
+			ChunkRenderDispatcher.CompiledChunk chnk = info.chunk.getCompiledChunk();
+			for (BlockEntity be : ((InstancingResults) chnk).getAll()) {
+				InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
+				if (renderer.shouldRender(
+						be, $$4.getPosition()
+				)) {
+					renderer.render(level, be, be.getBlockPos(), $$1, $$4.getPosition());
+				}
+			}
+		}
+		manager.drawFrame(level);
+		
+		RenderSystem.getModelViewStack().popPose();
+		RenderSystem.applyModelViewMatrix();
+		
+		PaCoRenderState.resetInstancerState();
+	}
 }

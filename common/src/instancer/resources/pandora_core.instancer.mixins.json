@@ -8,7 +8,9 @@
   "mixins": [],
   "client": [
 	  "engine.EngineAttacher",
+	  "render.access.ItemRendererMixin",
 	  "render.vanilla.BlockEntityTypeMixin",
+	  "render.vanilla.EntityTypeMixin",
 	  "render.vanilla.CompilationResultMixin",
 	  "render.vanilla.CompiledChunkMixin",
 	  "render.vanilla.LevelRendererMixin",

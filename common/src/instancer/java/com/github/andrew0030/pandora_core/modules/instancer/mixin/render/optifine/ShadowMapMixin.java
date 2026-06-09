@@ -70,11 +70,11 @@ public class ShadowMapMixin {
 		RenderSystem.getModelViewStack().pushPose();
 		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
 		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
-		RenderSystem.getModelViewStack().translate(
-				-camera.getPosition().x,
-				-camera.getPosition().y,
-				-camera.getPosition().z
-		);
+//		RenderSystem.getModelViewStack().translate(
+//				-camera.getPosition().x,
+//				-camera.getPosition().y,
+//				-camera.getPosition().z
+//		);
 		RenderSystem.applyModelViewMatrix();
 		
 		ClientLevel level = ((OptifineInstanceListAccessor)instance).getLevel();
@@ -91,7 +91,7 @@ public class ShadowMapMixin {
 				if (renderer.shouldRender(
 						be, camera.getPosition()
 				)) {
-					renderer.render(level, be, be.getBlockPos(), spct);
+					renderer.render(level, be, be.getBlockPos(), spct, camera.getPosition());
 				}
 			}
 		}

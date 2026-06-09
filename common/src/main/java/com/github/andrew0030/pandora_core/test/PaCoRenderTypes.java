@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class PaCoRenderTypes {
     public static final ShaderWrapper shader = TemplateManager.getWrapper(new ResourceLocation("pandora_core:shaders/paco/templated/entity_instanced"));
+    public static final ShaderWrapper shaderItem = TemplateManager.getWrapper(new ResourceLocation("pandora_core:shaders/paco/templated/item_instanced"));
     public static final ShaderWrapper fail = TemplateManager.getWrapper(new ResourceLocation("pandora_core:shaders/paco/templated/fail"));
 
     public static final PaCoShaderStateShard shaderStateShard = new PaCoShaderStateShard(shader);
@@ -29,4 +30,22 @@ public class PaCoRenderTypes {
                     .setShaderState(shaderStateShard)
                     .createCompositeState(true)
     );
+	
+	public static final PaCoShaderStateShard itemShaderStateShard = new PaCoShaderStateShard(shaderItem);
+	
+	
+	public static final RenderType typeItem = RenderType.create(
+			"pandora_core:test_item",
+			DefaultVertexFormat.NEW_ENTITY,
+			VertexFormat.Mode.TRIANGLES,
+			DefaultVertexFormat.NEW_ENTITY.getVertexSize() * 64,
+			true, false,
+			RenderType.CompositeState.builder()
+					.setTextureState(RenderStateShard.NO_TEXTURE)
+					.setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
+					.setLightmapState(RenderStateShard.LIGHTMAP)
+					.setOverlayState(RenderStateShard.OVERLAY)
+					.setShaderState(itemShaderStateShard)
+					.createCompositeState(true)
+	);
 }

@@ -55,11 +55,11 @@ public abstract class ShadowPassMixin {
         RenderSystem.getModelViewStack().pushPose();
         RenderSystem.getModelViewStack().last().pose().mul(modelView.last().pose());
         RenderSystem.getModelViewStack().last().normal().mul(modelView.last().normal());
-        RenderSystem.getModelViewStack().translate(
-                -camera.getPosition().x,
-                -camera.getPosition().y,
-                -camera.getPosition().z
-        );
+//        RenderSystem.getModelViewStack().translate(
+//                -camera.getPosition().x,
+//                -camera.getPosition().y,
+//                -camera.getPosition().z
+//        );
         RenderSystem.applyModelViewMatrix();
 
         manager.markFrame();
@@ -78,7 +78,7 @@ public abstract class ShadowPassMixin {
                     if (beRenderer.shouldRender(
                             be, camera.getPosition()
                     )) {
-                        beRenderer.render(level, be, be.getBlockPos(), tickDelta);
+                        beRenderer.render(level, be, be.getBlockPos(), tickDelta, camera.getPosition());
                     }
                 }
             }

@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.modules.instancer.renderers.backend;
 
-import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.registry.InstancedRendererRegistry;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedEntityRenderer;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Internal
 @Deprecated(forRemoval = false)
-public interface BlockEntityTypeAttachments {
-    void pandoraCore$setInstancedRenderer(InstancedBlockEntityRenderer<?> renderer);
-    InstancedBlockEntityRenderer<?> pandoraCore$getInstancedRenderer();
+public interface EntityTypeAttachments {
+    void pandoraCore$setInstancedRenderer(InstancedEntityRenderer<?> renderer);
+	InstancedEntityRenderer<?> pandoraCore$getInstancedRenderer();
 }

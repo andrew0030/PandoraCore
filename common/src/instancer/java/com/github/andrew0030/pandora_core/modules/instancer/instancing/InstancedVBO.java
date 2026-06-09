@@ -13,6 +13,7 @@ import java.util.List;
 
 public class InstancedVBO extends AcceleratedVBO {
     InstanceFormat format;
+    InstanceFormat override;
 
     public InstancedVBO(Usage usage, InstanceFormat format) {
         super(usage);
@@ -42,12 +43,17 @@ public class InstancedVBO extends AcceleratedVBO {
         GlStateManager._glBindBuffer(34962, ((IPaCoAccessibleVBO) this).pandoraCore$vertexId());
         this.getFormat().setupBufferState();
 
+		InstanceFormat activeFormat = format;
+		if (override != null) {
+			activeFormat = override;
+		}
+		
         boolean wasData = data == this.data;
         this.data = data;
         GlStateManager._glBindBuffer(GL30.GL_ARRAY_BUFFER, data.glBuffer);
         // TODO: I'm pretty sure this is how this works, but I'm not actually sure
 //        if (!wasData)
-        clientState = format.setupState(this.getFormat(), wrapper);
+        clientState = activeFormat.setupState(this.getFormat(), wrapper);
     }
 
     public void setDrawCount(int count) {
@@ -77,4 +83,8 @@ public class InstancedVBO extends AcceleratedVBO {
         }
         clientState.clear();
     }
+	
+	public void overrideFormat(InstanceFormat use) {
+		this.override = use;
+	}
 }

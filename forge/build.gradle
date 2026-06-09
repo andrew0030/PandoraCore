@@ -77,10 +77,10 @@ dependencies {
     modRuntimeOnly "curse.maven:yungs-better-witch-huts-631401:4769489" // YUNG's Better Witch Huts
     modRuntimeOnly "curse.maven:yungs-better-end-island-901344:5193815" // YUNG's Better End Island
     // Render Mods To Test Shader Patcher
-    modImplementation "curse.maven:embeddium-908741:5681725" // Embeddium
-    modImplementation "curse.maven:oculus-581495:6020952"    // Oculus
+    modCompileOnly "curse.maven:embeddium-908741:5681725" // Embeddium
+    modCompileOnly "curse.maven:oculus-581495:6020952"    // Oculus
     // Custom TTC Build (Templater/Instancer Tests)
-    modImplementation "org.andrew:ttc:1.0" // Table Top Craft
+    modCompileOnly "org.andrew:ttc:1.0" // Table Top Craft
 }
 
 /**

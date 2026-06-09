@@ -9,8 +9,9 @@
   "client": [
 	  "engine.EngineAttacher",
 	  "render.access.ItemRendererMixin",
-	  "render.vanilla.BlockEntityTypeMixin",
-	  "render.vanilla.EntityTypeMixin",
+	  "render.attach.BlockEntityTypeMixin",
+	  "render.attach.EntityTypeMixin",
+	  "render.attach.ItemMixin",
 	  "render.vanilla.CompilationResultMixin",
 	  "render.vanilla.CompiledChunkMixin",
 	  "render.vanilla.LevelRendererMixin",

@@ -6,7 +6,9 @@ import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceF
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchKey;
 import com.github.andrew0030.pandora_core.modules.instancer.itf.ItemRendererAccessor;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.ItemAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedEntityRenderer;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedItemRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoShaderStateShard;
 import com.github.andrew0030.pandora_core.test.PaCoRenderTypes;
 import com.github.andrew0030.pandora_core.test.TemplateShaderTest;
@@ -66,10 +68,16 @@ public class ItemEntityInstancer extends InstancedEntityRenderer<ItemEntity> {
 		return i;
 	}
 	
+	InstancedItemRenderer renderer;
+	
 	@Override
 	public void render(Level level, ItemEntity object, Vec3 pos, BatchData data, float pct, Vec3 cameraPos) {
-		int drawCount;
 		ItemStack stk = object.getItem();
+		Item item = stk.getItem();
+		InstancedItemRenderer renderer = ((ItemAttachments) item).pandoraCore$getInstancedRenderer();
+		if (renderer == null) return; // not instancing this
+		
+		int drawCount;
 		RandomSource random;
 		
 		try {
@@ -110,6 +118,17 @@ public class ItemEntityInstancer extends InstancedEntityRenderer<ItemEntity> {
 			pose.translate(translateX, translateY, translateZ);
 		}
 		
+		ItemDrawData drawData = new ItemDrawData();
+		if (level != null) {
+			BlockPos bp = BlockPos.containing(object.getLightProbePosition(pct));
+			drawData.lightMap = LightTexture.pack(
+					level.getBrightness(LightLayer.BLOCK, bp),
+					level.getBrightness(LightLayer.SKY, bp)
+			);
+		} else {
+			drawData.lightMap = LightTexture.FULL_BRIGHT;
+		}
+		
 		for (int k = 0; k < drawCount; ++k) {
 			pose.pushPose();
 			
@@ -127,11 +146,21 @@ public class ItemEntityInstancer extends InstancedEntityRenderer<ItemEntity> {
 			}
 			
 			pose.scale(scaleX, scaleY, scaleZ);
-			writeInstance(
+//			writeInstance(
+//					level,
+//					data,
+//					pose.last().pose(),
+//					object.getLightProbePosition(pct)
+//			);
+			drawData.matr = pose;
+			this.renderer = renderer;
+			renderer.render(
 					level,
+					stk,
+					drawData,
 					data,
-					pose.last().pose(),
-					object.getLightProbePosition(pct)
+					pct,
+					cameraPos
 			);
 			
 			pose.popPose();
@@ -158,45 +187,45 @@ public class ItemEntityInstancer extends InstancedEntityRenderer<ItemEntity> {
 			BatchData batches,
 			Matrix4f matr, Vec3 probe
 	) {
-		CollectiveDrawData data = batches.buildBatch(STANDARD_KEY);
-		
-		data.writeMesh(TemplateShaderTest.queenRange);
-		data.ensureInstance();
-		data.activateData();
-		data.writeMatrix(matr);
-		BlockPos bp = BlockPos.containing(probe);
-		int $$0 = LightTexture.pack(
-				level.getBrightness(LightLayer.BLOCK, bp),
-				level.getBrightness(LightLayer.SKY, bp)
-		);
-		data.writeInt($$0);
-		
-		data.finishInstance();
+//		CollectiveDrawData data = batches.buildBatch(STANDARD_KEY);
+//
+//		data.writeMesh(TemplateShaderTest.queenRange);
+//		data.ensureInstance();
+//		data.activateData();
+//		data.writeMatrix(matr);
+//		BlockPos bp = BlockPos.containing(probe);
+//		int $$0 = LightTexture.pack(
+//				level.getBrightness(LightLayer.BLOCK, bp),
+//				level.getBrightness(LightLayer.SKY, bp)
+//		);
+//		data.writeInt($$0);
+//
+//		data.finishInstance();
 	}
 	
 	@Override
 	public void flush(Level level, BatchData data) {
-		RenderSystem.setShaderFogShape(FogShape.SPHERE);
-		RenderType type = PaCoRenderTypes.typeItem;
-		type.setupRenderState();
-		PaCoShaderStateShard shaderShard = PaCoRenderTypes.itemShaderStateShard;
-		RenderSystem.setShaderTexture(0, new ResourceLocation(
-				"minecraft:textures/block/white_concrete.png"
-		));
-		if (shaderShard.shouldRender()) {
-			RenderSystem.getShader().apply();
-			vbo.overrideFormat(TemplateShaderTest.FORMAT_MAT4);
-			vbo.bind();
-			data.flush();
-			vbo.unbindVBO();
-			vbo.overrideFormat(null);
-		}
-		type.clearRenderState();
-		RenderSystem.setShaderFogShape(FogShape.CYLINDER);
+//		RenderSystem.setShaderFogShape(FogShape.SPHERE);
+//		RenderType type = PaCoRenderTypes.typeItem;
+//		type.setupRenderState();
+//		PaCoShaderStateShard shaderShard = PaCoRenderTypes.itemShaderStateShard;
+//		RenderSystem.setShaderTexture(0, new ResourceLocation(
+//				"minecraft:textures/block/white_concrete.png"
+//		));
+//		if (shaderShard.shouldRender()) {
+//			RenderSystem.getShader().apply();
+//			vbo.overrideFormat(TemplateShaderTest.FORMAT_MAT4);
+//			vbo.bind();
+		data.flush();
+//			vbo.unbindVBO();
+//			vbo.overrideFormat(null);
+//		}
+//		type.clearRenderState();
+//		RenderSystem.setShaderFogShape(FogShape.CYLINDER);
 	}
 	
 	@Override
 	public CollectiveDrawData makeData() {
-		return new CollectiveDrawData(TemplateShaderTest.FORMAT_MAT4, 256, VertexBuffer.Usage.DYNAMIC);
+		return renderer.makeData();
 	}
 }

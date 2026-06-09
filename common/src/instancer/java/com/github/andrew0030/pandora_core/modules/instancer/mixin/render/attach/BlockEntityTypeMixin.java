@@ -1,4 +1,4 @@
-package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.vanilla;
+package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.attach;
 
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.BlockEntityTypeAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;

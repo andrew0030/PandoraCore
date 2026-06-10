@@ -52,8 +52,9 @@ public class InstancingTestItemRenderer extends InstancedItemRenderer {
 		data.ensureInstance();
 		data.activateData();
 		PoseStack stk = drawData.getPoseStack();
-		stk.scale(1 / 4f, 1 / 4f, 1 / 4f);
-		stk.translate(0, -0.5f, 0);
+//		stk.scale(1 / 4f, 1 / 4f, 1 / 4f);
+//		stk.translate(0, -0.5f, 0);
+		stk.translate(0.5f, 0, 0.5f);
 		data.writeMatrix(stk.last().pose());
 		int $$0 = drawData.getLightmap();
 		data.writeInt($$0);

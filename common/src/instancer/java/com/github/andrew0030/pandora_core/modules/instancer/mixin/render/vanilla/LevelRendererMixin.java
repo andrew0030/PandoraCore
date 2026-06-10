@@ -40,8 +40,8 @@ public class LevelRendererMixin {
 	@Nullable
 	private ClientLevel level;
 	
-	//    @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
-	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunksInFrustum:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;", ordinal = 0), method = "renderLevel")
+	    @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
+//	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunksInFrustum:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;", ordinal = 0), method = "renderLevel")
 	public void preRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
 		PaCoRenderState.setupWorld();
 		
@@ -79,7 +79,19 @@ public class LevelRendererMixin {
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();
 		
+//		PaCoRenderState.resetInstancerState();
+		
+		PaCoRenderState.ACTIVE_ENVIRONMENT = (PacoInstancingLevel) level;
+		manager.markFrame();
+	}
+	
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0, shift = At.Shift.AFTER), method = "renderLevel")
+	public void postRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
+		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+		manager.drawFrame((PacoInstancingLevel) level);
 		PaCoRenderState.resetInstancerState();
+		
+		PaCoRenderState.ACTIVE_ENVIRONMENT = null;
 	}
 	
 	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunksInFrustum:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;", ordinal = 0), method = "renderLevel")

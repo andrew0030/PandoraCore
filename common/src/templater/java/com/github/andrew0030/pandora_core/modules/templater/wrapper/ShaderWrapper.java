@@ -35,6 +35,10 @@ public class ShaderWrapper {
     public TemplatedShader unwrap(
             ShaderCapability... requestedCapabilities
     ) {
+		if (requestedCapabilities == null) {
+			System.err.println("what?");
+		}
+		
         if (requestedCapabilities.length == 1) {
             if (requestedCapabilities[0].equals(ShaderCapabilities.UI_DRAW)) {
                 if (UI_DRAW == null) {

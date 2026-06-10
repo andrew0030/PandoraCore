@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.modules.instancer.state;
 
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstancingEnvironment;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateManager;
 import com.github.andrew0030.pandora_core.modules.templater.loader.ShaderCapabilities;
 import com.github.andrew0030.pandora_core.modules.templater.loader.ShaderCapability;
@@ -9,8 +10,9 @@ import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import me.jellysquid.mods.sodium.client.gl.shader.ShaderLoader;
 
 public class PaCoRenderState {
-	private static ShaderCapability[] PREFERRED_CAPABILITIES;
+	private static ShaderCapability[] PREFERRED_CAPABILITIES = new ShaderCapability[0];
 	private static TemplateLoader PREFERRED_LOADER;
+	public static InstancingEnvironment ACTIVE_ENVIRONMENT;
 	
 	public static void setupUI() {
 		PREFERRED_CAPABILITIES = new ShaderCapability[]{

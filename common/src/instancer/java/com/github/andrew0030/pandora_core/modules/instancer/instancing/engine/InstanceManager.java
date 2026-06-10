@@ -25,7 +25,7 @@ public class InstanceManager {
 
         @Override
         public void run() {
-            System.out.println("CLEANING!");
+//            System.out.println("CLEANING!");
             Minecraft.getInstance().execute(() -> {
                 for (BatchData value : data.values()) {
                     value.close();
@@ -87,6 +87,6 @@ public class InstanceManager {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        System.out.println("Finalize called");
+//        System.out.println("Finalize called");
     }
 }

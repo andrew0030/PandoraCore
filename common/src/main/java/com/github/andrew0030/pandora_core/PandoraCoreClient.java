@@ -5,7 +5,6 @@ import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
 import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.client.registry.PaCoModelLayers;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
-import com.github.andrew0030.pandora_core.modules.instancer.instancing.builtin.ItemEntityInstancer;
 import com.github.andrew0030.pandora_core.modules.instancer.registry.InstancedRendererRegistry;
 import com.github.andrew0030.pandora_core.client.shader.compute.ComputeLoader;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
@@ -66,10 +65,6 @@ public class PandoraCoreClient {
         InstancedRendererRegistry.register(PaCoBlockEntities.INSTANCING_TEST.get(), new InstancingTestBlockEntityRenderer());
         InstancedRendererRegistry.register(PaCoEntities.TEST_ENTITY.get(), new InstancingTestEntityRenderer());
         InstancedRendererRegistry.register(PaCoBlocks.INSTANCING_TEST.get().asItem(), new InstancingTestItemRenderer());
-		
-		// not test code!
-	    // do not remove!
-	    InstancedRendererRegistry.register(EntityType.ITEM, ItemEntityInstancer.INSTANCE);
 		
 	    // Entities
         PaCoEntities.registerEntityRenderers();

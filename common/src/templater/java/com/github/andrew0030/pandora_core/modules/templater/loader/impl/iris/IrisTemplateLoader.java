@@ -176,7 +176,7 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
 	        if (firstFail) {
 		        firstFail = false;
 		        TemplateManager.postToast(
-				        PaCoIcon.FABRIC_20x20, ResizableToastBackground.ERROR,
+				        PaCoIcon.FABRIC_20x20, ToastBackground.ERROR,
 				        "Shaders failed to load",
 				        "Objects may not render",
 				        PaCoIcon.PACO

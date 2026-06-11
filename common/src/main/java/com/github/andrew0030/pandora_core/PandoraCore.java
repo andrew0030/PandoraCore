@@ -76,7 +76,7 @@ public class PandoraCore {
         // TODO remove when done testing
         PaCoFlammables.FLAMMABLES.register();
         PaCoBrewingRecipes.BREWING_RECIPES.register();
-        PaCoCriteriaTriggers.init(); //TODO: remove root.json advancement when done testing
+        PaCoCriteriaTriggers.init();
 
         //TODO remove when done testing config system
         System.out.println("The color is: " + PaCoMainConfig.CustomValues.color);

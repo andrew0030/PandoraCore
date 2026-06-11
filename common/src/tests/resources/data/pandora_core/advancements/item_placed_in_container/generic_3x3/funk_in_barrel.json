@@ -1,0 +1,26 @@
+{
+  "parent": "pandora_core:item_placed_in_container/item_placed_in_container",
+  "display": {
+    "title": { "text": "Funk in Barrel" },
+    "description": { "text": "Place a funk inside of a barrel." },
+    "icon": { "item": "minecraft:barrel" },
+    "frame": "task",
+    "announce_to_chat": true,
+    "show_toast": true,
+    "hidden": false
+  },
+  "criteria": {
+    "funk_in_barrel": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_barrel",
+        "items": [
+          { "items": ["pandora_core:funk"] }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_item_placed_in_container_advancement"
+  }
+}

@@ -1,0 +1,1 @@
+advancement grant @s only pandora_core:root

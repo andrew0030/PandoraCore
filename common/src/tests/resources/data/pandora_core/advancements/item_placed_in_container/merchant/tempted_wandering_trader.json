@@ -1,0 +1,29 @@
+{
+  "parent": "pandora_core:item_placed_in_container/merchant/merchant",
+  "display": {
+    "title": { "text": "Tempted By Wandering Trader" },
+    "description": { "text": "Give a wandering trader an emerald." },
+    "icon": {
+      "item": "minecraft:player_head",
+      "nbt": "{SkullOwner:{Id:[I;928269699,-1221241657,-1876211416,-926652185],Properties:{textures:[{Value:\"e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzAxN2M1OTAxZmQ2YmRiNzQyOGNmNmFhOTA4OTI4YWFkYjIyNjIwNWI5YjBjZmY5Zjg2ZjM0Yzg2MzA5MmVmYSJ9fX0=\"}]}}}"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "tempted_by_wandering_trader": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_wandering_trader",
+        "items": [
+          { "items": ["minecraft:emerald"] }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_merchant_advancement"
+  }
+}

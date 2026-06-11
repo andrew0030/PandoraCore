@@ -1,0 +1,15 @@
+{
+  "display": {
+    "title": { "text": "Advancement Tests" },
+    "description": { "text": "Advancements to test the custom triggers provided by Pandora Core." },
+    "background": "minecraft:textures/block/stripped_oak_log.png",
+    "icon": { "item": "pandora_core:funk" },
+    "frame": "task",
+    "announce_to_chat": false,
+    "show_toast": false,
+    "hidden": false
+  },
+  "criteria": {
+    "impossible_trigger": { "trigger": "minecraft:impossible" }
+  }
+}

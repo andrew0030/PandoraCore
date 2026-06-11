@@ -1,0 +1,26 @@
+{
+  "parent": "pandora_core:item_placed_in_container/merchant/merchant",
+  "display": {
+    "title": { "text": "Sticks To Emeralds" },
+    "description": { "text": "Give a fletcher villager sticks" },
+    "icon": { "item": "minecraft:stick" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "sticks_to_emeralds": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_villager_fletcher",
+        "items": [
+          { "items": ["minecraft:stick"] }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_merchant_advancement"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "parent": "pandora_core:item_placed_in_container/chest/chest",
+  "display": {
+    "title": { "text": "Funk in Chest Boat" },
+    "description": { "text": "Place a funk inside of a chest boat." },
+    "icon": { "item": "minecraft:oak_chest_boat" },
+    "frame": "task",
+    "announce_to_chat": true,
+    "show_toast": true,
+    "hidden": false
+  },
+  "criteria": {
+    "funk_in_chest_boat": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_chest_boat",
+        "items": [
+          { "items": ["pandora_core:funk"] }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_chest_advancement"
+  }
+}

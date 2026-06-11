@@ -1,0 +1,26 @@
+{
+  "parent": "pandora_core:item_placed_in_container/equine/equine",
+  "display": {
+    "title": { "text": "Saddled a Mule" },
+    "description": { "text": "Place a saddle on a mule." },
+    "icon": { "item": "minecraft:mule_spawn_egg" },
+    "frame": "task",
+    "announce_to_chat": true,
+    "show_toast": true,
+    "hidden": false
+  },
+  "criteria": {
+    "saddle_in_mule": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_mule",
+        "items": [
+          { "items": ["minecraft:saddle"] }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_equine_advancement"
+  }
+}

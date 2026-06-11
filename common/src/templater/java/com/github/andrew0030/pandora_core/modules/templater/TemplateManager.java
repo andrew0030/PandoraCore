@@ -212,12 +212,9 @@ public class TemplateManager {
 				Component.translatable(message)
 		);
 		
-		toast.setIcon(icon);
 		toast.setModIcon(mod);
-		
-		toast.setBG(bg)
-				.setNumSlots(1)
-				.setWidth(160);
+		toast.setIcon(icon);
+		toast.setBG(bg);
 		
 		Minecraft.getInstance().getToasts().addToast(toast);
 	}

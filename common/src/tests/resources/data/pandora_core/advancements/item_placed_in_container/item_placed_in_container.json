@@ -1,0 +1,18 @@
+{
+  "parent": "pandora_core:root",
+  "display": {
+    "title": { "text": "Item Placed In Container" },
+    "description": { "text": "Advancements to test \"item_placed_in_container\"." },
+    "icon": { "item": "minecraft:chest" },
+    "frame": "task",
+    "announce_to_chat": false,
+    "show_toast": false,
+    "hidden": false
+  },
+  "criteria": {
+    "impossible_trigger": { "trigger": "minecraft:impossible" }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_root_advancement"
+  }
+}

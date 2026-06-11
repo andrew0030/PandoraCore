@@ -1,0 +1,18 @@
+{
+  "parent": "pandora_core:item_placed_in_container/item_placed_in_container",
+  "display": {
+    "title": { "text": "Merchants" },
+    "description": "",
+    "icon": { "item": "minecraft:emerald" },
+    "frame": "task",
+    "announce_to_chat": false,
+    "show_toast": false,
+    "hidden": false
+  },
+  "criteria": {
+    "impossible_trigger": { "trigger": "minecraft:impossible" }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_item_placed_in_container_advancement"
+  }
+}

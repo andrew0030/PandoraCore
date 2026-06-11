@@ -1,0 +1,26 @@
+{
+  "parent": "pandora_core:item_placed_in_container/chest/chest",
+  "display": {
+    "title": { "text": "Funk in Chest Minecart" },
+    "description": { "text": "Place a funk inside of a chest minecart." },
+    "icon": { "item": "minecraft:chest_minecart" },
+    "frame": "task",
+    "announce_to_chat": true,
+    "show_toast": true,
+    "hidden": false
+  },
+  "criteria": {
+    "funk_in_chest_minecart": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_chest_minecart",
+        "items": [
+          { "items": ["pandora_core:funk"] }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_chest_advancement"
+  }
+}

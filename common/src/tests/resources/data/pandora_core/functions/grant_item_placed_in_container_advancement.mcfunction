@@ -1,0 +1,1 @@
+advancement grant @s only pandora_core:item_placed_in_container/item_placed_in_container

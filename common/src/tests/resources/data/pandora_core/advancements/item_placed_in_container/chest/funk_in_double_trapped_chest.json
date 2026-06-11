@@ -1,0 +1,26 @@
+{
+  "parent": "pandora_core:item_placed_in_container/chest/chest",
+  "display": {
+    "title": { "text": "Funk in Double Trapped Chest" },
+    "description": { "text": "Place a funk inside of a double trapped chest." },
+    "icon": { "item": "minecraft:trapped_chest" },
+    "frame": "task",
+    "announce_to_chat": true,
+    "show_toast": true,
+    "hidden": false
+  },
+  "criteria": {
+    "funk_in_double_trapped_chest": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_double_trapped_chest",
+        "items": [
+          { "items": ["pandora_core:funk"] }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_chest_advancement"
+  }
+}

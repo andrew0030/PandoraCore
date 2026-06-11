@@ -1,0 +1,26 @@
+{
+  "parent": "pandora_core:item_placed_in_container/yeeter/yeeter",
+  "display": {
+    "title": { "text": "Funk in Dispenser" },
+    "description": { "text": "Place a funk inside of a dispenser." },
+    "icon": { "item": "minecraft:dispenser" },
+    "frame": "task",
+    "announce_to_chat": true,
+    "show_toast": true,
+    "hidden": false
+  },
+  "criteria": {
+    "funk_in_dispenser": {
+      "trigger": "pandora_core:item_placed_in_container",
+      "conditions": {
+        "menu": "pandora_core:minecraft_dispenser",
+        "items": [
+          { "items": ["pandora_core:funk"] }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "function": "pandora_core:grant_yeeter_advancement"
+  }
+}

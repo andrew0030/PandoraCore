@@ -163,4 +163,4 @@ Systems TODO:
   - [ ] Particle instancer
   - [ ] Potential future rewrite?
 - Uniform Holder
-  - [ ] Replace the list hashing inside `TagFilter` because it could potentially be order dependent
+  - [x] Replace the list hashing inside `TagFilter` because it could potentially be order dependent

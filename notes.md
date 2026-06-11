@@ -158,8 +158,8 @@ Systems TODO:
     - [ ] Bindless rendering
     - [ ] Texture arrays
     - [ ] 3D textures
-  - [ ] Item instancer
-  - [ ] Entity instancer
+  - [x] Item instancer
+  - [x] Entity instancer
   - [ ] Particle instancer
   - [ ] Potential future rewrite?
 - Uniform Holder

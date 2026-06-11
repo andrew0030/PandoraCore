@@ -50,5 +50,6 @@ public class AbstractContainerScreenMixin {
 		manager.close();
 		manager = null;
 		env = null;
+		PaCoRenderState.ACTIVE_ENVIRONMENT = null;
 	}
 }

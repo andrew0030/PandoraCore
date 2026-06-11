@@ -80,7 +80,7 @@ dependencies {
     modImplementation "curse.maven:embeddium-908741:5681725" // Embeddium
     modImplementation "curse.maven:oculus-581495:6020952"    // Oculus
     // Custom TTC Build (Templater/Instancer Tests)
-    modCompileOnly "org.andrew:ttc:1.0" // Table Top Craft
+    modImplementation "org.andrew:ttc:1.0" // Table Top Craft
 }
 
 /**

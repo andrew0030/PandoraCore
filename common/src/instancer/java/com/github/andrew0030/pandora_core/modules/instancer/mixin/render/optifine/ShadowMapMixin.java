@@ -60,47 +60,41 @@ public class ShadowMapMixin {
 			LevelRenderer instance,
 			Operation<List> original
 	) {
-		PaCoRenderState.setupWorld();
-		
-		Lighting.setupLevel(RenderSystem.getModelViewMatrix());
-		RenderSystem.setupShaderLights(
-				GameRenderer.getRendertypeEntitySolidShader()
-		);
-		
-		RenderSystem.getModelViewStack().pushPose();
-		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
-		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
-//		RenderSystem.getModelViewStack().translate(
-//				-camera.getPosition().x,
-//				-camera.getPosition().y,
-//				-camera.getPosition().z
+//		PaCoRenderState.setupWorld();
+//
+//		Lighting.setupLevel(RenderSystem.getModelViewMatrix());
+//		RenderSystem.setupShaderLights(
+//				GameRenderer.getRendertypeEntitySolidShader()
 //		);
-		RenderSystem.applyModelViewMatrix();
-		
-		ClientLevel level = ((OptifineInstanceListAccessor)instance).getLevel();
-		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
-		manager.markFrame();
-		List<LevelRenderer.RenderChunkInfo> infs = ((OptifineInstanceListAccessor)instance).getRenderInfosInstancer();
-//		System.out.println("aaa");
-		for (
-				LevelRenderer.RenderChunkInfo info : infs
-		) {
-			ChunkRenderDispatcher.CompiledChunk chnk = info.chunk.getCompiledChunk();
-			for (BlockEntity be : ((InstancingResults) chnk).getAll()) {
-				InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
-				if (renderer.shouldRender(
-						be, camera.getPosition()
-				)) {
-					renderer.render((PacoInstancingLevel) level, be, be.getBlockPos(), spct, camera.getPosition());
-				}
-			}
-		}
-		manager.drawFrame((PacoInstancingLevel) level);
-		
-		RenderSystem.getModelViewStack().popPose();
-		RenderSystem.applyModelViewMatrix();
-		
-		PaCoRenderState.resetInstancerState();
+//
+//		RenderSystem.getModelViewStack().pushPose();
+//		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
+//		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
+//		RenderSystem.applyModelViewMatrix();
+//
+//		ClientLevel level = ((OptifineInstanceListAccessor)instance).getLevel();
+//		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+//		manager.markFrame();
+//		List<LevelRenderer.RenderChunkInfo> infs = ((OptifineInstanceListAccessor)instance).getRenderInfosInstancer();
+//		for (
+//				LevelRenderer.RenderChunkInfo info : infs
+//		) {
+//			ChunkRenderDispatcher.CompiledChunk chnk = info.chunk.getCompiledChunk();
+//			for (BlockEntity be : ((InstancingResults) chnk).getAll()) {
+//				InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
+//				if (renderer.shouldRender(
+//						be, camera.getPosition()
+//				)) {
+//					renderer.render((PacoInstancingLevel) level, be, be.getBlockPos(), spct, camera.getPosition());
+//				}
+//			}
+//		}
+//		manager.drawFrame((PacoInstancingLevel) level);
+//
+//		RenderSystem.getModelViewStack().popPose();
+//		RenderSystem.applyModelViewMatrix();
+//
+//		PaCoRenderState.resetInstancerState();
 		
 		return original.call(instance);
 	}

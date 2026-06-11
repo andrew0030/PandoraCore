@@ -1,7 +1,8 @@
-package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program;
+package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole;
 
 import com.github.andrew0030.pandora_core.client.render.SupportChecker;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BaseProgram;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.INTELBlackholeRender;

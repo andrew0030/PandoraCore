@@ -58,8 +58,8 @@ public class InstanceFormat {
                         GL33.glVertexAttribDivisor(
                                 attribute, 1
                         );
-                        offset += element.bytes() / element.components;
                     }
+	                offset += element.bytes() / element.components;
                 }
             } else {
                 int attribute = wrapper.getAttributeLocation(element.name);
@@ -78,7 +78,6 @@ public class InstanceFormat {
                         GL33.glVertexAttribDivisor(
                                 attribute, 1
                         );
-                        attribute++;
                         offset += element.bytes() / element.components;
                     }
                 } else {

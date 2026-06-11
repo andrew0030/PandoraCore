@@ -46,7 +46,7 @@ public class InstancingTestEntityRenderer extends InstancedEntityRenderer<TestEn
 	
     public InstancingTestEntityRenderer(InstanceFormat format) {
         super(format);
-	    this.vbo = vbo;
+	    this.vbo = TemplateShaderTest.collectiveVBO;
     }
 
     @Override

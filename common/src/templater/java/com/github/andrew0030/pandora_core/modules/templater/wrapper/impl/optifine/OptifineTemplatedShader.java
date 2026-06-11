@@ -10,9 +10,8 @@ import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoade
 import com.github.andrew0030.pandora_core.modules.templater.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
-import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.VoidShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BaseProgram;
-import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BlackHoleProgram;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.BlackHoleProgram;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.AttachmentSpecifier;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.ShaderAttachment;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
@@ -96,7 +95,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 //				);
 //				ShaderAttachment attachment = new ShaderAttachment(
 //						specifier.source, specifier.type,
-//						apply, (INamedShader) vanilla,
+//						apply, (INamedShader) vanillaShadow,
 //						specifier.preprocess, mapper,
 //						processor, struct.location,
 //						"optifine/shadow/"
@@ -269,26 +268,33 @@ public class OptifineTemplatedShader extends TemplatedShader {
 	
 	@Override
 	public AbstractUniform getUniform(String name, int type, int count) {
-//		if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
-//			return programShadow.getUniform(name, type, count);
-//		} else {
-//			return program.getUniform(name, type, count);
-//		}
-		return VoidShader.INSTANCE.getUniform(name, type, count);
+		if (Shaders.isShadowPass) {
+			return programShadow.getUniform(name, type, count);
+		} else {
+			return program.getUniform(name, type, count);
+		}
 	}
 	
 	@Override
 	public int getAttributeLocation(String name) {
-//		if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
-//			return programShadow.getAttributeLocation(name);
-//		} else {
-		return program.getAttributeLocation(name);
-//		}
-//		return -1;
+		if (Shaders.isShadowPass) {
+			return programShadow.getAttributeLocation(name);
+		} else {
+			return program.getAttributeLocation(name);
+		}
 	}
 	
 	@Override
 	public boolean isVanilla() {
 		return false;
+	}
+	
+	protected BaseProgram prog() {
+		return Shaders.isShadowPass ? programShadow : program;
+	}
+	
+	@Override
+	public boolean isVoid() {
+		return prog() == BlackHoleProgram.INSTANCE;
 	}
 }

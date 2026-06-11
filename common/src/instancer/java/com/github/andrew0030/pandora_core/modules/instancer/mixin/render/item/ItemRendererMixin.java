@@ -8,6 +8,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.In
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.ItemAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedItemRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
+import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -28,6 +29,8 @@ public class ItemRendererMixin {
 	
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/model/BakedModel;isCustomRenderer()Z"), method = "render")
 	public void preCheckCustomRenderer(ItemStack itemStack, ItemDisplayContext displayContext, boolean leftHand, PoseStack poseStack, MultiBufferSource buffer, int combinedLight, int combinedOverlay, BakedModel model, CallbackInfo ci) {
+		if (!PaCoRenderState.isGUI() && ShaderChecker.isShaderActive()) return;
+		
 		Item item = itemStack.getItem();
 		ItemAttachments attch = (ItemAttachments) item;
 		

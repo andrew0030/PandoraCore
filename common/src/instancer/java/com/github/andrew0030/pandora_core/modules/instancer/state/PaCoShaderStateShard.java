@@ -23,8 +23,8 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
             shader.upload();
         };
         clear = shader::clear;
-		
-		isVoid = () -> shader == VoidShader.INSTANCE;
+	    
+	    isVoid = shader::isVoid;
 	    canDraw = () -> {
 		    if (isVoid.get()) return false;
 		    
@@ -44,7 +44,7 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
             shaderWrapper.upload();
         };
         clear = shaderWrapper::clear;
-	    isVoid = () -> shaderWrapper.getActiveUnwrap() == VoidShader.INSTANCE;
+	    isVoid = () -> shaderWrapper.getActiveUnwrap().isVoid();
 	    canDraw = () -> {
 		    if (isVoid.get()) return false;
 		    
@@ -62,7 +62,7 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
     // might as well
     public PaCoShaderStateShard(ShaderInstance shaderInstance) {
         super();
-        setup = () -> shaderInstance.apply();
+        setup = shaderInstance::apply;
         clear = shaderInstance::clear;
     }
 

@@ -7,7 +7,7 @@ import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoade
 import com.github.andrew0030.pandora_core.modules.templater.transformer.TransformationProcessor;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BaseProgram;
-import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BlackHoleProgram;
+import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.BlackHoleProgram;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.TemplatedProgram;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.AttachmentSpecifier;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.ShaderAttachment;

@@ -38,12 +38,12 @@ public abstract class TemplatedShader {
                     String txt = vertexAttribute + "_" + i;
 	                
                     int aid = GL32.glGetAttribLocation(id, txt);
-//	                System.out.println(txt + "->" + aid);
+	                System.out.println(txt + "->" + aid);
 	                attributeLocations.put(txt, aid);
                 }
             } else {
 	            int aid = GL32.glGetAttribLocation(id, vertexAttribute);
-//	            System.out.println(vertexAttribute + "->" + aid);
+	            System.out.println(vertexAttribute + "->" + aid);
 	            attributeLocations.put(vertexAttribute, aid);
             }
         }
@@ -102,4 +102,8 @@ public abstract class TemplatedShader {
     public abstract int getAttributeLocation(String name);
 	
 	public abstract boolean isVanilla();
+	
+	public boolean isVoid() {
+		return false;
+	}
 }

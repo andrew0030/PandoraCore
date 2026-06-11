@@ -4,7 +4,6 @@ import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResour
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BaseProgram;
-import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.BlackHoleProgram;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 
 public class VoidShader extends TemplatedShader {
@@ -47,6 +46,10 @@ public class VoidShader extends TemplatedShader {
 	
 	@Override
 	public boolean isVanilla() {
+		return true;
+	}
+	
+	public boolean isVoid() {
 		return true;
 	}
 }

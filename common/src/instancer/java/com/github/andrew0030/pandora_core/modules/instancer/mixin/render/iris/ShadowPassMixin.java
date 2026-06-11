@@ -35,8 +35,8 @@ import java.util.Iterator;
 
 @Mixin(value = ShadowRenderingState.class, remap = false)
 public abstract class ShadowPassMixin {
-    @Inject(at = @At("HEAD"), method = "renderBlockEntities")
-    private static void preRenderBEs(ShadowRenderer shadowRenderer, MultiBufferSource.BufferSource bufferSource, PoseStack modelView, Camera camera, double cameraX, double cameraY, double cameraZ, float tickDelta, boolean hasEntityFrustum, boolean lightsOnly, CallbackInfoReturnable<Integer> cir) {
+	@Inject(at = @At("HEAD"), method = "renderBlockEntities")
+	private static void preRenderBEs(ShadowRenderer shadowRenderer, MultiBufferSource.BufferSource bufferSource, PoseStack modelView, Camera camera, double cameraX, double cameraY, double cameraZ, float tickDelta, boolean hasEntityFrustum, boolean lightsOnly, CallbackInfoReturnable<Integer> cir) {
 	    PaCoRenderState.setupWorld();
 		
         ClientLevel level = ((IPaCoShadowRendererAccessor) shadowRenderer).getActiveLevel();

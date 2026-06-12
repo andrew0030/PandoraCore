@@ -87,7 +87,8 @@ public class PaCoContentPanelManager {
         if (holder.isOutdated()) {
             UpdateInfo updateInfo = holder.getUpdateInfo().get();
             String type = updateInfo.getType() != null ? updateInfo.getType().getDisplayName().getString() : "";
-            String value = String.format("%s → %s [%s]", holder.getModVersion(), updateInfo.getNewVersion(), type);
+            // NOTE: The character bellow HAS TO BE unicode, otherwise it doesn't properly display in-game!
+            String value = String.format("%s \u2192 %s [%s]", holder.getModVersion(), updateInfo.getNewVersion(), type);
             this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_UPDATE_KEY.getString(), value).setValueColor(PaCoColor.color(160, 160, 160)));
             if (updateInfo.getDownloadURL() != null) {
                 ClickableTextElement element = new ClickableTextElement(this, paddingX + 12, 0, MOD_UPDATE_PAGE.getString(), () -> {

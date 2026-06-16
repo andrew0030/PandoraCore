@@ -39,6 +39,12 @@ public abstract class CameraMixin implements IPaCoCameraTransforms {
     @Unique private float pandoraCore$fovOffset;
     @Unique private float pandoraCore$fovOffsetOld;
 
+    @Inject(method = "setup", at = @At("HEAD"))
+    public void resetCustomOffsets(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
+        this.pandoraCore$zRot = 0.0F;
+        this.pandoraCore$fovOffset = 0.0F;
+    }
+
     @Inject(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V", shift = At.Shift.AFTER))
     public void cameraShakerEarly(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
         // Called before the 3rd-person offsets are applied
@@ -53,7 +59,7 @@ public abstract class CameraMixin implements IPaCoCameraTransforms {
 
     @Override
     public void pandoraCore$setRotation(float xRot, float yRot, float zRot, float partialTick) {
-        this.pandoraCore$zRot = zRot;
+        this.pandoraCore$zRot += zRot;
         // This is a hack to make the game think the camera moved, as by default zRot doesn't trigger cull-frustum updates.
         // There is probably a more "elegant" solution by doing some mixin jank, but for the sake of simplicity this will do.
         if (this.pandoraCore$zRot != this.pandoraCore$zRotOld)
@@ -84,7 +90,7 @@ public abstract class CameraMixin implements IPaCoCameraTransforms {
 
     @Override
     public void pandoraCore$setFovOffset(float fovOffset, float partialTick) {
-        this.pandoraCore$fovOffset = fovOffset;
+        this.pandoraCore$fovOffset += fovOffset;
         // This is a hack to make the game think the camera moved, as by default fov doesn't trigger cull-frustum updates.
         // There is probably a more "elegant" solution by doing some mixin jank, but for the sake of simplicity this will do.
         if (this.pandoraCore$fovOffset != this.pandoraCore$fovOffsetOld)

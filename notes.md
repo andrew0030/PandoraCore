@@ -36,6 +36,7 @@ Systems TODO:
   - [x] Add more "send types"
   - [x] Any other tweaks that would make it fit better into PaCo
   - [x] Test the response system
+  - [ ] Implement new core structure
 - Animation System
   - [ ] Copy all the code from Table Top Craft / Pandoras Creatures
   - [ ] Create better Animation State (make it a standalone class and add chainable methods to toggle which animations should start/stop)
@@ -100,7 +101,7 @@ Systems TODO:
   - [x] Add methods for position adjustment in all existing screen shake types
   - [x] Maybe add FOV support
   - [x] Maybe add custom line of sight checking options as offsetting doesn't seem to alter line of sight checks
-  - [ ] `ScreenShakeManager#ShakeType` prevents `FOV` and `Rotation` (roll) from being changed if `ScreenShake#usesPlayerAsOrigin()` returns `true`
+  - [x] `ScreenShakeManager#ShakeType` prevents `FOV` and `Rotation` (roll) from being changed if `ScreenShake#usesPlayerAsOrigin()` returns `true`
 - Creative Tabs
   - [x] ~~Create builder pattern abstraction for creating creative tabs~~ The vanilla creative tab builder is fine (just needs a helper to create it more easily)
   - [x] Make a tool that allows inserting items into existing tabs

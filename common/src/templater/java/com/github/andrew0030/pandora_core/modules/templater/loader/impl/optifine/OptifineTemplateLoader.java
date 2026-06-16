@@ -5,6 +5,7 @@ import com.github.andrew0030.pandora_core.modules.templater.NameMapper;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateManager;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateTransformation;
+import com.github.andrew0030.pandora_core.modules.templater.hook.ShaderLoadHook;
 import com.github.andrew0030.pandora_core.modules.templater.loader.ShaderCapabilities;
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.utils.toasts.icon.PaCoIcon;
@@ -22,6 +23,7 @@ import com.github.andrew0030.pandora_core.utils.toasts.background.ToastBackgroun
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.Shaders;
@@ -58,9 +60,16 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 		SOURCE = new ArrayList<>();
 	}
 	
-	public static void shaderSource(List<String> $$1) {
+	public static String shaderSource(List<String> source) {
 //		System.out.println("SOURCE: " + ACTIVE);
-		SOURCE.addAll($$1);
+		ShaderLoadHook.preSource(INSTANCE, source, new ResourceLocation("optifine", ACTIVE));
+		SOURCE.addAll(source);
+		StringBuilder builder = new StringBuilder();
+		for (String s : source) {
+			builder.append(s).append("\n");
+		}
+		ShaderLoadHook.postSource(INSTANCE, source, new ResourceLocation("optifine", ACTIVE));
+		return builder.toString();
 	}
 	
 	static boolean forceLoad = false;

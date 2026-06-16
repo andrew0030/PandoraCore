@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateManager;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateTransformation;
+import com.github.andrew0030.pandora_core.modules.templater.hook.ShaderLoadHook;
 import com.github.andrew0030.pandora_core.modules.templater.loader.ShaderCapabilities;
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.TransformationProcessor;
@@ -57,6 +58,12 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 	
 	List<ResourceLocation> notCore = new ArrayList<>();
 	
+	private static boolean BLOCKED = false;
+	
+	public static void block() {
+		BLOCKED = true;
+	}
+	
 	@Override
 	public void prepare(ResourceManager manager) {
 		manager.listResources(
@@ -83,8 +90,13 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 		SOURCE = new ArrayList<>();
 	}
 	
-	public static void shaderSource(List<String> $$1) {
-		SOURCE.addAll($$1);
+	public static List<String> shaderSource(List<String> source) {
+		if (!BLOCKED) {
+			source = ShaderLoadHook.preSource(INSTANCE, source, new ResourceLocation(MOD, ACTIVE));
+			SOURCE.addAll(source);
+			source = ShaderLoadHook.postSource(INSTANCE, source, new ResourceLocation(MOD, ACTIVE));
+		}
+		return source;
 	}
 	
 	static boolean forceLoad = false;
@@ -97,6 +109,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 	public static void cancel() {
 		MOD = null;
 		ACTIVE = null;
+		BLOCKED = false;
 	}
 	
 	private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "Template Shaders", "Vanilla");

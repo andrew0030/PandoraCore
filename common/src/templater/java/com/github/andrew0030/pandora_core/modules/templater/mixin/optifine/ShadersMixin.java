@@ -77,7 +77,7 @@ public abstract class ShadersMixin {
 	@Unique
 	private static String pandoraCore$linkSource(String asString) {
 		// TODO: paco mixin hook for source patching
-		OptifineTemplateLoader.shaderSource(List.of(asString.split("\n")));
+		asString = OptifineTemplateLoader.shaderSource(List.of(asString));
 		OptifineTemplateLoader.link();
 		return asString;
 	}

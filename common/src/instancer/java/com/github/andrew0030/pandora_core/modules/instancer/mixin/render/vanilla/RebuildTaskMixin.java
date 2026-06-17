@@ -27,7 +27,7 @@ public class RebuildTaskMixin {
     }
 
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$CompiledChunk;renderableBlockEntities:Ljava/util/List;"), method = "doTask", locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    public void copy(ChunkBufferBuilderPack pBuffers, CallbackInfoReturnable<CompletableFuture> cir, Vec3 vec3, float f, float f1, float f2, ChunkRenderDispatcher.RenderChunk.RebuildTask.CompileResults chunkrenderdispatcher$renderchunk$rebuildtask$compileresults, ChunkRenderDispatcher.CompiledChunk chunkrenderdispatcher$compiledchunk) {
+    public void copy(ChunkBufferBuilderPack pBuffers, CallbackInfoReturnable<CompletableFuture> cir, Vec3 vec3, float x, float y, float z, ChunkRenderDispatcher.RenderChunk.RebuildTask.CompileResults chunkrenderdispatcher$renderchunk$rebuildtask$compileresults, ChunkRenderDispatcher.CompiledChunk chunkrenderdispatcher$compiledchunk) {
         ((InstancingResults) chunkrenderdispatcher$compiledchunk).addAll(((InstancingResults) (Object) chunkrenderdispatcher$renderchunk$rebuildtask$compileresults).getAll());
     }
 }

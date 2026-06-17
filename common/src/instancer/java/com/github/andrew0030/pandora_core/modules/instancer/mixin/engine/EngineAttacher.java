@@ -6,7 +6,9 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +25,7 @@ public class EngineAttacher implements PacoInstancingLevel {
     private InstanceManager pandoraCore$manager;
 
     @Inject(at = @At("TAIL"), method = "<init>")
-    public void postInit(WritableLevelData $$0, ResourceKey $$1, RegistryAccess $$2, Holder $$3, Supplier $$4, boolean $$5, boolean $$6, long $$7, int $$8, CallbackInfo ci) {
+    public void postInit(WritableLevelData levelData, ResourceKey dimension, RegistryAccess registryAccess, Holder dimensionTypeRegistration, Supplier profiler, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates, CallbackInfo ci) {
         //noinspection ConstantValue
         if (!(((Object) this) instanceof ServerLevel)) {
             pandoraCore$manager = new InstanceManager();

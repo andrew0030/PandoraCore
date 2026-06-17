@@ -37,9 +37,9 @@ public abstract class ProgramMixin implements IPaCoAccessibleProgram {
     }
 	
 	@WrapOperation(method = "compileShaderInternal", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;glShaderSource(ILjava/util/List;)V"))
-	private static void wrapCompilation(int i, List<String> list, Operation<Void> original) {
+	private static void wrapCompilation(int shaderID, List<String> list, Operation<Void> original) {
 		list = VanillaTemplateLoader.shaderSource(list);
 		
-		original.call(i, list);
+		original.call(shaderID, list);
 	}
 }

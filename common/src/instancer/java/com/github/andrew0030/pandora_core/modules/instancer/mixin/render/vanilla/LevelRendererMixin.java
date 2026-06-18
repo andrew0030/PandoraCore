@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.vanilla;
 
+import com.github.andrew0030.pandora_core.modules.instancer.compat.InstancerHooks;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.BlockEntityTypeAttachments;
@@ -54,6 +55,8 @@ public class LevelRendererMixin {
 		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
 		RenderSystem.applyModelViewMatrix();
 		
+		InstancerHooks.preStartInstancing();
+		
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
 		// TODO: optimize this loop
@@ -70,12 +73,15 @@ public class LevelRendererMixin {
 		}
 		manager.drawFrame((PacoInstancingLevel) level);
 		
+		InstancerHooks.postEndInstancing();
+		
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();
 
 //		PaCoRenderState.resetInstancerState();
 		
 		PaCoRenderState.ACTIVE_ENVIRONMENT = (PacoInstancingLevel) level;
+		InstancerHooks.preStartInstancing();
 		manager.markFrame();
 	}
 	
@@ -83,6 +89,7 @@ public class LevelRendererMixin {
 	public void postRenderEnts(PoseStack stack, float pct, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.drawFrame((PacoInstancingLevel) level);
+		InstancerHooks.postEndInstancing();
 		PaCoRenderState.resetInstancerState();
 		
 		PaCoRenderState.ACTIVE_ENVIRONMENT = null;
@@ -100,12 +107,9 @@ public class LevelRendererMixin {
 		RenderSystem.getModelViewStack().pushPose();
 		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
 		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
-//		RenderSystem.getModelViewStack().translate(
-//				-$$4.getPosition().x,
-//				-$$4.getPosition().y,
-//				-$$4.getPosition().z
-//		);
 		RenderSystem.applyModelViewMatrix();
+		
+		InstancerHooks.preStartInstancing();
 		
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
@@ -121,6 +125,8 @@ public class LevelRendererMixin {
 			}
 		}
 		manager.drawFrame((PacoInstancingLevel) level);
+		
+		InstancerHooks.postEndInstancing();
 		
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();

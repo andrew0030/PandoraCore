@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.iris;
 
+import com.github.andrew0030.pandora_core.modules.instancer.compat.InstancerHooks;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.BlockEntityTypeAttachments;
@@ -55,13 +56,10 @@ public abstract class ShadowPassMixin {
         RenderSystem.getModelViewStack().pushPose();
         RenderSystem.getModelViewStack().last().pose().mul(modelView.last().pose());
         RenderSystem.getModelViewStack().last().normal().mul(modelView.last().normal());
-//        RenderSystem.getModelViewStack().translate(
-//                -camera.getPosition().x,
-//                -camera.getPosition().y,
-//                -camera.getPosition().z
-//        );
         RenderSystem.applyModelViewMatrix();
-
+		
+		InstancerHooks.preStartInstancing();
+		
         manager.markFrame();
         SortedRenderLists renderLists = ((SodiumRendererAccessor) renderer).pandoraCore$sectionManager().getRenderLists();
         Iterator<ChunkRenderList> renderListIterator = renderLists.iterator();
@@ -84,7 +82,9 @@ public abstract class ShadowPassMixin {
             }
         });
         manager.drawFrame((PacoInstancingLevel) level);
-
+		
+		InstancerHooks.postEndInstancing();
+		
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();
 		

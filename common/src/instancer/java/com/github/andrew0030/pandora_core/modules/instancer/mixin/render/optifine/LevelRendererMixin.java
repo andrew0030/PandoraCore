@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.optifine;
 
+import com.github.andrew0030.pandora_core.modules.instancer.compat.InstancerHooks;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import com.github.andrew0030.pandora_core.modules.instancer.itf.OptifineInstanceListAccessor;
@@ -60,7 +61,9 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
 		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
 		RenderSystem.applyModelViewMatrix();
-
+		
+		InstancerHooks.preStartInstancing();
+		
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
 //		// TODO: optimize this loop
@@ -76,7 +79,9 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 			}
 		}
 		manager.drawFrame((PacoInstancingLevel) level);
-
+		
+		InstancerHooks.postEndInstancing();
+		
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();
 
@@ -113,7 +118,9 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
 		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
 		RenderSystem.applyModelViewMatrix();
-
+		
+		InstancerHooks.preStartInstancing();
+		
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
 		List<LevelRenderer.RenderChunkInfo> infs = this.renderInfosInstancer;
@@ -131,7 +138,9 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 			}
 		}
 		manager.drawFrame((PacoInstancingLevel) level);
-
+		
+		InstancerHooks.postEndInstancing();
+		
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();
 

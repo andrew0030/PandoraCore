@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.iris;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPaCoShadowRendererAccessor;
+import com.github.andrew0030.pandora_core.modules.instancer.compat.InstancerHooks;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.EntityTypeAttachments;
@@ -60,12 +61,9 @@ public abstract class ShadowRendererMixin implements IPaCoShadowRendererAccessor
 		RenderSystem.getModelViewStack().pushPose();
 		RenderSystem.getModelViewStack().last().pose().mul(modelView.last().pose());
 		RenderSystem.getModelViewStack().last().normal().mul(modelView.last().normal());
-//		RenderSystem.getModelViewStack().translate(
-//				-$$4.getPosition().x,
-//				-$$4.getPosition().y,
-//				-$$4.getPosition().z
-//		);
 		RenderSystem.applyModelViewMatrix();
+		
+		InstancerHooks.preStartInstancing();
 		
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
@@ -84,12 +82,15 @@ public abstract class ShadowRendererMixin implements IPaCoShadowRendererAccessor
 		}
 		manager.drawFrame((PacoInstancingLevel) level);
 		
+		InstancerHooks.postEndInstancing();
+		
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();
 
 //		PaCoRenderState.resetInstancerState();
 		
 		PaCoRenderState.ACTIVE_ENVIRONMENT = (PacoInstancingLevel) level;
+		InstancerHooks.preStartInstancing();
 		manager.markFrame();
 	}
 	
@@ -99,6 +100,7 @@ public abstract class ShadowRendererMixin implements IPaCoShadowRendererAccessor
 
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.drawFrame((PacoInstancingLevel) level);
+		InstancerHooks.postEndInstancing();
 		PaCoRenderState.resetInstancerState();
 		
 		PaCoRenderState.ACTIVE_ENVIRONMENT = null;

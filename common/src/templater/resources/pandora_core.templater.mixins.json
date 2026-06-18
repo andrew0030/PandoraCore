@@ -9,7 +9,6 @@
 	"client": [
 		"iris.ExtendedShader_CacheShaders_CondBindMixin",
 		"iris.ExtendedShader_CacheSrcMixin",
-		"iris.GlStateManagerMixin",
 		"iris.IrisPipelineMixin",
 		"iris.ProgramMixin",
 		"iris.ShaderInstance_CacheSrcMixin",
@@ -30,7 +29,6 @@
 		"iris.access.literally_every_dtype.Vector4AUMixin",
 		"iris.access.literally_every_dtype.Vector4UMixin",
 		"iris.access.literally_every_dtype.Vector4IUMixin",
-		"vanilla.GlStateManagerMixin",
 		"vanilla.ProgramMixin",
 		"vanilla.ShaderInstance_CacheShadersMixin",
 		"vanilla.ShaderInstance_CacheSrc_CondBindableMixin",
@@ -61,7 +59,9 @@
 		"optifine.SVBMixin",
 
 		"vanilla.access.AbstractUniformMixin",
-		"vanilla.access.UniformMixin"
+		"vanilla.access.UniformMixin",
+
+		"compat.IPCompat"
 	],
 	"server": [],
 	"injectors": {

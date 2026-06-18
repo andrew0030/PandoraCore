@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateManager;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateTransformation;
+import com.github.andrew0030.pandora_core.modules.templater.compat.PatcherHooks;
 import com.github.andrew0030.pandora_core.modules.templater.hook.ShaderLoadHook;
 import com.github.andrew0030.pandora_core.modules.templater.loader.ShaderCapabilities;
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
@@ -188,7 +189,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 		
 		String template = struct.getTemplate("core");
 		String templateVanilla = struct.getTemplate("vanilla");
-		if (notCore.contains(new ResourceLocation(templateVanilla + ".json"))) {
+		if (PatcherHooks.disableCustomCore() || notCore.contains(new ResourceLocation(templateVanilla + ".json"))) {
 			template = templateVanilla;
 		}
 		if (template == null)

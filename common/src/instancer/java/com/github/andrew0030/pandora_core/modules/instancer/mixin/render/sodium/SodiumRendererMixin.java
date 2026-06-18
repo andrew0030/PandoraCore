@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.sodium;
 
+import com.github.andrew0030.pandora_core.modules.instancer.compat.InstancerHooks;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.BlockEntityTypeAttachments;
@@ -56,13 +57,10 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
         RenderSystem.getModelViewStack().pushPose();
         RenderSystem.getModelViewStack().last().pose().mul(matrices.last().pose());
         RenderSystem.getModelViewStack().last().normal().mul(matrices.last().normal());
-//        RenderSystem.getModelViewStack().translate(
-//                -camera.getPosition().x,
-//                -camera.getPosition().y,
-//                -camera.getPosition().z
-//        );
         RenderSystem.applyModelViewMatrix();
-
+	    
+	    InstancerHooks.preStartInstancing();
+		
         manager.markFrame();
         SortedRenderLists renderLists = this.renderSectionManager.getRenderLists();
         Iterator<ChunkRenderList> renderListIterator = renderLists.iterator();
@@ -85,7 +83,9 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
             }
         });
         manager.drawFrame((PacoInstancingLevel) world);
-
+		
+	    InstancerHooks.postEndInstancing();
+		
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();
 		

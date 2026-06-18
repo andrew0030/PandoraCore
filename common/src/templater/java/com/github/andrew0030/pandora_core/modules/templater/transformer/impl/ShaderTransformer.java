@@ -3,8 +3,13 @@ package com.github.andrew0030.pandora_core.modules.templater.transformer.impl;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateTransformation;
 import com.github.andrew0030.pandora_core.modules.templater.action.InsertionAction;
 import com.github.andrew0030.pandora_core.modules.templater.action.util.RemappingVisitor;
+import com.github.andrew0030.pandora_core.modules.templater.compat.CompatPrePatcher;
+import com.github.andrew0030.pandora_core.modules.templater.compat.ImmersivePortalsPrePatcher;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
+import com.github.andrew0030.pandora_core.platform.Services;
+import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
 import com.mojang.datafixers.util.Pair;
+import org.embeddedt.embeddium.util.PlatformUtil;
 import tfc.glsl.GlslFile;
 import tfc.glsl.base.GlslSegment;
 import tfc.glsl.base.SegmentType;
@@ -18,6 +23,14 @@ public class ShaderTransformer {
     TemplateTransformation transformation;
     List<InsertionAction> actions = new ArrayList<>();
 
+	private static final List<CompatPrePatcher> prepatchers = new ArrayList<>();
+	
+	static {
+		if (Services.PLATFORM.isModLoaded("imm_ptl_core")) {
+			prepatchers.add(new ImmersivePortalsPrePatcher());
+		}
+	}
+	
     public ShaderTransformer(TemplateTransformation transformation) {
         this.transformation = transformation;
     }
@@ -28,6 +41,10 @@ public class ShaderTransformer {
 
     public void transform(VariableMapper mapper, GlslFile tree) {
         TransformationContext context = new TransformationContext();
+	    
+	    for (CompatPrePatcher prepatcher : prepatchers) {
+		    prepatcher.apply(mapper, tree, transformation);
+	    }
 
         List<GlslSegment> HEAD = new ArrayList<>();
         for (InsertionAction action : actions) {

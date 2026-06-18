@@ -53,11 +53,13 @@ dependencies {
 
     // ############### Compatibility Dependencies ################
     // Title Screen Compatibility
-    modCompileOnly "curse.maven:fancymenu-367706:7256735"            // FancyMenu
-    modCompileOnly "curse.maven:packmenu-358191:5503481"             // PackMenu
-    modCompileOnly "curse.maven:aether-255308:6134920"               // The Aether
-    modCompileOnly "curse.maven:ice-and-fire-dragons-264231:5633453" // Ice and Fire: Dragons
-    modImplementation "curse.maven:catalogue-459701:4766090"         // Catalogue
+    modCompileOnly "curse.maven:fancymenu-367706:7256735"                // FancyMenu
+    modCompileOnly "curse.maven:packmenu-358191:5503481"                 // PackMenu
+    modCompileOnly "curse.maven:aether-255308:6134920"                   // The Aether
+    modCompileOnly "curse.maven:ice-and-fire-dragons-264231:5633453"     // Ice and Fire: Dragons
+    modImplementation "curse.maven:catalogue-459701:4766090"             // Catalogue
+    modImplementation "curse.maven:cloth-config-348521:5729105"          // Cloth Config
+    modCompileOnly "curse.maven:immersive-portals-mod-355440:6368524" // Immersive portals
     compileOnly "a:OFShell:1.0"
 
     // ############ Debugging/Profiling Dependencies #############
@@ -77,8 +79,8 @@ dependencies {
     modRuntimeOnly "curse.maven:yungs-better-witch-huts-631401:4769489" // YUNG's Better Witch Huts
     modRuntimeOnly "curse.maven:yungs-better-end-island-901344:5193815" // YUNG's Better End Island
     // Render Mods To Test Shader Patcher
-    modImplementation "curse.maven:embeddium-908741:5681725" // Embeddium
-    modImplementation "curse.maven:oculus-581495:6020952"    // Oculus
+    modCompileOnly "curse.maven:embeddium-908741:5681725" // Embeddium
+    modCompileOnly "curse.maven:oculus-581495:6020952"    // Oculus
     // Custom TTC Build (Templater/Instancer Tests)
     modImplementation "org.andrew:ttc:1.0" // Table Top Craft
 }

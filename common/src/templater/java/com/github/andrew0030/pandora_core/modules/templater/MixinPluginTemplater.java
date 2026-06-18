@@ -14,5 +14,9 @@ public class MixinPluginTemplater extends MixinPluginBase {
 		    String dep = "net.optifine.shaders.Shaders";
 		    addPackageDependency("optifine.", dep);
 	    }
+	    {
+		    String dep = "qouteall.imm_ptl.core.api.PortalAPI";
+		    addDependency("compat.IPCompat", dep);
+	    }
     }
 }

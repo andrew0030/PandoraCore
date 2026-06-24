@@ -7,6 +7,9 @@ import com.github.andrew0030.pandora_core.client.screen_shaker.ScreenShakeManage
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.curve_shake.CurveScreenShake;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.FovDirection;
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.manual_shake.ManualScreenShake;
+import com.github.andrew0030.pandora_core.network.PacketTarget;
+import com.github.andrew0030.pandora_core.test.networking.PaCoNetworking;
+import com.github.andrew0030.pandora_core.test.networking.packet.c2s.KeyPressedPacket;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -43,8 +46,9 @@ public class PaCoKeyMappings {
             GLFW.GLFW_KEY_J,
             "category.pandora_core.pandora_core"
         ), () -> {
-//            KeyPressedPacket packet = new KeyPressedPacket(GLFW.GLFW_KEY_J);
-//            PaCoNetworking.CHANNEL.send(PacketTarget.sendToServer(), packet);
+            KeyPressedPacket packet = new KeyPressedPacket(GLFW.GLFW_KEY_J);
+            PaCoNetworking.CHANNEL.send(PacketTarget.sendToServer(), packet);
+
             ScreenShakeManager.addScreenShake(new CurveScreenShake(20, true)
                 // Rotation
 //                .setPitch(PitchDirection.DOWN, 10, 10)

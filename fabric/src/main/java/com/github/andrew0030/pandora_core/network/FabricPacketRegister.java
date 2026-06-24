@@ -7,72 +7,99 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 
-public class FabricPacketRegister extends PaCoPacketChannel {
+public class FabricPacketRegister extends PaCoPacketRegistry {
     public final ResourceLocation channel;
-    private final Int2ObjectOpenHashMap<PacketEntry<?>> entries = new Int2ObjectOpenHashMap<>();
-    private final Object2IntOpenHashMap<Class<? extends PaCoPacket>> class2IdMap = new Object2IntOpenHashMap<>();
+    private final Int2ObjectOpenHashMap<PaCoPacketType<?>> idToType = new Int2ObjectOpenHashMap<>();
+    private final Object2IntOpenHashMap<Class<? extends PaCoPacket>> classToId = new Object2IntOpenHashMap<>();
 
-    public FabricPacketRegister(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
+    public FabricPacketRegister(ResourceLocation name) {
         this.channel = name;
+    }
+
+    @Override
+    public void register() {
+        int index = 0;
+        for (PaCoPacketType<?> type : this.packets) {
+            idToType.put(index, type);
+            classToId.put(type.packetClass, index);
+            index++;
+        }
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            ClientPlayNetworking.registerGlobalReceiver(
-                    name,
-                    ((client, handler, buf, responseSender) -> {
-                        this.handlePacket(handler, buf, new PacketSender(this, (packet) -> responseSender.sendPacket(name, this.encode(packet))), null, NetworkDirection.TO_CLIENT);
-                    })
-            );
+            ClientPlayNetworking.registerGlobalReceiver(this.channel, (client, handler, buf, responseSender) -> {
+                handlePacket(handler, buf, null, PacketFlow.CLIENTBOUND,
+                        packet -> responseSender.sendPacket(this.channel, encode(packet)));
+            });
         }
-        ServerPlayNetworking.registerGlobalReceiver(
-                name,
-                ((server, player, handler, buf, responseSender) -> {
-                    this.handlePacket(handler, buf, new PacketSender(this, (packet) -> responseSender.sendPacket(name, this.encode(packet))), player, NetworkDirection.TO_SERVER);
-                })
+
+        ServerPlayNetworking.registerGlobalReceiver(this.channel, (server, player, handler, buf, responseSender) -> {
+            handlePacket(handler, buf, player, PacketFlow.SERVERBOUND,
+                    packet -> responseSender.sendPacket(this.channel, encode(packet)));
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handlePacket(PacketListener listener, FriendlyByteBuf buf, ServerPlayer player, PacketFlow expectedFlow, Consumer<PaCoPacket> replyAction) {
+        int id = buf.readByte() & 255;
+        PaCoPacketType<PaCoPacket> type = (PaCoPacketType<PaCoPacket>) idToType.get(id);
+
+        if (type == null) {
+            System.err.println("[PaCoNet] Received unknown packet ID: " + id);
+            return;
+        }
+
+        // SECURITY CHECK
+        if (type.flow != expectedFlow) { //TODO: Add bidirectional check
+//            System.err.println("[PaCoNet] Security Warning: Dropped spoofed packet '" +
+//                    type.packetClass.getSimpleName() + "'. Expected: " + type.flow +
+//                    ", Received on: " + expectedFlow);
+            return;
+        }
+
+        PaCoPacket packet = type.reader.apply(buf);
+
+        PacketContext context = new PacketContext(
+                listener,
+                player,
+                expectedFlow,
+                runnable -> {
+                    if (player != null && player.getServer() != null) {
+                        player.getServer().execute(runnable);
+                    } else if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+                        Minecraft.getInstance().tell(runnable);
+                    } else {
+                        runnable.run();
+                    }
+                },
+                replyAction
         );
+
+        type.handler.handle(packet, context);
     }
 
-    private void handlePacket(PacketListener handler, FriendlyByteBuf buf, PacketSender responseSender, ServerPlayer player, NetworkDirection direction) {
-        int id = buf.readByte();
-        PacketEntry<?> entry = entries.get(id);
-        PaCoPacket packet = entry.fabricator.apply(buf);
-        packet.handle(new FabricNetCtx(handler, responseSender, player, direction));
-    }
-
-    @Override
-    public Packet<?> toVanillaPacket(PaCoPacket wrapperPacket, NetworkDirection toClient) {
-        FriendlyByteBuf buf = this.encode(wrapperPacket);
-        return switch (toClient) {
-            case TO_CLIENT -> ServerPlayNetworking.createS2CPacket(this.channel, buf);
-            case TO_SERVER -> ClientPlayNetworking.createC2SPacket(this.channel, buf);
-        };
-    }
-
-    @Override
-    public <T extends PaCoPacket> void registerMessage(int index, Class<T> clazz, BiConsumer<PaCoPacket, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<PaCoPacket, NetCtx> handler) {
-        this.entries.put(index, new PacketEntry<>(writer, fabricator));
-        this.class2IdMap.put(clazz, index);
-    }
-
-    @Override
+    @SuppressWarnings("unchecked")
     public FriendlyByteBuf encode(PaCoPacket packet) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        int id = this.class2IdMap.getInt(packet.getClass());
-        buf.writeByte(id & 255);
-        this.entries.get(id).writer.accept(packet, buf);
-        return buf;
-    }
+        if (!classToId.containsKey(packet.getClass())) {
+            throw new IllegalArgumentException("Attempted to send unregistered packet: " + packet.getClass().getSimpleName());
+        }
 
-    private record PacketEntry<T extends PaCoPacket>(BiConsumer<PaCoPacket, FriendlyByteBuf> writer,
-                                                     Function<FriendlyByteBuf, T> fabricator) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        int id = classToId.getInt(packet.getClass());
+
+        buf.writeByte(id & 255);
+
+        PaCoPacketType<PaCoPacket> type = (PaCoPacketType<PaCoPacket>) idToType.get(id);
+        type.writer.accept(packet, buf);
+
+        return buf;
     }
 }

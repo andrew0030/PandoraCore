@@ -2,7 +2,7 @@ package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.events.FabricServerLifecycleEvents;
 import com.github.andrew0030.pandora_core.network.FabricPacketRegister;
-import com.github.andrew0030.pandora_core.network.PaCoPacketChannel;
+import com.github.andrew0030.pandora_core.network.PaCoPacketRegistry;
 import com.github.andrew0030.pandora_core.network.PacketTarget;
 import com.github.andrew0030.pandora_core.platform.services.INetworkHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -18,26 +18,26 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 
-import java.util.function.Predicate;
-
 public class FabricNetworkHelper implements INetworkHelper {
 
     @Override
-    public PaCoPacketChannel getPacketRegistry(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
-        return new FabricPacketRegister(name, networkVersion, clientChecker, serverChecker);
+    public PaCoPacketRegistry getPacketRegistry(ResourceLocation name) {
+        return new FabricPacketRegister(name);
     }
 
     @Override
     public PacketTarget sendToServer() {
         return new PacketTarget((packet, register) -> {
-            ClientPlayNetworking.send(((FabricPacketRegister) register).channel, register.encode(packet));
+            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+            ClientPlayNetworking.send(fabricRegister.channel, fabricRegister.encode(packet));
         });
     }
 
     @Override
     public PacketTarget sendToPlayer(ServerPlayer player) {
         return new PacketTarget((packet, register) -> {
-            ServerPlayNetworking.send(player, ((FabricPacketRegister) register).channel, register.encode(packet));
+            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+            ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet));
         });
     }
 
@@ -48,8 +48,9 @@ public class FabricNetworkHelper implements INetworkHelper {
             if (server != null) {
                 ServerLevel level = server.getLevel(dimension);
                 if (level != null) {
+                    FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
                     level.players().forEach(
-                            player -> ServerPlayNetworking.send(player, ((FabricPacketRegister) register).channel, register.encode(packet))
+                            player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
                     );
                 }
             } else {
@@ -66,6 +67,7 @@ public class FabricNetworkHelper implements INetworkHelper {
             if (server != null) {
                 ServerLevel level = server.getLevel(target.key);
                 if (level != null) {
+                    FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
                     double radiusSq = target.radius * target.radius;
                     level.players()
                             .stream()
@@ -73,7 +75,7 @@ public class FabricNetworkHelper implements INetworkHelper {
                             .filter(player -> player.distanceToSqr(target.pos) <= radiusSq)
                             .toList()
                             .forEach(
-                                    player -> ServerPlayNetworking.send(player, ((FabricPacketRegister) register).channel, register.encode(packet))
+                                    player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
                             );
 
                 }
@@ -89,8 +91,9 @@ public class FabricNetworkHelper implements INetworkHelper {
         return new PacketTarget((packet, register) -> {
             MinecraftServer server = FabricServerLifecycleEvents.getServer();
             if (server != null) {
+                FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
                 PlayerLookup.all(server).forEach(
-                        player -> ServerPlayNetworking.send(player, ((FabricPacketRegister) register).channel, register.encode(packet))
+                        player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
                 );
             } else {
                 System.out.println("No Server!");
@@ -101,8 +104,9 @@ public class FabricNetworkHelper implements INetworkHelper {
     @Override
     public PacketTarget sendToTrackingEntity(Entity entity) {
         return new PacketTarget((packet, register) -> {
+            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
             PlayerLookup.tracking(entity).forEach(
-                    player -> ServerPlayNetworking.send(player, ((FabricPacketRegister) register).channel, register.encode(packet))
+                    player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
             );
         });
     }
@@ -110,20 +114,22 @@ public class FabricNetworkHelper implements INetworkHelper {
     @Override
     public PacketTarget sendToTrackingEntityAndSelf(Entity entity) {
         return new PacketTarget((packet, register) -> {
+            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
             PlayerLookup.tracking(entity).forEach(
-                    player -> ServerPlayNetworking.send(player, ((FabricPacketRegister) register).channel, register.encode(packet))
+                    player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
             );
             // Sends to the entity itself, if it's a ServerPlayer
             if (entity instanceof ServerPlayer player)
-                ServerPlayNetworking.send(player, ((FabricPacketRegister) register).channel, register.encode(packet));
+                ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet));
         });
     }
 
     @Override
     public PacketTarget sendToTrackingChunk(LevelChunk chunk) {
         return new PacketTarget((packet, register) -> {
+            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
             ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(
-                    player -> ServerPlayNetworking.send(player, ((FabricPacketRegister) register).channel, register.encode(packet))
+                    player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
             );
         });
     }

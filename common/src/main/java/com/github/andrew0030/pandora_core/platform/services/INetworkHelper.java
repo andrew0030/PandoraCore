@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.platform.services;
 
-import com.github.andrew0030.pandora_core.network.PaCoPacketChannel;
+import com.github.andrew0030.pandora_core.network.PaCoPacketRegistry;
 import com.github.andrew0030.pandora_core.network.PacketTarget;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 
 public interface INetworkHelper {
 
-    PaCoPacketChannel getPacketRegistry(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker);
+    PaCoPacketRegistry getPacketRegistry(ResourceLocation name);
 
     PacketTarget sendToServer();
 

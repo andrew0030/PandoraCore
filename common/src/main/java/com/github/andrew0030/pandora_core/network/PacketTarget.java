@@ -10,15 +10,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 
 public class PacketTarget {
     private static final PacketTarget SERVER_TARGET = Services.NETWORK.sendToServer();
-    private final BiConsumer<PaCoPacket, PaCoPacketChannel> sender;
+    private final BiConsumer<PaCoPacket, PaCoPacketRegistry> sender;
 
-    public PacketTarget(BiConsumer<PaCoPacket, PaCoPacketChannel> sender) {
+    public PacketTarget(BiConsumer<PaCoPacket, PaCoPacketRegistry> sender) {
         this.sender = sender;
     }
 
@@ -29,7 +29,7 @@ public class PacketTarget {
      * @param channel the {@link PaCoPacketChannel} that performs the send action
      * @apiNote use {@link PaCoPacketChannel#send(PacketTarget, PaCoPacket)} to send a packet
      */
-    public void send(PaCoPacket packet, PaCoPacketChannel channel) {
+    public void send(PaCoPacket packet, PaCoPacketRegistry channel) {
         this.sender.accept(packet, channel);
     }
 

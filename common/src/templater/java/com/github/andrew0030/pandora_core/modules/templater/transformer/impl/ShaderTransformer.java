@@ -7,9 +7,7 @@ import com.github.andrew0030.pandora_core.modules.templater.compat.CompatPrePatc
 import com.github.andrew0030.pandora_core.modules.templater.compat.ImmersivePortalsPrePatcher;
 import com.github.andrew0030.pandora_core.modules.templater.transformer.VariableMapper;
 import com.github.andrew0030.pandora_core.platform.Services;
-import com.github.andrew0030.pandora_core.platform.services.IPlatformHelper;
 import com.mojang.datafixers.util.Pair;
-import org.embeddedt.embeddium.util.PlatformUtil;
 import tfc.glsl.GlslFile;
 import tfc.glsl.base.GlslSegment;
 import tfc.glsl.base.SegmentType;

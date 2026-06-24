@@ -1,70 +1,60 @@
 package com.github.andrew0030.pandora_core.network;
 
-import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
-public class ForgePacketRegister extends PaCoPacketChannel {
+public class ForgePacketRegister extends PaCoPacketRegistry {
     public final SimpleChannel channel;
 
-    public ForgePacketRegister(ResourceLocation name, String networkVersion, Predicate<String> clientChecker, Predicate<String> serverChecker) {
-        this.channel = NetworkRegistry.newSimpleChannel(name, () -> networkVersion, clientChecker, serverChecker);
+    public ForgePacketRegister(ResourceLocation name) {
+        String version = "1.0.0";
+        this.channel = NetworkRegistry.newSimpleChannel(name, () -> version, version::equals, version::equals);
     }
 
     @Override
-    public Packet<?> toVanillaPacket(PaCoPacket packet, NetworkDirection direction) {
-        return switch (direction) {
-            case TO_CLIENT -> this.channel.toVanillaPacket(packet, net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT);
-            case TO_SERVER -> this.channel.toVanillaPacket(packet, net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER);
-        };
+    public void register() {
+        int index = 0;
+        for (PaCoPacketType<?> packet : this.packets)
+            this.registerInternal(index++, packet);
     }
 
-    @Override
-    public <T extends PaCoPacket> void registerMessage(int index, Class<T> clazz, BiConsumer<PaCoPacket, FriendlyByteBuf> writer, Function<FriendlyByteBuf, T> fabricator, BiConsumer<PaCoPacket, NetCtx> handler) {
-
+    private <T extends PaCoPacket> void registerInternal(int index, PaCoPacketType<T> type) {
         this.channel.registerMessage(
             index,
-            clazz,
-            writer::accept,
-            fabricator,
+            type.packetClass,
+            type.writer,
+            type.reader,
             (packet, ctxSupplier) -> {
-                NetworkEvent.Context context = ctxSupplier.get();
-                NetworkDirection direction = switch (context.getDirection()) {
-                    case PLAY_TO_CLIENT, LOGIN_TO_CLIENT -> NetworkDirection.TO_CLIENT;
-                    case PLAY_TO_SERVER, LOGIN_TO_SERVER -> NetworkDirection.TO_SERVER;
-                };
-
-                ForgeNetCtx forgeContext = new ForgeNetCtx(
-                    context.getNetworkManager().getPacketListener(),
-                    new PacketSender(this, packetToSend -> {
-                        PacketDistributor.PacketTarget target = context.getDirection().getReceptionSide().isServer() ?
-                                PacketDistributor.PLAYER.with(context::getSender) :
-                                PacketDistributor.SERVER.noArg();
-                        this.channel.send(target, packetToSend);
-                    }),
-                    context.getSender(),
-                    direction,
-                    context
+                NetworkEvent.Context forgeCtx = ctxSupplier.get();
+                // Determines the direction the packet just traveled
+                PacketFlow flow = forgeCtx.getDirection().getReceptionSide().isServer() ? PacketFlow.SERVERBOUND : PacketFlow.CLIENTBOUND;
+                // Prevents packet spoofing by checking
+                if (type.flow != flow) { // TODO: Add bidirectional logic
+//                    System.err.println("[PaCoNet] Security Warning: Dropped spoofed packet '" +
+//                            type.packetClass.getSimpleName() + "'. Expected flow: " +
+//                            type.flow + ", but received on: " + flow);
+                    forgeCtx.setPacketHandled(true);
+                    return;
+                }
+                PacketContext context = new PacketContext(
+                        forgeCtx.getNetworkManager().getPacketListener(),
+                        forgeCtx.getSender(),
+                        flow,
+                        forgeCtx::enqueueWork,
+                        packetToSend -> {
+                            PacketDistributor.PacketTarget target = forgeCtx.getDirection().getReceptionSide().isServer() ?
+                                    PacketDistributor.PLAYER.with(forgeCtx::getSender) :
+                                    PacketDistributor.SERVER.noArg();
+                            this.channel.send(target, packetToSend);
+                        }
                 );
-
-                handler.accept(packet, forgeContext);
+                type.handler.handle(packet, context);
+                forgeCtx.setPacketHandled(true);
             }
         );
-    }
-
-    @Override
-    public FriendlyByteBuf encode(PaCoPacket packet) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        this.channel.encodeMessage(packet, buf);
-        return buf;
     }
 }

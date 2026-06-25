@@ -2,8 +2,8 @@ package com.github.andrew0030.pandora_core.test.networking;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.network.PaCoPacketRegistry;
-import com.github.andrew0030.pandora_core.test.networking.packet.c2s.KeyPressedPacket;
-import com.github.andrew0030.pandora_core.test.networking.packet.s2c.OpenTestGUIPacket;
+import com.github.andrew0030.pandora_core.test.networking.packet.clientbound.OpenTestGUIPacket;
+import com.github.andrew0030.pandora_core.test.networking.packet.serverbound.KeyPressedPacket;
 import net.minecraft.resources.ResourceLocation;
 
 public class PaCoNetworking {

@@ -1,7 +1,7 @@
 package com.github.andrew0030.pandora_core.platform;
 
 import com.github.andrew0030.pandora_core.events.FabricServerLifecycleEvents;
-import com.github.andrew0030.pandora_core.network.FabricPacketRegister;
+import com.github.andrew0030.pandora_core.network.FabricPacketRegistry;
 import com.github.andrew0030.pandora_core.network.PaCoPacketRegistry;
 import com.github.andrew0030.pandora_core.network.PacketTarget;
 import com.github.andrew0030.pandora_core.platform.services.INetworkHelper;
@@ -22,13 +22,13 @@ public class FabricNetworkHelper implements INetworkHelper {
 
     @Override
     public PaCoPacketRegistry getPacketRegistry(ResourceLocation name) {
-        return new FabricPacketRegister(name);
+        return new FabricPacketRegistry(name);
     }
 
     @Override
     public PacketTarget sendToServer() {
         return new PacketTarget((packet, register) -> {
-            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+            FabricPacketRegistry fabricRegister = (FabricPacketRegistry) register;
             ClientPlayNetworking.send(fabricRegister.channel, fabricRegister.encode(packet));
         });
     }
@@ -36,7 +36,7 @@ public class FabricNetworkHelper implements INetworkHelper {
     @Override
     public PacketTarget sendToPlayer(ServerPlayer player) {
         return new PacketTarget((packet, register) -> {
-            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+            FabricPacketRegistry fabricRegister = (FabricPacketRegistry) register;
             ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet));
         });
     }
@@ -48,7 +48,7 @@ public class FabricNetworkHelper implements INetworkHelper {
             if (server != null) {
                 ServerLevel level = server.getLevel(dimension);
                 if (level != null) {
-                    FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+                    FabricPacketRegistry fabricRegister = (FabricPacketRegistry) register;
                     level.players().forEach(
                             player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
                     );
@@ -67,7 +67,7 @@ public class FabricNetworkHelper implements INetworkHelper {
             if (server != null) {
                 ServerLevel level = server.getLevel(target.key);
                 if (level != null) {
-                    FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+                    FabricPacketRegistry fabricRegister = (FabricPacketRegistry) register;
                     double radiusSq = target.radius * target.radius;
                     level.players()
                             .stream()
@@ -91,7 +91,7 @@ public class FabricNetworkHelper implements INetworkHelper {
         return new PacketTarget((packet, register) -> {
             MinecraftServer server = FabricServerLifecycleEvents.getServer();
             if (server != null) {
-                FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+                FabricPacketRegistry fabricRegister = (FabricPacketRegistry) register;
                 PlayerLookup.all(server).forEach(
                         player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
                 );
@@ -104,7 +104,7 @@ public class FabricNetworkHelper implements INetworkHelper {
     @Override
     public PacketTarget sendToTrackingEntity(Entity entity) {
         return new PacketTarget((packet, register) -> {
-            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+            FabricPacketRegistry fabricRegister = (FabricPacketRegistry) register;
             PlayerLookup.tracking(entity).forEach(
                     player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
             );
@@ -114,7 +114,7 @@ public class FabricNetworkHelper implements INetworkHelper {
     @Override
     public PacketTarget sendToTrackingEntityAndSelf(Entity entity) {
         return new PacketTarget((packet, register) -> {
-            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+            FabricPacketRegistry fabricRegister = (FabricPacketRegistry) register;
             PlayerLookup.tracking(entity).forEach(
                     player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
             );
@@ -127,7 +127,7 @@ public class FabricNetworkHelper implements INetworkHelper {
     @Override
     public PacketTarget sendToTrackingChunk(LevelChunk chunk) {
         return new PacketTarget((packet, register) -> {
-            FabricPacketRegister fabricRegister = (FabricPacketRegister) register;
+            FabricPacketRegistry fabricRegister = (FabricPacketRegistry) register;
             ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(
                     player -> ServerPlayNetworking.send(player, fabricRegister.channel, fabricRegister.encode(packet))
             );

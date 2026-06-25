@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.platform;
 
-import com.github.andrew0030.pandora_core.network.ForgePacketRegister;
+import com.github.andrew0030.pandora_core.network.ForgePacketRegistry;
 import com.github.andrew0030.pandora_core.network.PaCoPacketRegistry;
 import com.github.andrew0030.pandora_core.network.PacketTarget;
 import com.github.andrew0030.pandora_core.platform.services.INetworkHelper;
@@ -12,33 +12,31 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.network.PacketDistributor;
 
-import java.util.function.Predicate;
-
 public class ForgeNetworkHelper implements INetworkHelper {
 
     @Override
     public PaCoPacketRegistry getPacketRegistry(ResourceLocation name) {
-        return new ForgePacketRegister(name);
+        return new ForgePacketRegistry(name);
     }
 
     @Override
     public PacketTarget sendToServer() {
         return new PacketTarget((packet, packetRegister) -> {
-            ((ForgePacketRegister) packetRegister).channel.sendToServer(packet);
+            ((ForgePacketRegistry) packetRegister).channel.sendToServer(packet);
         });
     }
 
     @Override
     public PacketTarget sendToPlayer(ServerPlayer player) {
         return new PacketTarget((packet, register) -> {
-            ((ForgePacketRegister) register).channel.send(PacketDistributor.PLAYER.with(() -> player), packet);
+            ((ForgePacketRegistry) register).channel.send(PacketDistributor.PLAYER.with(() -> player), packet);
         });
     }
 
     @Override
     public PacketTarget sendToDimension(ResourceKey<Level> dimension) {
         return new PacketTarget((packet, register) -> {
-            ((ForgePacketRegister) register).channel.send(PacketDistributor.DIMENSION.with(() -> dimension), packet);
+            ((ForgePacketRegistry) register).channel.send(PacketDistributor.DIMENSION.with(() -> dimension), packet);
         });
     }
 
@@ -46,35 +44,35 @@ public class ForgeNetworkHelper implements INetworkHelper {
     public PacketTarget sendToNearby(PacketTarget.TargetPoint target) {
         return new PacketTarget((packet, register) -> {
             PacketDistributor.TargetPoint point = new PacketDistributor.TargetPoint(target.excluded, target.pos.x(), target.pos.y(), target.pos.z(), target.radius, target.key);
-            ((ForgePacketRegister) register).channel.send(PacketDistributor.NEAR.with(() -> point), packet);
+            ((ForgePacketRegistry) register).channel.send(PacketDistributor.NEAR.with(() -> point), packet);
         });
     }
 
     @Override
     public PacketTarget sendToAll() {
         return new PacketTarget((packet, register) -> {
-            ((ForgePacketRegister) register).channel.send(PacketDistributor.ALL.noArg(), packet);
+            ((ForgePacketRegistry) register).channel.send(PacketDistributor.ALL.noArg(), packet);
         });
     }
 
     @Override
     public PacketTarget sendToTrackingEntity(Entity entity) {
         return new PacketTarget((packet, register) -> {
-            ((ForgePacketRegister) register).channel.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), packet);
+            ((ForgePacketRegistry) register).channel.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), packet);
         });
     }
 
     @Override
     public PacketTarget sendToTrackingEntityAndSelf(Entity entity) {
         return new PacketTarget((packet, register) -> {
-            ((ForgePacketRegister) register).channel.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), packet);
+            ((ForgePacketRegistry) register).channel.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), packet);
         });
     }
 
     @Override
     public PacketTarget sendToTrackingChunk(LevelChunk chunk) {
         return new PacketTarget((packet, register) -> {
-            ((ForgePacketRegister) register).channel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), packet);
+            ((ForgePacketRegistry) register).channel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), packet);
         });
     }
 }

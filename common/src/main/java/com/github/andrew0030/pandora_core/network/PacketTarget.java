@@ -26,8 +26,8 @@ public class PacketTarget {
      * Delivers the given {@link PaCoPacket} to this {@link PacketTarget}.
      *
      * @param packet  the packet to send
-     * @param channel the {@link PaCoPacketChannel} that performs the send action
-     * @apiNote use {@link PaCoPacketChannel#send(PacketTarget, PaCoPacket)} to send a packet
+     * @param channel the {@link PaCoPacketRegistry} that performs the send action
+     * @apiNote use {@link PaCoPacketRegistry#send(PacketTarget, PaCoPacket)} to send a packet
      */
     public void send(PaCoPacket packet, PaCoPacketRegistry channel) {
         this.sender.accept(packet, channel);
@@ -136,9 +136,9 @@ public class PacketTarget {
         /**
          * A target point without excluded entity.
          *
-         * @param key      the {@link ResourceKey} of the {@link Level} to check in
-         * @param pos      the position
-         * @param radius   the maximum distance from the position in blocks
+         * @param key    the {@link ResourceKey} of the {@link Level} to check in
+         * @param pos    the position
+         * @param radius the maximum distance from the position in blocks
          */
         public TargetPoint(@NotNull ResourceKey<Level> key, @NotNull Vec3 pos, double radius) {
             this(null, key, pos, radius);

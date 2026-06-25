@@ -36,7 +36,7 @@ Systems TODO:
   - [x] Add more "send types"
   - [x] Any other tweaks that would make it fit better into PaCo
   - [x] Test the response system
-  - [ ] Implement new core structure
+  - [x] Implement new core structure
 - Animation System
   - [ ] Copy all the code from Table Top Craft / Pandoras Creatures
   - [ ] Create better Animation State (make it a standalone class and add chainable methods to toggle which animations should start/stop)

@@ -9,7 +9,7 @@ import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.enums.FovD
 import com.github.andrew0030.pandora_core.client.screen_shaker.shakes.manual_shake.ManualScreenShake;
 import com.github.andrew0030.pandora_core.network.PacketTarget;
 import com.github.andrew0030.pandora_core.test.networking.PaCoNetworking;
-import com.github.andrew0030.pandora_core.test.networking.packet.c2s.KeyPressedPacket;
+import com.github.andrew0030.pandora_core.test.networking.packet.serverbound.KeyPressedPacket;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;

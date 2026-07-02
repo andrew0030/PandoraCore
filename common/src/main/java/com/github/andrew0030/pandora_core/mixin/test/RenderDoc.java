@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.mixin.test;
 import com.github.andrew0030.pandora_core.utils.debug.PaCoProperties;
 import net.minecraft.util.FrameTimer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -12,11 +13,11 @@ import java.nio.file.Path;
 
 @Mixin(FrameTimer.class)
 public class RenderDoc {
-	private static boolean initialized = false;
+	@Unique private static boolean pandoraCore$initialized = false;
 	
 	@Inject(at = @At("RETURN"), method = "<init>")
 	public void preLoad(CallbackInfo ci) {
-		if (initialized) return;
+		if (pandoraCore$initialized) return;
 		
 		try {
 			if (PaCoProperties.renderdoc) {
@@ -38,6 +39,6 @@ public class RenderDoc {
 			ignored.printStackTrace();
 		}
 		
-		initialized = true;
+		pandoraCore$initialized = true;
 	}
 }

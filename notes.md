@@ -163,5 +163,7 @@ Systems TODO:
   - [x] Entity instancer
   - [ ] Particle instancer
   - [ ] Potential future rewrite?
+- Templater
+  - [ ] The `OperationVisitor` logs the following error: "_Unrecognized operation! %_", probably due to `fail.vsh`, investigate...
 - Uniform Holder
   - [x] Replace the list hashing inside `TagFilter` because it could potentially be order dependent

@@ -7,6 +7,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,7 +18,7 @@ import java.util.List;
 @Mixin(value = RenderSection.class, remap = false)
 public class RenderSectionMixin implements InstancingResults, RenderSectionAttachments {
     @Shadow private int flags;
-    public List<BlockEntity> instancableBlockEntities = new ArrayList<>();
+    @Unique public List<BlockEntity> pandoraCore$instancableBlockEntities = new ArrayList<>();
 
     @Override
     public void addInstancer(BlockEntity be) {
@@ -26,23 +27,23 @@ public class RenderSectionMixin implements InstancingResults, RenderSectionAttac
 
     @Override
     public List<BlockEntity> getAll() {
-        return instancableBlockEntities;
+        return pandoraCore$instancableBlockEntities;
     }
 
     @Override
     public void addAll(List<BlockEntity> all) {
-        this.instancableBlockEntities = all;
+        this.pandoraCore$instancableBlockEntities = all;
     }
 
     @Override
     public boolean hasInstancedBlockEntities() {
-        return !instancableBlockEntities.isEmpty();
+        return !pandoraCore$instancableBlockEntities.isEmpty();
     }
 
     @Inject(at = @At("RETURN"), method = "setRenderState")
     public void postSetRenderState(BuiltSectionInfo info, CallbackInfo ci) {
-        instancableBlockEntities = ((InstancingResults) info).getAll();
-        if (!instancableBlockEntities.isEmpty()) {
+        pandoraCore$instancableBlockEntities = ((InstancingResults) info).getAll();
+        if (!pandoraCore$instancableBlockEntities.isEmpty()) {
             flags |= -1;
         }
     }

@@ -14,24 +14,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Uniform.class)
 public abstract class UniformMixin implements INamedUniform, ILocationedObject {
-	@Shadow
-	public abstract String getName();
-	
-	@Shadow
-	private int location;
-	@Unique
-	int rloc;
-	@Unique
-	int vloc = -1;
+	@Shadow public abstract String getName();
+	@Shadow private int location;
+	@Unique int pandoraCore$rloc;
+	@Unique int pandoraCore$vloc = -1;
 	
 	@Inject(at = @At("TAIL"), method = "<init>")
 	public void postInit(String name, int type, int count, Shader parent, CallbackInfo ci) {
-		rloc = location;
+		pandoraCore$rloc = location;
 	}
 	
 	@Inject(at = @At("RETURN"), method = "setLocation")
 	public void postSetLoc(int location, CallbackInfo ci) {
-		this.rloc = location;
+		this.pandoraCore$rloc = location;
 	}
 	
 	@Override
@@ -42,11 +37,11 @@ public abstract class UniformMixin implements INamedUniform, ILocationedObject {
 	
 	@Override
 	public void pandoraCore$virtualLocation(int location) {
-		vloc = location;
-		if (vloc != -1)
-			this.location = vloc;
+		pandoraCore$vloc = location;
+		if (pandoraCore$vloc != -1)
+			this.location = pandoraCore$vloc;
 		else
-			this.location = rloc;
+			this.location = pandoraCore$rloc;
 	}
 	
 	@Override
@@ -56,7 +51,7 @@ public abstract class UniformMixin implements INamedUniform, ILocationedObject {
 	
 	@Inject(at = @At("HEAD"), method = "getLocation", cancellable = true)
 	public void preGetLoc(CallbackInfoReturnable<Integer> cir) {
-		if (vloc != -1)
-			cir.setReturnValue(vloc);
+		if (pandoraCore$vloc != -1)
+			cir.setReturnValue(pandoraCore$vloc);
 	}
 }

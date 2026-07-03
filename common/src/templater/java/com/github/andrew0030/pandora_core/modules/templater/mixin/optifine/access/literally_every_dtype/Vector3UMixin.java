@@ -5,21 +5,17 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.irisshaders.iris.gl.uniform.Vector3Uniform;
 import net.optifine.shaders.uniform.ShaderUniform3f;
 import net.optifine.shaders.uniform.ShaderUniformBase;
-import org.joml.Vector3f;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(value = ShaderUniform3f.class, remap = false)
 public class Vector3UMixin implements IPaCoPainReducer {
-	@Shadow
-	private float[][] programValues;
-	private boolean cacheNulled = false;
+	@Shadow private float[][] programValues;
+	@Unique private boolean pandoraCore$cacheNulled = false;
 	
 	@Override
 	public Object getCachedValue() {
@@ -33,7 +29,7 @@ public class Vector3UMixin implements IPaCoPainReducer {
 //			cacheNulled = true;
 			programValues[((ShaderUniformBase) (Object) this).getProgram()] = new float[3];
 		} else {
-			cacheNulled = false;
+			pandoraCore$cacheNulled = false;
 			programValues[((ShaderUniformBase) (Object) this).getProgram()] = obj;
 		}
 	}
@@ -46,6 +42,6 @@ public class Vector3UMixin implements IPaCoPainReducer {
 			at = @At(value = "MIXINEXTRAS:EXPRESSION")
 	)
 	private boolean updateValue(boolean original) {
-		return cacheNulled || original;
+		return pandoraCore$cacheNulled || original;
 	}
 }

@@ -12,8 +12,7 @@ import java.util.EnumSet;
 
 @Mixin(Program.class)
 public abstract class ProgramMixin implements INamedShader, IPaCoExtOFProgram {
-	@Shadow
-	public abstract String getName();
+	@Shadow public abstract String getName();
 	
 	@Override
 	public String pandoraCore$getName() {

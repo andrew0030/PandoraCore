@@ -4,5 +4,5 @@ import net.minecraftforge.common.world.BiomeModifier;
 
 @FunctionalInterface
 public interface IPaCoForgeModifierConverter {
-    BiomeModifier convertToForgeModifier();
+    BiomeModifier pandoraCore$convertToForgeModifier();
 }

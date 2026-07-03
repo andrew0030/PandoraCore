@@ -12,26 +12,25 @@ import java.util.HashSet;
 
 @Mixin(PostPass.class)
 public class PostPassMixin implements IPaCoTagged {
-    @Unique
-    private Collection<String> paco_tags = new ArrayList<>();
+    @Unique private Collection<String> pandoraCore$tags = new ArrayList<>();
 
     @Override
     public void pandoraCore$addTag(String name) {
-        paco_tags.add(name);
+        pandoraCore$tags.add(name);
     }
 
     @Override
     public void pandoraCore$lockTags() {
-        paco_tags = new ReadOnlySet<>(new HashSet<>(paco_tags));
+        pandoraCore$tags = new ReadOnlySet<>(new HashSet<>(pandoraCore$tags));
     }
 
     @Override
     public Collection<String> pandoraCore$getTags() {
-        return paco_tags;
+        return pandoraCore$tags;
     }
 
     @Override
     public boolean pandoraCore$hasTag(String tag) {
-        return paco_tags.contains(tag);
+        return pandoraCore$tags.contains(tag);
     }
 }

@@ -14,13 +14,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ShaderInstance.class)
 public abstract class ShaderInstance_CacheShadersMixin implements INamedShader {
-	@Shadow
-	public abstract String getName();
-	
+	@Shadow public abstract String getName();
 	// while this is tracked by vanilla
-    // I'm making a copy of it as a safety incase another mod messes with it
-    @Unique
-    String pandoraCore$cacheName;
+    // I'm making a copy of it as a safety, just in case another mod messes with it
+    @Unique String pandoraCore$cacheName;
 
     @Inject(at = @At("TAIL"), method = "<init>")
     public void postInit(ResourceProvider resourceProvider, String name, VertexFormat vertexFormat, CallbackInfo ci) {

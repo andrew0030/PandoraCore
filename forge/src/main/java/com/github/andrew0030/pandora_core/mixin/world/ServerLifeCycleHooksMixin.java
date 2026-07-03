@@ -35,7 +35,7 @@ public class ServerLifeCycleHooksMixin {
         registryAccess.lookupOrThrow(PaCoRegistryKeys.WORLDGEN_MODIFIER).listElements().forEach(modifierReference -> {
             Modifier modifier = modifierReference.value();
             if (modifier instanceof IPaCoForgeModifierConverter converter) {
-                toAdd.add(converter.convertToForgeModifier());
+                toAdd.add(converter.pandoraCore$convertToForgeModifier());
             } else {
                 modifier.applyModifier();
             }

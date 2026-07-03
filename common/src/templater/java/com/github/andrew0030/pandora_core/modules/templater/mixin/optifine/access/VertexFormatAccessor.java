@@ -10,9 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(VertexFormat.class)
 public class VertexFormatAccessor implements IVertexFormatAccess {
-	@Shadow
-	@Final
-	private ImmutableMap<String, VertexFormatElement> elementMapping;
+	@Shadow @Final private ImmutableMap<String, VertexFormatElement> elementMapping;
 	
 	@Override
 	public ImmutableMap<String, VertexFormatElement> pandoraCore$getMappings() {

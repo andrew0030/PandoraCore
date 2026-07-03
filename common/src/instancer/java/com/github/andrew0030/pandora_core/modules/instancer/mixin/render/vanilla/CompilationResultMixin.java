@@ -4,26 +4,27 @@ import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.In
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(ChunkRenderDispatcher.RenderChunk.RebuildTask.CompileResults.class)
 public class CompilationResultMixin implements InstancingResults {
-    List<BlockEntity> instancableBlockEntities = new ArrayList<>();
+    @Unique List<BlockEntity> pandoraCore$instancableBlockEntities = new ArrayList<>();
 
     @Override
     public void addInstancer(BlockEntity be) {
-        instancableBlockEntities.add(be);
+        pandoraCore$instancableBlockEntities.add(be);
     }
 
     @Override
     public List<BlockEntity> getAll() {
-        return instancableBlockEntities;
+        return pandoraCore$instancableBlockEntities;
     }
 
     @Override
     public void addAll(List<BlockEntity> all) {
-        instancableBlockEntities.addAll(all);
+        pandoraCore$instancableBlockEntities.addAll(all);
     }
 }

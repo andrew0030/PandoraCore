@@ -1,8 +1,8 @@
 package com.github.andrew0030.pandora_core.modules.templater.mixin.vanilla;
 
-import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
-import com.github.andrew0030.pandora_core.modules.templater.loader.impl.VanillaTemplateLoader;
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
+import com.github.andrew0030.pandora_core.modules.templater.loader.impl.VanillaTemplateLoader;
+import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import com.mojang.blaze3d.shaders.Program;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -18,14 +18,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ShaderInstance.class)
 public class ShaderInstance_CacheSrc_CondBindableMixin implements IPaCoConditionallyBindable {
-    @Shadow
-    private static int lastProgramId;
-
-    @Shadow
-    @Final
-    private int programId;
-
+    @Shadow private static int lastProgramId;
     @Shadow private static ShaderInstance lastAppliedShader;
+    @Shadow @Final private int programId;
+    @Unique boolean pandoraCore$disableBind = false;
 
     @Inject(at = @At("HEAD"), method = "getOrCreate")
     private static void preGetOrCreate(ResourceProvider pResourceProvider, Program.Type pProgramType, String pName, CallbackInfoReturnable<Program> cir) {
@@ -39,9 +35,6 @@ public class ShaderInstance_CacheSrc_CondBindableMixin implements IPaCoCondition
             VanillaTemplateLoader.activeFile("unknown", pName);
         }
     }
-
-    @Unique
-    boolean pandoraCore$disableBind = false;
 
     @Inject(at = @At("HEAD"), method = "apply")
     public void preApply(CallbackInfo ci) {

@@ -12,25 +12,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Uniform.class)
 public abstract class UniformMixin implements IPacoDirtyable, IPaCoModTracker {
-	@Shadow
-	protected abstract void markDirty();
-	
-	@Shadow
-	private boolean dirty;
-	
+	@Shadow protected abstract void markDirty();
+	@Shadow private boolean dirty;
+	@Unique int pandoraCore$modCount = 0;
+	@Unique boolean pandoraCore$shouldTrack = false;
+	@Unique boolean pandoraCore$wasDirty = false;
+	@Unique boolean pandoraCore$changed = false;
+
 	@Override
 	public void pandoraCore$markDirty() {
 		markDirty();
 	}
-	
-	@Unique
-	int pandoraCore$modCount = 0;
-	@Unique
-	boolean pandoraCore$shouldTrack = false;
-	@Unique
-	boolean pandoraCore$wasDirty = false;
-	@Unique
-	boolean pandoraCore$changed = false;
 	
 	@Inject(at = @At("HEAD"), method = "markDirty")
 	public void preMarkDirty(CallbackInfo ci) {

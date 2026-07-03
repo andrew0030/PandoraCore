@@ -11,17 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = ShaderUniformBase.class, remap = false)
 public abstract class ShaderUBaseAccessor implements ILocationedObject {
-	@Shadow
-	public abstract int getLocation();
-	
-	@Shadow
-	private int[] locations;
-	@Shadow
-	private int program;
-	@Unique
-	int pandoraCore$vLoc = -1;
-	@Unique
-	int pandoraCore$rLoc = 0;
+	@Shadow public abstract int getLocation();
+	@Unique int pandoraCore$vLoc = -1;
+	@Unique int pandoraCore$rLoc = 0;
 	
 	@Override
 	public void pandoraCore$virtualLocation(int location) {

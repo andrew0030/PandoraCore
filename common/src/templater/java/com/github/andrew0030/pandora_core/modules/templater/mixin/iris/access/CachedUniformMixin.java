@@ -12,17 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = CachedUniform.class, remap = false)
 public class CachedUniformMixin implements IPacoDirtyable, IPaCoModTracker {
-	@Shadow
-	private boolean changed;
-	
-	@Unique
-	int pandoraCore$modCount = 0;
-	@Unique
-	boolean pandoraCore$shouldTrack = false;
-	@Unique
-	boolean pandoraCore$wasDirty = false;
-	@Unique
-	boolean pandoraCore$changed = false;
+	@Shadow private boolean changed;
+	@Unique int pandoraCore$modCount = 0;
+	@Unique boolean pandoraCore$shouldTrack = false;
+	@Unique boolean pandoraCore$wasDirty = false;
+	@Unique boolean pandoraCore$changed = false;
 	
 	@Override
 	public void pandoraCore$markDirty() {
@@ -47,7 +41,6 @@ public class CachedUniformMixin implements IPacoDirtyable, IPaCoModTracker {
 	public void pandoraCore$release() {
 		changed = pandoraCore$wasDirty || pandoraCore$changed;
 	}
-	
 	
 	@Override
 	public int pandoraCore$mod() {

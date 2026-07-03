@@ -36,11 +36,8 @@ import java.util.SortedSet;
 
 @Mixin(value = SodiumWorldRenderer.class, remap = false)
 public class SodiumRendererMixin implements SodiumRendererAccessor {
-    @Shadow
-    private ClientLevel world;
-
-    @Shadow
-    private RenderSectionManager renderSectionManager;
+    @Shadow private ClientLevel world;
+    @Shadow private RenderSectionManager renderSectionManager;
 
     @Inject(at = @At("HEAD"), method = "renderBlockEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderBuffers;Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;Lnet/minecraft/client/Camera;F)V")
     public void preRenderBEs(PoseStack matrices, RenderBuffers bufferBuilders, Long2ObjectMap<SortedSet<BlockDestructionProgress>> blockBreakingProgressions, Camera camera, float tickDelta, CallbackInfo ci) {

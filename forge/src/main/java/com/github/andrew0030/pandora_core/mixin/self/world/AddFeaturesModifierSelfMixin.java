@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public class AddFeaturesModifierSelfMixin implements IPaCoForgeModifierConverter {
 
     @Override
-    public BiomeModifier convertToForgeModifier() {
+    public BiomeModifier pandoraCore$convertToForgeModifier() {
         AddFeaturesModifier modifier = (AddFeaturesModifier) (Object) this;
         return new ForgeBiomeModifiers.AddFeaturesBiomeModifier(modifier.biomes(), modifier.features(), modifier.step());
     }

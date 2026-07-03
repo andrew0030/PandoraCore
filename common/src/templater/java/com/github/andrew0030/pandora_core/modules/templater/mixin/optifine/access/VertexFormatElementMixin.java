@@ -8,9 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(VertexFormatElement.class)
 public class VertexFormatElementMixin implements IVertexFormatElementAccess {
-	@Shadow
-	@Final
-	private int index;
+	@Shadow @Final private int index;
 	
 	@Override
 	public int pandoraCore$getIndex() {

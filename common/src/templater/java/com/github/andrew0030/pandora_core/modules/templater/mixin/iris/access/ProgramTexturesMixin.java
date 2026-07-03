@@ -5,9 +5,6 @@ import com.google.common.collect.ImmutableList;
 import net.irisshaders.iris.gl.image.ImageBinding;
 import net.irisshaders.iris.gl.program.GlUniform1iCall;
 import net.irisshaders.iris.gl.program.ProgramImages;
-import net.irisshaders.iris.gl.program.ProgramSamplers;
-import net.irisshaders.iris.gl.sampler.SamplerBinding;
-import net.irisshaders.iris.gl.state.ValueUpdateNotifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -19,10 +16,8 @@ import java.util.List;
 
 @Mixin(ProgramImages.class)
 public class ProgramTexturesMixin implements IPacoInitCachable<List<GlUniform1iCall>> {
-	@Shadow
-	private List<GlUniform1iCall> initializer;
-	@Unique
-	private List<GlUniform1iCall> pandoraCore$trueInitializer;
+	@Shadow private List<GlUniform1iCall> initializer;
+	@Unique private List<GlUniform1iCall> pandoraCore$trueInitializer;
 	
 	@Inject(at = @At("TAIL"), method = "<init>")
 	public void postInit(ImmutableList<ImageBinding> imageBindings, List<GlUniform1iCall> initializer, CallbackInfo ci) {

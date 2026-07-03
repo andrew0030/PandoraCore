@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.modules.templater.mixin.optifine.dbg;
 
-import com.github.andrew0030.pandora_core.test.InstancingTestBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.utils.debug.RenderDebugger;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;

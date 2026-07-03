@@ -5,23 +5,16 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.irisshaders.iris.gl.IrisRenderSystem;
-import net.irisshaders.iris.gl.uniform.FloatSupplier;
 import net.irisshaders.iris.gl.uniform.FloatUniform;
-import net.irisshaders.iris.gl.uniform.Uniform;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(value = FloatUniform.class, remap = false)
 public class FloatUMixin implements IPaCoPainReducer {
-	@Shadow
-	private float cachedValue;
-	@Shadow
-	@Final
-	private FloatSupplier value;
-	private boolean cacheNulled = false;
+	@Shadow private float cachedValue;
+	@Unique private boolean pandoraCore$cacheNulled = false;
 	
 	@Override
 	public Object getCachedValue() {
@@ -31,9 +24,9 @@ public class FloatUMixin implements IPaCoPainReducer {
 	@Override
 	public void setCachedValue(Object object) {
 		if (object == null) {
-			cacheNulled = true;
+			pandoraCore$cacheNulled = true;
 		} else {
-			cacheNulled = false;
+			pandoraCore$cacheNulled = false;
 			cachedValue = (float) object;
 		}
 	}
@@ -46,7 +39,6 @@ public class FloatUMixin implements IPaCoPainReducer {
 			at = @At(value = "MIXINEXTRAS:EXPRESSION")
 	)
 	private boolean updateValue(boolean original) {
-		return cacheNulled || original;
+		return pandoraCore$cacheNulled || original;
 	}
 }
-

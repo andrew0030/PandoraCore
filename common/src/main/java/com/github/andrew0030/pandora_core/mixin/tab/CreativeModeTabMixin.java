@@ -23,7 +23,6 @@ import java.util.Set;
 /* https://github.com/FabricMC/fabric/blob/1.20.1/fabric-item-group-api-v1/src/main/java/net/fabricmc/fabric/mixin/itemgroup/ItemGroupMixin.java */
 @Mixin(CreativeModeTab.class)
 public class CreativeModeTabMixin {
-
     @Shadow private Collection<ItemStack> displayItems;
     @Shadow private Set<ItemStack> displayItemsSearchTab;
 

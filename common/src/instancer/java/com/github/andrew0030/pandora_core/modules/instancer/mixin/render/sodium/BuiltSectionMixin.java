@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.In
 import me.jellysquid.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 @Mixin(BuiltSectionInfo.class)
 public class BuiltSectionMixin implements InstancingResults {
 //    public BlockEntity @Nullable [] instancableBlockEntities;
-    public List<BlockEntity> instancableBlockEntities = new ArrayList<>();
+    @Unique public List<BlockEntity> pandoraCore$instancableBlockEntities = new ArrayList<>();
 
     @Override
     public void addInstancer(BlockEntity be) {
@@ -20,11 +21,11 @@ public class BuiltSectionMixin implements InstancingResults {
 
     @Override
     public List<BlockEntity> getAll() {
-        return instancableBlockEntities;
+        return pandoraCore$instancableBlockEntities;
     }
 
     @Override
     public void addAll(List<BlockEntity> all) {
-        this.instancableBlockEntities = all;
+        this.pandoraCore$instancableBlockEntities = all;
     }
 }

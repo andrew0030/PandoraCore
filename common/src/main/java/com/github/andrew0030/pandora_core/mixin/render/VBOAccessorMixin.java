@@ -9,17 +9,10 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(VertexBuffer.class)
 public class VBOAccessorMixin implements IPaCoAccessibleVBO {
-    @Shadow
-    private VertexFormat.IndexType indexType;
-
-    @Shadow
-    private int indexCount;
-
-    @Shadow
-    private VertexFormat.Mode mode;
-
+    @Shadow private VertexFormat.IndexType indexType;
+    @Shadow private int indexCount;
+    @Shadow private VertexFormat.Mode mode;
     @Shadow @Final private VertexBuffer.Usage usage;
-
     @Shadow private int vertexBufferId;
 
     @Override

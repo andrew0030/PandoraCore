@@ -8,8 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(MatrixUniform.class)
 public class MatrixUMixin implements IPaCoPainReducer {
-	@Shadow
-	private Matrix4f cachedValue;
+	@Shadow private Matrix4f cachedValue;
 	
 	@Override
 	public Object getCachedValue() {

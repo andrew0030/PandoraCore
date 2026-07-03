@@ -33,13 +33,8 @@ import javax.annotation.Nullable;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
-	@Shadow
-	@Final
-	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
-	
-	@Shadow
-	@Nullable
-	private ClientLevel level;
+	@Shadow @Final private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
+	@Shadow @Nullable private ClientLevel level;
 	
 	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
 	public void preRenderEnts(PoseStack stack, float pct, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {

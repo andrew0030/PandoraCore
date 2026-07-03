@@ -17,10 +17,8 @@ import java.util.List;
 
 @Mixin(ProgramSamplers.class)
 public class ProgramSamplersMixin implements IPacoInitCachable<List<GlUniform1iCall>> {
-	@Shadow
-	private List<GlUniform1iCall> initializer;
-	@Unique
-	private List<GlUniform1iCall> pandoraCore$trueInitializer;
+	@Shadow private List<GlUniform1iCall> initializer;
+	@Unique private List<GlUniform1iCall> pandoraCore$trueInitializer;
 	
 	@Inject(at = @At("TAIL"), method = "<init>")
 	public void postInit(ImmutableList<SamplerBinding> samplerBindings, ImmutableList<ValueUpdateNotifier> notifiersToReset, List<GlUniform1iCall> initializer, CallbackInfo ci) {

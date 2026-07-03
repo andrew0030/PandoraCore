@@ -12,9 +12,7 @@ import java.util.List;
 
 @Mixin(CustomUniforms.class)
 public class CustomUniformsMixin implements IPaCoModTrackerListable {
-	@Shadow
-	@Final
-	private List<CachedUniform> uniforms;
+	@Shadow @Final private List<CachedUniform> uniforms;
 	
 	@Override
 	public Iterable<IPaCoModTracker> pandoraCore$listTrackers() {

@@ -13,22 +13,10 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ExtendedShader.class)
 public class ExtendedProgramMixin implements IPacoAccessInitializables, IPacoCustomUniformAccessor {
-    @Shadow
-    @Final
-    private ProgramSamplers samplers;
-
-    @Shadow
-    @Final
-    private ProgramImages images;
-
-
-    @Shadow
-    @Final
-    private ProgramUniforms uniforms;
-	
-	@Shadow
-	@Final
-	private CustomUniforms customUniforms;
+    @Shadow @Final private ProgramSamplers samplers;
+    @Shadow @Final private ProgramImages images;
+    @Shadow @Final private ProgramUniforms uniforms;
+	@Shadow @Final private CustomUniforms customUniforms;
 	
 	@Override
     public ProgramSamplers pandoraCore$getSamplers() {

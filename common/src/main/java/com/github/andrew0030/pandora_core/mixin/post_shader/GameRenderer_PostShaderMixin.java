@@ -20,7 +20,7 @@ import java.io.IOException;
 
 @Mixin(GameRenderer.class)
 public class GameRenderer_PostShaderMixin {
-    private static final @Unique Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "GameRenderer_PostShaderMixin");
+    private static final @Unique Logger pandoraCore$LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "GameRenderer_PostShaderMixin");
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     public void initPaCoPostShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
@@ -53,9 +53,9 @@ public class GameRenderer_PostShaderMixin {
                 holder.setPostChain(new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), minecraft.getMainRenderTarget(), holder.getResourceLocation()));
                 holder.getPostChain().resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
             } catch (IOException iOException) {
-                LOGGER.warn("Failed to load post shader: {}", holder.getResourceLocation(), iOException);
+                pandoraCore$LOGGER.warn("Failed to load post shader: {}", holder.getResourceLocation(), iOException);
             } catch (JsonSyntaxException jsonSyntaxException) {
-                LOGGER.warn("Failed to parse post shader: {}", holder.getResourceLocation(), jsonSyntaxException);
+                pandoraCore$LOGGER.warn("Failed to parse post shader: {}", holder.getResourceLocation(), jsonSyntaxException);
             }
         }
     }

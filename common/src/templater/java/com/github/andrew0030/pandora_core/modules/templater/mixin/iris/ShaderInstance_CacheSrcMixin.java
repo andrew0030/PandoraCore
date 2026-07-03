@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,14 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ShaderInstance.class)
 public class ShaderInstance_CacheSrcMixin {
-    @Shadow
-    private static int lastProgramId;
-    @Shadow private static ShaderInstance lastAppliedShader;
-
     // while this is tracked by vanilla
-    // I'm making a copy of it as a safety incase another mod messes with it
-    @Unique
-    String pandoraCore$cacheName;
+    // I'm making a copy of it as a safety, just in case another mod messes with it
+    @Unique String pandoraCore$cacheName;
 
     @Inject(at = @At("TAIL"), method = "<init>")
     public void postInit(ResourceProvider resourceProvider, String name, VertexFormat vertexFormat, CallbackInfo ci) {

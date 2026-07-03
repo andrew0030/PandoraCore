@@ -1,21 +1,17 @@
 package com.github.andrew0030.pandora_core.modules.templater.mixin.iris;
 
+import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.github.andrew0030.pandora_core.modules.templater.loader.impl.iris.IrisTemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.IrisTemplatedShader;
-import com.github.andrew0030.pandora_core.mixin_interfaces.shader.core.IPaCoConditionallyBindable;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.gl.blending.AlphaTest;
 import net.irisshaders.iris.gl.blending.BlendModeOverride;
 import net.irisshaders.iris.gl.framebuffer.GlFramebuffer;
-import net.irisshaders.iris.gl.program.ProgramImages;
-import net.irisshaders.iris.gl.program.ProgramSamplers;
-import net.irisshaders.iris.gl.program.ProgramUniforms;
 import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
 import net.irisshaders.iris.pipeline.programs.ExtendedShader;
 import net.irisshaders.iris.uniforms.custom.CustomUniforms;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,20 +24,7 @@ import java.util.function.Consumer;
 
 @Mixin(ExtendedShader.class)
 public class ExtendedShader_CacheShaders_CondBindMixin {
-    @Shadow
-    private static ExtendedShader lastApplied;
-
-    @Shadow
-    @Final
-    private ProgramSamplers samplers;
-
-    @Shadow
-    @Final
-    private ProgramImages images;
-
-    @Shadow
-    @Final
-    private ProgramUniforms uniforms;
+    @Shadow private static ExtendedShader lastApplied;
 
     @Inject(at = @At("TAIL"), method = "<init>")
     public void postInit(ResourceProvider resourceFactory, String string, VertexFormat vertexFormat, boolean usesTessellation, GlFramebuffer writingToBeforeTranslucent, GlFramebuffer writingToAfterTranslucent, BlendModeOverride blendModeOverride, AlphaTest alphaTest, Consumer uniformCreator, BiConsumer samplerCreator, boolean isIntensity, IrisRenderingPipeline parent, List bufferBlendOverrides, CustomUniforms customUniforms, CallbackInfo ci) {

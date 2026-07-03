@@ -8,6 +8,7 @@ import net.irisshaders.iris.gl.uniform.Uniform;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,35 +16,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ProgramUniforms.class)
 public abstract class ProgramUniformsMixin implements IPacoInitCachable<ImmutableList<Uniform>>, IPaCoFrameTickAccessor {
     @Shadow private ImmutableList<Uniform> once;
-	@Shadow
-	private long lastTick;
-	@Shadow
-	private int lastFrame;
-	@Shadow
-	@Final
-	private ImmutableList<Uniform> perFrame;
-	@Shadow
-	@Final
-	private ImmutableList<Uniform> perTick;
-	@Shadow
-	@Final
-	private ImmutableList<Uniform> dynamic;
-	
-	@Shadow
-	protected static long getCurrentTick() {
+	@Shadow long lastTick;
+	@Shadow int lastFrame;
+	@Shadow @Final private ImmutableList<Uniform> perFrame;
+	@Shadow @Final private ImmutableList<Uniform> perTick;
+	@Shadow @Final private ImmutableList<Uniform> dynamic;
+	@Shadow private static long getCurrentTick() {
 		throw new RuntimeException("");
 	}
-	
-	private ImmutableList<Uniform> cacheOnce;
+	@Unique private ImmutableList<Uniform> pandoraCore$cacheOnce;
 
 	@Inject(at = @At("TAIL"), method = "<init>")
 	public void postInit(ImmutableList once, ImmutableList perTick, ImmutableList perFrame, ImmutableList dynamic, ImmutableList notifiersToReset, CallbackInfo ci) {
-		cacheOnce = once;
+		pandoraCore$cacheOnce = once;
 	}
 	
     @Override
     public ImmutableList<Uniform> pandoraCore$getInitializer() {
-        return cacheOnce;
+        return pandoraCore$cacheOnce;
     }
 	
 	@Override

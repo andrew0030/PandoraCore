@@ -1,41 +1,22 @@
 package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.optifine;
 
-import com.github.andrew0030.pandora_core.modules.instancer.compat.InstancerHooks;
-import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
-import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
-import com.github.andrew0030.pandora_core.modules.instancer.itf.OptifineInstanceListAccessor;
-import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.BlockEntityTypeAttachments;
-import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.InstancingResults;
-import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
-import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Camera;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.optifine.shaders.ShadersRender;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 @Mixin(ShadersRender.class)
 public class ShadowMapMixin {
-	private static float spct;
-	private static Camera camera;
-	private static PoseStack stack;
+	@Unique private static float pandoraCore$spct;
+	@Unique private static Camera pandoraCore$camera;
+	@Unique private static PoseStack pandoraCore$stack;
 	
 	@WrapOperation(
 			method = "renderShadowMap",
@@ -45,9 +26,9 @@ public class ShadowMapMixin {
 	private static void matrix(
 			PoseStack matrixStack, Camera activeRenderInfo, float partialTicks, Operation<Void> original
 	) {
-		stack = matrixStack;
-		spct = partialTicks;
-		camera = activeRenderInfo;
+		pandoraCore$stack = matrixStack;
+		pandoraCore$spct = partialTicks;
+		pandoraCore$camera = activeRenderInfo;
 		
 		original.call(matrixStack, activeRenderInfo, partialTicks);
 	}

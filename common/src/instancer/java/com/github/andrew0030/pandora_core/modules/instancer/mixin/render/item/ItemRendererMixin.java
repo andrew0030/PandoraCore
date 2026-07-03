@@ -25,8 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin {
-	@Unique
-	private final ItemDrawData pandoraCore$data = new ItemDrawData();
+	@Unique private final ItemDrawData pandoraCore$data = new ItemDrawData();
 	
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/model/BakedModel;isCustomRenderer()Z"), method = "render")
 	public void preCheckCustomRenderer(ItemStack itemStack, ItemDisplayContext displayContext, boolean leftHand, PoseStack poseStack, MultiBufferSource buffer, int combinedLight, int combinedOverlay, BakedModel model, CallbackInfo ci) {

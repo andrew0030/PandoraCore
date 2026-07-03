@@ -12,9 +12,7 @@ import java.util.List;
 
 @Mixin(ShaderInstance.class)
 public class ShaderInstanceMixin implements IPaCoUniformListable {
-    @Shadow
-    @Final
-    private List<Uniform> uniforms;
+    @Shadow @Final private List<Uniform> uniforms;
 
     @Override
     public Iterable<AbstractUniform> pandoraCore$listUniforms() {

@@ -24,11 +24,7 @@ import java.util.List;
 
 @Mixin(value = Shaders.class, remap = false)
 public abstract class ShadersMixin {
-	@Shadow
-	public static int activeProgramID;
-	
-	@Shadow
-	public static int checkGLError(String location) {
+	@Shadow public static int checkGLError(String location) {
 		throw new RuntimeException("");
 	}
 	

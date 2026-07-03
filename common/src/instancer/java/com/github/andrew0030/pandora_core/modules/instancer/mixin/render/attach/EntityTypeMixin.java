@@ -8,8 +8,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(EntityType.class)
 public class EntityTypeMixin implements EntityTypeAttachments {
-    @Unique
-    InstancedEntityRenderer<?> pandoraCore$renderer;
+    @Unique InstancedEntityRenderer<?> pandoraCore$renderer;
 
     @Override
     public void pandoraCore$setInstancedRenderer(InstancedEntityRenderer<?> renderer) {

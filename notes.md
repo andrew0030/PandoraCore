@@ -26,9 +26,11 @@ Systems TODO:
   - [ ] Value setters (needed behind the scenes to modify values ingame)
   - [ ] More annotations that can be used to control how certain entries should affect the game/menu
   - [ ] Add TranslatableComponent support for entry description and key
+  - [ ] Add support for loading configs from a `defaultconfigs` folder
   - [ ] Maybe add some sort of wrapper for forge's config system
   - [x] Maybe add support for custom Objects?
   - [x] Maybe add support for lists of custom Objects?
+  - [ ] Maybe add support for per-world configs
 - NetworkSystem
   - [x] Implement network system made by GiantLuigi4
   - [x] Swap to platform services instead of self mixin

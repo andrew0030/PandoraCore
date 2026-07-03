@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(VertexBuffer.Usage.class)
 public class UsageAccessorMixin implements IPaCoAccessibleUsage {
-    @Shadow @Final private int id;
+    @Shadow @Final int id;
 
     @Override
     public int pandoraCore$id() {

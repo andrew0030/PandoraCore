@@ -8,8 +8,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(BlockEntityType.class)
 public class BlockEntityTypeMixin implements BlockEntityTypeAttachments {
-    @Unique
-    InstancedBlockEntityRenderer<?> pandoraCore$renderer;
+    @Unique InstancedBlockEntityRenderer<?> pandoraCore$renderer;
 
     @Override
     public void pandoraCore$setInstancedRenderer(InstancedBlockEntityRenderer<?> renderer) {

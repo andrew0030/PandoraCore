@@ -4,7 +4,7 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.buttons.ModsFilterButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModImageManager;
-import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
+import com.github.andrew0030.pandora_core.client.gui.edit_boxes.ModsSearchEditBox;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.PaCoContentPanelManager;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BaseClickableElement;
 import com.github.andrew0030.pandora_core.client.gui.sliders.FocusRectangleMode;
@@ -32,7 +32,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
@@ -60,7 +59,7 @@ public class PaCoScreen extends Screen {
     // Widgets
     private final List<Renderable> modPanelButtons = new ArrayList<>();
     private final List<BaseClickableElement> contentPanelButtons = new ArrayList<>();
-    public PaCoEditBox searchBox;
+    public ModsSearchEditBox searchBox;
     public ModsFilterButton filterButton;
     public PaCoSlider modsScrollBar;
     public ModButton selectedModButton;
@@ -165,10 +164,14 @@ public class PaCoScreen extends Screen {
         this.modsScrollBar = null;
         this.contentScrollBar = null;
         // Search Box
-        this.searchBox = new PaCoEditBox(this.font, 7, this.menuHeightStart + 2, this.modsPanelWidth - 27, 14, SEARCH, this);
+        this.searchBox = new ModsSearchEditBox(this.font, 7, this.menuHeightStart + 2, this.modsPanelWidth - 27, 14, SEARCH, this);
         this.searchBox.setMaxLength(50);
         this.searchBox.setHint(SEARCH);
         this.searchBox.setTextColor(DARK_GRAY_TEXT_COLOR);
+        this.searchBox.setBackgroundHidden(true);
+        this.searchBox.setRimHidden(true);
+        this.searchBox.setForceLineIndicator(true);
+        this.searchBox.setMidpointCharSelection(true);
         this.addWidget(this.searchBox);
         // Filter Button
         this.filterButton = new ModsFilterButton(this.modsPanelWidth - 18, this.menuHeightStart, this);
@@ -367,14 +370,6 @@ public class PaCoScreen extends Screen {
             this.onClose();
             return true;
         }
-
-        //TODO remove when done testing
-        if (keyCode == GLFW.GLFW_KEY_E) {
-            if (this.minecraft != null && this.selectedModButton != null) {
-                this.selectedModButton.getModDataHolder().getConfigScreen(this.minecraft, this).ifPresent(configScreen -> this.minecraft.setScreen(configScreen));
-            }
-        }
-
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 

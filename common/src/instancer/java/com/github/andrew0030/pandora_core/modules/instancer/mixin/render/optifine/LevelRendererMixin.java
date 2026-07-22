@@ -27,10 +27,13 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.joml.Matrix4f;
+import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
@@ -40,10 +43,14 @@ import java.util.List;
 public class LevelRendererMixin implements OptifineInstanceListAccessor {
 	@Shadow @Nullable private ClientLevel level;
 	
+	@Shadow
+	@Final
+	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
+	
 	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
 	public void preRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
-		if (ShaderChecker.isShaderActive()) return;
-		
+//		if (ShaderChecker.isShaderActive()) return;
+
 		PaCoRenderState.setupWorld();
 
 		Lighting.setupLevel(RenderSystem.getModelViewMatrix());
@@ -55,9 +62,9 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
 		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
 		RenderSystem.applyModelViewMatrix();
-		
+
 		InstancerHooks.preStartInstancing();
-		
+
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
 //		// TODO: optimize this loop
@@ -73,9 +80,9 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 			}
 		}
 		manager.drawFrame((PacoInstancingLevel) level);
-		
+
 		InstancerHooks.postEndInstancing();
-		
+
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();
 
@@ -84,10 +91,10 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		PaCoRenderState.ACTIVE_ENVIRONMENT = (PacoInstancingLevel) level;
 		manager.markFrame();
 	}
-	
+
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch(Lnet/minecraft/client/renderer/RenderType;)V", ordinal = 3, shift = At.Shift.AFTER), method = "renderLevel")
 	public void postRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
-		if (ShaderChecker.isShaderActive()) return;
+//		if (ShaderChecker.isShaderActive()) return;
 
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.drawFrame((PacoInstancingLevel) level);
@@ -95,12 +102,12 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 
 		PaCoRenderState.ACTIVE_ENVIRONMENT = null;
 	}
-	
+
 //	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderInfosTileEntities:Ljava/util/List;", ordinal = 0), method = "renderLevel")
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/blockentity/SignRenderer;updateTextRenderDistance()V", ordinal = 0, shift = At.Shift.AFTER), method = "renderLevel")
 	public void preRenderBlockEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
-		if (ShaderChecker.isShaderActive()) return;
-		
+//		if (ShaderChecker.isShaderActive()) return;
+
 		PaCoRenderState.setupWorld();
 
 		Lighting.setupLevel(RenderSystem.getModelViewMatrix());
@@ -112,12 +119,12 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		RenderSystem.getModelViewStack().last().pose().mul(stack.last().pose());
 		RenderSystem.getModelViewStack().last().normal().mul(stack.last().normal());
 		RenderSystem.applyModelViewMatrix();
-		
+
 		InstancerHooks.preStartInstancing();
-		
+
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
-		List<LevelRenderer.RenderChunkInfo> infs = this.renderInfosInstancer;
+		List<LevelRenderer.RenderChunkInfo> infs = this.renderChunksInFrustum;
 		for (
 				LevelRenderer.RenderChunkInfo info : infs
 		) {
@@ -132,50 +139,50 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 			}
 		}
 		manager.drawFrame((PacoInstancingLevel) level);
-		
+
 		InstancerHooks.postEndInstancing();
-		
+
 		RenderSystem.getModelViewStack().popPose();
 		RenderSystem.applyModelViewMatrix();
 
 		PaCoRenderState.resetInstancerState();
 	}
-	
+
 	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancer = new ObjectArrayList<>(1024);
 	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancerNormal = new ObjectArrayList<>(1024);
 	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancerShadow = new ObjectArrayList<>(1024);
-	
-	@WrapOperation(
-			method = "applyFrustum",
-			at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer$RenderChunkInfo;chunk:Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;", remap = true),
-			remap = false
-	)
-	public ChunkRenderDispatcher.RenderChunk wrapGetChunk(
-			LevelRenderer.RenderChunkInfo inf,
-			Operation<ChunkRenderDispatcher.RenderChunk> original
-	) {
-		ChunkRenderDispatcher.RenderChunk chnk = original.call(inf);
-		ChunkRenderDispatcher.CompiledChunk instance = chnk.getCompiledChunk();
-		
-		if (!((InstancingResults) instance).getAll().isEmpty()) {
-			renderInfosInstancer.add(inf);
-		}
-		
-		return chnk;
-	}
-	
-	@Inject(
-			method = "applyFrustum",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;clearRenderInfosTerrain()V", remap = true),
-			remap = false
-	)
-	public void doClear(
-			Frustum frustumIn, boolean updateRenderInfos, int maxChunkDistance,
-			CallbackInfo ci
-	) {
-		renderInfosInstancer.clear();
-	}
-	
+
+//	@WrapOperation(
+//			method = "applyFrustum",
+//			at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer$RenderChunkInfo;chunk:Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;", remap = true),
+//			remap = false
+//	)
+//	public ChunkRenderDispatcher.RenderChunk wrapGetChunk(
+//			LevelRenderer.RenderChunkInfo inf,
+//			Operation<ChunkRenderDispatcher.RenderChunk> original
+//	) {
+//		ChunkRenderDispatcher.RenderChunk chnk = original.call(inf);
+//		ChunkRenderDispatcher.CompiledChunk instance = chnk.getCompiledChunk();
+//
+//		if (!((InstancingResults) instance).getAll().isEmpty()) {
+//			renderInfosInstancer.add(inf);
+//		}
+//
+//		return chnk;
+//	}
+
+//	@Inject(
+//			method = "applyFrustum",
+//			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;clearRenderInfosTerrain()V", remap = true),
+//			remap = false
+//	)
+//	public void doClear(
+//			Frustum frustumIn, boolean updateRenderInfos, int maxChunkDistance,
+//			CallbackInfo ci
+//	) {
+//		renderInfosInstancer.clear();
+//	}
+
 	@Inject(
 			at = @At("TAIL"),
 			method = "clearRenderInfos",
@@ -184,7 +191,7 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 	public void postClear(CallbackInfo ci) {
 		renderInfosInstancer.clear();
 	}
-	
+
 	@Inject(
 			at = @At("TAIL"),
 			method = "setShadowRenderInfos",

@@ -150,7 +150,7 @@ public class OFTemplatedProgram extends BaseProgram {
 		RenderSystem.setShader(GameRenderer::getRendertypeEntitySolidShader);
 		Shaders.useProgram(from);
 
-		OptifineAccessor.bindGbuffersTextures();
+//		OptifineAccessor.bindGbuffersTextures();
 
 		if (postBind != null)
 			postBind.run();

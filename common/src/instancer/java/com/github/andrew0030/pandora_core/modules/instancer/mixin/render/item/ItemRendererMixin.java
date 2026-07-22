@@ -29,7 +29,7 @@ public class ItemRendererMixin {
 	
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/model/BakedModel;isCustomRenderer()Z"), method = "render")
 	public void preCheckCustomRenderer(ItemStack itemStack, ItemDisplayContext displayContext, boolean leftHand, PoseStack poseStack, MultiBufferSource buffer, int combinedLight, int combinedOverlay, BakedModel model, CallbackInfo ci) {
-		if (OptifineAccessor.optifinePresent && (!PaCoRenderState.isGUI() && ShaderChecker.isShaderActive())) return;
+//		if (OptifineAccessor.optifinePresent && (!PaCoRenderState.isGUI() && ShaderChecker.isShaderActive())) return;
 		
 		Item item = itemStack.getItem();
 		ItemAttachments attch = (ItemAttachments) item;

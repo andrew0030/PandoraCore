@@ -161,8 +161,11 @@ public class InstanceData {
     }
 
     public void close() {
+		if (glBuffer == -1) return;
+		
         GlStateManager._glDeleteBuffers(glBuffer);
 	    MemoryUtil.nmemFree(MemoryUtil.memAddress(buffer));
+	    glBuffer = -1;
     }
 
     public int drawCount() {

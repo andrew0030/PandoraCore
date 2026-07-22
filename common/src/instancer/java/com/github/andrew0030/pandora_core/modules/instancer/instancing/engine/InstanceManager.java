@@ -8,35 +8,44 @@ import net.minecraft.world.level.Level;
 
 import java.lang.ref.Cleaner;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class InstanceManager {
+	AtomicBoolean FREE = new AtomicBoolean(false);
     Map<InstanceRenderer, BatchData> data = new HashMap<>();
     Map<InstanceRenderer, BatchData> thisFrame = new HashMap();
 	Set<InstanceRenderer> nullInvoke = new HashSet<>();
 
     static class DoClean implements Runnable {
+	    AtomicBoolean FREE;
         Map<InstanceRenderer, BatchData> data = new HashMap<>();
         Map<InstanceRenderer, BatchData> thisFrame = new HashMap();
 
-        public DoClean(Map<InstanceRenderer, BatchData> data, Map<InstanceRenderer, BatchData> thisFrame) {
+        public DoClean(AtomicBoolean FREE, Map<InstanceRenderer, BatchData> data, Map<InstanceRenderer, BatchData> thisFrame) {
+			this.FREE = FREE;
             this.data = data;
             this.thisFrame = thisFrame;
         }
 
         @Override
         public void run() {
-//            System.out.println("CLEANING!");
-            Minecraft.getInstance().execute(() -> {
-                for (BatchData value : data.values()) {
-                    value.close();
-                }
-                // here more so for safety reasons
-                Set<BatchData> datas = new HashSet<>(data.values());
-                for (BatchData value : thisFrame.values()) {
-                    if (!datas.contains(value))
-                        value.close();
-                }
-            });
+			synchronized (FREE) {
+				if (FREE.get()) return;
+				FREE.set(true);
+				
+//	            System.out.println("CLEANING!");
+				Minecraft.getInstance().execute(() -> {
+					for (BatchData value : data.values()) {
+						value.close();
+					}
+					// here more so for safety reasons
+					Set<BatchData> datas = new HashSet<>(data.values());
+					for (BatchData value : thisFrame.values()) {
+						if (!datas.contains(value))
+							value.close();
+					}
+				});
+			}
         }
     }
 
@@ -44,7 +53,7 @@ public class InstanceManager {
 
     public InstanceManager() {
         cleanable = CleanupUtils.registerCleanup(this, new DoClean(
-                data, thisFrame
+                FREE, data, thisFrame
         ));
     }
 

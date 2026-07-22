@@ -26,7 +26,7 @@ public class Vector3UMixin implements IPaCoPainReducer {
 	public void setCachedValue(Object object) {
 		float[] obj = (float[]) object;
 		if (object == null) {
-//			cacheNulled = true;
+			pandoraCore$cacheNulled = true;
 			programValues[((ShaderUniformBase) (Object) this).getProgram()] = new float[3];
 		} else {
 			pandoraCore$cacheNulled = false;
@@ -42,6 +42,9 @@ public class Vector3UMixin implements IPaCoPainReducer {
 			at = @At(value = "MIXINEXTRAS:EXPRESSION")
 	)
 	private boolean updateValue(boolean original) {
+		if (pandoraCore$cacheNulled) {
+			System.out.println("FIRST SET");
+		}
 		return pandoraCore$cacheNulled || original;
 	}
 }

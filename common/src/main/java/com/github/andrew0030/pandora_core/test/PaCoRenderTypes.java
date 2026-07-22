@@ -15,7 +15,7 @@ public class PaCoRenderTypes {
     public static final ShaderWrapper fail = TemplateManager.getWrapper(new ResourceLocation("pandora_core:shaders/paco/templated/fail"));
 
     public static final PaCoShaderStateShard shaderStateShard = new PaCoShaderStateShard(shader);
-
+	
     public static final RenderType type = RenderType.create(
             "pandora_core:test",
             DefaultVertexFormat.NEW_ENTITY,

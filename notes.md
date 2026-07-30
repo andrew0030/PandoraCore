@@ -165,6 +165,7 @@ Systems TODO:
   - [x] Entity instancer
   - [ ] Particle instancer
   - [ ] Potential future rewrite?
+  - [ ] Placing an instanced item into an item frame causes the item frame lighting to change/break
 - Templater
   - [ ] The `OperationVisitor` logs the following error: "_Unrecognized operation! %_", probably due to `fail.vsh`, investigate...
 - Uniform Holder

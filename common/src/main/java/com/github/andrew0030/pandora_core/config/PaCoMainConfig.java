@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.config;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BooleanButtonEntry;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.ConfigType;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
@@ -62,6 +63,7 @@ public class PaCoMainConfig {
             There should be a category under this entry.
             This is the last boolean value before declared classes.
             """)
+    @PaCoConfigValues.GuiEntryType(BooleanButtonEntry.class)
     @PaCoConfigValues.BooleanValue
     public static boolean lastBoolean = false;
 

@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.config.annotation.annotations;
 
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
 import com.github.andrew0030.pandora_core.config.manager.IPaCoConfigConverter;
 
 import java.lang.annotation.ElementType;
@@ -105,5 +106,11 @@ public class PaCoConfigValues {
     public @interface Comment {
         String value();
         int padding() default 1;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface GuiEntryType {
+        Class<? extends BaseConfigEntry> value();
     }
 }

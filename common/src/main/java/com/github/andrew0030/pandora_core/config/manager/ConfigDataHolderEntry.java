@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.function.Function;
 
 public class ConfigDataHolderEntry extends ConfigDataHolder {
-
     private final Field field;
     private Function<Object, Object> converter;
     private List<String> validValues;

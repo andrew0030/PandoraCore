@@ -19,7 +19,7 @@ public class BooleanEntry extends BaseConfigEntry {
         ConfigDataHolderEntry holder = (ConfigDataHolderEntry) node.getDataHolder();
         // Creates the interactable widget
         // TODO maybe improve what kind of data is passed to the widgets? Something to look into after more of the types are implemented!
-        Checkbox widget = new Checkbox(x, y, width, height, Component.literal("TODO"), holder, screen.getManager()); //TODO fix narration
+        Checkbox widget = new Checkbox(this, Component.literal("TODO")); //TODO fix narration
         // Sets the value to the current value from the config
         try {
             widget.setValue((boolean) holder.getField().get(null));
@@ -29,22 +29,44 @@ public class BooleanEntry extends BaseConfigEntry {
     }
 
     private static class Checkbox extends AbstractWidget {
+        private final BaseConfigEntry entry;
+        private final PaCoConfigScreen screen;
         private final ConfigDataHolder holder;
         private final PaCoConfigManager manager;
         private boolean value;
 
-        public Checkbox(int x, int y, int width, int height, Component message, ConfigDataHolderEntry holder, PaCoConfigManager manager) {
-            super(x, y, width, height, message);
-            this.holder = holder;
-            this.manager = manager;
+        public Checkbox(BaseConfigEntry entry, Component message) {
+            super(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), message);
+            this.entry = entry;
+            this.screen = entry.screen;
+            this.holder = entry.node.getDataHolder();
+            this.manager = this.screen.getManager();
         }
+
+        // NOTE: The code in this block should be implemented by all widgets used for config entries, the methods
+        //       ensure that the widgets move along the config entries, and aren't clickable when out of bounds!
+        // #########################################################################################################
+        @Override
+        public int getY() {
+            return super.getY() + this.entry.getScrollOffset();
+        }
+        @Override
+        public boolean isHovered() {
+            return this.entry.isHovered() && super.isHovered();
+        }
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            return this.entry.screen.isMouseInEntriesBounds(mouseX, mouseY) && super.mouseClicked(mouseX, mouseY, button);
+        }
+        // #########################################################################################################
 
         @Override
         protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
             int posX = this.getX() + this.width - 20;
             int posY = this.getY() + 2;
             // TODO replace these placeholder "textures" with an actual texture
-            graphics.fill(posX, posY, posX + 12, posY + 12, PaCoColor.color(180, 180, 180));
+            int rimColor = this.isHovered() ? PaCoColor.WHITE : PaCoColor.color(180, 180, 180);
+            graphics.fill(posX, posY, posX + 12, posY + 12, rimColor);
             graphics.fill(posX + 1, posY + 1, posX + 11, posY + 11, PaCoColor.color(60, 60, 60));
             if (this.value)
                 graphics.fill(posX + 2, posY + 2, posX + 10, posY + 10, PaCoColor.color(20, 180, 20));

@@ -4,7 +4,11 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeBuilder;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
+import com.github.andrew0030.pandora_core.client.gui.sliders.FocusRectangleMode;
+import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
+import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoModifyTitleScreen;
@@ -16,6 +20,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -28,25 +33,28 @@ import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders
 public class PaCoConfigScreen extends Screen {
     // Some generic UI stuff
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
+    public static final int PADDING_ONE = 1;
     public static final int PADDING_TWO = 2;
     public static final int PADDING_FOUR = 4;
     // Config management stuff
-    private final List<BaseConfigEntry> configElements = new ArrayList<>();
+    private final List<BaseConfigEntry> configEntries = new ArrayList<>();
     private final PaCoConfigManager manager;
     private final ConfigTreeNode currentNode;
-
+    // Screens for navigation
     public final TitleScreen titleScreen;
     private final Screen previousScreen;
-
+    // Widgets
+    public PaCoSlider entriesScrollBar;
+    // Misc
     public int menuHeight;
     public int menuHeightStart;
     public int menuHeightStop;
     public int menuWidthStart;
     public int menuWidth;
+    public int entriesHeight;
+    public int entriesHandleHeight;
     // Post-processing shader parameters
     private final Map<String, Object> parameters;
-
-
 
     public PaCoConfigScreen(PaCoConfigManager manager, ConfigTreeNode currentNode, @Nullable TitleScreen titleScreen, @Nullable Screen previousScreen) {
         super(Component.empty()); // TODO: Add a proper config screen title (maybe the node name?)
@@ -70,11 +78,13 @@ public class PaCoConfigScreen extends Screen {
      * This is mainly a method because some of the fields need to be refreshed, and calling this method does that.
      */
     private void fieldInit() {
-        this.menuHeight = this.height - 20;
-        this.menuHeightStart = (this.height - this.menuHeight) / 2;
-        this.menuHeightStop = this.menuHeightStart + this.menuHeight - 20;
-        this.menuWidth = Math.min(this.width - PADDING_TWO * 2, Math.round(this.menuHeight * 2.4F));
+        this.menuHeight = this.height - 40;
+        this.menuHeightStart = (this.height - (this.menuHeight + 20)) / 2;
+        this.menuHeightStop = this.menuHeightStart + this.menuHeight;
+        this.menuWidth = Math.min(this.width - PADDING_TWO * 2, Math.round(this.menuHeight * 2.4F)) - 100;
         this.menuWidthStart = (this.width - this.menuWidth) / 2;
+        this.entriesHeight = this.populateEntries(false);
+        this.entriesHandleHeight = Math.max(8, this.menuHeight - (this.entriesHeight - this.menuHeight) - PADDING_FOUR);
     }
 
     @Override
@@ -88,16 +98,31 @@ public class PaCoConfigScreen extends Screen {
         }
 
         /* Field Init */
+        // Note: We need to remove the scroll bar before we generate the widgets to avoid position issues
+        this.entriesScrollBar = null;
         this.fieldInit();
-        this.populateEntries();
 
         /* Adding Widgets */
-
+        // Scroll Bar (Slider)
+        if (this.entriesHeight > this.menuHeight) { // We only add it if its needed
+            this.entriesScrollBar = new PaCoVerticalSlider(this.menuWidthStart + PADDING_TWO, this.menuHeightStart + PADDING_TWO, 6, this.menuHeight - PADDING_FOUR, 0, (this.entriesHeight - this.menuHeight), 0, 1)
+                    .setSilent(true)
+                    .setTextHidden(true)
+//                    .setNarrationMessage(SCROLLBAR) //TODO add narration
+                    .setHandleSize(8, this.entriesHandleHeight)
+                    .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
+                    .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                    .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
+            this.addWidget(this.entriesScrollBar);
+        }
+        // TODO maybe move/change this so rendering and clicking are both handled by MC?
+        // All the widgets attached to config entries
+        this.configEntries.forEach(element -> element.getWidgets().forEach(this::addWidget));
     }
 
     @Override
     public void tick() {
-        this.configElements.forEach(BaseConfigEntry::tick);
+        this.configEntries.forEach(BaseConfigEntry::tick);
         // Technically this isn't needed when the title screen renders a panorama, however when it has
         // animated content, due to mods like "PackMenu" we need this to ensure the content stays animated
         if (this.titleScreen != null) {
@@ -129,16 +154,41 @@ public class PaCoConfigScreen extends Screen {
         graphics.fillGradient(0, 0, this.width, this.height, PaCoColor.color(83, 16, 16, 16), PaCoColor.color(67, 16, 16, 16));
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        // Panel Background
-        RenderSystem.enableBlend();
-        graphics.blitRepeating(TEXTURE, this.menuWidthStart + PADDING_TWO, this.menuHeightStart, this.menuWidth - (PADDING_TWO * 2), this.menuHeight - 20, 0, 122, 48, 48);
+        // Entries Panel
+        this.renderEntriesPanel(graphics, mouseX, mouseY, partialTick);
 
         // Top Bar
         graphics.blitNineSliced(TEXTURE, this.menuWidthStart, this.menuHeightStart - 4, this.menuWidth, 4, 1, 18, 18, 0, 36);
+
         // Bottom Bar
         graphics.blitNineSliced(TEXTURE, this.menuWidthStart, this.menuHeightStop, this.menuWidth, 4, 1, 18, 18, 0, 36);
 
-        this.configElements.forEach(entry -> entry.render(graphics, mouseX, mouseY, partialTick));
+        // Debug Outline
+//        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight, null, PaCoColor.color(255, 40, 40), 1);
+    }
+
+    protected void renderEntriesPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // Enables GLScissors
+        PaCoGuiUtils.enableScissor(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
+        graphics.pose().pushPose();
+
+        // Panel Background
+        RenderSystem.enableBlend();
+        boolean hasEntriesScrollBar = this.entriesScrollBar != null;
+        int posX = hasEntriesScrollBar ? this.menuWidthStart + 10 : this.menuWidthStart + PADDING_TWO;
+        int width = hasEntriesScrollBar ? this.menuWidth - 10 - PADDING_TWO : this.menuWidth - (PADDING_TWO * 2);
+        graphics.blitRepeating(TEXTURE, posX, this.menuHeightStart, width, this.menuHeight, 0, 122, 48, 48);
+        // Renders the Mods Panel Scroll Bar
+        if (this.entriesScrollBar != null) this.entriesScrollBar.render(graphics, mouseX, mouseY, partialTick);
+        // Renders all the widgets attached to entries
+        this.configEntries.forEach(entry -> entry.render(graphics, mouseX, mouseY, partialTick));
+
+        // Disables GLScissors
+        graphics.pose().popPose();
+        graphics.disableScissor();
+
+        // Renders the entry tooltips after scissors
+        this.configEntries.forEach(entry -> entry.renderTooltip(graphics, mouseX, mouseY, partialTick));
     }
 
     @Override
@@ -161,6 +211,20 @@ public class PaCoConfigScreen extends Screen {
         }
     }
 
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        // Entries Panel Scroll
+        if (this.entriesScrollBar != null && PaCoGuiUtils.isMouseWithin(mouseX, mouseY, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight)) {
+            int maxVal = this.entriesHeight - this.menuHeight;
+            int pixelStep = (int) (maxVal * 0.12); // Modify the value by 12%
+            pixelStep = Mth.clamp(pixelStep, 5, 30); // Ensures that the step size is within 5-30
+            int newValue = (int) (this.entriesScrollBar.getValue() - (delta * pixelStep));
+            newValue = Mth.clamp(newValue, 0, maxVal);
+            this.entriesScrollBar.setValue(newValue);
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
     private void renderBlurredBackground(float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
 
@@ -179,15 +243,22 @@ public class PaCoConfigScreen extends Screen {
     /**
      * Loops over all {@link ConfigTreeNode} instances, that should
      * be displayed in the current menu, and adds them to the screen
+     *
+     * @return The total height of all the entries
      */
-    private void populateEntries() {
-        this.configElements.clear();
+    private int populateEntries(boolean hasScrollBar) {
+        this.configEntries.clear();
 
-        int currentY = this.menuHeightStart + PADDING_TWO;
+        int startY = this.menuHeightStart;
+        int currentY = startY + PADDING_TWO;
         int entryX = this.menuWidthStart + PADDING_FOUR;
         int entryWidth = this.menuWidth - (PADDING_FOUR * 2);
-        int entryHeight = 16;
-        int spacing = 2;
+        int spacing = PADDING_TWO;
+        int entryHeight = 16; // TODO maybe allow modifying this within the entries?
+        if (hasScrollBar) {
+            entryX += 8;
+            entryWidth -= 8;
+        }
 
         for (ConfigTreeNode child : this.currentNode.getChildren()) {
 
@@ -195,17 +266,30 @@ public class PaCoConfigScreen extends Screen {
             ConfigDataHolder holder = child.getDataHolder();
             BaseConfigEntry element = holder.getConfigEntryFactory().create(this, child, entryX, currentY, entryWidth, entryHeight);
 
-            this.configElements.add(element);
+            this.configEntries.add(element);
             currentY += entryHeight + spacing;
         }
 
-        // TODO maybe move/change this so rendering and clicking are both handled by MC?
-        // Registers widgets to the screen, allowing MC's system to deal with the click logic
-        this.configElements.forEach(element -> element.getWidgets().forEach(this::addWidget));
+        // Removes the trailing spacing if there was at least one entry
+//        if (!this.configEntries.isEmpty())
+//            currentY -= spacing;
+
+        // If there are too many entries to display without a scroll bar we recalculate
+        // the entries but this time shrinking them to fit the scroll bar
+        // Note: We need to check if there is a scroll bar to prevent infinite recursion
+        if (!hasScrollBar && currentY - startY > this.menuHeight)
+            this.populateEntries(true);
+
+        return currentY - startY;
     }
 
     /** @return The {@link PaCoConfigManager} instance associated to this {@link PaCoConfigScreen}. */
     public PaCoConfigManager getManager() {
         return this.manager;
+    }
+
+    /** @return Whether the mouse is within the entries panel */
+    public boolean isMouseInEntriesBounds(double mouseX, double mouseY) {
+        return PaCoGuiUtils.isMouseWithin(mouseX, mouseY, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
     }
 }

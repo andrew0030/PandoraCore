@@ -24,7 +24,7 @@ import java.util.List;
 public abstract class BaseConfigEntry implements Renderable {
     protected final PaCoConfigScreen screen;
     protected final ConfigTreeNode node;
-    protected final int x, y, width, height;
+    private final int x, y, width, height;
     protected final List<AbstractWidget> widgets = new ArrayList<>();
     protected boolean isHovered;
 
@@ -39,36 +39,37 @@ public abstract class BaseConfigEntry implements Renderable {
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-
-        // TODO: Add the PaCoGuiUtils check that determines if the entry is within the bounds of the UI
-        this.isHovered = mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height;
+        boolean mouseInBounds = this.screen.isMouseInEntriesBounds(mouseX, mouseY);
+        boolean isHovered = mouseX >= this.getX() && mouseX < this.getX() + this.getWidth() && mouseY >= this.getY() && mouseY < this.getY() + this.getHeight();
+        this.isHovered = mouseInBounds && isHovered;
 
         // Element Background
         RenderSystem.enableBlend();
-        graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.x, this.y, this.width, this.height, 0, 122, 48, 48);
+        graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0, 122, 48, 48);
         // Config Key
-        graphics.drawString(Minecraft.getInstance().font, this.node.getName(), this.x + PaCoConfigScreen.PADDING_FOUR, this.y + PaCoConfigScreen.PADDING_FOUR, PaCoColor.WHITE, false);
+        graphics.drawString(Minecraft.getInstance().font, this.node.getName(), this.getX() + PaCoConfigScreen.PADDING_FOUR, this.getY() + PaCoConfigScreen.PADDING_FOUR, PaCoColor.WHITE, false);
 
 
         // TODO: maybe move/change this to utilize minecraft's built in widget rendering ?
         this.widgets.forEach(widget -> widget.render(graphics, mouseX, mouseY, partialTick));
+    }
 
-
-        // TODO maybe move this if GL scissors messes with the tooltip
-        // TODO implement focus/hover logic so keyboard navigation also triggers tooltips
+    /**
+     * Used to render the tooltip of this {@link BaseConfigEntry}.
+     * <p>
+     * NOTE: The reason tooltips are rendered in a separate method is, so we can avoid
+     * cutting them with {@code GLScissors} that get applied to the normal render method.
+     * </p>
+     */
+    public void renderTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (this.isHovered()) {
             // TODO remove this short lived list, instead the tooltip components should be retrieved on init and reused
             ArrayList<Component> tooltip = new ArrayList<>();
             tooltip.add(Component.literal(this.node.getDataHolder().getComment()));
 
-//            tooltip.add(Component.literal("This is a test comment"));
-//            tooltip.add(Component.literal("will"));
-//            tooltip.add(Component.literal("this"));
-//            tooltip.add(Component.literal("work?"));
-//            tooltip.add(Component.literal("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."));
-
+            // TODO implement focus/hover logic so keyboard navigation also triggers tooltips
             PaCoGuiUtils.renderFixedTooltipNineSliced(
-                    graphics, Minecraft.getInstance().font, tooltip, this.x, this.y + this.height, this.width,
+                    graphics, Minecraft.getInstance().font, tooltip, this.getX(), this.getY() + this.getHeight(), this.getWidth(),
                     PaCoScreen.TEXTURE, 3, 150, 72, 75, 25
             );
         }
@@ -94,5 +95,32 @@ public abstract class BaseConfigEntry implements Renderable {
 
     public boolean isHoveredOrFocused() {
         return this.isHovered() || this.isFocused();
+    }
+
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y + this.getScrollOffset();
+    }
+
+    public int getWidth() {
+        return this.width;
+    }
+
+    public int getHeight() {
+        return this.height;
+    }
+
+    /**
+     * Should be used by super classes to apply an offset to the
+     * {@code getY} method of {@link AbstractWidget} instances.
+     *
+     * @return The offset that should be applied on the Y-axis
+     */
+    protected int getScrollOffset() {
+        if (this.screen.entriesScrollBar == null) return 0;
+        return -Math.round((float) this.screen.entriesScrollBar.getValue());
     }
 }

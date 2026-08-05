@@ -19,6 +19,6 @@ public class UnsupportedEntry extends BaseConfigEntry {
 
         // TODO make this entire entry fancier
         Font font = Minecraft.getInstance().font;
-        graphics.drawString(Minecraft.getInstance().font, "Unsupported", this.x + this.width - font.width("Unsupported") - PaCoConfigScreen.PADDING_TWO, this.y + PaCoConfigScreen.PADDING_FOUR, PaCoColor.color(200, 80, 80), false);
+        graphics.drawString(Minecraft.getInstance().font, "Unsupported", this.getX() + this.getWidth() - font.width("Unsupported") - PaCoConfigScreen.PADDING_TWO, this.getY() + PaCoConfigScreen.PADDING_FOUR, PaCoColor.color(200, 80, 80), false);
     }
 }

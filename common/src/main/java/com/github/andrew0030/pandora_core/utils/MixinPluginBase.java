@@ -68,7 +68,7 @@ public abstract class MixinPluginBase implements IMixinConfigPlugin
 		packageDependenciesMap.put(packageName, dependency);
 	}
 
-	boolean enableDump = true;
+	boolean enableDump = PaCoProperties.bytecodeDump;
 	
     public MixinPluginBase() {
     }

@@ -7,6 +7,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.Shaders;
 import net.optifine.shaders.uniform.CustomUniform;
@@ -16,6 +17,7 @@ import net.optifine.util.WorldUtils;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class OptifineAccessor {
@@ -35,6 +37,9 @@ public class OptifineAccessor {
 	
 	private static Method checkGlError;
 	private static Method bindGbuffersTextures;
+
+	private static Method isRenderItemGui;
+	private static Method setRenderItemGui;
 	
 	private static final Unsafe theUnsafe;
 	
@@ -65,6 +70,12 @@ public class OptifineAccessor {
 				
 				bindGbuffersTextures = Shaders.class.getDeclaredMethod("bindGbuffersTextures");
 				bindGbuffersTextures.setAccessible(true);
+				
+				isRenderItemGui = ItemRenderer.class.getDeclaredMethod("isRenderItemGui");
+				isRenderItemGui.setAccessible(true);
+				
+				setRenderItemGui = ItemRenderer.class.getDeclaredMethod("setRenderItemGui", boolean.class);
+				setRenderItemGui.setAccessible(true);
 			} catch (Throwable err) {
 			}
 		}
@@ -144,6 +155,21 @@ public class OptifineAccessor {
 		try {
 			bindGbuffersTextures.invoke(null);
 		} catch (Throwable err) {
+		}
+	}
+	
+	public static boolean isItemRendering() {
+		try {
+			return (boolean) isRenderItemGui.invoke(null);
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			return false;
+		}
+	}
+	
+	public static void setItemRendering(boolean value) {
+		try {
+			setRenderItemGui.invoke(null, value);
+		} catch (IllegalAccessException | InvocationTargetException e) {
 		}
 	}
 }

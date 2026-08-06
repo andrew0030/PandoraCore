@@ -8,6 +8,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceD
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.client.render.obj.ObjModel;
 import com.github.andrew0030.pandora_core.utils.enums.NumericPrimitive;
+import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -37,10 +38,12 @@ public class TemplateShaderTest {
     public static CollectiveBufferBuilder.MeshRange queenRange;
 
     public static void uploadVBO(ObjModel queenObj, ObjModel cubeObj) {
+		BufferBuilderUtils.beginExtendedRendering();
+		
         BufferBuilderUtils.enforceExtended(
                 builder,
                 VertexFormat.Mode.TRIANGLES,
-                DefaultVertexFormat.NEW_ENTITY
+		        ShaderChecker.mapFormat(DefaultVertexFormat.NEW_ENTITY)
         );
         CollectiveBufferBuilder multidrawBuffer = new CollectiveBufferBuilder(builder);
         queenObj.render(
@@ -105,6 +108,8 @@ public class TemplateShaderTest {
         collectiveVBO.upload(builder.end());
 //        builder.clear();
         VertexBuffer.unbind();
+	    
+	    BufferBuilderUtils.endExtendedRendering();
     }
 
     public static void draw(PoseStack stack, double x, double y, double z) {

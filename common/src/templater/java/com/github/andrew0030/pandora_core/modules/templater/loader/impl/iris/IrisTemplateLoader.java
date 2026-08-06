@@ -143,6 +143,9 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
 	boolean firstFail = false;
 	
 	public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Function<String, TemplateTransformation> transformations) {
+		if (isShaderLoaded(struct.location))
+			return LoadResult.PRELOADED;
+		
 		Map<String, String> transformers = struct.getTransformers();
 		String template = struct.getTemplate("iris");
 		if (template == null)
@@ -265,5 +268,10 @@ public class IrisTemplateLoader extends TemplateLoader implements VariableMapper
 	@Override
 	public void preload(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations) {
 		// no operation; not bound to resource manager
+	}
+	
+	@Override
+	public boolean allowAutoReload() {
+		return false;
 	}
 }

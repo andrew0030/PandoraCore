@@ -17,9 +17,9 @@ public class InstanceManager {
 	Set<InstanceRenderer> nullInvoke = new HashSet<>();
 
     static class DoClean implements Runnable {
-	    AtomicBoolean FREE;
-        Map<InstanceRenderer, BatchData> data = new HashMap<>();
-        Map<InstanceRenderer, BatchData> thisFrame = new HashMap();
+	    final AtomicBoolean FREE;
+        Map<InstanceRenderer, BatchData> data;
+        Map<InstanceRenderer, BatchData> thisFrame;
 
         public DoClean(AtomicBoolean FREE, Map<InstanceRenderer, BatchData> data, Map<InstanceRenderer, BatchData> thisFrame) {
 			this.FREE = FREE;

@@ -124,7 +124,7 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
-		List<LevelRenderer.RenderChunkInfo> infs = this.renderChunksInFrustum;
+		List<LevelRenderer.RenderChunkInfo> infs = this.renderInfosInstancer;
 		for (
 				LevelRenderer.RenderChunkInfo info : infs
 		) {
@@ -152,24 +152,24 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancerNormal = new ObjectArrayList<>(1024);
 	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancerShadow = new ObjectArrayList<>(1024);
 
-//	@WrapOperation(
-//			method = "applyFrustum",
-//			at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer$RenderChunkInfo;chunk:Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;", remap = true),
-//			remap = false
-//	)
-//	public ChunkRenderDispatcher.RenderChunk wrapGetChunk(
-//			LevelRenderer.RenderChunkInfo inf,
-//			Operation<ChunkRenderDispatcher.RenderChunk> original
-//	) {
-//		ChunkRenderDispatcher.RenderChunk chnk = original.call(inf);
-//		ChunkRenderDispatcher.CompiledChunk instance = chnk.getCompiledChunk();
-//
-//		if (!((InstancingResults) instance).getAll().isEmpty()) {
-//			renderInfosInstancer.add(inf);
-//		}
-//
-//		return chnk;
-//	}
+	@WrapOperation(
+			method = "applyFrustum",
+			at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer$RenderChunkInfo;chunk:Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;", remap = true),
+			remap = false
+	)
+	public ChunkRenderDispatcher.RenderChunk wrapGetChunk(
+			LevelRenderer.RenderChunkInfo inf,
+			Operation<ChunkRenderDispatcher.RenderChunk> original
+	) {
+		ChunkRenderDispatcher.RenderChunk chnk = original.call(inf);
+		ChunkRenderDispatcher.CompiledChunk instance = chnk.getCompiledChunk();
+		
+		if (!((InstancingResults) instance).getAll().isEmpty()) {
+			renderInfosInstancer.add(inf);
+		}
+
+		return chnk;
+	}
 
 //	@Inject(
 //			method = "applyFrustum",
@@ -182,10 +182,28 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 //	) {
 //		renderInfosInstancer.clear();
 //	}
+	
+	@WrapOperation(
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;isDirty()Z", remap = true),
+			method = "updateRenderChunks",
+			remap = false
+	)
+	public boolean instancerCondition(
+			ChunkRenderDispatcher.RenderChunk inf,
+			Operation<Boolean> original
+	) {
+		ChunkRenderDispatcher.CompiledChunk instance = inf.getCompiledChunk();
+		
+		if (!((InstancingResults) instance).getAll().isEmpty()) {
+			return true;
+		}
+		
+		return original.call(inf);
+	}
 
 	@Inject(
-			at = @At("TAIL"),
-			method = "clearRenderInfos",
+			at = @At("RETURN"),
+			method = "clearRenderInfosTerrain",
 			remap = false
 	)
 	public void postClear(CallbackInfo ci) {

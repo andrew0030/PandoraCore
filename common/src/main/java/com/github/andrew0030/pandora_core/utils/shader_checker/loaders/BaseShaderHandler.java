@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.utils.shader_checker.loaders;
 
+import com.mojang.blaze3d.vertex.VertexFormat;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.CheckForNull;
@@ -40,4 +41,8 @@ public abstract class BaseShaderHandler {
      * only initialized if the mod is actually loaded.
      */
     public abstract boolean isShaderLoaded();
+	
+	public VertexFormat mapFormat(VertexFormat format) {
+		return format;
+	}
 }

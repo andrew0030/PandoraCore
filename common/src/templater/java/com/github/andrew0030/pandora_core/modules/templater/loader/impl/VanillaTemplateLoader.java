@@ -67,6 +67,9 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 	
 	@Override
 	public void prepare(ResourceManager manager) {
+		shaderJsons.clear();
+		notCore.clear();
+		
 		manager.listResources(
 				"shaders/core",
 				(location) -> location.getPath().endsWith(".json")
@@ -185,6 +188,9 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 	boolean firstFail = false;
 	
 	public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Function<String, TemplateTransformation> transformations) {
+		if (isShaderLoaded(struct.location))
+			return LoadResult.PRELOADED;
+		
 		Map<String, String> transformers = struct.getTransformers();
 		
 		String template = struct.getTemplate("core");
@@ -270,9 +276,7 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 	
 	@Override
 	public void _beginReload() {
-		notCore.clear();
 		sources.clear();
-		shaderJsons.clear();
 		
 		firstFail = true;
 	}
@@ -280,5 +284,15 @@ public class VanillaTemplateLoader extends TemplateLoader implements VariableMap
 	@Override
 	public void preload(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, Function<String, TemplateTransformation> transformations) {
 		// no operation; resources aren't loaded at this time
+	}
+	
+	@Override
+	public boolean allowAutoReload() {
+		return false;
+	}
+	
+	@Override
+	public void onAssetReload() {
+		sources.clear();
 	}
 }

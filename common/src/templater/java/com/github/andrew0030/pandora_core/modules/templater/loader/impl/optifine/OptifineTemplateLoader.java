@@ -168,6 +168,9 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 	boolean firstFail = false;
 	
 	public LoadResult attempt(TemplateManager.LoadManager manager, TemplateShaderResourceLoader.TemplateStruct struct, boolean complete, Function<String, TemplateTransformation> transformations) {
+		if (isShaderLoaded(struct.location))
+			return LoadResult.PRELOADED;
+		
 		Map<String, String> transformers = struct.getTransformers();
 		String template = struct.getTemplate("optifine");
 		// TODO: iris remap fallback
@@ -325,5 +328,10 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 		Minecraft.getInstance().getToasts().addToast(toast);
 		
 		super.performReload();
+	}
+	
+	@Override
+	public boolean allowAutoReload() {
+		return false;
 	}
 }

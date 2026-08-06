@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.render;
 
 import com.github.andrew0030.pandora_core.platform.Services;
+import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -23,11 +24,30 @@ public class BufferBuilderUtils {
         ) {
             boolean usingExtended = WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat();
             WorldRenderingSettings.INSTANCE.setUseExtendedVertexFormat(true);
+			// TODO: is there a reason I enforce NEW_ENTITY?
             builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
             WorldRenderingSettings.INSTANCE.setUseExtendedVertexFormat(usingExtended);
         } else {
-            builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
+            builder.begin(VertexFormat.Mode.TRIANGLES, format);
         }
         return builder;
     }
+	
+	private static final ThreadLocal<Boolean> wasItemRendering = new ThreadLocal<>();
+	
+	public static void beginExtendedRendering() {
+		if (OptifineAccessor.optifinePresent) {
+			wasItemRendering.set(
+					OptifineAccessor.isItemRendering()
+			);
+			OptifineAccessor.setItemRendering(true);
+		}
+	}
+	
+	public static void endExtendedRendering() {
+		if (OptifineAccessor.optifinePresent) {
+			OptifineAccessor.setItemRendering(wasItemRendering.get());
+			wasItemRendering.remove();
+		}
+	}
 }

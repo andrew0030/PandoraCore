@@ -33,6 +33,7 @@
 		"vanilla.ShaderInstance_CacheShadersMixin",
 		"vanilla.ShaderInstance_CacheSrc_CondBindableMixin",
 		"vanilla.ShaderLoaderDeferenceMixin",
+		"vanilla.GameRenderer_ReloadShaders",
 
 		"optifine.ShadersMixin",
 		"optifine.ProgramMixin",

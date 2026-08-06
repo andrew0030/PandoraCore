@@ -150,7 +150,9 @@ public class TemplateManager {
 	
 	public void beginReload() {
         for (TemplateLoader loader : LOADERS) {
-            loader.beginReload();
+			if (loader.allowAutoReload())
+                loader.beginReload();
+			loader.onAssetReload();
         }
     }
 
@@ -182,17 +184,17 @@ public class TemplateManager {
         LoadManager manager = new LoadManager();
         for (TemplateShaderResourceLoader.TemplateStruct struct : result) {
             for (TemplateLoader loader : LOADERS) {
-                // shaders may fail to preload
-                // that is fine, and completely expected
-                loader.preload(
-                        manager,
-                        struct,
-                        transformations::get
-                );
+				// shaders may fail to preload
+				// that is fine, and completely expected
+				loader.preload(
+						manager,
+						struct,
+						transformations::get
+				);
             }
         }
     }
-
+	
     // the point of this is to be accessible, but not instantiable to external code
     @SuppressWarnings("InnerClassMayBeStatic")
     public class LoadManager {

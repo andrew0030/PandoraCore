@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.utils.shader_checker;
 import com.github.andrew0030.pandora_core.utils.shader_checker.loaders.BaseShaderHandler;
 import com.github.andrew0030.pandora_core.utils.shader_checker.loaders.IrisShaderHandler;
 import com.github.andrew0030.pandora_core.utils.shader_checker.loaders.OFShaderHandler;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,4 +36,12 @@ public class ShaderChecker {
                 return true;
         return false;
     }
+	
+	public static VertexFormat mapFormat(VertexFormat format) {
+		for (BaseShaderHandler handler : HANDLERS) {
+			if (handler.isShaderLoaded())
+				return handler.mapFormat(format);
+		}
+		return format;
+	}
 }

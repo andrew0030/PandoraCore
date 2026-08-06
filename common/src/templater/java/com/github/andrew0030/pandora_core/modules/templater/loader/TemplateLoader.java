@@ -75,6 +75,10 @@ public abstract class TemplateLoader {
 
     private Map<ResourceLocation, TemplatedShader> loadedShaders = new HashMap<>();
 
+	public boolean isShaderLoaded(ResourceLocation location) {
+		return loadedShaders.containsKey(location);
+	}
+	
     protected void loadShader(ResourceLocation location, TemplatedShader instance) {
         loadedShaders.put(location, instance);
     }
@@ -100,10 +104,20 @@ public abstract class TemplateLoader {
         });
         loadedShaders.clear();
     }
-
-    public enum LoadResult {
+	
+	public boolean allowAutoReload() {
+		return true;
+	}
+	
+	/**
+	 * Hook that runs regardless of {@link #allowAutoReload()}
+	 */
+	public void onAssetReload() {
+	}
+	
+	public enum LoadResult {
         UNCACHED,
         LOADED,
-        FAILED,
+        FAILED, PRELOADED,
     }
 }

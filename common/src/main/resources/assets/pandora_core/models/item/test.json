@@ -1,7 +1,7 @@
 {
   "parent": "builtin/entity",
   "textures": {
-    "particle": "minecraft:block/cyan_concrete_powder"
+    "particle": "minecraft:block/cyan_concrete"
   },
   "display": {
     "gui": {

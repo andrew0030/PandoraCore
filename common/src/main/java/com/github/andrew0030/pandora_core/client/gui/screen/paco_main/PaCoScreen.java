@@ -14,6 +14,7 @@ import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoModifyTitleScreen;
+import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
@@ -37,7 +38,7 @@ import java.util.*;
 
 import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders.BlurVariables.*;
 
-public class PaCoScreen extends Screen {
+public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
     // Mods Panel
     public static final Component TITLE = Component.translatable("gui.pandora_core.paco.title");
@@ -419,6 +420,16 @@ public class PaCoScreen extends Screen {
             this.contentScrollBar.setValue(newValue);
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public Screen pandoraCore$getParentScreen() {
+        // Prioritize opening the previous screen
+        if (this.previousScreen != null)
+            return this.previousScreen;
+        // If no previous screen exists we return the title screen if the
+        // title screen is null it simply means there was no parent screen
+        return this.titleScreen;
     }
 
     private void renderBlurredBackground(float partialTick) {

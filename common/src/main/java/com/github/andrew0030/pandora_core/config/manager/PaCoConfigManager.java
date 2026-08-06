@@ -24,8 +24,10 @@ import java.util.*;
 public class PaCoConfigManager {
 
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "PaCoConfigManager");
-    // A Map to store PaCoConfigManager instances
+    // A Map to store PaCoConfigManager instances associated with their config class
     private static final Map<Class<?>, PaCoConfigManager> CONFIG_MANAGERS = new HashMap<>();
+    // A Map to store PaCoConfigManager instances associated with their mod id
+    private static final Map<String, List<PaCoConfigManager>> MOD_MANAGERS = new LinkedHashMap<>();
     // Config Managing
     private final Class<?> configClass;                // The config class with the annotated fields
     private final AnnotationHandler annotationHandler; // Helper class that deals with annotations
@@ -79,7 +81,16 @@ public class PaCoConfigManager {
         return builder.build();
     }
 
-    private void correctIfNeeded() {
+    /**
+     * Checks the {@link CommentedFileConfig} in memory and uses {@link ConfigSpec} to validate it.
+     * If no invalid entries were found the {@code config fields} and {@code in memory values} are updated and ordered.
+     * If invalid entries are found, they are reset to their {@code default values}, and the {@code fields} and {@code config file} are updated.
+     *
+     * @param forcePostValidationSave If true the method will call {@link CommentedFileConfig#save()} after validation,
+     *                                regardless of whether invalid entries were found. This is needed to update the {@code config file}
+     *                                when the values are set through code!
+     */
+    public void correctIfNeeded(boolean forcePostValidationSave) {
         ConfigSpec configSpec = this.annotationHandler.getConfigSpec();
         boolean isConfigCorrect = configSpec.isCorrect(this.config);
         // If the config isn't correct we handle it.
@@ -122,7 +133,15 @@ public class PaCoConfigManager {
             this.setConfigComments();
             // Updates the values of the fields in memory
             this.updateConfigFields();
+            // If values were updated through code, we need to trigger .save(),
+            // otherwise values in the file won't be updated.
+            if (forcePostValidationSave)
+                this.config.save();
         }
+    }
+
+    private void correctIfNeeded() {
+        this.correctIfNeeded(false);
     }
 
     /** Utility method to pad Strings to a given length. */
@@ -140,6 +159,10 @@ public class PaCoConfigManager {
         this.correctIfNeeded();
     }
 
+    public AnnotationHandler getAnnotationHandler() {
+        return this.annotationHandler;
+    }
+
     /** @return the <code>.class</code> of the config that was used to register this manager. */
     public Class<?> getConfigClass() {
         return this.configClass;
@@ -150,7 +173,7 @@ public class PaCoConfigManager {
     }
 
     public static void closeConfigs() {
-        for (PaCoConfigManager manager : PaCoConfigManager.getPaCoConfigManagers()) {
+        for (PaCoConfigManager manager : PaCoConfigManager.getManagers()) {
             manager.getConfig().close();
         }
     }
@@ -238,7 +261,7 @@ public class PaCoConfigManager {
         return this::correctIfNeeded;
     }
 
-    // These may still get replaced or modified, it all depends on how I decide to deal with registration...
+    // TODO These may still get replaced or modified, it all depends on how I decide to deal with registration...
     //##################################################################################################################
     public static void register(Class<?> configClass) {
         PaCoConfig.Config configAnnotation = configClass.getAnnotation(PaCoConfig.Config.class);
@@ -247,53 +270,32 @@ public class PaCoConfigManager {
         if (CONFIG_MANAGERS.containsKey(configClass))
             throw new IllegalStateException("Config class " + configClass.getName() + " is already registered!");
         PaCoConfigManager manager =  new PaCoConfigManager(configClass);
+        // Associates the manager with the given class
         CONFIG_MANAGERS.put(configClass, manager);
+        // Associates the manager with mod id it was registered under
+        String modId = configAnnotation.modId();
+        MOD_MANAGERS.computeIfAbsent(modId, ignored -> new ArrayList<>()).add(manager);
     }
 
-    public static PaCoConfigManager getPaCoConfigmanager(Class<?> configClass) {
+    /**
+     * @return The {@link PaCoConfigManager} instance associated with the given
+     *         config {@code class}, or {@code null} if none is registered.
+     */
+    public static PaCoConfigManager getManager(Class<?> configClass) {
         return CONFIG_MANAGERS.get(configClass);
     }
 
-    public static Collection<PaCoConfigManager> getPaCoConfigManagers() {
+    /** @return All registered {@link PaCoConfigManager} instances. */
+    public static Collection<PaCoConfigManager> getManagers() {
         return CONFIG_MANAGERS.values();
     }
-    //##################################################################################################################
 
+    /** @return A list of {@link PaCoConfigManager} instances associated with the given {@code modId}. */
+    public static List<PaCoConfigManager> getManagersForMod(String modId) {
+        return MOD_MANAGERS.getOrDefault(modId, Collections.emptyList());
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    /**
-//     * Loads the config or creates the file if it doesn't exist.
-//     */
-//    public void loadOrCreateConfig() {
-//        this.config.load();
-//
-//        if (this.config.isEmpty()) {
-//            // If the file is empty or missing, we populate it with the default values
-//            LOGGER.info("Config file is missing or empty. Writing default values.");
-//            this.annotationHandler.writeDefaultValues(this.configInstance, this.config);
-//            this.config.save();
-//        } else {
-//            // If the file exists and has values, we load them into the config class
-//            LOGGER.info("Config file found. Loading values.");
-//            this.annotationHandler.loadConfigValues(this.configInstance, this.config);
-//        }
-//    }
+    /** A small helper class to temporarily store config corrections. */
     private static class CorrectionEntry {
         String key;
         String detected;

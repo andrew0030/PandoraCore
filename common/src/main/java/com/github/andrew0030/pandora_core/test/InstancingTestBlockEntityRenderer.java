@@ -28,13 +28,8 @@ import org.joml.Matrix3f;
 import org.joml.Random;
 
 public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRenderer<InstancingTestBlockEntity> {
-	public InstancingTestBlockEntityRenderer() {
-		this(
-				TemplateShaderTest.FORMAT,
-				TemplateShaderTest.collectiveVBO
-		);
-	}
-	
+	private final CollectiveVBO vbo;
+
 	private final BatchKey STANDARD_KEY = new BatchKey() {
 		public void flush(CollectiveDrawData data) {
 			vbo.setupData(data, PaCoRenderTypes.shader);
@@ -46,8 +41,13 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
 			);
 		}
 	};
-	
-	CollectiveVBO vbo;
+
+	public InstancingTestBlockEntityRenderer() {
+		this(
+				TemplateShaderTest.FORMAT,
+				TemplateShaderTest.collectiveVBO
+		);
+	}
 	
 	public InstancingTestBlockEntityRenderer(InstanceFormat format, CollectiveVBO vbo) {
 		super(format);
@@ -75,12 +75,12 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
 		data.activateData();
 		data.writeFloat((float) (pos.getX() - cameraPos.x) + 0.5f, (float) (pos.getY() - cameraPos.y), (float) (pos.getZ() - cameraPos.z) + 0.5f);
 		data.writeMatrix(matrix3f);
-		int $$0 = LightTexture.pack(
+		int packedLight = LightTexture.pack(
 //                2, 0
 				level.getBrightness(LightLayer.BLOCK, pos),
 				level.getBrightness(LightLayer.SKY, pos)
 		);
-		data.writeInt($$0);
+		data.writeInt(packedLight);
 		
 		data.finishInstance();
 	}

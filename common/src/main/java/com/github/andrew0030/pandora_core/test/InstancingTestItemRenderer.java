@@ -2,12 +2,10 @@ package com.github.andrew0030.pandora_core.test;
 
 import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveVBO;
-import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.builtin.ItemDrawData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchKey;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstancingEnvironment;
-import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstanceRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedItemRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoShaderStateShard;
 import com.mojang.blaze3d.shaders.FogShape;
@@ -16,18 +14,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 
 public class InstancingTestItemRenderer extends InstancedItemRenderer {
-	CollectiveVBO vbo;
-	
-	public InstancingTestItemRenderer() {
-		super(TemplateShaderTest.FORMAT_MAT4);
-		this.vbo = TemplateShaderTest.collectiveVBO;
-	}
-	
+	private final CollectiveVBO vbo;
+
 	private final BatchKey STANDARD_KEY = new BatchKey() {
 		public void flush(CollectiveDrawData data) {
 			vbo.setupData(data, PaCoRenderTypes.shaderItem);
@@ -39,6 +30,11 @@ public class InstancingTestItemRenderer extends InstancedItemRenderer {
 			);
 		}
 	};
+
+	public InstancingTestItemRenderer() {
+		super(TemplateShaderTest.FORMAT_MAT4);
+		this.vbo = TemplateShaderTest.collectiveVBO;
+	}
 	
 	@Override
 	public void render(
@@ -56,8 +52,8 @@ public class InstancingTestItemRenderer extends InstancedItemRenderer {
 //		stk.translate(0, -0.5f, 0);
 		stk.translate(0.5f, 0, 0.5f);
 		data.writeMatrix(stk.last().pose());
-		int $$0 = drawData.getLightmap();
-		data.writeInt($$0);
+		int packedLight = drawData.getLightmap();
+		data.writeInt(packedLight);
 		
 		data.finishInstance();
 	}

@@ -1,15 +1,17 @@
 package com.github.andrew0030.pandora_core.config.manager;
 
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.ConfigEntryFactory;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.UnsupportedEntry;
 import net.minecraft.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public abstract class ConfigDataHolder {
-
     protected String path = "";
     protected String comment;
     protected int commentPadding = 1;
+    protected ConfigEntryFactory configEntryFactory;
 
     public ConfigDataHolder setPath(String path) {
         this.path = path;
@@ -48,6 +50,21 @@ public abstract class ConfigDataHolder {
     /** @return whether the config holder has a comment */
     public boolean hasComment() {
         return !StringUtil.isNullOrEmpty(this.getCommentRaw());
+    }
+
+
+
+
+    // TODO write javadocs
+    public ConfigDataHolder setConfigEntryFactory(ConfigEntryFactory factory) {
+        this.configEntryFactory = factory;
+        return this;
+    }
+
+    // TODO write javadocs
+    public ConfigEntryFactory getConfigEntryFactory() {
+        // Fallback just in case, though AnnotationHandler should always set it
+        return this.configEntryFactory != null ? this.configEntryFactory : UnsupportedEntry::new;
     }
 
     public boolean hasField() {

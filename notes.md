@@ -23,7 +23,7 @@ Jank:
 
 Systems TODO:
 - Config System
-  - [ ] Value setters (needed behind the scenes to modify values ingame)
+  - [x] Value setters (needed behind the scenes to modify values ingame)
   - [ ] More annotations that can be used to control how certain entries should affect the game/menu
   - [ ] Add TranslatableComponent support for entry description and key
   - [ ] Add support for loading configs from a `defaultconfigs` folder
@@ -71,6 +71,7 @@ Systems TODO:
   - [ ] Add (optional) fade in to config screens. This will make the transition to config screens by other mods look nicer
   - [x] Fine tune the narration of widgets
   - [x] Maybe fine tune the keyboard navigation (scroll bars could maybe navigate from center of the slider instead?)
+  - [ ] Maybe add optional config setting to open the PaCo mods list when the _Mods_ button is pressed?
 - PaCo Config Screen
   - [ ] Create config screen that can take any number of components and dynamically adjust to it
   - [ ] Hook mod config system into it
@@ -165,6 +166,8 @@ Systems TODO:
   - [x] Entity instancer
   - [ ] Particle instancer
   - [ ] Potential future rewrite?
+  - [ ] Placing an instanced item into an item frame causes the item frame lighting to change/break
+  - [ ] Reloading resources (`F3` + `T`) crashes the game while an instanced item is held
 - Templater
   - [ ] The `OperationVisitor` logs the following error: "_Unrecognized operation! %_", probably due to `fail.vsh`, investigate...
 - Uniform Holder

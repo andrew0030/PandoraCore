@@ -2,6 +2,10 @@ package com.github.andrew0030.pandora_core.config.annotation;
 
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.ConfigEntryFactory;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.PaCoConfigEntryManager;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BooleanEntry;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import com.github.andrew0030.pandora_core.config.manager.*;
@@ -179,7 +183,11 @@ public class AnnotationHandler {
             String key = category + field.getName();
             configSpec.define(key, defaultValue);
             ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            this.dataHolders.put(key, holder.setPath(key));
+            ConfigEntryFactory factory = this.getConfigEntryFactory(field, BooleanEntry.class);
+            this.dataHolders.put(key, holder
+                    .setConfigEntryFactory(factory)
+                    .setPath(key)
+            );
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -687,5 +695,11 @@ public class AnnotationHandler {
                     this.manager.getConfigClass().getName()
             ));
         return defaultObject;
+    }
+
+    // TODO maybe expand this to work with class annotations?
+    private ConfigEntryFactory getConfigEntryFactory(Field field, Class<? extends BaseConfigEntry> defaultEntry) {
+        PaCoConfigValues.GuiEntryType annotation = field.getAnnotation(PaCoConfigValues.GuiEntryType.class);
+        return PaCoConfigEntryManager.getFactory(annotation != null ? annotation.value() : defaultEntry);
     }
 }

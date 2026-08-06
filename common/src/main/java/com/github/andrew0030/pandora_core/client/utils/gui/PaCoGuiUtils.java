@@ -9,6 +9,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -17,6 +18,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -261,5 +263,81 @@ public class PaCoGuiUtils {
         bufferSource.endBatch();
         poseStack.popPose();
         RenderSystem.applyModelViewMatrix();
+    }
+
+    /** @return The total height a tooltip will occupy when rendered */
+    public static int getTooltipHeight(Font font, List<Component> tooltipLines, int width, int sliceSize) {
+        List<ClientTooltipComponent> components = getTooltipComponents(font, tooltipLines, width, sliceSize);
+        int innerHeight = components.size() == 1 ? -2 : 0;
+        for (ClientTooltipComponent component : components)
+            innerHeight += component.getHeight();
+        return innerHeight + (sliceSize * 2);
+    }
+
+    /** Helper method to build and wrap the tooltip text components */
+    private static List<ClientTooltipComponent> getTooltipComponents(Font font, List<Component> tooltipLines, int width, int sliceSize) {
+        int innerWidth = Math.max(0, width - (sliceSize * 2));
+        List<ClientTooltipComponent> components = new ArrayList<>();
+        for (Component line : tooltipLines) {
+            List<FormattedCharSequence> wrappedLines = font.split(line, innerWidth);
+            if (wrappedLines.isEmpty()) {
+                components.add(ClientTooltipComponent.create(FormattedCharSequence.EMPTY));
+            } else {
+                for (FormattedCharSequence wrappedLine : wrappedLines)
+                    components.add(ClientTooltipComponent.create(wrappedLine));
+            }
+        }
+        return components;
+    }
+
+    /**
+     * Renders a tooltip with a custom nine-sliced background texture.
+     * The tooltip background will always be exactly the specified width, and text will wrap
+     * to fit inside the box with standard padding.
+     *
+     * @param graphics      The {@link GuiGraphics}
+     * @param font          The {@link Font} to use for rendering
+     * @param tooltipLines  A list of {@link Component Components} used as the lines of the tooltip
+     * @param x             The top-left X coordinate of the tooltip box
+     * @param y             The top-left Y coordinate of the tooltip box
+     * @param width         The total width the background should occupy (including the rim)
+     * @param texture       The {@link ResourceLocation} of the texture
+     * @param sliceSize     The size of the corner slices for nine-slicing (used for rim size)
+     * @param uOffset       The X coordinate of the top-left corner of the source texture
+     * @param vOffset       The Y coordinate of the top-left corner of the source texture
+     * @param textureWidth  The total width of the source texture
+     * @param textureHeight The total height of the source texture
+     */
+    public static void renderFixedTooltipNineSliced(GuiGraphics graphics, Font font, List<Component> tooltipLines, int x, int y, int width, ResourceLocation texture, int sliceSize, int uOffset, int vOffset, int textureWidth, int textureHeight) {
+        List<ClientTooltipComponent> components = PaCoGuiUtils.getTooltipComponents(font, tooltipLines, width, sliceSize);
+        // Calculates the total height of the tooltip
+        int innerHeight = components.size() == 1 ? -2 : 0;
+        for (ClientTooltipComponent component : components)
+            innerHeight += component.getHeight();
+        int totalHeight = innerHeight + (sliceSize * 2);
+        // Renders the tooltip
+        graphics.pose().pushPose();
+        int z = 400; // The default z-level MC uses
+        // Note: we need to translate the tooltip on the z-axis, because MC uses fill which behaves slightly differently.
+        graphics.pose().translate(0.0F, 0.0F, z);
+        // Renders the tooltip background as a nine sliced texture
+        graphics.drawManaged(() -> {
+            graphics.blitNineSliced(texture, x, y, width, totalHeight, sliceSize, textureWidth, textureHeight, uOffset, vOffset);
+        });
+        // Renders the tooltip text
+        int currentY = y + sliceSize;
+        for (int i = 0; i < components.size(); i++) {
+            ClientTooltipComponent component = components.get(i);
+            component.renderText(font, x + sliceSize, currentY, graphics.pose().last().pose(), graphics.bufferSource());
+            currentY += component.getHeight() + (i == 0 ? 2 : 0);
+        }
+        // Renders the tooltip images
+        currentY = y + sliceSize;
+        for (int i = 0; i < components.size(); i++) {
+            ClientTooltipComponent component = components.get(i);
+            component.renderImage(font, x + sliceSize, currentY, graphics);
+            currentY += component.getHeight() + (i == 0 ? 2 : 0);
+        }
+        graphics.pose().popPose();
     }
 }

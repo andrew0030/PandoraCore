@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeBuilder;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.gui.sliders.FocusRectangleMode;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
@@ -154,14 +155,14 @@ public class PaCoConfigScreen extends Screen {
         graphics.fillGradient(0, 0, this.width, this.height, PaCoColor.color(83, 16, 16, 16), PaCoColor.color(67, 16, 16, 16));
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        // Entries Panel
-        this.renderEntriesPanel(graphics, mouseX, mouseY, partialTick);
-
         // Top Bar
         graphics.blitNineSliced(TEXTURE, this.menuWidthStart, this.menuHeightStart - 4, this.menuWidth, 4, 1, 18, 18, 0, 36);
 
         // Bottom Bar
         graphics.blitNineSliced(TEXTURE, this.menuWidthStart, this.menuHeightStop, this.menuWidth, 4, 1, 18, 18, 0, 36);
+
+        // Entries Panel
+        this.renderEntriesPanel(graphics, mouseX, mouseY, partialTick);
 
         // Debug Outline
 //        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight, null, PaCoColor.color(255, 40, 40), 1);
@@ -183,12 +184,70 @@ public class PaCoConfigScreen extends Screen {
         // Renders all the widgets attached to entries
         this.configEntries.forEach(entry -> entry.render(graphics, mouseX, mouseY, partialTick));
 
+        // Config entry gradients
+        RenderSystem.enableBlend();
+        if (this.entriesScrollBar != null && this.menuHeight >= 50) {
+            RenderSystem.disableDepthTest();
+            int roundedVal = (int) Math.round(this.entriesScrollBar.getValue());
+            // Top Gradient
+            if (roundedVal > 0) {
+                int gradientHeight = Math.min(25, roundedVal);
+                graphics.blitRepeating(TEXTURE, posX, this.menuHeightStart, width, gradientHeight, 25, 122 - gradientHeight, 25, gradientHeight);
+            }
+            // Bottom Gradient
+            int maxVal = this.entriesHeight - this.menuHeight;
+            if (roundedVal < maxVal) {
+                int gradientHeight = Math.min(25, maxVal - roundedVal);
+                graphics.blitRepeating(TEXTURE, posX, this.menuHeightStart + this.menuHeight - gradientHeight, width, gradientHeight, 0, 97, 25, gradientHeight);
+            }
+            RenderSystem.enableDepthTest();
+        }
+
         // Disables GLScissors
         graphics.pose().popPose();
         graphics.disableScissor();
 
-        // Renders the entry tooltips after scissors
-        this.configEntries.forEach(entry -> entry.renderTooltip(graphics, mouseX, mouseY, partialTick));
+        // Renders the entry tooltip after scissors
+        this.renderTooltip(graphics, mouseX, mouseY, partialTick);
+    }
+
+    /** Renders the tooltip and its gradient */
+    private void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        int hoveredIdx = -1;
+        int focusedIdx = -1;
+        for (int i = 0; i < this.configEntries.size(); i++) {
+            BaseConfigEntry entry = this.configEntries.get(i);
+            // Checks for hovered entries
+            if (entry.isHovered()) hoveredIdx = i;
+            // Checks for focused entries (only stores the first found one)
+            else if (entry.isFocused() && focusedIdx == -1) focusedIdx = i;
+        }
+        // Prioritizes hover over focus if both exist
+        int activeIdx = (hoveredIdx != -1) ? hoveredIdx : focusedIdx;
+        // Renders the tooltip at the active index, if there is one
+        if (activeIdx != -1) {
+            BaseConfigEntry entry = this.configEntries.get(activeIdx);
+            // Renders the tooltip
+            entry.renderTooltip(graphics, mouseX, mouseY, partialTick);
+            // Calculates the final Y position for the tooltip gradient
+            boolean renderBelow = entry.renderTooltipBelow();
+            int posY = renderBelow ? entry.getY() + entry.getHeight() + entry.getTooltipHeight() : entry.getY() - entry.getTooltipHeight() - 25;
+            int u = renderBelow ? 25 : 0;
+            // Renders the tooltip gradient
+            PaCoGuiUtils.enableScissor(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
+            graphics.pose().pushPose();
+            RenderSystem.enableBlend();
+            RenderSystem.disableDepthTest();
+            graphics.blitRepeating(
+                    PaCoScreen.TEXTURE,   // The texture
+                    entry.getX(), posY,   // Position to render at
+                    entry.getWidth(), 25, // Size to render
+                    u, 97,                // UV coordinates on texture
+                    25, 25                // Size on texture
+            );
+            graphics.pose().popPose();
+            graphics.disableScissor();
+        }
     }
 
     @Override

@@ -22,11 +22,14 @@ import java.util.List;
 // - Abstract value retrieval to avoid direct interaction with the config instance
 // - Add bulk modification logic, rather than saving the config each time
 public abstract class BaseConfigEntry implements Renderable {
+    private static final int SLICE_SIZE = 3;
     protected final PaCoConfigScreen screen;
     protected final ConfigTreeNode node;
     private final int x, y, width, height;
     protected final List<AbstractWidget> widgets = new ArrayList<>();
     protected boolean isHovered;
+    private final List<Component> tooltips = new ArrayList<>();
+    private final int tooltipHeight;
 
     public BaseConfigEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
         this.screen = screen;
@@ -35,6 +38,19 @@ public abstract class BaseConfigEntry implements Renderable {
         this.y = y;
         this.width = width;
         this.height = height;
+
+
+        // TODO is this fine?
+        this.tooltips.add(Component.literal(this.node.getDataHolder().getComment()));
+        this.tooltips.add(Component.literal("LINE"));
+        this.tooltips.add(Component.literal("LINE"));
+        this.tooltips.add(Component.literal("LINE"));
+        this.tooltips.add(Component.literal("LINE"));
+        this.tooltips.add(Component.literal("LINE"));
+        this.tooltips.add(Component.literal("LINE"));
+        this.tooltipHeight = PaCoGuiUtils.getTooltipHeight(
+                Minecraft.getInstance().font, this.tooltips, this.getWidth(), SLICE_SIZE
+        );
     }
 
     @Override
@@ -62,17 +78,11 @@ public abstract class BaseConfigEntry implements Renderable {
      * </p>
      */
     public void renderTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        if (this.isHovered()) {
-            // TODO remove this short lived list, instead the tooltip components should be retrieved on init and reused
-            ArrayList<Component> tooltip = new ArrayList<>();
-            tooltip.add(Component.literal(this.node.getDataHolder().getComment()));
-
-            // TODO implement focus/hover logic so keyboard navigation also triggers tooltips
-            PaCoGuiUtils.renderFixedTooltipNineSliced(
-                    graphics, Minecraft.getInstance().font, tooltip, this.getX(), this.getY() + this.getHeight(), this.getWidth(),
-                    PaCoScreen.TEXTURE, 3, 150, 72, 75, 25
-            );
-        }
+        int posY = this.renderTooltipBelow() ? this.getY() + this.getHeight() : this.getY() - this.tooltipHeight;
+        PaCoGuiUtils.renderFixedTooltipNineSliced(
+                graphics, Minecraft.getInstance().font, this.tooltips, this.getX(), posY, this.getWidth(),
+                PaCoScreen.TEXTURE, SLICE_SIZE, 150, 72, 75, 25
+        );
     }
 
     // TODO write javadocs for the methods bellow
@@ -122,5 +132,34 @@ public abstract class BaseConfigEntry implements Renderable {
     protected int getScrollOffset() {
         if (this.screen.entriesScrollBar == null) return 0;
         return -Math.round((float) this.screen.entriesScrollBar.getValue());
+    }
+
+    public int getTooltipHeight() {
+        return this.tooltipHeight;
+    }
+
+    /** @return Whether to render the tooltip under the config entry */
+    public boolean renderTooltipBelow() {
+        int tooltipHeight = this.getTooltipHeight();
+        int entryTop = this.getY();
+        int entryBottom = entryTop + this.getHeight();
+        int spaceAbove = entryTop - this.screen.menuHeightStart;
+        int spaceBelow = this.screen.menuHeightStop - entryBottom;
+        boolean renderBelow;
+        // Checks if the tooltip fits below
+        if (tooltipHeight <= spaceBelow)
+            renderBelow = true;
+        // Checks if the tooltip fits above
+        else if (tooltipHeight <= spaceAbove)
+            renderBelow = false;
+        // If the tooltip doesn't fit anywhere, we place it based on vertical position
+        else {
+            // Calculates the center of the entries panel
+            int menuCenter = this.screen.menuHeightStart + (this.screen.menuHeightStop - this.screen.menuHeightStart) / 2;
+            // If the entry is in the top half we render the tooltip below
+            // If the entry in the bottom half we render the tooltip above
+            renderBelow = entryTop < menuCenter;
+        }
+        return renderBelow;
     }
 }

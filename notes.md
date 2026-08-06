@@ -167,6 +167,7 @@ Systems TODO:
   - [ ] Particle instancer
   - [ ] Potential future rewrite?
   - [ ] Placing an instanced item into an item frame causes the item frame lighting to change/break
+  - [ ] Reloading resources (`F3` + `T`) crashes the game while an instanced item is held
 - Templater
   - [ ] The `OperationVisitor` logs the following error: "_Unrecognized operation! %_", probably due to `fail.vsh`, investigate...
 - Uniform Holder

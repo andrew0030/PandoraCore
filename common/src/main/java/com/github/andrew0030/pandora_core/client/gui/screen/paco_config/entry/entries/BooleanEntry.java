@@ -65,7 +65,7 @@ public class BooleanEntry extends BaseConfigEntry {
             int posX = this.getX() + this.width - 20;
             int posY = this.getY() + 2;
             // TODO replace these placeholder "textures" with an actual texture
-            int rimColor = this.isHovered() ? PaCoColor.WHITE : PaCoColor.color(180, 180, 180);
+            int rimColor = this.isHoveredOrFocused() ? PaCoColor.WHITE : PaCoColor.color(180, 180, 180);
             graphics.fill(posX, posY, posX + 12, posY + 12, rimColor);
             graphics.fill(posX + 1, posY + 1, posX + 11, posY + 11, PaCoColor.color(60, 60, 60));
             if (this.value)

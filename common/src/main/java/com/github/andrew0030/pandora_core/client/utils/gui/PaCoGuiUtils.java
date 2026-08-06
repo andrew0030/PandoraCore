@@ -265,6 +265,31 @@ public class PaCoGuiUtils {
         RenderSystem.applyModelViewMatrix();
     }
 
+    /** @return The total height a tooltip will occupy when rendered */
+    public static int getTooltipHeight(Font font, List<Component> tooltipLines, int width, int sliceSize) {
+        List<ClientTooltipComponent> components = getTooltipComponents(font, tooltipLines, width, sliceSize);
+        int innerHeight = components.size() == 1 ? -2 : 0;
+        for (ClientTooltipComponent component : components)
+            innerHeight += component.getHeight();
+        return innerHeight + (sliceSize * 2);
+    }
+
+    /** Helper method to build and wrap the tooltip text components */
+    private static List<ClientTooltipComponent> getTooltipComponents(Font font, List<Component> tooltipLines, int width, int sliceSize) {
+        int innerWidth = Math.max(0, width - (sliceSize * 2));
+        List<ClientTooltipComponent> components = new ArrayList<>();
+        for (Component line : tooltipLines) {
+            List<FormattedCharSequence> wrappedLines = font.split(line, innerWidth);
+            if (wrappedLines.isEmpty()) {
+                components.add(ClientTooltipComponent.create(FormattedCharSequence.EMPTY));
+            } else {
+                for (FormattedCharSequence wrappedLine : wrappedLines)
+                    components.add(ClientTooltipComponent.create(wrappedLine));
+            }
+        }
+        return components;
+    }
+
     /**
      * Renders a tooltip with a custom nine-sliced background texture.
      * The tooltip background will always be exactly the specified width, and text will wrap
@@ -284,19 +309,7 @@ public class PaCoGuiUtils {
      * @param textureHeight The total height of the source texture
      */
     public static void renderFixedTooltipNineSliced(GuiGraphics graphics, Font font, List<Component> tooltipLines, int x, int y, int width, ResourceLocation texture, int sliceSize, int uOffset, int vOffset, int textureWidth, int textureHeight) {
-        // The width the text can occupy, we use the sliceSize as the padding
-        int innerWidth = Math.max(0, width - (sliceSize * 2));
-        // Uses the inner width to wrap the text if needed
-        List<ClientTooltipComponent> components = new ArrayList<>();
-        for (Component line : tooltipLines) {
-            List<FormattedCharSequence> wrappedLines = font.split(line, innerWidth);
-            if (wrappedLines.isEmpty()) {
-                components.add(ClientTooltipComponent.create(FormattedCharSequence.EMPTY));
-            } else {
-                for (FormattedCharSequence wrappedLine : wrappedLines)
-                    components.add(ClientTooltipComponent.create(wrappedLine));
-            }
-        }
+        List<ClientTooltipComponent> components = PaCoGuiUtils.getTooltipComponents(font, tooltipLines, width, sliceSize);
         // Calculates the total height of the tooltip
         int innerHeight = components.size() == 1 ? -2 : 0;
         for (ClientTooltipComponent component : components)

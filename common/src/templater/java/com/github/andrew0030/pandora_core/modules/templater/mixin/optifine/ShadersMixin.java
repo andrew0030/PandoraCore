@@ -28,6 +28,12 @@ public abstract class ShadersMixin {
 		throw new RuntimeException("");
 	}
 	
+	@Inject(at = @At("HEAD"), method = "loadShaderPack")
+	private static void preLoadShaders(CallbackInfo ci) {
+		if (OptifineTemplateLoader.getInstance() != null) // this runs REALLY early
+			OptifineTemplateLoader.getInstance()._beginReload();
+	}
+	
 	@Inject(at = @At("HEAD"), method = "createGeomShader")
 	private static void preCreateG(Program program, String filename, CallbackInfoReturnable<Integer> cir) {
 		OptifineTemplateLoader.activeFile(filename);

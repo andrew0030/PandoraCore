@@ -152,7 +152,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 		);
 	}
 	
-	private Program resolveHighestProgram(Program prog) {
+	private static Program resolveHighestProgram(Program prog) {
 		while (true) {
 //			System.out.println("RESOLVE: " + prog);
 			if (progsWithSrcs.contains(prog)) {
@@ -162,6 +162,21 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 			if (bak == Shaders.ProgramNone)
 				return null;
 			prog = bak;
+		}
+	}
+	
+	public static Program getRealProgram(Program prog) {
+		if (prog.getId() == 0) {
+			return Shaders.ProgramNone;
+		} else {
+			Program p;
+			for(p = prog; p.getRef() != prog.getId(); p = p.getProgramBackup()) {
+				if (p.getProgramBackup() == null || p.getProgramBackup() == p) {
+					return resolveHighestProgram(p);
+				}
+			}
+			
+			return p;
 		}
 	}
 	
@@ -190,7 +205,7 @@ public class OptifineTemplateLoader extends TemplateLoader implements VariableMa
 			String gbuffer = pth + "gbuffers_";
 			AttachmentSpecifier[] specifiers = new AttachmentSpecifier[5];
 			Program instance = instances.get("gbuffers_" + template);
-			Program refInstance = resolveHighestProgram(instance);
+			Program refInstance = getRealProgram(instance);
 			try {
 //				System.out.println("DERIVE FROM: " + gbuffer + template);
 				

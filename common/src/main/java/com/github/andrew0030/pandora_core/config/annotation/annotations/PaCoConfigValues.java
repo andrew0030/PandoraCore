@@ -113,4 +113,16 @@ public class PaCoConfigValues {
     public @interface GuiEntryType {
         Class<? extends BaseConfigEntry> value();
     }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface GuiEntryKey {
+        String value();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface GuiEntryTooltip {
+        String value();
+    }
 }

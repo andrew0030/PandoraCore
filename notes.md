@@ -24,8 +24,10 @@ Jank:
 Systems TODO:
 - Config System
   - [x] Value setters (needed behind the scenes to modify values ingame)
-  - [ ] More annotations that can be used to control how certain entries should affect the game/menu
-  - [ ] Add TranslatableComponent support for entry description and key
+  - [x] More annotations that can be used to control how certain entries should affect the game/menu
+    - [ ] Implement default value handlers for all normal value types
+    - [ ] Look into serialization for custom object handling
+  - [x] Add TranslatableComponent support for entry description and key
   - [ ] Add support for loading configs from a `defaultconfigs` folder
   - [ ] Maybe add some sort of wrapper for forge's config system
   - [x] Maybe add support for custom Objects?
@@ -73,7 +75,7 @@ Systems TODO:
   - [x] Maybe fine tune the keyboard navigation (scroll bars could maybe navigate from center of the slider instead?)
   - [ ] Maybe add optional config setting to open the PaCo mods list when the _Mods_ button is pressed?
 - PaCo Config Screen
-  - [ ] Create config screen that can take any number of components and dynamically adjust to it
+  - [x] Create config screen that can take any number of components and dynamically adjust to it
   - [ ] Hook mod config system into it
 - Warning Factory
   - [x] Rewrite WarningFactory system. Instead of an interface, it will use a **specific** static method, which will be invoked with a method handle

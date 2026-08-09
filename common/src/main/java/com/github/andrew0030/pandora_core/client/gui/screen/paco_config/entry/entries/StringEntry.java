@@ -17,7 +17,7 @@ public class StringEntry extends BaseConfigEntry {
         ConfigDataHolderEntry holder = (ConfigDataHolderEntry) node.getDataHolder();
         // Creates the interactable widget
         // TODO maybe improve what kind of data is passed to the widgets? Something to look into after more of the types are implemented!
-        this.widget = new TextField(x, y, width, height, Component.literal("TODO"), holder, screen.getManager()); //TODO fix narration
+        this.widget = new TextField(this, Component.literal("TODO")); //TODO fix narration
         this.widget.setForceLineIndicator(true);
         this.widget.setMidpointCharSelection(true);
         // Sets the value to the current value from the config
@@ -34,14 +34,33 @@ public class StringEntry extends BaseConfigEntry {
     }
 
     private static class TextField extends PaCoEditBox {
+        private final BaseConfigEntry entry;
         private final ConfigDataHolder holder;
         private final PaCoConfigManager manager;
 
-        public TextField(int x, int y, int width, int height, Component message, ConfigDataHolderEntry holder, PaCoConfigManager manager) {
-            super(Minecraft.getInstance().font, x + width - 120, y + 1, 120, height - 2, message);
-            this.holder = holder;
-            this.manager = manager;
+        public TextField(BaseConfigEntry entry, Component message) {
+            super(Minecraft.getInstance().font, entry.getX() + entry.getWidth() - 120, entry.getY() + 1, 120, entry.getHeight() - 2, message);
+            this.entry = entry;
+            this.holder = entry.node.getDataHolder();
+            this.manager = entry.screen.getManager();
         }
+
+        // NOTE: The code in this block should be implemented by all widgets used for config entries, the methods
+        //       ensure that the widgets move along the config entries, and aren't clickable when out of bounds!
+        // #########################################################################################################
+        @Override
+        public int getY() {
+            return super.getY() + this.entry.getScrollOffset();
+        }
+        @Override
+        public boolean isHovered() {
+            return this.entry.isHovered() && super.isHovered();
+        }
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            return this.entry.screen.isMouseInEntriesBounds(mouseX, mouseY) && super.mouseClicked(mouseX, mouseY, button);
+        }
+        // #########################################################################################################
 
         @Override
         public void onTextChanged(String newText) {

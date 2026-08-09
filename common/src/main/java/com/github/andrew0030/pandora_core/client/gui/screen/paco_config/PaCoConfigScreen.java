@@ -233,7 +233,7 @@ public class PaCoConfigScreen extends Screen {
             boolean renderBelow = entry.renderTooltipBelow();
             int posY = renderBelow ? entry.getY() + entry.getHeight() + entry.getTooltipHeight() : entry.getY() - entry.getTooltipHeight() - 25;
             int u = renderBelow ? 25 : 0;
-            // Renders the tooltip gradient
+            // Renders the tooltip gradient // TODO gradient shouldn't render when there aren't entries under it
             PaCoGuiUtils.enableScissor(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
             graphics.pose().pushPose();
             RenderSystem.enableBlend();
@@ -259,7 +259,7 @@ public class PaCoConfigScreen extends Screen {
     public void onClose() {
         // Handles returning to previous Screen if needed
         if (this.previousScreen != null) {
-            if (this.titleScreen != null)
+            if (this.titleScreen != null && !(this.previousScreen instanceof PaCoConfigScreen))
                 ((IPaCoModifyTitleScreen) this.titleScreen).pandoraCore$hideElements(false);
             Minecraft.getInstance().setScreen(this.previousScreen);
         } else if (this.titleScreen != null) {

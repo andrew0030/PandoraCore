@@ -64,10 +64,14 @@ public class PaCoMainConfig {
             This is the last boolean value before declared classes.
             """)
     @PaCoConfigValues.GuiEntryType(BooleanButtonEntry.class)
+    @PaCoConfigValues.GuiEntryKey("config.pandora_core.lastBoolean.key")
+    @PaCoConfigValues.GuiEntryTooltip("config.pandora_core.lastBoolean.tooltip")
     @PaCoConfigValues.BooleanValue
     public static boolean lastBoolean = false;
 
     @PaCoConfig.Comment("   This is a test category for booleans.\n   It holds 2 boolean values!   ")
+    @PaCoConfig.GuiEntryKey("config.pandora_core.lastBoolean.booleans.key")
+    @PaCoConfig.GuiEntryTooltip("config.pandora_core.lastBoolean.booleans.tooltip")
     @PaCoConfig.Category("booleans")
     public static class BooleanSubCategory {
 

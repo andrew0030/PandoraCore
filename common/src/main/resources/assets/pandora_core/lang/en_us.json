@@ -40,5 +40,15 @@
   "warnings.pandora_core.sodium.indium": "[Sodium] detected and [Indium] is missing, CTM has been disabled!",
 
   "narration.pandora_core.slider.vertical.usage.focused": "Press up or down keyboard buttons to change value",
-  "narration.pandora_core.slider.2d.usage.focused": "Press arrow keyboard buttons to change value"
+  "narration.pandora_core.slider.2d.usage.focused": "Press arrow keyboard buttons to change value",
+
+
+
+
+
+
+  "config.pandora_core.lastBoolean.key": "§c§lL§6§la§e§ls§a§lt§r §b§oB§3§oo§9§ool§1§oe§5§oa§d§on",
+  "config.pandora_core.lastBoolean.tooltip": "There should be a §acategory§7 under this entry.\nThis is the §llast§r§7 boolean value before declared classes.",
+  "config.pandora_core.lastBoolean.booleans.key": "Boolean Subcategory",
+  "config.pandora_core.lastBoolean.booleans.tooltip": "This is a test category for booleans.\nIt holds 2 boolean values!"
 }

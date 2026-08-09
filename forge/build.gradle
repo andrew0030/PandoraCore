@@ -116,7 +116,7 @@ legacyForge {
             setGameDirectory(dir)
         }
         client {
-            jvmArguments.add("-Dpaco.use.renderdoc=true")
+//            jvmArguments.add("-Dpaco.use.renderdoc=true")
             client()
         }
         server { server() }

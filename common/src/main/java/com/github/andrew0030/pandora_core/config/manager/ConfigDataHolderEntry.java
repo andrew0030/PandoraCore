@@ -52,6 +52,10 @@ public class ConfigDataHolderEntry extends ConfigDataHolder {
         return this;
     }
 
+    public List<String> getValidValues() {
+        return this.validValues;
+    }
+
     /** Used to cache the value range (if applicable), which is then used for internal logic */
     @ApiStatus.Internal
     public ConfigDataHolderEntry setRange(@Nullable Number minVal, @Nullable Number maxVal) {

@@ -6,11 +6,14 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.Co
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.PaCoConfigEntryManager;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BooleanEntry;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.CategoryEntry;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.StringEntry;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import com.github.andrew0030.pandora_core.config.manager.*;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 import org.slf4j.Logger;
 
@@ -109,6 +112,8 @@ public class AnnotationHandler {
         this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);             // Enum
         this.annotationHandlers.put(PaCoConfigValues.CustomValue.class, this::handleCustomField);         // Custom Classes
         this.annotationHandlers.put(PaCoConfigValues.CustomListValue.class, this::handleCustomListField); // Custom Classes List
+        this.annotationHandlers.put(PaCoConfigValues.GuiEntryKey.class, this::handleGuiEntryKey);         // GUI Entry Key
+        this.annotationHandlers.put(PaCoConfigValues.GuiEntryTooltip.class, this::handleGuiEntryTooltip); // GUI Entry Tooltip
         this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);                 // Comments
 
         this.processConfigClass(this.manager.getConfigClass(), null);
@@ -146,8 +151,8 @@ public class AnnotationHandler {
                     ));
                 }
                 String classCategory = categoryPrefix + clazz.getAnnotation(PaCoConfig.Category.class).value();
-                if (clazz.isAnnotationPresent(PaCoConfig.Comment.class))
-                    this.handleCategoryComment(clazz, classCategory);
+                this.handleCategory(clazz, classCategory);
+
                 this.processConfigClass(clazz, classCategory);
             }
         }
@@ -184,10 +189,9 @@ public class AnnotationHandler {
             configSpec.define(key, defaultValue);
             ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
             ConfigEntryFactory factory = this.getConfigEntryFactory(field, BooleanEntry.class);
-            this.dataHolders.put(key, holder
-                    .setConfigEntryFactory(factory)
-                    .setPath(key)
-            );
+            holder.setPath(key);
+            holder.setConfigEntryFactory(factory);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -469,7 +473,10 @@ public class AnnotationHandler {
             String key = category + field.getName();
             configSpec.define(key, defaultValue);
             ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            this.dataHolders.put(key, holder.setPath(key));
+            ConfigEntryFactory factory = this.getConfigEntryFactory(field, StringEntry.class);
+            holder.setPath(key);
+            holder.setConfigEntryFactory(factory);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -652,6 +659,23 @@ public class AnnotationHandler {
         return converter.deserialize(casted);
     }
 
+    private void handleGuiEntryKey(Field field, String category) {
+        PaCoConfigValues.GuiEntryKey keyAnnotation = field.getAnnotation(PaCoConfigValues.GuiEntryKey.class);
+        String key = category + field.getName();
+        ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+        Component component = Component.translatable(keyAnnotation.value());
+        this.dataHolders.put(key, holder.setKeyComponent(component));
+    }
+
+    private void handleGuiEntryTooltip(Field field, String category) {
+        PaCoConfigValues.GuiEntryTooltip tooltipAnnotation = field.getAnnotation(PaCoConfigValues.GuiEntryTooltip.class);
+        String key = category + field.getName();
+        ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+        List<Component> components = new ArrayList<>();
+        components.add(Component.translatable(tooltipAnnotation.value()));
+        this.dataHolders.put(key, holder.setTooltipComponents(components));
+    }
+
     private void handleComment(Field field, String category) {
         PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
         String key = category + field.getName();
@@ -659,11 +683,31 @@ public class AnnotationHandler {
         this.dataHolders.put(key, holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
     }
 
-    private void handleCategoryComment(Class<?> clazz, String category) {
-        PaCoConfig.Comment commentAnnotation = clazz.getAnnotation(PaCoConfig.Comment.class);
+    public void handleCategory(Class<?> clazz, String category) {
         ConfigDataHolder holder = this.dataHolders.getOrDefault(category, new ConfigDataHolderCategory());
         holder.setPath(category);
-        this.dataHolders.put(category, holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
+        // Entry Factory
+        ConfigEntryFactory factory = this.getCategoryConfigEntryFactory(clazz, CategoryEntry.class);
+        holder.setConfigEntryFactory(factory);
+        // Entry Key
+        PaCoConfig.GuiEntryKey keyAnnotation = clazz.getAnnotation(PaCoConfig.GuiEntryKey.class);
+        if (keyAnnotation != null) {
+            Component component = Component.translatable(keyAnnotation.value());
+            holder.setKeyComponent(component);
+        }
+        // Entry Tooltip
+        PaCoConfig.GuiEntryTooltip tooltipAnnotation = clazz.getAnnotation(PaCoConfig.GuiEntryTooltip.class);
+        if (keyAnnotation != null) {
+            List<Component> components = new ArrayList<>();
+            components.add(Component.translatable(tooltipAnnotation.value()));
+            holder.setTooltipComponents(components);
+        }
+        // Comment
+        PaCoConfig.Comment commentAnnotation = clazz.getAnnotation(PaCoConfig.Comment.class);
+        if (commentAnnotation != null)
+            holder.setComment(commentAnnotation.value(), commentAnnotation.padding());
+
+        this.dataHolders.put(category, holder);
     }
 
     private void checkFieldValidity(Field field, String annotationName, Class<?>... types) {
@@ -697,9 +741,13 @@ public class AnnotationHandler {
         return defaultObject;
     }
 
-    // TODO maybe expand this to work with class annotations?
     private ConfigEntryFactory getConfigEntryFactory(Field field, Class<? extends BaseConfigEntry> defaultEntry) {
         PaCoConfigValues.GuiEntryType annotation = field.getAnnotation(PaCoConfigValues.GuiEntryType.class);
+        return PaCoConfigEntryManager.getFactory(annotation != null ? annotation.value() : defaultEntry);
+    }
+
+    private ConfigEntryFactory getCategoryConfigEntryFactory(Class<?> clazz, Class<? extends BaseConfigEntry> defaultEntry) {
+        PaCoConfig.GuiEntryType annotation = clazz.getAnnotation(PaCoConfig.GuiEntryType.class);
         return PaCoConfigEntryManager.getFactory(annotation != null ? annotation.value() : defaultEntry);
     }
 }

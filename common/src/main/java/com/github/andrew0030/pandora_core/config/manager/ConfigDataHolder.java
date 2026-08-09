@@ -2,9 +2,13 @@ package com.github.andrew0030.pandora_core.config.manager;
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.ConfigEntryFactory;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.UnsupportedEntry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class ConfigDataHolder {
@@ -12,6 +16,8 @@ public abstract class ConfigDataHolder {
     protected String comment;
     protected int commentPadding = 1;
     protected ConfigEntryFactory configEntryFactory;
+    protected Component keyComponent;
+    protected List<Component> tooltipComponents = new ArrayList<>();
 
     public ConfigDataHolder setPath(String path) {
         this.path = path;
@@ -65,6 +71,25 @@ public abstract class ConfigDataHolder {
     public ConfigEntryFactory getConfigEntryFactory() {
         // Fallback just in case, though AnnotationHandler should always set it
         return this.configEntryFactory != null ? this.configEntryFactory : UnsupportedEntry::new;
+    }
+
+    public ConfigDataHolder setKeyComponent(Component keyComponent) {
+        this.keyComponent = keyComponent;
+        return this;
+    }
+
+    @Nullable
+    public Component getKeyComponent() {
+        return this.keyComponent;
+    }
+
+    public ConfigDataHolder setTooltipComponents(List<Component> components) {
+        this.tooltipComponents.addAll(components);
+        return this;
+    }
+
+    public List<Component> getTooltipComponents() {
+        return this.tooltipComponents;
     }
 
     public boolean hasField() {

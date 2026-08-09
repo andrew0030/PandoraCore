@@ -1,5 +1,7 @@
 package com.github.andrew0030.pandora_core.config.annotation.annotations;
 
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -50,5 +52,23 @@ public class PaCoConfig {
     public @interface Comment {
         String value();
         int padding() default 1;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface GuiEntryType {
+        Class<? extends BaseConfigEntry> value();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface GuiEntryKey {
+        String value();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface GuiEntryTooltip {
+        String value();
     }
 }

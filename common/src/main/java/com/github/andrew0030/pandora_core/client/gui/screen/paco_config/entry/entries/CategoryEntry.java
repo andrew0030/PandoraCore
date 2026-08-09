@@ -14,19 +14,38 @@ public class CategoryEntry extends BaseConfigEntry {
 
     public CategoryEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
         super(screen, node, x, y, width, height);
-        CategoryButton widget = new CategoryButton(x, y, width, height, Component.literal("TODO"), node, screen); //TODO implement proper narration
+        Button widget = new Button(this, Component.literal("TODO")); //TODO implement proper narration
         this.widgets.add(widget);
     }
 
-    private static class CategoryButton extends AbstractWidget {
+    private static class Button extends AbstractWidget {
+        private final BaseConfigEntry entry;
         private final ConfigTreeNode node;
         private final PaCoConfigScreen screen;
 
-        public CategoryButton(int x, int y, int width, int height, Component message, ConfigTreeNode node, PaCoConfigScreen screen) {
-            super(x, y, width, height, message);
-            this.node = node;
-            this.screen = screen;
+        public Button(BaseConfigEntry entry, Component message) {
+            super(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), message);
+            this.entry = entry;
+            this.node = entry.node;
+            this.screen = entry.screen;
         }
+
+        // NOTE: The code in this block should be implemented by all widgets used for config entries, the methods
+        //       ensure that the widgets move along the config entries, and aren't clickable when out of bounds!
+        // #########################################################################################################
+        @Override
+        public int getY() {
+            return super.getY() + this.entry.getScrollOffset();
+        }
+        @Override
+        public boolean isHovered() {
+            return this.entry.isHovered() && super.isHovered();
+        }
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            return this.entry.screen.isMouseInEntriesBounds(mouseX, mouseY) && super.mouseClicked(mouseX, mouseY, button);
+        }
+        // #########################################################################################################
 
         @Override
         protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {

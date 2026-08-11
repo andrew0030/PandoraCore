@@ -39,7 +39,7 @@ public class StringEntry extends BaseConfigEntry {
         private final PaCoConfigManager manager;
 
         public TextField(BaseConfigEntry entry, Component message) {
-            super(Minecraft.getInstance().font, entry.getX() + entry.getWidth() - 120, entry.getY() + 1, 120, entry.getHeight() - 2, message);
+            super(Minecraft.getInstance().font, entry.getX() + entry.getWidth() - 120, entry.getY() + 1, 119, entry.getHeight() - 2, message);
             this.entry = entry;
             this.holder = entry.node.getDataHolder();
             this.manager = entry.screen.getManager();

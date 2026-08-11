@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,7 +63,21 @@ public class CategoryEntry extends BaseConfigEntry {
         }
 
         @Override
+        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+            if (this.active && this.visible && CommonInputs.selected(keyCode)) {
+                this.playDownSound(Minecraft.getInstance().getSoundManager());
+                this.onPress();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
         public void onClick(double mouseX, double mouseY) {
+            this.onPress();
+        }
+
+        private void onPress() {
             // TODO look into a cleaner way to get the title screen
             PaCoConfigScreen subScreen = new PaCoConfigScreen(this.screen.getManager(), this.node, screen.titleScreen, screen);
             Minecraft.getInstance().setScreen(subScreen);

@@ -6,9 +6,11 @@ import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderEntry;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -78,7 +80,21 @@ public class BooleanEntry extends BaseConfigEntry {
         }
 
         @Override
+        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+            if (this.active && this.visible && CommonInputs.selected(keyCode)) {
+                this.playDownSound(Minecraft.getInstance().getSoundManager());
+                this.onPress();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
         public void onClick(double mouseX, double mouseY) {
+            this.onPress();
+        }
+
+        private void onPress() {
             this.setValue(!this.value);
 
             // TODO improve how config values are set (should be a bulk operation)

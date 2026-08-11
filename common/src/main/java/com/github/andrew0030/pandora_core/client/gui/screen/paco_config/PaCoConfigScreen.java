@@ -22,6 +22,7 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class PaCoConfigScreen extends Screen {
     public static final int PADDING_ONE = 1;
     public static final int PADDING_TWO = 2;
     public static final int PADDING_FOUR = 4;
+    public static final int TOOLTIP_GRADIENT_SIZE = 10;
     // Config management stuff
     private final List<BaseConfigEntry> configEntries = new ArrayList<>();
     private final PaCoConfigManager manager;
@@ -137,7 +139,7 @@ public class PaCoConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Renders the title screen panorama/background
         if (this.titleScreen != null) {
             // We set the current screen to the title screen just before rendering it
@@ -227,23 +229,39 @@ public class PaCoConfigScreen extends Screen {
         // Renders the tooltip at the active index, if there is one
         if (activeIdx != -1) {
             BaseConfigEntry entry = this.configEntries.get(activeIdx);
+            // If the entry isn't within the panel's bounds we skip rendering
+            if (!entry.isInBounds()) return;
             // Renders the tooltip
             entry.renderTooltip(graphics, mouseX, mouseY, partialTick);
             // Calculates the final Y position for the tooltip gradient
             boolean renderBelow = entry.renderTooltipBelow();
-            int posY = renderBelow ? entry.getY() + entry.getHeight() + entry.getTooltipHeight() : entry.getY() - entry.getTooltipHeight() - 25;
-            int u = renderBelow ? 25 : 0;
-            // Renders the tooltip gradient // TODO gradient shouldn't render when there aren't entries under it
+            int posY = renderBelow ? entry.getY() + entry.getHeight() + entry.getTooltipHeight() : entry.getY() - entry.getTooltipHeight() - TOOLTIP_GRADIENT_SIZE;
+            int u = renderBelow ? 75 : 50;
+            int v = 97;
+            int gradientHeight = TOOLTIP_GRADIENT_SIZE;
+            // Renders the tooltip gradient
+            if (renderBelow && this.entriesHeight < this.menuHeight) {
+                int entriesBottom = this.menuHeightStart + this.entriesHeight - 2; // TODO maybe adjust 2 depending on padding
+                int gradientBottom = posY + TOOLTIP_GRADIENT_SIZE;
+                int overextension = entriesBottom - gradientBottom;
+                if (overextension < 0) {
+                    gradientHeight += overextension;
+                    v += TOOLTIP_GRADIENT_SIZE - gradientHeight;
+                }
+            }
+
+
+            // TODO use the full alpha render type for the gradient
             PaCoGuiUtils.enableScissor(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
             graphics.pose().pushPose();
             RenderSystem.enableBlend();
             RenderSystem.disableDepthTest();
             graphics.blitRepeating(
-                    PaCoScreen.TEXTURE,   // The texture
-                    entry.getX(), posY,   // Position to render at
-                    entry.getWidth(), 25, // Size to render
-                    u, 97,                // UV coordinates on texture
-                    25, 25                // Size on texture
+                    PaCoScreen.TEXTURE,               // The texture
+                    entry.getX(), posY,               // Position to render at
+                    entry.getWidth(), gradientHeight, // Size to render
+                    u, v,                             // UV coordinates on texture
+                    25, gradientHeight                // Size on texture
             );
             graphics.pose().popPose();
             graphics.disableScissor();
@@ -310,8 +328,8 @@ public class PaCoConfigScreen extends Screen {
 
         int startY = this.menuHeightStart;
         int currentY = startY + PADDING_TWO;
-        int entryX = this.menuWidthStart + PADDING_FOUR;
-        int entryWidth = this.menuWidth - (PADDING_FOUR * 2);
+        int entryX = this.menuWidthStart + PADDING_TWO;
+        int entryWidth = this.menuWidth - (PADDING_TWO * 2);
         int spacing = PADDING_TWO;
         int entryHeight = 16; // TODO maybe allow modifying this within the entries?
         if (hasScrollBar) {

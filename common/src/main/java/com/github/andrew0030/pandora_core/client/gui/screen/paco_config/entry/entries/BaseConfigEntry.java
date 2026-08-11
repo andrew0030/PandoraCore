@@ -6,8 +6,10 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
+import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -32,10 +34,19 @@ public abstract class BaseConfigEntry implements Renderable {
     private final int x, y, width, height;
     protected final List<AbstractWidget> widgets = new ArrayList<>();
     protected boolean isHovered;
+    protected boolean isFocused;
+    protected boolean isInBounds;
     // TODO maybe make protected or add getters
     private final Component entryKey;
     private final List<Component> entryTooltip = new ArrayList<>();
     private final int tooltipHeight;
+    // Animation & Fade-in
+    private static final int TEXT_ANIMATION_SPEED_MS = 300; // Note: above 0 to prevent divided by 0 exceptions
+    private static final int TEXT_MOVEMENT_DISTANCE = 2;
+    private long lastUpdateTime = Util.getMillis();
+    private float hoverAnimationProgress = 0.0F;
+
+
 
     public BaseConfigEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
         this.screen = screen;
@@ -75,19 +86,64 @@ public abstract class BaseConfigEntry implements Renderable {
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // Hover Logic
+        this.isInBounds = this.screen.menuHeightStop >= this.getY() && this.screen.menuHeightStart < this.getY() + this.getHeight();
         boolean mouseInBounds = this.screen.isMouseInEntriesBounds(mouseX, mouseY);
-        boolean isHovered = mouseX >= this.getX() && mouseX < this.getX() + this.getWidth() && mouseY >= this.getY() && mouseY < this.getY() + this.getHeight();
+        boolean isHovered = mouseX >= this.getX() && mouseX < this.getX() + this.getWidth() &&
+                            mouseY >= this.getY() - 1 && mouseY < this.getY() + this.getHeight() + 1; // NOTE: -+1 so there are no gaps between buttons when hovering them
         this.isHovered = mouseInBounds && isHovered;
 
+        // No rendering is needed when the entry is out of bounds
+        if (!this.isInBounds) {
+            this.hoverAnimationProgress = 0F;
+            return;
+        }
+
+        // Animation Times
+        long currentTime = Util.getMillis();
+        long deltaTime = Math.min(currentTime - this.lastUpdateTime, 100L); // Prevents huge animation jumps, if the game was paused
+        this.lastUpdateTime = currentTime;
+
+        // Animation Progress
+        boolean isActive = this.isHoveredOrFocused();
+        if (isActive) {
+            this.hoverAnimationProgress += deltaTime * (1F / TEXT_ANIMATION_SPEED_MS);
+            if (this.hoverAnimationProgress > 1F) this.hoverAnimationProgress = 1F;
+        } else {
+            this.hoverAnimationProgress -= deltaTime * (1F / TEXT_ANIMATION_SPEED_MS);
+            if (this.hoverAnimationProgress < 0F) this.hoverAnimationProgress = 0F;
+        }
+        float slideOffset = this.hoverAnimationProgress * TEXT_MOVEMENT_DISTANCE;
+
+        int u = isActive ? 96 : 48;
+        RenderSystem.setShaderColor(1, 1, 1, isActive ? Easing.CUBIC_IN_OUT.apply(this.hoverAnimationProgress) : 1);
         // Element Background
         RenderSystem.enableBlend();
-        graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0, 122, 48, 48);
+        graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight(), u, 122, 48, 48);
+        // Highlight Bars
+        if (isActive) {
+            int posY = this.getY() - 1;
+            graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), posY, this.getWidth(), 1, 144, 122, 48, 1);
+            posY += this.getHeight() + 1;
+            graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), posY, this.getWidth(), 1, 144, 122, 48, 1);
+        }
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+
         // Config Key
-        graphics.drawString(Minecraft.getInstance().font, this.entryKey, this.getX() + PaCoConfigScreen.PADDING_FOUR, this.getY() + PaCoConfigScreen.PADDING_FOUR, PaCoColor.WHITE, false);
+        graphics.pose().pushPose();
+        graphics.pose().translate(this.getX() + PaCoConfigScreen.PADDING_FOUR + slideOffset, this.getY() + PaCoConfigScreen.PADDING_FOUR, 1);
+        graphics.drawString(Minecraft.getInstance().font, this.entryKey, 0, 0, PaCoColor.WHITE, false);
+        graphics.pose().popPose();
+
+
 
 
         // TODO: maybe move/change this to utilize minecraft's built in widget rendering ?
+        // Widgets
         this.widgets.forEach(widget -> widget.render(graphics, mouseX, mouseY, partialTick));
+
+        // Debug Outline
+//        PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), null, PaCoColor.color(255, 40, 40), 1);
     }
 
     /**
@@ -101,7 +157,7 @@ public abstract class BaseConfigEntry implements Renderable {
         int posY = this.renderTooltipBelow() ? this.getY() + this.getHeight() : this.getY() - this.tooltipHeight;
         PaCoGuiUtils.renderFixedTooltipNineSliced(
                 graphics, Minecraft.getInstance().font, this.entryTooltip, this.getX(), posY, this.getWidth(),
-                PaCoScreen.TEXTURE, SLICE_SIZE, 150, 72, 75, 25
+                PaCoScreen.TEXTURE, SLICE_SIZE, 144, 122, 48, 48
         );
     }
 
@@ -118,9 +174,19 @@ public abstract class BaseConfigEntry implements Renderable {
     }
 
     public boolean isFocused() {
-        for (AbstractWidget widget : this.widgets)
-            if (widget.isFocused()) return true;
-        return false;
+        boolean wasFocused = this.isFocused;
+        this.isFocused = false;
+        for (AbstractWidget widget : this.widgets) {
+            if (widget.isFocused()) {
+                this.isFocused = true;
+                break;
+            }
+        }
+        // Moves the config entry into the menu panel bounds when focused
+        if (this.isFocused && !wasFocused)
+            this.moveEntryIntoFocus(false);
+
+        return this.isFocused;
     }
 
     public boolean isHoveredOrFocused() {
@@ -181,5 +247,27 @@ public abstract class BaseConfigEntry implements Renderable {
             renderBelow = entryTop < menuCenter;
         }
         return renderBelow;
+    }
+
+    /** @return Whether this entry is within the bounds of the entries panel */
+    public boolean isInBounds() {
+        return this.isInBounds;
+    }
+
+    // TODO implement resizing logic in PaCoConfigScreen when more navigation logic is added?
+    /** Moves the {@link BaseConfigEntry} up/down and adds padding if needed to avoid the gradient, or being hidden post resizing the {@link PaCoConfigScreen}. */
+    public void moveEntryIntoFocus(boolean moveToTop) {
+        if (this.screen.entriesScrollBar == null) return;
+        int padding = 16; // We use padding because the gradient would interfere with the buttons otherwise.
+        if (this.getY() < this.screen.menuHeightStart + padding) { // Top Area
+            int pixels = this.screen.menuHeightStart - this.getY();
+            this.screen.entriesScrollBar.setValue(this.screen.entriesScrollBar.getValue() - (pixels + padding));
+        } else if (this.getY() + this.getHeight() > this.screen.menuHeightStop - padding) { // Bottom Area
+            int pixels = this.getY() + this.getHeight() - this.screen.menuHeightStop;
+            this.screen.entriesScrollBar.setValue(this.screen.entriesScrollBar.getValue() + (pixels + padding));
+            // Used to move the button to the top of the list if possible
+            if (moveToTop)
+                this.screen.entriesScrollBar.setValue(this.screen.entriesScrollBar.getValue() + (this.screen.menuHeight - this.getHeight() - padding * 2));
+        }
     }
 }

@@ -41,12 +41,12 @@ public abstract class BaseConfigEntry implements Renderable {
     private final List<Component> entryTooltip = new ArrayList<>();
     private final int tooltipHeight;
     // Animation & Fade-in
+    private static final int TOOLTIP_DELAY_MS = 500;
     private static final int TEXT_ANIMATION_SPEED_MS = 300; // Note: above 0 to prevent divided by 0 exceptions
     private static final int TEXT_MOVEMENT_DISTANCE = 2;
-    private long lastUpdateTime = Util.getMillis();
     private float hoverAnimationProgress = 0.0F;
-
-
+    private long lastUpdateTime = Util.getMillis();
+    private long hoverTime;
 
     public BaseConfigEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
         this.screen = screen;
@@ -107,28 +107,29 @@ public abstract class BaseConfigEntry implements Renderable {
         // Animation Progress
         boolean isActive = this.isHoveredOrFocused();
         if (isActive) {
+            if (this.hoverTime == 0) this.hoverTime = Util.getMillis();
             this.hoverAnimationProgress += deltaTime * (1F / TEXT_ANIMATION_SPEED_MS);
             if (this.hoverAnimationProgress > 1F) this.hoverAnimationProgress = 1F;
         } else {
+            if (this.hoverTime != 0) hoverTime = 0;
             this.hoverAnimationProgress -= deltaTime * (1F / TEXT_ANIMATION_SPEED_MS);
             if (this.hoverAnimationProgress < 0F) this.hoverAnimationProgress = 0F;
         }
         float slideOffset = this.hoverAnimationProgress * TEXT_MOVEMENT_DISTANCE;
 
-        int u = isActive ? 96 : 48;
-        RenderSystem.setShaderColor(1, 1, 1, isActive ? Easing.CUBIC_IN_OUT.apply(this.hoverAnimationProgress) : 1);
         // Element Background
         RenderSystem.enableBlend();
-        graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight(), u, 122, 48, 48);
-        // Highlight Bars
+        graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 48, 122, 48, 48);
+        RenderSystem.setShaderColor(1, 1, 1, isActive ? Easing.CUBIC_IN.apply(this.hoverAnimationProgress) : 1);
+        // Background Highlight & Bars
         if (isActive) {
+            graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 96, 122, 48, 48);
             int posY = this.getY() - 1;
             graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), posY, this.getWidth(), 1, 144, 122, 48, 1);
             posY += this.getHeight() + 1;
             graphics.blitRepeating(PaCoConfigScreen.TEXTURE, this.getX(), posY, this.getWidth(), 1, 144, 122, 48, 1);
         }
         RenderSystem.setShaderColor(1, 1, 1, 1);
-
         // Config Key
         graphics.pose().pushPose();
         graphics.pose().translate(this.getX() + PaCoConfigScreen.PADDING_FOUR + slideOffset, this.getY() + PaCoConfigScreen.PADDING_FOUR, 1);
@@ -146,6 +147,12 @@ public abstract class BaseConfigEntry implements Renderable {
 //        PaCoGuiUtils.renderBoxWithRim(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), null, PaCoColor.color(255, 40, 40), 1);
     }
 
+    /** @return Whether to render the tooltip */
+    public boolean shouldRenderTooltip() {
+        if (this.hoverTime == 0) return false;
+        return this.hoverTime + TOOLTIP_DELAY_MS < this.lastUpdateTime;
+    }
+
     /**
      * Used to render the tooltip of this {@link BaseConfigEntry}.
      * <p>
@@ -155,6 +162,15 @@ public abstract class BaseConfigEntry implements Renderable {
      */
     public void renderTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         int posY = this.renderTooltipBelow() ? this.getY() + this.getHeight() : this.getY() - this.tooltipHeight;
+        // Blur behind tooltip
+        PaCoGuiUtils.enableScissor(graphics, this.getX(), posY, this.getWidth(), this.getTooltipHeight());
+        graphics.pose().pushPose();
+        RenderSystem.enableBlend();
+        RenderSystem.disableDepthTest();
+        PaCoGuiUtils.blurScreen(partialTick, 10F);
+        graphics.pose().popPose();
+        graphics.disableScissor();
+        // Tooltip
         PaCoGuiUtils.renderFixedTooltipNineSliced(
                 graphics, Minecraft.getInstance().font, this.entryTooltip, this.getX(), posY, this.getWidth(),
                 PaCoScreen.TEXTURE, SLICE_SIZE, 144, 122, 48, 48
@@ -190,7 +206,9 @@ public abstract class BaseConfigEntry implements Renderable {
     }
 
     public boolean isHoveredOrFocused() {
-        return this.isHovered() || this.isFocused();
+        // NOTE: The isFocused check needs to be called first. The reason is that the check performs
+        // state changes internally, and Java would skip it if isHovered returned true before the OR
+        return this.isFocused() || this.isHovered();
     }
 
     public int getX() {

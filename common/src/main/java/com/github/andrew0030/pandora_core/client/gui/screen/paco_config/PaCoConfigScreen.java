@@ -8,7 +8,6 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen
 import com.github.andrew0030.pandora_core.client.gui.sliders.FocusRectangleMode;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
-import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
@@ -26,11 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders.BlurVariables.*;
 
 public class PaCoConfigScreen extends Screen {
     // Some generic UI stuff
@@ -56,8 +51,6 @@ public class PaCoConfigScreen extends Screen {
     public int menuWidth;
     public int entriesHeight;
     public int entriesHandleHeight;
-    // Post-processing shader parameters
-    private final Map<String, Object> parameters;
 
     public PaCoConfigScreen(PaCoConfigManager manager, ConfigTreeNode currentNode, @Nullable TitleScreen titleScreen, @Nullable Screen previousScreen) {
         super(Component.empty()); // TODO: Add a proper config screen title (maybe the node name?)
@@ -66,7 +59,6 @@ public class PaCoConfigScreen extends Screen {
         this.currentNode = currentNode;
         this.titleScreen = titleScreen;
         this.previousScreen = previousScreen;
-        this.parameters = new HashMap<>();
         // If there is a title screen it flags it to cancel element rendering (we only want the background)
         if (titleScreen != null)
             ((IPaCoModifyTitleScreen) titleScreen).pandoraCore$hideElements(true);
@@ -152,7 +144,7 @@ public class PaCoConfigScreen extends Screen {
 
         // Background Blur and Gradient
         RenderSystem.disableDepthTest(); // Needed so it works if chat is rendering.
-        this.renderBlurredBackground(partialTick);
+        PaCoGuiUtils.blurScreen(partialTick);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         graphics.fillGradient(0, 0, this.width, this.height, PaCoColor.color(83, 16, 16, 16), PaCoColor.color(67, 16, 16, 16));
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -231,6 +223,8 @@ public class PaCoConfigScreen extends Screen {
             BaseConfigEntry entry = this.configEntries.get(activeIdx);
             // If the entry isn't within the panel's bounds we skip rendering
             if (!entry.isInBounds()) return;
+            // Whether the tooltip should render
+            if (!entry.shouldRenderTooltip()) return;
             // Renders the tooltip
             entry.renderTooltip(graphics, mouseX, mouseY, partialTick);
             // Calculates the final Y position for the tooltip gradient
@@ -300,21 +294,6 @@ public class PaCoConfigScreen extends Screen {
             this.entriesScrollBar.setValue(newValue);
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
-    }
-
-    private void renderBlurredBackground(float partialTick) {
-        Minecraft minecraft = Minecraft.getInstance();
-
-        // TODO: add config to adjust blurriness and fade in time
-        // Map Approach
-        this.parameters.put("radius", 5.0F);
-        // Uniform Holder Approach
-        PASS0_MUL.get().set(1.0F);
-        PASS1_MUL.get().set(0.5f);
-        PASS2_MUL.get().set(0.25f);
-
-        PaCoPostShaders.PACO_BLUR.processPostChain(partialTick, this.parameters);
-        minecraft.getMainRenderTarget().bindWrite(false);
     }
 
     /**

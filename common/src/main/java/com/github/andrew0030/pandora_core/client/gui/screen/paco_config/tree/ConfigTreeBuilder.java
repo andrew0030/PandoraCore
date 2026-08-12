@@ -6,6 +6,7 @@ import java.util.Collection;
 
 public class ConfigTreeBuilder {
 
+    // TODO: ConfigDataHolderCategories should only be added if there are values within, to avoid empty UIs
     /**
      * Constructs a hierarchical {@link ConfigTreeNode} tree from a flat collection of {@link ConfigDataHolder} instances.
      *

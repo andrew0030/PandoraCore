@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.utils.gui;
 
+import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
 import com.github.andrew0030.pandora_core.client.utils.gui.enums.PaCoBorderSide;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
@@ -27,12 +28,15 @@ import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders.BlurVariables.*;
 
 // TODO write javadoc for some of these methods that still need it.
 public class PaCoGuiUtils {
-
-    private static final ArrayList<PaCoBorderSide> borderList = new ArrayList<>();
+    private static final ArrayList<PaCoBorderSide> BORDER_LIST = new ArrayList<>();
+    private static final HashMap<String, Object> PARAMETERS = new HashMap<>();
 
     public static void renderBox(GuiGraphics graphics, int posX, int posY, int width, int height, int boxColor) {
         PaCoGuiUtils.renderBoxWithRim(graphics, posX, posY, width, height, boxColor, null, null);
@@ -71,8 +75,8 @@ public class PaCoGuiUtils {
 
     /** @return Reusable list for {@link PaCoBorderSide} that clears itself when obtained. */
     public static ArrayList<PaCoBorderSide> getBorderList() {
-        PaCoGuiUtils.borderList.clear();
-        return PaCoGuiUtils.borderList;
+        PaCoGuiUtils.BORDER_LIST.clear();
+        return PaCoGuiUtils.BORDER_LIST;
     }
 
     /**
@@ -263,6 +267,33 @@ public class PaCoGuiUtils {
         bufferSource.endBatch();
         poseStack.popPose();
         RenderSystem.applyModelViewMatrix();
+    }
+
+    /**
+     * Applies a blur effect to the screen using a default blur radius of {@code 5.0F}.
+     * <p> This is a convenience overload for {@link #blurScreen(float, float)}. </p>
+     *
+     * @param partialTick The current partial tick value used for frame interpolation
+     */
+    public static void blurScreen(float partialTick) {
+        PaCoGuiUtils.blurScreen(partialTick, 5.0F);
+    }
+
+    /**
+     * Applies a blur effect to the screen using the given radius to determine the intensity.
+     *
+     * @param partialTick The current partial tick value used for frame interpolation
+     * @param radius      The radius/intensity of the blur effect
+     */
+    public static void blurScreen(float partialTick, float radius) {
+        Minecraft minecraft = Minecraft.getInstance();
+        PARAMETERS.clear();
+        PARAMETERS.put("radius", radius);
+        PASS0_MUL.get().set(1.0F);
+        PASS1_MUL.get().set(0.5f);
+        PASS2_MUL.get().set(0.25f);
+        PaCoPostShaders.PACO_BLUR.processPostChain(partialTick, PARAMETERS);
+        minecraft.getMainRenderTarget().bindWrite(false);
     }
 
     /** @return The total height a tooltip will occupy when rendered */

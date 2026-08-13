@@ -163,13 +163,7 @@ public abstract class BaseConfigEntry implements Renderable {
     public void renderTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         int posY = this.renderTooltipBelow() ? this.getY() + this.getHeight() : this.getY() - this.tooltipHeight;
         // Blur behind tooltip
-        PaCoGuiUtils.enableScissor(graphics, this.getX(), posY, this.getWidth(), this.getTooltipHeight());
-        graphics.pose().pushPose();
-        RenderSystem.enableBlend();
-        RenderSystem.disableDepthTest();
-        PaCoGuiUtils.blurScreen(partialTick, 10F);
-        graphics.pose().popPose();
-        graphics.disableScissor();
+        PaCoGuiUtils.blurRect(graphics, 10F, this.getX(), posY, this.getWidth(), this.getTooltipHeight(), partialTick);
         // Tooltip
         PaCoGuiUtils.renderFixedTooltipNineSliced(
                 graphics, Minecraft.getInstance().font, this.entryTooltip, this.getX(), posY, this.getWidth(),

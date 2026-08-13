@@ -270,22 +270,22 @@ public class PaCoGuiUtils {
     }
 
     /**
-     * Applies a blur effect to the screen using a default blur radius of {@code 5.0F}.
+     * Applies a blur effect to the screen, using a default blur radius of {@code 5.0F}.
      * <p> This is a convenience overload for {@link #blurScreen(float, float)}. </p>
      *
      * @param partialTick The current partial tick value used for frame interpolation
      */
     public static void blurScreen(float partialTick) {
-        PaCoGuiUtils.blurScreen(partialTick, 5.0F);
+        PaCoGuiUtils.blurScreen(5.0F, partialTick);
     }
 
     /**
-     * Applies a blur effect to the screen using the given radius to determine the intensity.
+     * Applies a blur effect to the screen, using the given radius to determine the intensity.
      *
-     * @param partialTick The current partial tick value used for frame interpolation
      * @param radius      The radius/intensity of the blur effect
+     * @param partialTick The current partial tick value used for frame interpolation
      */
-    public static void blurScreen(float partialTick, float radius) {
+    public static void blurScreen(float radius, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
         PARAMETERS.clear();
         PARAMETERS.put("radius", radius);
@@ -294,6 +294,40 @@ public class PaCoGuiUtils {
         PASS2_MUL.get().set(0.25f);
         PaCoPostShaders.PACO_BLUR.processPostChain(partialTick, PARAMETERS);
         minecraft.getMainRenderTarget().bindWrite(false);
+    }
+
+    /**
+     * Applies a blur effect to the specified rect, using a default blur radius of {@code 5.0F}.
+     * <p> This is a convenience overload for {@link #blurRect(GuiGraphics, float, int, int, int, int, float)}. </p>
+     *
+     * @param graphics    The {@link GuiGraphics}
+     * @param x           The x-coordinate of the starting position
+     * @param y           The y-coordinate of the starting position
+     * @param width       The width of the rectangle
+     * @param height      The height of the rectangle
+     * @param partialTick The current partial tick value used for frame interpolation
+     */
+    public static void blurRect(GuiGraphics graphics, int x, int y, int width, int height, float partialTick) {
+        PaCoGuiUtils.blurRect(graphics, 5.0F, x, y, width, height, partialTick);
+    }
+
+    /**
+     * Applies a blur effect to the specified rect, using the given radius to determine the intensity.
+     *
+     * @param graphics    The {@link GuiGraphics}
+     * @param radius      The radius/intensity of the blur effect
+     * @param x           The x-coordinate of the starting position
+     * @param y           The y-coordinate of the starting position
+     * @param width       The width of the rectangle
+     * @param height      The height of the rectangle
+     * @param partialTick The current partial tick value used for frame interpolation
+     */
+    public static void blurRect(GuiGraphics graphics, float radius, int x, int y, int width, int height, float partialTick) {
+        PaCoGuiUtils.enableScissor(graphics, x, y, width, height);
+        RenderSystem.disableDepthTest();
+        PaCoGuiUtils.blurScreen(radius, partialTick);
+        RenderSystem.enableDepthTest();
+        graphics.disableScissor();
     }
 
     /** @return The total height a tooltip will occupy when rendered */
@@ -341,6 +375,7 @@ public class PaCoGuiUtils {
      */
     public static void renderFixedTooltipNineSliced(GuiGraphics graphics, Font font, List<Component> tooltipLines, int x, int y, int width, ResourceLocation texture, int sliceSize, int uOffset, int vOffset, int textureWidth, int textureHeight) {
         List<ClientTooltipComponent> components = PaCoGuiUtils.getTooltipComponents(font, tooltipLines, width, sliceSize);
+        if (components.isEmpty()) return;
         // Calculates the total height of the tooltip
         int innerHeight = components.size() == 1 ? -2 : 0;
         for (ClientTooltipComponent component : components)

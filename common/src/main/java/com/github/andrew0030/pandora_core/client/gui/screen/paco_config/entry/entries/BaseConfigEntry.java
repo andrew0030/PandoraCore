@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries;
 
+import com.github.andrew0030.pandora_core.client.gui.buttons.ConfigEntryNavigationButton;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
@@ -27,6 +28,7 @@ import java.util.List;
 // - Allow custom heights
 // - Abstract value retrieval to avoid direct interaction with the config instance
 // - Add bulk modification logic, rather than saving the config each time
+// - Maybe add option to choose if a tooltip should favor top/bottom displaying
 public abstract class BaseConfigEntry implements Renderable {
     private static final int SLICE_SIZE = 3;
     protected final PaCoConfigScreen screen;
@@ -36,17 +38,20 @@ public abstract class BaseConfigEntry implements Renderable {
     protected boolean isHovered;
     protected boolean isFocused;
     protected boolean isInBounds;
-    // TODO maybe make protected or add getters
-    private final Component entryKey;
-    private final List<Component> entryTooltip = new ArrayList<>();
-    private final int tooltipHeight;
+    protected boolean isVisible;
+    // Components
+    protected final Component entryKey;
+    protected final List<Component> entryTooltip = new ArrayList<>();
+    protected final int tooltipHeight;
     // Animation & Fade-in
     private static final int TOOLTIP_DELAY_MS = 500;
     private static final int TEXT_ANIMATION_SPEED_MS = 300; // Note: above 0 to prevent divided by 0 exceptions
     private static final int TEXT_MOVEMENT_DISTANCE = 2;
-    private float hoverAnimationProgress = 0.0F;
-    private long lastUpdateTime = Util.getMillis();
-    private long hoverTime;
+    protected float hoverAnimationProgress = 0.0F;
+    protected long lastUpdateTime = Util.getMillis();
+    protected long hoverTime;
+    // Navigation
+    private ConfigEntryNavigationButton navButton; // TODO maybe remove this if I deem entry movement through nav panel overkill
 
     public BaseConfigEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
         this.screen = screen;
@@ -91,7 +96,7 @@ public abstract class BaseConfigEntry implements Renderable {
         boolean mouseInBounds = this.screen.isMouseInEntriesBounds(mouseX, mouseY);
         boolean isHovered = mouseX >= this.getX() && mouseX < this.getX() + this.getWidth() &&
                             mouseY >= this.getY() - 1 && mouseY < this.getY() + this.getHeight() + 1; // NOTE: -+1 so there are no gaps between buttons when hovering them
-        this.isHovered = mouseInBounds && isHovered;
+        this.isHovered = (this.navButton != null && this.navButton.isHoveredOrFocused()) || (mouseInBounds && isHovered);
 
         // No rendering is needed when the entry is out of bounds
         if (!this.isInBounds) {
@@ -175,6 +180,12 @@ public abstract class BaseConfigEntry implements Renderable {
 
     public void tick() {}
 
+    // TODO maybe handle navButton logic in a cleaner way?
+    public void onPress() {
+        // Moves the config entry into the menu panel bounds when focused
+        this.moveEntryIntoFocus(false);
+    }
+
     public List<AbstractWidget> getWidgets() {
         return this.widgets;
     }
@@ -219,6 +230,10 @@ public abstract class BaseConfigEntry implements Renderable {
 
     public int getHeight() {
         return this.height;
+    }
+
+    public ConfigTreeNode getNode() {
+        return this.node;
     }
 
     /**
@@ -266,10 +281,16 @@ public abstract class BaseConfigEntry implements Renderable {
         return this.isInBounds;
     }
 
+    /** @return The component representing the config entry key */
+    public Component getEntryKey() {
+        return this.entryKey;
+    }
+
     // TODO implement resizing logic in PaCoConfigScreen when more navigation logic is added?
     /** Moves the {@link BaseConfigEntry} up/down and adds padding if needed to avoid the gradient, or being hidden post resizing the {@link PaCoConfigScreen}. */
     public void moveEntryIntoFocus(boolean moveToTop) {
         if (this.screen.entriesScrollBar == null) return;
+        if (!this.isVisible) return;
         int padding = 16; // We use padding because the gradient would interfere with the buttons otherwise.
         if (this.getY() < this.screen.menuHeightStart + padding) { // Top Area
             int pixels = this.screen.menuHeightStart - this.getY();
@@ -281,5 +302,17 @@ public abstract class BaseConfigEntry implements Renderable {
             if (moveToTop)
                 this.screen.entriesScrollBar.setValue(this.screen.entriesScrollBar.getValue() + (this.screen.menuHeight - this.getHeight() - padding * 2));
         }
+    }
+
+    public void setNavButton(ConfigEntryNavigationButton button) {
+        this.navButton = button;
+    }
+
+    public void setVisible(boolean visible) {
+        this.isVisible = visible;
+    }
+
+    public boolean isVisible() {
+        return this.isVisible;
     }
 }

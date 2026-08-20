@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree;
 
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -9,43 +10,36 @@ import java.util.Map;
 // TODO write javadocs
 public class ConfigTreeNode {
     private final String name;
-    private ConfigDataHolder dataHolder;
-//    private ConfigTreeNode parent;
+    private final ConfigTreeNode parent;
     private final Map<String, ConfigTreeNode> children = new LinkedHashMap<>();
+    private ConfigTreeNode lastChild;
+    private ConfigDataHolder dataHolder;
+
+    public ConfigTreeNode(String name, @Nullable ConfigTreeNode parent) {
+        this.name = name;
+        this.parent = parent;
+    }
 
     public ConfigTreeNode(String name) {
-        this.name = name;
+        this(name, null);
     }
 
     public String getName() {
         return this.name;
     }
 
-    public ConfigDataHolder getDataHolder() {
-        return this.dataHolder;
-    }
-
-    public void setDataHolder(ConfigDataHolder dataHolder) {
-        this.dataHolder = dataHolder;
-    }
-
     public Collection<ConfigTreeNode> getChildren() {
         return this.children.values();
     }
 
-    // TODO: maybe reintroduce the parent if its needed for easy UI navigation?
-//    public void addChild(ConfigTreeNode child) {
-//        child.parent = this;
-//        this.children.put(child.getName(), child);
-//    }
+    /** @return The last child {@link ConfigTreeNode}, or {@code null} if this node has no children */
+    public ConfigTreeNode getLastChild() {
+        return this.lastChild;
+    }
 
-//    public ConfigTreeNode getParent() {
-//        return this.parent;
-//    }
-
-//    public ConfigTreeNode getChild(String name) {
-//        return this.children.get(name);
-//    }
+    public ConfigTreeNode getParent() {
+        return this.parent;
+    }
 
     /** @return Whether this {@link ConfigTreeNode} has a {@link ConfigDataHolder} with a corresponding {@code field} */
     public boolean isValue() {
@@ -64,8 +58,19 @@ public class ConfigTreeNode {
      */
     ConfigTreeNode getOrCreateChild(String name) {
         ConfigTreeNode node = this.children.get(name);
-        if (node == null)
-            this.children.put(name, node = new ConfigTreeNode(name));
+        if (node == null) {
+            node = new ConfigTreeNode(name, this);
+            this.children.put(name, node);
+            this.lastChild = node;
+        }
         return node;
+    }
+
+    public ConfigDataHolder getDataHolder() {
+        return this.dataHolder;
+    }
+
+    public void setDataHolder(ConfigDataHolder dataHolder) {
+        this.dataHolder = dataHolder;
     }
 }

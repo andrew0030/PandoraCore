@@ -49,6 +49,6 @@
 
   "config.pandora_core.lastBoolean.key": "§c§lL§6§la§e§ls§a§lt§r §b§oB§3§oo§9§ool§1§oe§5§oa§d§on",
   "config.pandora_core.lastBoolean.tooltip": "There should be a §acategory§7 under this entry.\nThis is the §llast§r§7 boolean value before declared classes.",
-  "config.pandora_core.lastBoolean.booleans.key": "Boolean Subcategory",
+  "config.pandora_core.lastBoolean.booleans.key": "§6Boolean Subcategory",
   "config.pandora_core.lastBoolean.booleans.tooltip": "This is a test category for booleans.\nIt holds 2 boolean values!"
 }

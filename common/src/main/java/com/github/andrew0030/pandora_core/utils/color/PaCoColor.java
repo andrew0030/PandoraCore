@@ -3,10 +3,14 @@ package com.github.andrew0030.pandora_core.utils.color;
 import net.minecraft.util.FastColor;
 import org.jetbrains.annotations.Range;
 
+@SuppressWarnings("unused")
 public class PaCoColor extends FastColor.ARGB32 {
+    // TODO maybe expand colors and or move them into a different class?
     public static final int WHITE = PaCoColor.color(255, 255, 255);
     public static final int BLACK = PaCoColor.color(0, 0, 0);
     public static final int NO_ALPHA = PaCoColor.color(0, 0, 0, 0);
+
+    // TODO add remaining color utility methods needed for mods like TTC
 
     public static int color (@Range(from = 0, to = 255) int alpha, @Range(from = 0, to = 255) int red, @Range(from = 0, to = 255) int green, @Range(from = 0, to = 255) int blue) {
         return FastColor.ARGB32.color(alpha, red, green, blue);

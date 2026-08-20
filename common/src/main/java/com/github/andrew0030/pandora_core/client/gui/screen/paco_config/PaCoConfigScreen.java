@@ -1,7 +1,9 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_config;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.gui.buttons.ConfigEntryNavigationButton;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.CategoryEntry;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeBuilder;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
@@ -32,18 +34,29 @@ public class PaCoConfigScreen extends Screen {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
     public static final int PADDING_ONE = 1;
     public static final int PADDING_TWO = 2;
+    public static final int PADDING_THREE = 3;
     public static final int PADDING_FOUR = 4;
     public static final int TOOLTIP_GRADIENT_SIZE = 10;
     // Config management stuff
-    private final List<BaseConfigEntry> configEntries = new ArrayList<>();
+    private final List<ConfigEntryNavigationButton> navButtons = new ArrayList<>();
+    private final List<BaseConfigEntry> visibleEntries = new ArrayList<>();
     private final PaCoConfigManager manager;
     private final ConfigTreeNode currentNode;
+    private final ConfigTreeNode rootNode;
     // Screens for navigation
     public final TitleScreen titleScreen;
-    private final Screen previousScreen;
+    public final Screen previousScreen; // TODO change accessibility by altering how the category entry accesses these
     // Widgets
     public PaCoSlider entriesScrollBar;
     // Misc
+    public int navMenuHeight;
+    public int navMenuHeightStart;
+    public int navMenuHeightStop;
+    public int navMenuWidth;
+    public int navMenuWidthStart;
+    public int navMenuEntriesHeight;
+    public int navMenuEntriesStart;
+
     public int menuHeight;
     public int menuHeightStart;
     public int menuHeightStop;
@@ -52,6 +65,7 @@ public class PaCoConfigScreen extends Screen {
     public int entriesHeight;
     public int entriesHandleHeight;
 
+    // TODO maybe pass along previous node for better performance?
     public PaCoConfigScreen(PaCoConfigManager manager, ConfigTreeNode currentNode, @Nullable TitleScreen titleScreen, @Nullable Screen previousScreen) {
         super(Component.empty()); // TODO: Add a proper config screen title (maybe the node name?)
 
@@ -59,6 +73,13 @@ public class PaCoConfigScreen extends Screen {
         this.currentNode = currentNode;
         this.titleScreen = titleScreen;
         this.previousScreen = previousScreen;
+
+        // Traverses up the tree to find the root node
+        ConfigTreeNode root = this.currentNode;
+        while (root.getParent() != null)
+            root = root.getParent();
+        this.rootNode = root;
+
         // If there is a title screen it flags it to cancel element rendering (we only want the background)
         if (titleScreen != null)
             ((IPaCoModifyTitleScreen) titleScreen).pandoraCore$hideElements(true);
@@ -73,12 +94,25 @@ public class PaCoConfigScreen extends Screen {
      * This is mainly a method because some of the fields need to be refreshed, and calling this method does that.
      */
     private void fieldInit() {
+        // Navigation Panel
+        this.navMenuHeight = this.height - 40;
+        this.navMenuHeightStart = (this.height - this.navMenuHeight) / 2;
+        this.navMenuHeightStop = this.navMenuHeightStart + this.navMenuHeight;
+        this.navMenuWidth = 150;
+        this.navMenuWidthStart = PADDING_TWO;
+        this.navMenuEntriesHeight = this.navMenuHeight - 50; // TODO: 25 is a placeholder the the nav panel island that will be added later
+        this.navMenuEntriesStart = this.navMenuHeightStart + 50;
+
+        // Config Entries Panel
         this.menuHeight = this.height - 40;
         this.menuHeightStart = (this.height - (this.menuHeight + 20)) / 2;
         this.menuHeightStop = this.menuHeightStart + this.menuHeight;
-        this.menuWidth = Math.min(this.width - PADDING_TWO * 2, Math.round(this.menuHeight * 2.4F)) - 100;
-        this.menuWidthStart = (this.width - this.menuWidth) / 2;
-        this.entriesHeight = this.populateEntries(false);
+//        this.menuWidth = Math.min(this.width - PADDING_TWO * 2, Math.round(this.menuHeight * 2.4F)) - 100;
+        this.menuWidth = (this.width - PADDING_TWO * 2) - navMenuWidth - PADDING_TWO;
+//        this.menuWidthStart = (this.width - this.menuWidth) / 2;
+        this.menuWidthStart = ((this.width + navMenuWidth + PADDING_TWO - this.menuWidth) / 2);
+//        this.entriesHeight = this.populateEntries(false);
+        this.entriesHeight = this.populateEntriesAndNavigation(false);
         this.entriesHandleHeight = Math.max(8, this.menuHeight - (this.entriesHeight - this.menuHeight) - PADDING_FOUR);
     }
 
@@ -98,6 +132,8 @@ public class PaCoConfigScreen extends Screen {
         this.fieldInit();
 
         /* Adding Widgets */
+        // Navigation Widgets
+        this.navButtons.forEach(this::addWidget);
         // Scroll Bar (Slider)
         if (this.entriesHeight > this.menuHeight) { // We only add it if its needed
             this.entriesScrollBar = new PaCoVerticalSlider(this.menuWidthStart + PADDING_TWO, this.menuHeightStart + PADDING_TWO, 6, this.menuHeight - PADDING_FOUR, 0, (this.entriesHeight - this.menuHeight), 0, 1)
@@ -110,14 +146,14 @@ public class PaCoConfigScreen extends Screen {
                     .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
             this.addWidget(this.entriesScrollBar);
         }
+        // Entry Widgets
         // TODO maybe move/change this so rendering and clicking are both handled by MC?
-        // All the widgets attached to config entries
-        this.configEntries.forEach(element -> element.getWidgets().forEach(this::addWidget));
+        this.visibleEntries.forEach(element -> element.getWidgets().forEach(this::addWidget));
     }
 
     @Override
     public void tick() {
-        this.configEntries.forEach(BaseConfigEntry::tick);
+        this.visibleEntries.forEach(BaseConfigEntry::tick);
         // Technically this isn't needed when the title screen renders a panorama, however when it has
         // animated content, due to mods like "PackMenu" we need this to ensure the content stays animated
         if (this.titleScreen != null) {
@@ -149,17 +185,34 @@ public class PaCoConfigScreen extends Screen {
         graphics.fillGradient(0, 0, this.width, this.height, PaCoColor.color(83, 16, 16, 16), PaCoColor.color(67, 16, 16, 16));
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        // Top Bar
+        // Navigation Panel Top/Bottom Bars
+        graphics.blitNineSliced(TEXTURE, this.navMenuWidthStart, this.navMenuHeightStart - 3, this.navMenuWidth, 3, 1, 18, 18, 0, 36);
+        graphics.blitNineSliced(TEXTURE, this.navMenuWidthStart, this.navMenuHeightStop, this.navMenuWidth, 3, 1, 18, 18, 0, 36);
+        // Navigation Panel
+        this.renderNavPanel(graphics, mouseX, mouseY, partialTick);
+
+        // Entries Panel Top/Bottom Bars
         graphics.blitNineSliced(TEXTURE, this.menuWidthStart, this.menuHeightStart - 4, this.menuWidth, 4, 1, 18, 18, 0, 36);
-
-        // Bottom Bar
         graphics.blitNineSliced(TEXTURE, this.menuWidthStart, this.menuHeightStop, this.menuWidth, 4, 1, 18, 18, 0, 36);
-
         // Entries Panel
         this.renderEntriesPanel(graphics, mouseX, mouseY, partialTick);
 
         // Debug Outline
 //        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight, null, PaCoColor.color(255, 40, 40), 1);
+    }
+
+    protected void renderNavPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        RenderSystem.enableBlend();
+        graphics.blitRepeating(TEXTURE, this.navMenuWidthStart + PADDING_TWO, this.navMenuEntriesStart, this.navMenuWidth - PADDING_TWO * 2, this.navMenuEntriesHeight, 0, 122, 48, 48);
+
+
+        this.navButtons.forEach(button -> button.render(graphics, mouseX, mouseY, partialTick));
+
+
+        // TODO replace later with the navigation panel
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.navMenuWidthStart + PADDING_TWO, this.navMenuHeightStart, this.navMenuWidth - PADDING_TWO * 2, this.navMenuEntriesStart - this.navMenuHeightStart, null, PaCoColor.color(255, 40, 40), 1);
+        // TODO remove later when config entry buttons are added
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart + PADDING_TWO, this.menuHeightStop + 6, this.menuWidth - PADDING_TWO * 2, 18, null, PaCoColor.color(255, 40, 40), 1);
     }
 
     protected void renderEntriesPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
@@ -176,7 +229,7 @@ public class PaCoConfigScreen extends Screen {
         // Renders the Mods Panel Scroll Bar
         if (this.entriesScrollBar != null) this.entriesScrollBar.render(graphics, mouseX, mouseY, partialTick);
         // Renders all the widgets attached to entries
-        this.configEntries.forEach(entry -> entry.render(graphics, mouseX, mouseY, partialTick));
+        this.visibleEntries.forEach(entry -> entry.render(graphics, mouseX, mouseY, partialTick));
 
         // Config entry gradients
         RenderSystem.enableBlend();
@@ -209,8 +262,8 @@ public class PaCoConfigScreen extends Screen {
     private void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         int hoveredIdx = -1;
         int focusedIdx = -1;
-        for (int i = 0; i < this.configEntries.size(); i++) {
-            BaseConfigEntry entry = this.configEntries.get(i);
+        for (int i = 0; i < this.visibleEntries.size(); i++) {
+            BaseConfigEntry entry = this.visibleEntries.get(i);
             // Checks for hovered entries
             if (entry.isHovered()) hoveredIdx = i;
             // Checks for focused entries (only stores the first found one)
@@ -220,7 +273,7 @@ public class PaCoConfigScreen extends Screen {
         int activeIdx = (hoveredIdx != -1) ? hoveredIdx : focusedIdx;
         // Renders the tooltip at the active index, if there is one
         if (activeIdx != -1) {
-            BaseConfigEntry entry = this.configEntries.get(activeIdx);
+            BaseConfigEntry entry = this.visibleEntries.get(activeIdx);
             // If the entry isn't within the panel's bounds we skip rendering
             if (!entry.isInBounds()) return;
             // Whether the tooltip should render
@@ -244,8 +297,6 @@ public class PaCoConfigScreen extends Screen {
                 }
             }
 
-
-            // TODO use the full alpha render type for the gradient
             PaCoGuiUtils.enableScissor(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
             graphics.pose().pushPose();
             RenderSystem.enableBlend();
@@ -269,16 +320,21 @@ public class PaCoConfigScreen extends Screen {
 
     @Override
     public void onClose() {
-        // Handles returning to previous Screen if needed
-        if (this.previousScreen != null) {
-            if (this.titleScreen != null && !(this.previousScreen instanceof PaCoConfigScreen))
+        // If the current node isn't the root node, we simply move up to the node's parent
+        if (this.currentNode != this.rootNode && this.currentNode.getParent() != null) {
+            Minecraft.getInstance().setScreen(new PaCoConfigScreen(this.manager, this.currentNode.getParent(), this.titleScreen, this.previousScreen));
+        } else { // If the current node is the root, we return to the actual previous screen
+            // If there was a title screen we make the elements visible
+            if (this.titleScreen != null)
                 ((IPaCoModifyTitleScreen) this.titleScreen).pandoraCore$hideElements(false);
-            Minecraft.getInstance().setScreen(this.previousScreen);
-        } else if (this.titleScreen != null) {
-            ((IPaCoModifyTitleScreen) this.titleScreen).pandoraCore$hideElements(false);
-            Minecraft.getInstance().setScreen(this.titleScreen);
-        } else {
-            super.onClose();
+            // We return to the most relevant screen
+            if (this.previousScreen != null) {
+                Minecraft.getInstance().setScreen(this.previousScreen);
+            } else if (this.titleScreen != null) {
+                Minecraft.getInstance().setScreen(this.titleScreen);
+            } else {
+                super.onClose();
+            }
         }
     }
 
@@ -296,56 +352,137 @@ public class PaCoConfigScreen extends Screen {
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
-    /**
-     * Loops over all {@link ConfigTreeNode} instances, that should
-     * be displayed in the current menu, and adds them to the screen
-     *
-     * @return The total height of all the entries
-     */
-    private int populateEntries(boolean hasScrollBar) {
-        this.configEntries.clear();
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // NOTE: We need to call super early so the click logic runs on the current state of the UI before entries move
+        boolean clickedWidget = super.mouseClicked(mouseX, mouseY, button);
+        if (!clickedWidget) return false; // If no widget was clicked we don't move entries
+        for (BaseConfigEntry entry : this.visibleEntries) {
+            if (this.isMouseInEntriesBounds(mouseX, mouseY)) {
+                if (!entry.isHovered())
+                    continue;
+                entry.onPress();
+            }
+        }
+        return true;
+    }
 
-        int startY = this.menuHeightStart;
-        int currentY = startY + PADDING_TWO;
+    /**
+     * Loops over the {@link ConfigTreeNode} tree starting from the {@code root} node.
+     * <p>Creates {@link ConfigEntryNavigationButton} instances for all relevant categories, and
+     * creates {@link BaseConfigEntry} instances for all visible config entries of the current node.</p>
+     *
+     * @param hasEntriesScrollBar Whether the config entry panel has a scroll bar
+     * @return The total height of the visible entries
+     */
+    private int populateEntriesAndNavigation(boolean hasEntriesScrollBar) {
+        // Clears previous entries to avoid potential duplicates
+        this.visibleEntries.clear();
+        this.navButtons.clear();
+        // Navigation Panel
+        int navBaseX = this.navMenuWidthStart + PADDING_TWO;
+        int navWidth = this.navMenuWidth - (2 * PADDING_TWO);
+        int navHeight = ConfigEntryNavigationButton.BUTTON_HEIGHT;
+        // Config Entries Panel
+        int entriesStartY = this.menuHeightStart;
+        int entryCurrentY = entriesStartY + PADDING_TWO;
         int entryX = this.menuWidthStart + PADDING_TWO;
         int entryWidth = this.menuWidth - (PADDING_TWO * 2);
+        int entryHeight = 16;
         int spacing = PADDING_TWO;
-        int entryHeight = 16; // TODO maybe allow modifying this within the entries?
-        if (hasScrollBar) {
+        // If the config entries panel has a scroll bar we need to offset the entries
+        if (hasEntriesScrollBar) {
             entryX += 8;
             entryWidth -= 8;
         }
-
-        for (ConfigTreeNode child : this.currentNode.getChildren()) {
-
-            // TODO make sure this cant be null
-            ConfigDataHolder holder = child.getDataHolder();
-            BaseConfigEntry element = holder.getConfigEntryFactory().create(this, child, entryX, currentY, entryWidth, entryHeight);
-
-            this.configEntries.add(element);
-            currentY += entryHeight + spacing;
-        }
-
-        // Removes the trailing spacing if there was at least one entry
-//        if (!this.configEntries.isEmpty())
-//            currentY -= spacing;
-
+        // Small helper object to pass along the dimensions
+        LayoutContext ctx = new LayoutContext(
+            navBaseX, navWidth, navHeight,
+            entryX, entryWidth, entryHeight,
+            spacing
+        );
+        // Performs the recursive traversal from the root node
+        int finalY = this.traverseTree(this.rootNode, entryCurrentY, 0, ctx);
+        int entriesHeight = finalY - entriesStartY;
         // If there are too many entries to display without a scroll bar we recalculate
-        // the entries but this time shrinking them to fit the scroll bar
-        // Note: We need to check if there is a scroll bar to prevent infinite recursion
-        if (!hasScrollBar && currentY - startY > this.menuHeight)
-            this.populateEntries(true);
-
-        return currentY - startY;
+        // NOTE: We need to check if the entries don't have a scroll bar already to avoid an infinity loop
+        if (!hasEntriesScrollBar && entriesHeight > this.menuHeight)
+            return this.populateEntriesAndNavigation(true);
+        // The total height the entries fill
+        return entriesHeight;
     }
 
-    /** @return The {@link PaCoConfigManager} instance associated to this {@link PaCoConfigScreen}. */
+    /**
+     * Recursively traverses the config tree.
+     * <p>Creates {@link ConfigEntryNavigationButton} instances for all relevant categories, and
+     * creates {@link BaseConfigEntry} instances for all visible config entries of the current node.</p>
+     *
+     * @param node     The initial {@link ConfigTreeNode} that will be traversed
+     * @param currentY The starting height, this is contentiously increased to track the total height
+     * @param depth    The current {@code depth} that is being traversed
+     * @param ctx      The {@link LayoutContext} holding the dimensions of the UI
+     *
+     * @return The {@code y} coordinate of the final {@link ConfigTreeNode}'s height
+     */
+    private int traverseTree(ConfigTreeNode node, int currentY, int depth, LayoutContext ctx) {
+        // Checks if the child is in the currently viewed panel
+        boolean isVisibleEntry = node == this.currentNode;
+        for (ConfigTreeNode child : node.getChildren()) {
+            ConfigDataHolder holder = child.getDataHolder();
+            BaseConfigEntry entry = holder.getConfigEntryFactory().create(this, child, ctx.entryX(), currentY, ctx.entryWidth(), ctx.entryHeight());
+            // If the entry is visible (in the currently viewed panel) we add it to the visible entries list
+            if (isVisibleEntry) {
+                entry.setVisible(true);
+                this.visibleEntries.add(entry);
+                currentY += ctx.entryHeight() + ctx.spacing();
+            }
+            // If the config tree node doesn't have a value it's a category
+            if (!child.isValue()) {
+                // Since nav button height doesn't change, we can use the list size to determine the current height
+                int navCurrentY = this.navMenuEntriesStart + ConfigEntryNavigationButton.BUTTON_PADDING + (this.navButtons.size() * (ctx.navHeight() + ConfigEntryNavigationButton.BUTTON_PADDING));
+                // Technically this isn't needed, but in case there is ever an entry that isn't a value and also not a category I will keep this check here
+                if (entry instanceof CategoryEntry categoryEntry) {
+                    ConfigEntryNavigationButton button = new ConfigEntryNavigationButton(this, categoryEntry, navCurrentY, depth);
+                    entry.setNavButton(button);
+                    this.navButtons.add(button);
+                }
+            }
+            // Recursively checks the remaining tree branches
+            currentY = this.traverseTree(child, currentY, depth + 1, ctx);
+        }
+        return currentY;
+    }
+
+    /** @return The {@link PaCoConfigManager} instance associated to this {@link PaCoConfigScreen} */
     public PaCoConfigManager getManager() {
         return this.manager;
+    }
+
+    /** @return The currently selected {@link ConfigTreeNode} */
+    public ConfigTreeNode getCurrentNode() {
+        return this.currentNode;
+    }
+
+    /** @return The {@code root} {@link ConfigTreeNode} of this {@link PaCoConfigScreen} */
+    public ConfigTreeNode getRootNode() {
+        return this.rootNode;
     }
 
     /** @return Whether the mouse is within the entries panel */
     public boolean isMouseInEntriesBounds(double mouseX, double mouseY) {
         return PaCoGuiUtils.isMouseWithin(mouseX, mouseY, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
     }
+
+    /**
+     * A small helper object to store the panel dimensions for cleaner recursive methods.
+     *
+     * @param navX        The {@code x} coordinate of the nav button
+     * @param navWidth    The {@code width} of a navigation button // TODO probably dont need to pass these along as the size is static?
+     * @param navHeight   The {@code height} of a navigation button
+     * @param entryX      The {@code x} coordinate of the config entry // TODO probably get this through the screen values?
+     * @param entryWidth  The {@code width} of a config entry
+     * @param entryHeight The {@code height} of a config entry // TODO maybe make this dynamic?
+     * @param spacing     The {@code padding} between config entries
+     */
+    private record LayoutContext(int navX, int navWidth, int navHeight, int entryX, int entryWidth, int entryHeight, int spacing) {}
 }

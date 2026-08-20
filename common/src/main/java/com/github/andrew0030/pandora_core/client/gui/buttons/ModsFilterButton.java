@@ -41,9 +41,8 @@ public class ModsFilterButton extends AbstractButton {
         this.nextFilterType();
         this.setMessage(Component.translatable("gui.pandora_core.paco.filter.tooltip", this.filterType.getText()));
         // Updates the Mods list
-        if (this.screen.searchBox != null) {
+        if (this.screen.searchBox != null)
             this.screen.searchBox.setValue(this.screen.searchBox.getValue());
-        }
     }
 
     /** Cycles the {@link ModsFilterButton#filterType} */

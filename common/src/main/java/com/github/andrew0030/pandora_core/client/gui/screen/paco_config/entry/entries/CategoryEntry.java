@@ -12,11 +12,19 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 public class CategoryEntry extends BaseConfigEntry {
+    private final Button widget;
 
     public CategoryEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
         super(screen, node, x, y, width, height);
-        Button widget = new Button(this, Component.literal("TODO")); //TODO implement proper narration
+        this.widget = new Button(this, Component.literal("TODO")); //TODO implement proper narration
         this.widgets.add(widget);
+    }
+
+    // TODO maybe handle navButton logic in a cleaner way?
+    @Override
+    public void onPress() {
+        super.onPress();
+        this.widget.onPress();
     }
 
     private static class Button extends AbstractWidget {
@@ -79,7 +87,7 @@ public class CategoryEntry extends BaseConfigEntry {
 
         private void onPress() {
             // TODO look into a cleaner way to get the title screen
-            PaCoConfigScreen subScreen = new PaCoConfigScreen(this.screen.getManager(), this.node, screen.titleScreen, screen);
+            PaCoConfigScreen subScreen = new PaCoConfigScreen(this.screen.getManager(), this.node, screen.titleScreen, screen.previousScreen);
             Minecraft.getInstance().setScreen(subScreen);
         }
     }

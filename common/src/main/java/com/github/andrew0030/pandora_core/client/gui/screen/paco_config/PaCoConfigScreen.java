@@ -32,14 +32,10 @@ import java.util.List;
 public class PaCoConfigScreen extends Screen {
     // Some generic UI stuff
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
-    public static final int PADDING_ONE = 1;
-    public static final int PADDING_TWO = 2;
-    public static final int PADDING_THREE = 3;
-    public static final int PADDING_FOUR = 4;
     public static final int TOOLTIP_GRADIENT_SIZE = 10;
     // Config management stuff
     private final List<ConfigEntryNavigationButton> navButtons = new ArrayList<>();
-    private final List<BaseConfigEntry> visibleEntries = new ArrayList<>();
+    private final List<BaseConfigEntry<?>> visibleEntries = new ArrayList<>();
     private final PaCoConfigManager manager;
     private final ConfigTreeNode currentNode;
     private final ConfigTreeNode rootNode;
@@ -99,7 +95,7 @@ public class PaCoConfigScreen extends Screen {
         this.navMenuHeightStart = (this.height - this.navMenuHeight) / 2;
         this.navMenuHeightStop = this.navMenuHeightStart + this.navMenuHeight;
         this.navMenuWidth = 150;
-        this.navMenuWidthStart = PADDING_TWO;
+        this.navMenuWidthStart = PaCoGuiUtils.PADDING_TWO;
         this.navMenuEntriesHeight = this.navMenuHeight - 50; // TODO: 25 is a placeholder the the nav panel island that will be added later
         this.navMenuEntriesStart = this.navMenuHeightStart + 50;
 
@@ -108,12 +104,12 @@ public class PaCoConfigScreen extends Screen {
         this.menuHeightStart = (this.height - (this.menuHeight + 20)) / 2;
         this.menuHeightStop = this.menuHeightStart + this.menuHeight;
 //        this.menuWidth = Math.min(this.width - PADDING_TWO * 2, Math.round(this.menuHeight * 2.4F)) - 100;
-        this.menuWidth = (this.width - PADDING_TWO * 2) - navMenuWidth - PADDING_TWO;
+        this.menuWidth = (this.width - PaCoGuiUtils.PADDING_TWO * 2) - navMenuWidth - PaCoGuiUtils.PADDING_TWO;
 //        this.menuWidthStart = (this.width - this.menuWidth) / 2;
-        this.menuWidthStart = ((this.width + navMenuWidth + PADDING_TWO - this.menuWidth) / 2);
+        this.menuWidthStart = ((this.width + navMenuWidth + PaCoGuiUtils.PADDING_TWO - this.menuWidth) / 2);
 //        this.entriesHeight = this.populateEntries(false);
         this.entriesHeight = this.populateEntriesAndNavigation(false);
-        this.entriesHandleHeight = Math.max(8, this.menuHeight - (this.entriesHeight - this.menuHeight) - PADDING_FOUR);
+        this.entriesHandleHeight = Math.max(8, this.menuHeight - (this.entriesHeight - this.menuHeight) - PaCoGuiUtils.PADDING_FOUR);
     }
 
     @Override
@@ -136,7 +132,7 @@ public class PaCoConfigScreen extends Screen {
         this.navButtons.forEach(this::addWidget);
         // Scroll Bar (Slider)
         if (this.entriesHeight > this.menuHeight) { // We only add it if its needed
-            this.entriesScrollBar = new PaCoVerticalSlider(this.menuWidthStart + PADDING_TWO, this.menuHeightStart + PADDING_TWO, 6, this.menuHeight - PADDING_FOUR, 0, (this.entriesHeight - this.menuHeight), 0, 1)
+            this.entriesScrollBar = new PaCoVerticalSlider(this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStart + PaCoGuiUtils.PADDING_TWO, 6, this.menuHeight - PaCoGuiUtils.PADDING_FOUR, 0, (this.entriesHeight - this.menuHeight), 0, 1)
                     .setSilent(true)
                     .setTextHidden(true)
 //                    .setNarrationMessage(SCROLLBAR) //TODO add narration
@@ -203,16 +199,16 @@ public class PaCoConfigScreen extends Screen {
 
     protected void renderNavPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableBlend();
-        graphics.blitRepeating(TEXTURE, this.navMenuWidthStart + PADDING_TWO, this.navMenuEntriesStart, this.navMenuWidth - PADDING_TWO * 2, this.navMenuEntriesHeight, 0, 122, 48, 48);
+        graphics.blitRepeating(TEXTURE, this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, this.navMenuEntriesStart, this.navMenuWidth - PaCoGuiUtils.PADDING_TWO * 2, this.navMenuEntriesHeight, 0, 122, 48, 48);
 
 
         this.navButtons.forEach(button -> button.render(graphics, mouseX, mouseY, partialTick));
 
 
         // TODO replace later with the navigation panel
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.navMenuWidthStart + PADDING_TWO, this.navMenuHeightStart, this.navMenuWidth - PADDING_TWO * 2, this.navMenuEntriesStart - this.navMenuHeightStart, null, PaCoColor.color(255, 40, 40), 1);
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, this.navMenuHeightStart, this.navMenuWidth - PaCoGuiUtils.PADDING_TWO * 2, this.navMenuEntriesStart - this.navMenuHeightStart, null, PaCoColor.color(255, 40, 40), 1);
         // TODO remove later when config entry buttons are added
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart + PADDING_TWO, this.menuHeightStop + 6, this.menuWidth - PADDING_TWO * 2, 18, null, PaCoColor.color(255, 40, 40), 1);
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStop + 6, this.menuWidth - PaCoGuiUtils.PADDING_TWO * 2, 18, null, PaCoColor.color(255, 40, 40), 1);
     }
 
     protected void renderEntriesPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
@@ -223,8 +219,8 @@ public class PaCoConfigScreen extends Screen {
         // Panel Background
         RenderSystem.enableBlend();
         boolean hasEntriesScrollBar = this.entriesScrollBar != null;
-        int posX = hasEntriesScrollBar ? this.menuWidthStart + 10 : this.menuWidthStart + PADDING_TWO;
-        int width = hasEntriesScrollBar ? this.menuWidth - 10 - PADDING_TWO : this.menuWidth - (PADDING_TWO * 2);
+        int posX = hasEntriesScrollBar ? this.menuWidthStart + 10 : this.menuWidthStart + PaCoGuiUtils.PADDING_TWO;
+        int width = hasEntriesScrollBar ? this.menuWidth - 10 - PaCoGuiUtils.PADDING_TWO : this.menuWidth - (PaCoGuiUtils.PADDING_TWO * 2);
         graphics.blitRepeating(TEXTURE, posX, this.menuHeightStart, width, this.menuHeight, 0, 122, 48, 48);
         // Renders the Mods Panel Scroll Bar
         if (this.entriesScrollBar != null) this.entriesScrollBar.render(graphics, mouseX, mouseY, partialTick);
@@ -263,7 +259,7 @@ public class PaCoConfigScreen extends Screen {
         int hoveredIdx = -1;
         int focusedIdx = -1;
         for (int i = 0; i < this.visibleEntries.size(); i++) {
-            BaseConfigEntry entry = this.visibleEntries.get(i);
+            BaseConfigEntry<?> entry = this.visibleEntries.get(i);
             // Checks for hovered entries
             if (entry.isHovered()) hoveredIdx = i;
             // Checks for focused entries (only stores the first found one)
@@ -273,7 +269,7 @@ public class PaCoConfigScreen extends Screen {
         int activeIdx = (hoveredIdx != -1) ? hoveredIdx : focusedIdx;
         // Renders the tooltip at the active index, if there is one
         if (activeIdx != -1) {
-            BaseConfigEntry entry = this.visibleEntries.get(activeIdx);
+            BaseConfigEntry<?> entry = this.visibleEntries.get(activeIdx);
             // If the entry isn't within the panel's bounds we skip rendering
             if (!entry.isInBounds()) return;
             // Whether the tooltip should render
@@ -357,7 +353,7 @@ public class PaCoConfigScreen extends Screen {
         // NOTE: We need to call super early so the click logic runs on the current state of the UI before entries move
         boolean clickedWidget = super.mouseClicked(mouseX, mouseY, button);
         if (!clickedWidget) return false; // If no widget was clicked we don't move entries
-        for (BaseConfigEntry entry : this.visibleEntries) {
+        for (BaseConfigEntry<?> entry : this.visibleEntries) {
             if (this.isMouseInEntriesBounds(mouseX, mouseY)) {
                 if (!entry.isHovered())
                     continue;
@@ -380,27 +376,23 @@ public class PaCoConfigScreen extends Screen {
         this.visibleEntries.clear();
         this.navButtons.clear();
         // Navigation Panel
-        int navBaseX = this.navMenuWidthStart + PADDING_TWO;
-        int navWidth = this.navMenuWidth - (2 * PADDING_TWO);
+        int navBaseX = this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO;
+        int navWidth = this.navMenuWidth - (2 * PaCoGuiUtils.PADDING_TWO);
         int navHeight = ConfigEntryNavigationButton.BUTTON_HEIGHT;
         // Config Entries Panel
         int entriesStartY = this.menuHeightStart;
-        int entryCurrentY = entriesStartY + PADDING_TWO;
-        int entryX = this.menuWidthStart + PADDING_TWO;
-        int entryWidth = this.menuWidth - (PADDING_TWO * 2);
+        int entryCurrentY = entriesStartY + PaCoGuiUtils.PADDING_TWO;
+        int entryX = this.menuWidthStart + PaCoGuiUtils.PADDING_TWO;
+        int entryWidth = this.menuWidth - (PaCoGuiUtils.PADDING_TWO * 2);
         int entryHeight = 16;
-        int spacing = PADDING_TWO;
+        int spacing = PaCoGuiUtils.PADDING_TWO;
         // If the config entries panel has a scroll bar we need to offset the entries
         if (hasEntriesScrollBar) {
             entryX += 8;
             entryWidth -= 8;
         }
         // Small helper object to pass along the dimensions
-        LayoutContext ctx = new LayoutContext(
-            navBaseX, navWidth, navHeight,
-            entryX, entryWidth, entryHeight,
-            spacing
-        );
+        LayoutContext ctx = new LayoutContext(hasEntriesScrollBar, entryHeight, spacing);
         // Performs the recursive traversal from the root node
         int finalY = this.traverseTree(this.rootNode, entryCurrentY, 0, ctx);
         int entriesHeight = finalY - entriesStartY;
@@ -428,8 +420,8 @@ public class PaCoConfigScreen extends Screen {
         // Checks if the child is in the currently viewed panel
         boolean isVisibleEntry = node == this.currentNode;
         for (ConfigTreeNode child : node.getChildren()) {
-            ConfigDataHolder holder = child.getDataHolder();
-            BaseConfigEntry entry = holder.getConfigEntryFactory().create(this, child, ctx.entryX(), currentY, ctx.entryWidth(), ctx.entryHeight());
+            ConfigDataHolder<?> holder = child.getDataHolder();
+            BaseConfigEntry<?> entry = holder.getConfigEntryFactory().create(this, child, currentY, ctx.entryHeight(), ctx.hasEntryScrollbar());
             // If the entry is visible (in the currently viewed panel) we add it to the visible entries list
             if (isVisibleEntry) {
                 entry.setVisible(true);
@@ -439,7 +431,7 @@ public class PaCoConfigScreen extends Screen {
             // If the config tree node doesn't have a value it's a category
             if (!child.isValue()) {
                 // Since nav button height doesn't change, we can use the list size to determine the current height
-                int navCurrentY = this.navMenuEntriesStart + ConfigEntryNavigationButton.BUTTON_PADDING + (this.navButtons.size() * (ctx.navHeight() + ConfigEntryNavigationButton.BUTTON_PADDING));
+                int navCurrentY = this.navMenuEntriesStart + ConfigEntryNavigationButton.BUTTON_PADDING + (this.navButtons.size() * (ConfigEntryNavigationButton.BUTTON_HEIGHT + ConfigEntryNavigationButton.BUTTON_PADDING));
                 // Technically this isn't needed, but in case there is ever an entry that isn't a value and also not a category I will keep this check here
                 if (entry instanceof CategoryEntry categoryEntry) {
                     ConfigEntryNavigationButton button = new ConfigEntryNavigationButton(this, categoryEntry, navCurrentY, depth);
@@ -476,13 +468,8 @@ public class PaCoConfigScreen extends Screen {
     /**
      * A small helper object to store the panel dimensions for cleaner recursive methods.
      *
-     * @param navX        The {@code x} coordinate of the nav button
-     * @param navWidth    The {@code width} of a navigation button // TODO probably dont need to pass these along as the size is static?
-     * @param navHeight   The {@code height} of a navigation button
-     * @param entryX      The {@code x} coordinate of the config entry // TODO probably get this through the screen values?
-     * @param entryWidth  The {@code width} of a config entry
      * @param entryHeight The {@code height} of a config entry // TODO maybe make this dynamic?
      * @param spacing     The {@code padding} between config entries
      */
-    private record LayoutContext(int navX, int navWidth, int navHeight, int entryX, int entryWidth, int entryHeight, int spacing) {}
+    private record LayoutContext(boolean hasEntryScrollbar, int entryHeight, int spacing) {}
 }

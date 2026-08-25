@@ -9,9 +9,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.function.Function;
 
-public class ConfigDataHolderEntry extends ConfigDataHolder {
+public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> {
     private final Field field;
-    private Function<Object, Object> converter;
+    private Function<Object, T> converter; // TODO replace with IPaCoConfigConverter
     private List<String> validValues;
     private Number minVal;
     private Number maxVal;
@@ -29,25 +29,46 @@ public class ConfigDataHolderEntry extends ConfigDataHolder {
         return this.field.getName();
     }
 
-    public ConfigDataHolderEntry setConverter(Function<Object, Object> converter) {
+    public ConfigDataHolderEntry<T> setConverter(Function<Object, T> converter) {
         this.converter = converter;
         return this;
+    }
+
+    /**
+     * @return The value of the {@code field}
+     * @throws RuntimeException If the field cant be accessed
+     */
+    @SuppressWarnings("unchecked")
+    public T getValue() {
+        try {
+            return (T) this.field.get(null);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to read config field: " + this.field.getName(), e);
+        }
     }
 
     /**
      * A converter {@link Function} may be present depending on the type of the field, the {@link Function}
      * is called on the value retrieved from the config file, before its stored in the field, as the type
      * may require a conversion, e.g. (String -> Enum) or (Double -> Float).
-     * @param value the {@link Object} that will be converted to a different {@link Object}
-     * @return the converted {@link Object}, if no converter {@link Function} was specified, the {@link Object} is returned as is
+     *
+     * @param value The {@link Object} that will be converted to a different {@link Object}
+     * @return The converted {@link Object}, if no converter {@link Function} was specified, the {@link Object} is returned as is
+     * @throws RuntimeException If no converter was provided the casting the value fails
      */
-    public Object convert(Object value) {
+    @SuppressWarnings("unchecked")
+    public T convert(Object value) {
         if (converter != null)
             return converter.apply(value);
-        return value;
+        try {
+            return (T) value;
+        } catch (ClassCastException e) {
+            throw new RuntimeException("Could not cast the value: " + value + " to: " + this.getValue().getClass(), e);
+        }
     }
 
-    public ConfigDataHolderEntry setValidValues(List<String> validValues) {
+    // TODO generics
+    public ConfigDataHolderEntry<T> setValidValues(List<String> validValues) {
         this.validValues = validValues;
         return this;
     }
@@ -58,7 +79,7 @@ public class ConfigDataHolderEntry extends ConfigDataHolder {
 
     /** Used to cache the value range (if applicable), which is then used for internal logic */
     @ApiStatus.Internal
-    public ConfigDataHolderEntry setRange(@Nullable Number minVal, @Nullable Number maxVal) {
+    public ConfigDataHolderEntry<T> setRange(@Nullable Number minVal, @Nullable Number maxVal) {
         // We check for null to make sure this won't override "showFullRange", this is technically a bit
         // overkill as both of these methods are flagged as internal, however I say "better safe than sorry!"
         if (this.minVal == null)
@@ -70,7 +91,7 @@ public class ConfigDataHolderEntry extends ConfigDataHolder {
 
     /** Used to toggle whether the range should be displayed, regardless of the value. (Useful for small values like byte) */
     @ApiStatus.Internal
-    public ConfigDataHolderEntry setShowFullRange(boolean showFullRange, @NotNull Number minVal, @NotNull Number maxVal) {
+    public ConfigDataHolderEntry<T> setShowFullRange(boolean showFullRange, @NotNull Number minVal, @NotNull Number maxVal) {
         this.showFullRange = showFullRange;
         if (showFullRange) {
             this.minVal = minVal;

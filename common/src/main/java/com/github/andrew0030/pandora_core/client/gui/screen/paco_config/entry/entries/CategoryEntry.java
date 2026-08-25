@@ -11,11 +11,12 @@ import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class CategoryEntry extends BaseConfigEntry {
+// TODO maybe create a BaseConfigCategoryEntry class to abstract entry category creation more?
+public class CategoryEntry extends BaseConfigEntry<Void> {
     private final Button widget;
 
-    public CategoryEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
-        super(screen, node, x, y, width, height);
+    public CategoryEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar) {
+        super(screen, node, y, height, hasScrollbar);
         this.widget = new Button(this, Component.literal("TODO")); //TODO implement proper narration
         this.widgets.add(widget);
     }
@@ -28,11 +29,11 @@ public class CategoryEntry extends BaseConfigEntry {
     }
 
     private static class Button extends AbstractWidget {
-        private final BaseConfigEntry entry;
+        private final BaseConfigEntry<Void> entry;
         private final ConfigTreeNode node;
         private final PaCoConfigScreen screen;
 
-        public Button(BaseConfigEntry entry, Component message) {
+        public Button(BaseConfigEntry<Void> entry, Component message) {
             super(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), message);
             this.entry = entry;
             this.node = entry.node;

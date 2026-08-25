@@ -69,10 +69,6 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
     public static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
     public static final int SOFT_RED_TEXT_COLOR = PaCoColor.color(255, 90, 100);
     public static final int DARK_RED_TEXT_COLOR = PaCoColor.color(235, 74, 74);
-    public static final int PADDING_ONE = 1;
-    public static final int PADDING_TWO = 2;
-    public static final int PADDING_THREE = 3;
-    public static final int PADDING_FOUR = 4;
     private static final int MOD_BUTTON_HEIGHT = 25;
     public final List<ModDataHolder> filteredMods = this.createOrderedModsList();
     public int menuHeight;
@@ -134,12 +130,12 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
         this.contentMenuHeightStart = (this.height - this.contentMenuHeight) / 2;
         this.contentMenuHeightStop = this.contentMenuHeightStart + this.contentMenuHeight;
         this.modsPanelWidth = Mth.floor(this.width * 0.32F);
-        this.contentPanelWidth = this.width - this.modsPanelWidth - PADDING_TWO;
+        this.contentPanelWidth = this.width - this.modsPanelWidth - PaCoGuiUtils.PADDING_TWO;
         this.modButtonsStart = 38;
-        this.modButtonsLength = (this.filteredMods.size() * (MOD_BUTTON_HEIGHT + PADDING_ONE)) - 1;
-        this.modButtonsPanelLength = this.menuHeightStop - this.modButtonsStart - PADDING_THREE;
+        this.modButtonsLength = (this.filteredMods.size() * (MOD_BUTTON_HEIGHT + PaCoGuiUtils.PADDING_ONE)) - 1;
+        this.modButtonsPanelLength = this.menuHeightStop - this.modButtonsStart - PaCoGuiUtils.PADDING_THREE;
         this.modButtonWidth = this.modsPanelWidth - (this.modButtonsLength > this.modButtonsPanelLength ? 15 : 10);
-        this.modsHandleHeight = Math.max(8, this.modButtonsPanelLength - (this.modButtonsLength - this.modButtonsPanelLength) + PADDING_ONE);
+        this.modsHandleHeight = Math.max(8, this.modButtonsPanelLength - (this.modButtonsLength - this.modButtonsPanelLength) + PaCoGuiUtils.PADDING_ONE);
     }
 
     @Override
@@ -180,7 +176,7 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
         this.addWidget(this.filterButton);
         // Mod Buttons
         for (int i = 0; i < this.filteredMods.size(); i++) {
-            ModButton modButton = new ModButton(5, this.modButtonsStart + (i * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, this.filteredMods.get(i), this);
+            ModButton modButton = new ModButton(5, this.modButtonsStart + (i * (MOD_BUTTON_HEIGHT + PaCoGuiUtils.PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, this.filteredMods.get(i), this);
             if (this.selectedModButton != null && this.selectedModButton.getModDataHolder().getModId().equals(this.filteredMods.get(i).getModId())) {
                 modButton.setSelected(true);
                 this.selectedModButton = modButton;
@@ -189,7 +185,7 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
         }
         // Scroll Bar (Slider)
         if (this.modButtonsLength > this.modButtonsPanelLength) { // We only add it if its needed
-            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PADDING_TWO, 6, this.modButtonsPanelLength + PADDING_ONE, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
+            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PaCoGuiUtils.PADDING_TWO, 6, this.modButtonsPanelLength + PaCoGuiUtils.PADDING_ONE, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
                     .setSilent(true)
                     .setTextHidden(true)
                     .setNarrationMessage(SCROLLBAR)
@@ -360,9 +356,9 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
         // Renders the Content Panel Scroll Bar
         if (this.contentScrollBar != null) this.contentScrollBar.render(graphics, mouseX, mouseY, partialTick);
         // Top Bar
-        graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PADDING_TWO, this.contentMenuHeightStart - 4, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);
+        graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PaCoGuiUtils.PADDING_TWO, this.contentMenuHeightStart - 4, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);
         // Bottom Bar
-        graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PADDING_TWO, this.contentMenuHeightStop, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);
+        graphics.blitNineSliced(TEXTURE, this.modsPanelWidth + PaCoGuiUtils.PADDING_TWO, this.contentMenuHeightStop, this.contentPanelWidth, 4, 1, 17, 18, 0, 36);
     }
 
     @Override
@@ -411,7 +407,7 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
             this.modsScrollBar.setValue(newValue);
         }
         // Content Panel Scroll
-        if (this.contentScrollBar != null && PaCoGuiUtils.isMouseWithin(mouseX, mouseY, this.modsPanelWidth + PADDING_FOUR, this.contentMenuHeightStart, this.contentPanelWidth, this.contentMenuHeight)) {
+        if (this.contentScrollBar != null && PaCoGuiUtils.isMouseWithin(mouseX, mouseY, this.modsPanelWidth + PaCoGuiUtils.PADDING_FOUR, this.contentMenuHeightStart, this.contentPanelWidth, this.contentMenuHeight)) {
             int maxVal = this.contentPanelManager.getContentHeight() - this.contentMenuHeight;
             int pixelStep = (int) (maxVal * 0.12); // Modify the value by 12%
             pixelStep = Mth.clamp(pixelStep, 5, 30); // Ensures that the step size is within 5-30
@@ -528,7 +524,7 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
         this.fieldInit(); // Since there is (probably) a new number of mods we need to refresh all the fields
         List<AbstractWidget> newModButtons = new ArrayList<>();
         for (int i = 0; i < this.filteredMods.size(); i++) {
-            ModButton modButton = new ModButton(5, this.modButtonsStart + (i * (MOD_BUTTON_HEIGHT + PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, this.filteredMods.get(i), this);
+            ModButton modButton = new ModButton(5, this.modButtonsStart + (i * (MOD_BUTTON_HEIGHT + PaCoGuiUtils.PADDING_ONE)), this.modButtonWidth, MOD_BUTTON_HEIGHT, this.filteredMods.get(i), this);
             if (this.selectedModButton != null && this.selectedModButton.getModDataHolder().getModId().equals(this.filteredMods.get(i).getModId())) {
                 modButton.setSelected(true);
                 this.selectedModButton = modButton;
@@ -545,7 +541,7 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
         this.modsScrollBar = null; // We reset the scroll bar to null after we removed it from the lists
         // We create a new scroll bar if one is needed
         if (this.modButtonsLength > this.modButtonsPanelLength) {
-            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PADDING_TWO, 6, this.modButtonsPanelLength + PADDING_ONE, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
+            this.modsScrollBar = new PaCoVerticalSlider(this.modsPanelWidth - 7, this.modButtonsStart + PaCoGuiUtils.PADDING_TWO, 6, this.modButtonsPanelLength + PaCoGuiUtils.PADDING_ONE, 0, (this.modButtonsLength - this.modButtonsPanelLength), 0, 1)
                     .setSilent(true)
                     .setTextHidden(true)
                     .setNarrationMessage(SCROLLBAR)

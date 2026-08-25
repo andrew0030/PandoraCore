@@ -57,7 +57,7 @@ public class PaCoConfig {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     public @interface GuiEntryType {
-        Class<? extends BaseConfigEntry> value();
+        Class<? extends BaseConfigEntry<?>> value();
     }
 
     @Retention(RetentionPolicy.RUNTIME)

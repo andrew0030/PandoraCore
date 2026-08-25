@@ -97,6 +97,14 @@ public class PaCoMainConfig {
             @PaCoConfig.Comment("This category should not exist, as it's contents are null!")
             @PaCoConfig.Category("nested_inner_empty")
             public static class NestedInnerEmpty {
+
+                @PaCoConfig.Comment("This is just an empty category for the sake of testing depth...")
+                @PaCoConfig.Category("nested_inner_empty_empty")
+                public static class NestedInnerEmptyEmpty {
+
+                    @PaCoConfigValues.BooleanValue
+                    public static Boolean someValue = true;
+                }
             }
         }
 
@@ -172,17 +180,27 @@ public class PaCoMainConfig {
     @PaCoConfig.Category("floatsAndLongs")
     public static class FloatsAndLongs {
 
-        @PaCoConfigValues.Comment("This is a Float version of PI")
-        @PaCoConfigValues.FloatValue
-        public static float float_PI = Mth.PI;
+        @PaCoConfig.Comment("This Category contains Floats.")
+        @PaCoConfig.Category("floats")
+        public static class Floats {
 
-        @PaCoConfigValues.Comment("Comment above a Long")
-        @PaCoConfigValues.LongValue
-        public static long someLongValue = 500L;
+            @PaCoConfigValues.Comment("This is a Float version of PI")
+            @PaCoConfigValues.FloatValue
+            public static float float_PI = Mth.PI;
+        }
 
-        @PaCoConfigValues.Comment("Comment above a second Long")
-        @PaCoConfigValues.LongValue
-        public static Long someOtherLongValue = 500000L;
+        @PaCoConfig.Comment("This Category contains Longs.")
+        @PaCoConfig.Category("longs")
+        public static class Longs {
+
+            @PaCoConfigValues.Comment("Comment above a Long")
+            @PaCoConfigValues.LongValue
+            public static long someLongValue = 500L;
+
+            @PaCoConfigValues.Comment("Comment above a second Long")
+            @PaCoConfigValues.LongValue
+            public static Long someOtherLongValue = 500000L;
+        }
     }
 
     @PaCoConfig.Comment("This Category contains Strings")
@@ -274,7 +292,7 @@ public class PaCoMainConfig {
         @Override
         public Predicate<String> getSerializedPredicate() {
             return s -> {
-                // If the format is wrong its not a valid color
+                // If the format is wrong it's not a valid color
                 if (s == null || !s.matches("^#[0-9A-Fa-f]{6}$")) return false;
                 // If the value deserializes properly its valid, otherwise it isn't
                 try {

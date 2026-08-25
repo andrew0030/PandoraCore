@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.*;
 import com.github.andrew0030.pandora_core.client.gui.sliders.FocusRectangleMode;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.data_holders.ModDataHolder;
@@ -54,9 +55,9 @@ public class PaCoContentPanelManager {
     public PaCoContentPanelManager(Minecraft minecraft, PaCoScreen screen) {
         this.minecraft = minecraft;
         this.screen = screen;
-        this.posX = screen.modsPanelWidth + PaCoScreen.PADDING_FOUR;
+        this.posX = screen.modsPanelWidth + PaCoGuiUtils.PADDING_FOUR;
         this.posY = screen.contentMenuHeightStart;
-        this.width = screen.contentPanelWidth - PaCoScreen.PADDING_TWO;
+        this.width = screen.contentPanelWidth - PaCoGuiUtils.PADDING_TWO;
         this.height = screen.contentMenuHeight;
 
         if (this.getScreen().selectedModButton != null)
@@ -67,7 +68,7 @@ public class PaCoContentPanelManager {
     // TODO on Fabric some "lib mods" don't have a description or author entry, so maybe add checks for all entries that don't have a check yet
     public void buildContentPanel(ModDataHolder holder) {
         this.clearElements();
-        int paddingX = PaCoScreen.PADDING_FOUR;
+        int paddingX = PaCoGuiUtils.PADDING_FOUR;
         int paddingY = 8;
         this.elements.add(new BackgroundContentElement(this));
         this.elements.add(new BannerContentElement(this, 0, -this.getContentHeight())); // Since the banner is the second element added, moving it up by height moves it to 0
@@ -151,16 +152,16 @@ public class PaCoContentPanelManager {
             this.width -= 8;
             this.buildContentPanel(holder);
             // We add the slider to the screen
-            int heightPadding = PaCoScreen.PADDING_FOUR;
+            int heightPadding = PaCoGuiUtils.PADDING_FOUR;
             int sliderHeight = this.getHeight() - heightPadding;
-            int posX = this.getScreen().modsPanelWidth + PaCoScreen.PADDING_FOUR;
+            int posX = this.getScreen().modsPanelWidth + PaCoGuiUtils.PADDING_FOUR;
             int posY = this.getScreen().contentMenuHeightStart + heightPadding / 2;
             this.getScreen().setContentScrollBar(
                     new PaCoVerticalSlider(posX, posY, 6, sliderHeight, 0, (this.getContentHeight() - this.getScreen().contentMenuHeight), 0, 1)
                             .setSilent(true)
                             .setTextHidden(true)
                             .setNarrationMessage(SCROLLBAR)
-                            .setHandleSize(8, Math.max(8, this.getHeight() - (this.getContentHeight() - this.getHeight()) - PaCoScreen.PADDING_FOUR))
+                            .setHandleSize(8, Math.max(8, this.getHeight() - (this.getContentHeight() - this.getHeight()) - PaCoGuiUtils.PADDING_FOUR))
                             .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
                             .setSliderTexture(PaCoScreen.TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                             .setHandleTexture(PaCoScreen.TEXTURE, 12, 54, 20, 54, 8, 18, 1)
@@ -179,8 +180,8 @@ public class PaCoContentPanelManager {
 
     public void resetBounds() {
         this.hasScrollBar = false;
-        this.posX = screen.modsPanelWidth + PaCoScreen.PADDING_FOUR;
-        this.width = screen.contentPanelWidth - PaCoScreen.PADDING_TWO;
+        this.posX = screen.modsPanelWidth + PaCoGuiUtils.PADDING_FOUR;
+        this.width = screen.contentPanelWidth - PaCoGuiUtils.PADDING_TWO;
     }
 
     public void renderElements(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {

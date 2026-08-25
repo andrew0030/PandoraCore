@@ -3,8 +3,6 @@ package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.e
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderEntry;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -16,32 +14,27 @@ import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class BooleanButtonEntry extends BaseConfigEntry {
+public class BooleanButtonEntry extends BaseConfigEntry<Boolean> {
 
-    public BooleanButtonEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
-        super(screen, node, x, y, width, height);
-        ConfigDataHolderEntry holder = (ConfigDataHolderEntry) node.getDataHolder();
+    public BooleanButtonEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar) {
+        super(screen, node, y, height, hasScrollbar);
         // Creates the interactable widget
         // TODO maybe improve what kind of data is passed to the widgets? Something to look into after more of the types are implemented!
-        Button widget = new Button(this, Component.literal("TODO")); //TODO fix narration
+        Button<Boolean> widget = new Button<>(this, Component.literal("TODO")); //TODO fix narration
         // Sets the value to the current value from the config
-        try {
-            widget.setValue((boolean) holder.getField().get(null)); // TODO probably abstract value retrieval
-        } catch (Exception ignored) {}
+        widget.setValue(this.getValue());
         // Lastly we add the widget to the list
         this.widgets.add(widget);
     }
 
-    private static class Button extends AbstractWidget {
-        private final BaseConfigEntry entry;
-        private final ConfigDataHolder holder;
+    private static class Button<T> extends AbstractWidget {
+        private final BaseConfigEntry<T> entry;
         private final PaCoConfigManager manager;
         private boolean value;
 
-        public Button(BaseConfigEntry entry, Component message) {
+        public Button(BaseConfigEntry<T> entry, Component message) {
             super(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), message);
             this.entry = entry;
-            this.holder = entry.node.getDataHolder();
             this.manager = entry.screen.getManager();
         }
 
@@ -102,7 +95,7 @@ public class BooleanButtonEntry extends BaseConfigEntry {
             this.setValue(!this.value);
 
             // TODO improve how config values are set (should be a bulk operation)
-            String key = this.holder.getPath();
+            String key = this.entry.getDataHolder().getPath();
             manager.getConfig().set(key, this.value);
             manager.correctIfNeeded(true);
         }

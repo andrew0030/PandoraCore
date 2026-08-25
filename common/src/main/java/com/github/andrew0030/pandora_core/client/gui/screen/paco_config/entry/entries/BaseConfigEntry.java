@@ -6,6 +6,7 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.Con
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
+import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderEntry;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -29,10 +30,11 @@ import java.util.List;
 // - Abstract value retrieval to avoid direct interaction with the config instance
 // - Add bulk modification logic, rather than saving the config each time
 // - Maybe add option to choose if a tooltip should favor top/bottom displaying
-public abstract class BaseConfigEntry implements Renderable {
+public abstract class BaseConfigEntry<T> implements Renderable {
     private static final int SLICE_SIZE = 3;
     protected final PaCoConfigScreen screen;
     protected final ConfigTreeNode node;
+    protected final ConfigDataHolder<T> holder;
     private final int x, y, width, height;
     protected final List<AbstractWidget> widgets = new ArrayList<>();
     protected boolean isHovered;
@@ -53,17 +55,19 @@ public abstract class BaseConfigEntry implements Renderable {
     // Navigation
     private ConfigEntryNavigationButton navButton; // TODO maybe remove this if I deem entry movement through nav panel overkill
 
-    public BaseConfigEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
+    @SuppressWarnings("unchecked")
+    public BaseConfigEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollBar) {
         this.screen = screen;
         this.node= node;
-        this.x = x;
+        this.x = this.screen.menuWidthStart + PaCoGuiUtils.PADDING_TWO + (hasScrollBar ? 8 : 0);
         this.y = y;
-        this.width = width;
+        this.width = this.screen.menuWidth - (PaCoGuiUtils.PADDING_TWO * 2) - (hasScrollBar ? 8 : 0);
         this.height = height;
-        ConfigDataHolder holder = this.node.getDataHolder();
-        this.entryKey = holder.getKeyComponent() != null ? holder.getKeyComponent() : Component.literal(this.node.getName());
+        this.holder = (ConfigDataHolder<T>) this.node.getDataHolder();
+        // The name config entries will render
+        this.entryKey = this.holder.getKeyComponent() != null ? this.holder.getKeyComponent() : Component.literal(this.node.getName());
         // The user specified tooltip
-        holder.getTooltipComponents().forEach(component -> {
+        this.holder.getTooltipComponents().forEach(component -> {
             // Checks if a color was explicitly specified
             if (component.getStyle().getColor() == null) {
                 // If no color was specified we set it to light gray
@@ -74,16 +78,16 @@ public abstract class BaseConfigEntry implements Renderable {
             }
         });
         // Fallback tooltip
-        if (this.entryTooltip.isEmpty() && !StringUtil.isNullOrEmpty(holder.getCommentRaw())) {
+        if (this.entryTooltip.isEmpty() && !StringUtil.isNullOrEmpty(this.holder.getCommentRaw())) {
             // TODO maybe avoid modifying the lines?
-            List<String> commentLines = Arrays.stream(holder.getCommentRaw().trim().split("\n")).map(String::trim).toList();
+            List<String> commentLines = Arrays.stream(this.holder.getCommentRaw().trim().split("\n")).map(String::trim).toList();
             commentLines.forEach(string -> this.entryTooltip.add(Component.literal(string).withStyle(style -> style.withColor(ChatFormatting.GRAY))));
         }
 
 
-        //TODO maybe omit this if no other entries exist in the tooltip?
+        //TODO maybe omit this if no other entries exist in the tooltip? Or maybe use the advanced tooltips gamerule?
         // The entries path
-        this.entryTooltip.add(Component.literal(holder.getPath()).withStyle(style -> style.withColor(ChatFormatting.DARK_GRAY)));
+        this.entryTooltip.add(Component.literal(this.holder.getPath()).withStyle(style -> style.withColor(ChatFormatting.DARK_GRAY)));
         
 
         this.tooltipHeight = PaCoGuiUtils.getTooltipHeight(Minecraft.getInstance().font, this.entryTooltip, this.getWidth(), SLICE_SIZE);
@@ -137,7 +141,7 @@ public abstract class BaseConfigEntry implements Renderable {
         RenderSystem.setShaderColor(1, 1, 1, 1);
         // Config Key
         graphics.pose().pushPose();
-        graphics.pose().translate(this.getX() + PaCoConfigScreen.PADDING_FOUR + slideOffset, this.getY() + PaCoConfigScreen.PADDING_FOUR, 1);
+        graphics.pose().translate(this.getX() + PaCoGuiUtils.PADDING_FOUR + slideOffset, this.getY() + PaCoGuiUtils.PADDING_FOUR, 1);
         graphics.drawString(Minecraft.getInstance().font, this.entryKey, 0, 0, PaCoColor.WHITE, false);
         graphics.pose().popPose();
 
@@ -177,6 +181,18 @@ public abstract class BaseConfigEntry implements Renderable {
     }
 
     // TODO write javadocs for the methods bellow
+
+    /** @return The value of the {@code field} associated with this {@link BaseConfigEntry}, or {@code null} if none exists */
+    public T getValue() {
+        if (!this.holder.hasField()) return null;
+        return ((ConfigDataHolderEntry<T>) this.holder).getValue();
+    }
+
+    public void setValue(T value) {
+
+        // TODO implement the value setting
+
+    }
 
     public void tick() {}
 
@@ -236,6 +252,10 @@ public abstract class BaseConfigEntry implements Renderable {
         return this.node;
     }
 
+    public ConfigDataHolder<T> getDataHolder() {
+        return this.holder;
+    }
+
     /**
      * Should be used by super classes to apply an offset to the
      * {@code getY} method of {@link AbstractWidget} instances.
@@ -269,8 +289,7 @@ public abstract class BaseConfigEntry implements Renderable {
         else {
             // Calculates the center of the entries panel
             int menuCenter = this.screen.menuHeightStart + (this.screen.menuHeightStop - this.screen.menuHeightStart) / 2;
-            // If the entry is in the top half we render the tooltip below
-            // If the entry in the bottom half we render the tooltip above
+            // If the entry is in the top half we render the tooltip below otherwise above
             renderBelow = entryTop < menuCenter;
         }
         return renderBelow;

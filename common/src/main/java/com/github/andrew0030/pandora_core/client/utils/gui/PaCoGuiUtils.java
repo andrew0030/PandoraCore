@@ -35,6 +35,12 @@ import static com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders
 
 // TODO write javadoc for some of these methods that still need it.
 public class PaCoGuiUtils {
+    // Padding
+    public static final int PADDING_ONE = 1;
+    public static final int PADDING_TWO = 2;
+    public static final int PADDING_THREE = 3;
+    public static final int PADDING_FOUR = 4;
+    // Reusable Lists
     private static final ArrayList<PaCoBorderSide> BORDER_LIST = new ArrayList<>();
     private static final HashMap<String, Object> PARAMETERS = new HashMap<>();
 

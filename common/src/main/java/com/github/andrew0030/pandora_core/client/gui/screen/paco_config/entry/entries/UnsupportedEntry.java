@@ -2,15 +2,16 @@ package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.e
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.NotNull;
 
-public class UnsupportedEntry extends BaseConfigEntry {
-    public UnsupportedEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
-        super(screen, node, x, y, width, height);
+public class UnsupportedEntry extends BaseConfigEntry<Void> {
+    public UnsupportedEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar) {
+        super(screen, node, y, height, hasScrollbar);
     }
 
     @Override
@@ -19,6 +20,6 @@ public class UnsupportedEntry extends BaseConfigEntry {
 
         // TODO make this entire entry fancier
         Font font = Minecraft.getInstance().font;
-        graphics.drawString(Minecraft.getInstance().font, "Unsupported", this.getX() + this.getWidth() - font.width("Unsupported") - PaCoConfigScreen.PADDING_TWO, this.getY() + PaCoConfigScreen.PADDING_FOUR, PaCoColor.color(200, 80, 80), false);
+        graphics.drawString(Minecraft.getInstance().font, "Unsupported", this.getX() + this.getWidth() - font.width("Unsupported") - PaCoGuiUtils.PADDING_TWO, this.getY() + PaCoGuiUtils.PADDING_FOUR, PaCoColor.color(200, 80, 80), false);
     }
 }

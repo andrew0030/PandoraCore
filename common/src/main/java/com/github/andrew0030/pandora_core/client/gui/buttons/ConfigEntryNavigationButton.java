@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConf
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.CategoryEntry;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -19,28 +20,22 @@ public class ConfigEntryNavigationButton extends AbstractButton {
     private final CategoryEntry entry;
     private final int depth;
     private final boolean isSelected;
-    private final boolean isLastChild;
     private final int activeLineIndex;
+    private final boolean[] isBranchClosed;
 
     public ConfigEntryNavigationButton(PaCoConfigScreen screen, CategoryEntry entry, int y, int depth) {
         super(
-            screen.navMenuWidthStart + PaCoConfigScreen.PADDING_TWO, y,
-            screen.navMenuWidth - (PaCoConfigScreen.PADDING_TWO * 2), BUTTON_HEIGHT,
+            screen.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, y,
+            screen.navMenuWidth - (PaCoGuiUtils.PADDING_TWO * 2), BUTTON_HEIGHT,
             Component.literal("TODO")
         ); // TODO narration
         this.entry = entry;
         this.depth = depth;
 
         ConfigTreeNode currentNode = this.entry.getNode();
-        ConfigTreeNode parentNode = currentNode.getParent();
         ConfigTreeNode activeNode = screen.getCurrentNode();
         // Whether this button represents the currently selected node
         this.isSelected = currentNode == activeNode;
-        // Whether this button's config tree node, is the last child of the parent's node
-        boolean last = false;
-        if (parentNode != null)
-            last = parentNode.getLastChild() == currentNode;
-        this.isLastChild = last;
 
         // TODO probably replace the line render logic with blits instead of constructing lines
         // The active line index, we need this to render the tree lines highlighted at a certain depth
@@ -58,6 +53,17 @@ public class ConfigEntryNavigationButton extends AbstractButton {
             stepsUp++;
         }
         this.activeLineIndex = lineIdx;
+
+        // Caches which parent branches are closed (the last child)
+        boolean[] branchClosed = new boolean[depth];
+        temp = currentNode;
+        for (int i = depth - 1; i >= 0; i--) {
+            ConfigTreeNode parent = temp.getParent();
+            if (parent != null)
+                branchClosed[i] = (parent.getLastChild() == temp);
+            temp = parent;
+        }
+        this.isBranchClosed = branchClosed;
     }
 
     @Override
@@ -82,7 +88,7 @@ public class ConfigEntryNavigationButton extends AbstractButton {
         // TODO colored components are tricky to turn gray, hence the shader color, this works but maybe yeeting all the brightness changes for text is better?
 //        int color = this.entry.isVisible() || isActiveNode ? PaCoColor.WHITE : 11184810;
         if (!this.entry.isVisible() && !this.isSelected) RenderSystem.setShaderColor(0.6F, 0.6F, 0.6F, 1F);
-        graphics.drawString(Minecraft.getInstance().font, this.entry.getEntryKey(), this.getX() + PaCoConfigScreen.PADDING_TWO + (6 * this.depth), this.getY() + PaCoConfigScreen.PADDING_THREE, PaCoColor.WHITE, false);
+        graphics.drawString(Minecraft.getInstance().font, this.entry.getEntryKey(), this.getX() + PaCoGuiUtils.PADDING_TWO + (6 * this.depth), this.getY() + PaCoGuiUtils.PADDING_THREE, PaCoColor.WHITE, false);
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 
         // Renders the hierarchy lines in front of the text
@@ -98,19 +104,25 @@ public class ConfigEntryNavigationButton extends AbstractButton {
 
         // Renders all the tree lines in front of the text, each loop representing a new depth
         for (int i = 0; i < this.depth; i++) {
+            // Whether the branch at the current depth is already closed
+            boolean isClosed = this.isBranchClosed[i];
+
             // Whether the line at the current depth should be highlighted
             boolean isActiveLine = (i == this.activeLineIndex);
             int lineColor = isActiveLine ? PaCoColor.color(255, 255, 255) : PaCoColor.color(100, 100, 100); // TODO maybe change line color? Although textures may replace them fully...
 
             // Vertical Line
             int depthOffset = (6 * i);
-            int lineStartX = this.getX() + depthOffset + PaCoConfigScreen.PADDING_TWO;
+            int lineStartX = this.getX() + depthOffset + PaCoGuiUtils.PADDING_TWO;
             int lineEndX = lineStartX + 1;
             int lineStartY = this.getY();
-            int lineEndY = (i == this.depth - 1 && isLastChild)
-                    ? this.getY() + (BUTTON_HEIGHT / 2)
-                    : this.getY() + this.getHeight() + BUTTON_PADDING;
-            graphics.fill(lineStartX, lineStartY, lineEndX, lineEndY,  lineColor);
+            boolean skipVerticalLine = (i < this.depth - 1) && isClosed;
+            if (!skipVerticalLine) {
+                int lineEndY = isClosed
+                        ? this.getY() + (BUTTON_HEIGHT / 2)
+                        : this.getY() + this.getHeight() + BUTTON_PADDING;
+                graphics.fill(lineStartX, lineStartY, lineEndX, lineEndY,  lineColor);
+            }
 
             // Horizontal Line
             if (i == this.depth - 1) {
@@ -118,7 +130,7 @@ public class ConfigEntryNavigationButton extends AbstractButton {
                 lineStartX += 1;
                 lineEndX += lineWidth;
                 lineStartY += (BUTTON_HEIGHT / 2);
-                lineEndY = lineStartY + 1;
+                int lineEndY = lineStartY + 1;
                 graphics.fill(lineStartX, lineStartY, lineEndX, lineEndY, lineColor);
             }
         }

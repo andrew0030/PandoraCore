@@ -2,8 +2,6 @@ package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.e
 
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderEntry;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import net.minecraft.client.Minecraft;
@@ -14,35 +12,28 @@ import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class BooleanEntry extends BaseConfigEntry {
+public class BooleanEntry extends BaseConfigEntry<Boolean> {
 
-    public BooleanEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
-        super(screen, node, x, y, width, height);
-        ConfigDataHolderEntry holder = (ConfigDataHolderEntry) node.getDataHolder();
+    public BooleanEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar) {
+        super(screen, node, y, height, hasScrollbar);
         // Creates the interactable widget
         // TODO maybe improve what kind of data is passed to the widgets? Something to look into after more of the types are implemented!
-        Checkbox widget = new Checkbox(this, Component.literal("TODO")); //TODO fix narration
+        Checkbox<Boolean> widget = new Checkbox<>(this, Component.literal("TODO")); //TODO fix narration
         // Sets the value to the current value from the config
-        try {
-            widget.setValue((boolean) holder.getField().get(null));
-        } catch (Exception ignored) {}
+        widget.setValue(this.getValue());
         // Lastly we add the widget to the list
         this.widgets.add(widget);
     }
 
-    private static class Checkbox extends AbstractWidget {
-        private final BaseConfigEntry entry;
-        private final PaCoConfigScreen screen;
-        private final ConfigDataHolder holder;
+    private static class Checkbox<T> extends AbstractWidget {
+        private final BaseConfigEntry<T> entry;
         private final PaCoConfigManager manager;
         private boolean value;
 
-        public Checkbox(BaseConfigEntry entry, Component message) {
+        public Checkbox(BaseConfigEntry<T> entry, Component message) {
             super(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), message);
             this.entry = entry;
-            this.screen = entry.screen;
-            this.holder = entry.node.getDataHolder();
-            this.manager = this.screen.getManager();
+            this.manager = this.entry.screen.getManager();
         }
 
         // NOTE: The code in this block should be implemented by all widgets used for config entries, the methods
@@ -98,7 +89,7 @@ public class BooleanEntry extends BaseConfigEntry {
             this.setValue(!this.value);
 
             // TODO improve how config values are set (should be a bulk operation)
-            String key = this.holder.getPath();
+            String key = this.entry.getDataHolder().getPath();
             manager.getConfig().set(key, this.value);
             manager.correctIfNeeded(true);
         }

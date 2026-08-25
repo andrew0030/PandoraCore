@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PaCoConfigEntryManager {
-    private static final Map<Class<? extends BaseConfigEntry>, ConfigEntryFactory> FACTORY_CACHE = new HashMap<>();
+    private static final Map<Class<? extends BaseConfigEntry<?>>, ConfigEntryFactory> FACTORY_CACHE = new HashMap<>();
 
     /**
      * Retrieves a lazily cached {@link ConfigEntryFactory} for the specified {@link BaseConfigEntry} class.
@@ -18,20 +18,19 @@ public class PaCoConfigEntryManager {
      * @return The cached {@link ConfigEntryFactory} used to instantiate the {@link BaseConfigEntry}
      * @throws RuntimeException If the required constructor is missing or instantiation fails
      */
-    public static ConfigEntryFactory getFactory(Class<? extends BaseConfigEntry> entryClass) {
+    public static ConfigEntryFactory getFactory(Class<? extends BaseConfigEntry<?>> entryClass) {
         return FACTORY_CACHE.computeIfAbsent(entryClass, clazz -> {
             try {
 
                 // TODO maybe adjust the values passed to BaseConfigEntry
-                Constructor<? extends BaseConfigEntry> constructor = clazz.getConstructor(
-                        PaCoConfigScreen.class, ConfigTreeNode.class,
-                        int.class, int.class, int.class, int.class
+                Constructor<? extends BaseConfigEntry<?>> constructor = clazz.getConstructor(
+                        PaCoConfigScreen.class, ConfigTreeNode.class, int.class, int.class, boolean.class
                 );
 
                 // Lambda captures the retrieved constructor, allowing for subsequent calls to use the same constructor instance
-                return (screen, node, x, y, w, h) -> {
+                return (screen, node, y, height, hasScrollbar) -> {
                     try {
-                        return constructor.newInstance(screen, node, x, y, w, h);
+                        return constructor.newInstance(screen, node, y, height, hasScrollbar);
                     } catch (Exception e) {
                         throw new RuntimeException("Failed to instantiate " + clazz.getName(), e);
                     }

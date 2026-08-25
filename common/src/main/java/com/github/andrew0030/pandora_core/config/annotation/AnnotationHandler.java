@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
 
 public class AnnotationHandler {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "AnnotationHandler");
-    private final Map<Class<? extends Annotation>, BiConsumer<Field, String>> annotationHandlers = new HashMap<>();
-    private final Map<Class<?>, IPaCoConfigConverter<?, ?>> converterCache = new HashMap<>();
-    private final Map<String, ConfigDataHolder> dataHolders = new LinkedHashMap<>();
+    private static final Map<Class<? extends Annotation>, BiConsumer<Field, String>> ANNOTATION_HANDLERS = new HashMap<>();
+    private static final Map<Class<?>, IPaCoConfigConverter<?, ?>> CONVERTER_CACHE = new HashMap<>();
+    private final Map<String, ConfigDataHolder<?>> dataHolders = new LinkedHashMap<>();
     private final ConfigSpec configSpec = new ConfigSpec();
     private final PaCoConfigManager manager;
     private final String configName;
@@ -100,21 +100,21 @@ public class AnnotationHandler {
      * <strong>Note</strong>: This method ensures type safety.
      */
     private void initConfigCaches() {
-        this.annotationHandlers.put(PaCoConfigValues.BooleanValue.class, this::handleBooleanField);       // Boolean & boolean
-        this.annotationHandlers.put(PaCoConfigValues.IntegerValue.class, this::handleIntegerField);       // Integer & int
-        this.annotationHandlers.put(PaCoConfigValues.ByteValue.class, this::handleByteField);             // Byte & byte
-        this.annotationHandlers.put(PaCoConfigValues.ShortValue.class, this::handleShortField);           // Short & short
-        this.annotationHandlers.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);         // Double & double
-        this.annotationHandlers.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);           // Float & float
-        this.annotationHandlers.put(PaCoConfigValues.LongValue.class, this::handleLongField);             // Long & long
-        this.annotationHandlers.put(PaCoConfigValues.StringValue.class, this::handleStringField);         // String
-        this.annotationHandlers.put(PaCoConfigValues.ListValue.class, this::handleListField);             // List
-        this.annotationHandlers.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);             // Enum
-        this.annotationHandlers.put(PaCoConfigValues.CustomValue.class, this::handleCustomField);         // Custom Classes
-        this.annotationHandlers.put(PaCoConfigValues.CustomListValue.class, this::handleCustomListField); // Custom Classes List
-        this.annotationHandlers.put(PaCoConfigValues.GuiEntryKey.class, this::handleGuiEntryKey);         // GUI Entry Key
-        this.annotationHandlers.put(PaCoConfigValues.GuiEntryTooltip.class, this::handleGuiEntryTooltip); // GUI Entry Tooltip
-        this.annotationHandlers.put(PaCoConfigValues.Comment.class, this::handleComment);                 // Comments
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.BooleanValue.class, this::handleBooleanField);       // Boolean & boolean
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.IntegerValue.class, this::handleIntegerField);       // Integer & int
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.ByteValue.class, this::handleByteField);             // Byte & byte
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.ShortValue.class, this::handleShortField);           // Short & short
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.DoubleValue.class, this::handleDoubleField);         // Double & double
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.FloatValue.class, this::handleFloatField);           // Float & float
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.LongValue.class, this::handleLongField);             // Long & long
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.StringValue.class, this::handleStringField);         // String
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.ListValue.class, this::handleListField);             // List
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.EnumValue.class, this::handleEnumField);             // Enum
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.CustomValue.class, this::handleCustomField);         // Custom Classes
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.CustomListValue.class, this::handleCustomListField); // Custom Classes List
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.GuiEntryKey.class, this::handleGuiEntryKey);         // GUI Entry Key
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.GuiEntryTooltip.class, this::handleGuiEntryTooltip); // GUI Entry Tooltip
+        ANNOTATION_HANDLERS.put(PaCoConfigValues.Comment.class, this::handleComment);                 // Comments
 
         this.processConfigClass(this.manager.getConfigClass(), null);
     }
@@ -133,7 +133,7 @@ public class AnnotationHandler {
                 ));
             }
             for (Annotation annotation : field.getAnnotations()) {
-                BiConsumer<Field, String> consumer = this.annotationHandlers.get(annotation.annotationType());
+                BiConsumer<Field, String> consumer = ANNOTATION_HANDLERS.get(annotation.annotationType());
                 if (consumer != null)
                     consumer.accept(field, categoryPrefix);
             }
@@ -172,7 +172,7 @@ public class AnnotationHandler {
     }
 
     /** @return an ordered {@link ImmutableList}, containing a {@link ConfigDataHolder} for each field inside the {@link PaCoConfig} class */
-    public ImmutableList<ConfigDataHolder> getConfigDataHolders() {
+    public ImmutableList<ConfigDataHolder<?>> getConfigDataHolders() {
         return ImmutableList.copyOf(this.dataHolders.values());
     }
 
@@ -187,7 +187,8 @@ public class AnnotationHandler {
             boolean defaultValue = (boolean) this.getOrThrow(field);
             String key = category + field.getName();
             configSpec.define(key, defaultValue);
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            @SuppressWarnings("unchecked")
+            ConfigDataHolder<Boolean> holder = (ConfigDataHolder<Boolean>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
             ConfigEntryFactory factory = this.getConfigEntryFactory(field, BooleanEntry.class);
             holder.setPath(key);
             holder.setConfigEntryFactory(factory);
@@ -472,7 +473,8 @@ public class AnnotationHandler {
             String defaultValue = (String) this.getOrThrow(field);
             String key = category + field.getName();
             configSpec.define(key, defaultValue);
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            @SuppressWarnings("unchecked")
+            ConfigDataHolder<String> holder = (ConfigDataHolder<String>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
             ConfigEntryFactory factory = this.getConfigEntryFactory(field, StringEntry.class);
             holder.setPath(key);
             holder.setConfigEntryFactory(factory);
@@ -625,7 +627,7 @@ public class AnnotationHandler {
      */
     @SuppressWarnings("unchecked")
     private <T extends IPaCoConfigConverter<?, ?>> T getConverter(Class<T> key) {
-        return (T) this.converterCache.computeIfAbsent(key, converter -> {
+        return (T) CONVERTER_CACHE.computeIfAbsent(key, converter -> {
             try {
                 // This should technically never fail as the annotation requires it, but better safe than sorry
                 if (!IPaCoConfigConverter.class.isAssignableFrom(converter)) {
@@ -684,7 +686,7 @@ public class AnnotationHandler {
     }
 
     public void handleCategory(Class<?> clazz, String category) {
-        ConfigDataHolder holder = this.dataHolders.getOrDefault(category, new ConfigDataHolderCategory());
+        ConfigDataHolder<?> holder = this.dataHolders.getOrDefault(category, new ConfigDataHolderCategory());
         holder.setPath(category);
         // Entry Factory
         ConfigEntryFactory factory = this.getCategoryConfigEntryFactory(clazz, CategoryEntry.class);
@@ -741,13 +743,15 @@ public class AnnotationHandler {
         return defaultObject;
     }
 
-    private ConfigEntryFactory getConfigEntryFactory(Field field, Class<? extends BaseConfigEntry> defaultEntry) {
+    private <T> ConfigEntryFactory getConfigEntryFactory(Field field, Class<? extends BaseConfigEntry<T>> defaultEntry) {
         PaCoConfigValues.GuiEntryType annotation = field.getAnnotation(PaCoConfigValues.GuiEntryType.class);
-        return PaCoConfigEntryManager.getFactory(annotation != null ? annotation.value() : defaultEntry);
+        if (annotation == null) return PaCoConfigEntryManager.getFactory(defaultEntry);
+        return PaCoConfigEntryManager.getFactory(annotation.value());
     }
 
-    private ConfigEntryFactory getCategoryConfigEntryFactory(Class<?> clazz, Class<? extends BaseConfigEntry> defaultEntry) {
+    private <T> ConfigEntryFactory getCategoryConfigEntryFactory(Class<?> clazz, Class<? extends BaseConfigEntry<T>> defaultEntry) {
         PaCoConfig.GuiEntryType annotation = clazz.getAnnotation(PaCoConfig.GuiEntryType.class);
-        return PaCoConfigEntryManager.getFactory(annotation != null ? annotation.value() : defaultEntry);
+        if (annotation == null) return PaCoConfigEntryManager.getFactory(defaultEntry);
+        return PaCoConfigEntryManager.getFactory(annotation.value());
     }
 }

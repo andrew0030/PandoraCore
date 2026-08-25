@@ -13,11 +13,11 @@ public class ConfigTreeBuilder {
      * @param holders A flat collection of {@link ConfigDataHolder} instances, used to populate the tree
      * @return The root {@link ConfigTreeNode} representing the fully constructed hierarchical {@link ConfigTreeNode} tree
      */
-    public static ConfigTreeNode buildTree(Collection<ConfigDataHolder> holders) {
+    public static ConfigTreeNode buildTree(Collection<ConfigDataHolder<?>> holders) {
         // The base node that will get populated with all other nodes
         ConfigTreeNode root = new ConfigTreeNode("root");
         // Loops over the given data holders and populates the root node with children
-        for (ConfigDataHolder holder : holders) {
+        for (ConfigDataHolder<?> holder : holders) {
             String path = holder.getPath();
             ConfigTreeNode current = root;
             // Keeps track of the relevant indexes, as this is faster than splitting the string

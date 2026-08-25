@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class ConfigDataHolder {
+public abstract class ConfigDataHolder<T> {
     protected String path = "";
     protected String comment;
     protected int commentPadding = 1;
@@ -19,7 +19,7 @@ public abstract class ConfigDataHolder {
     protected Component keyComponent;
     protected List<Component> tooltipComponents = new ArrayList<>();
 
-    public ConfigDataHolder setPath(String path) {
+    public ConfigDataHolder<T> setPath(String path) {
         this.path = path;
         return this;
     }
@@ -28,12 +28,12 @@ public abstract class ConfigDataHolder {
         return this.path;
     }
 
-    public ConfigDataHolder setComment(String comment) {
+    public ConfigDataHolder<T> setComment(String comment) {
         this.setComment(comment, 1);
         return this;
     }
 
-    public ConfigDataHolder setComment(String comment, int padding) {
+    public ConfigDataHolder<T> setComment(String comment, int padding) {
         this.comment = comment;
         this.commentPadding = padding;
         return this;
@@ -62,7 +62,7 @@ public abstract class ConfigDataHolder {
 
 
     // TODO write javadocs
-    public ConfigDataHolder setConfigEntryFactory(ConfigEntryFactory factory) {
+    public ConfigDataHolder<T> setConfigEntryFactory(ConfigEntryFactory factory) {
         this.configEntryFactory = factory;
         return this;
     }
@@ -73,7 +73,7 @@ public abstract class ConfigDataHolder {
         return this.configEntryFactory != null ? this.configEntryFactory : UnsupportedEntry::new;
     }
 
-    public ConfigDataHolder setKeyComponent(Component keyComponent) {
+    public ConfigDataHolder<T> setKeyComponent(Component keyComponent) {
         this.keyComponent = keyComponent;
         return this;
     }
@@ -83,7 +83,7 @@ public abstract class ConfigDataHolder {
         return this.keyComponent;
     }
 
-    public ConfigDataHolder setTooltipComponents(List<Component> components) {
+    public ConfigDataHolder<T> setTooltipComponents(List<Component> components) {
         this.tooltipComponents.addAll(components);
         return this;
     }
@@ -93,6 +93,10 @@ public abstract class ConfigDataHolder {
     }
 
     public boolean hasField() {
+        return false;
+    }
+
+    public boolean isCategory() {
         return false;
     }
 }

@@ -3,27 +3,22 @@ package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.e
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderEntry;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
-public class StringEntry extends BaseConfigEntry {
-    private final TextField widget;
+public class StringEntry extends BaseConfigEntry<String> {
+    private final TextField<String> widget;
 
-    public StringEntry(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height) {
-        super(screen, node, x, y, width, height);
-        ConfigDataHolderEntry holder = (ConfigDataHolderEntry) node.getDataHolder();
+    public StringEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar) {
+        super(screen, node, y, height, hasScrollbar);
         // Creates the interactable widget
         // TODO maybe improve what kind of data is passed to the widgets? Something to look into after more of the types are implemented!
-        this.widget = new TextField(this, Component.literal("TODO")); //TODO fix narration
+        this.widget = new TextField<>(this, Component.literal("TODO")); //TODO fix narration
         this.widget.setForceLineIndicator(true);
         this.widget.setMidpointCharSelection(true);
         // Sets the value to the current value from the config
-        try {
-            this.widget.setValue((String) holder.getField().get(null));
-        } catch (Exception ignored) {}
+        this.widget.setValue(this.getValue());
         // Lastly we add the widget to the list
         this.widgets.add(this.widget);
     }
@@ -33,15 +28,13 @@ public class StringEntry extends BaseConfigEntry {
         this.widget.tick();
     }
 
-    private static class TextField extends PaCoEditBox {
-        private final BaseConfigEntry entry;
-        private final ConfigDataHolder holder;
+    private static class TextField<T> extends PaCoEditBox {
+        private final BaseConfigEntry<T> entry;
         private final PaCoConfigManager manager;
 
-        public TextField(BaseConfigEntry entry, Component message) {
+        public TextField(BaseConfigEntry<T> entry, Component message) {
             super(Minecraft.getInstance().font, entry.getX() + entry.getWidth() - 120, entry.getY() + 1, 119, entry.getHeight() - 2, message);
             this.entry = entry;
-            this.holder = entry.node.getDataHolder();
             this.manager = entry.screen.getManager();
         }
 
@@ -64,7 +57,7 @@ public class StringEntry extends BaseConfigEntry {
 
         @Override
         public void onTextChanged(String newText) {
-            String key = this.holder.getPath();
+            String key = this.entry.getDataHolder().getPath();
             manager.getConfig().set(key, newText);
             manager.correctIfNeeded(true);
         }

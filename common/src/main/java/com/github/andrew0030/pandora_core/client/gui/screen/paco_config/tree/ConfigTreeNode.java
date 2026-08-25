@@ -12,8 +12,8 @@ public class ConfigTreeNode {
     private final String name;
     private final ConfigTreeNode parent;
     private final Map<String, ConfigTreeNode> children = new LinkedHashMap<>();
+    private ConfigDataHolder<?> dataHolder;
     private ConfigTreeNode lastChild;
-    private ConfigDataHolder dataHolder;
 
     public ConfigTreeNode(String name, @Nullable ConfigTreeNode parent) {
         this.name = name;
@@ -43,7 +43,7 @@ public class ConfigTreeNode {
 
     /** @return Whether this {@link ConfigTreeNode} has a {@link ConfigDataHolder} with a corresponding {@code field} */
     public boolean isValue() {
-        return dataHolder != null && dataHolder.hasField();
+        return dataHolder != null && !dataHolder.isCategory();
     }
 
     /**
@@ -57,20 +57,14 @@ public class ConfigTreeNode {
      * @return The {@link ConfigTreeNode} instance that was retrieved or created
      */
     ConfigTreeNode getOrCreateChild(String name) {
-        ConfigTreeNode node = this.children.get(name);
-        if (node == null) {
-            node = new ConfigTreeNode(name, this);
-            this.children.put(name, node);
-            this.lastChild = node;
-        }
-        return node;
+        return this.children.computeIfAbsent(name, childName -> this.lastChild = new ConfigTreeNode(childName, this));
     }
 
-    public ConfigDataHolder getDataHolder() {
+    public ConfigDataHolder<?> getDataHolder() {
         return this.dataHolder;
     }
 
-    public void setDataHolder(ConfigDataHolder dataHolder) {
+    public void setDataHolder(ConfigDataHolder<?> dataHolder) {
         this.dataHolder = dataHolder;
     }
 }

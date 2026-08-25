@@ -8,5 +8,5 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.Con
 public interface ConfigEntryFactory {
 
     // TODO: Maybe adjust the values that are passed to BaseConfigEntry
-    BaseConfigEntry create(PaCoConfigScreen screen, ConfigTreeNode node, int x, int y, int width, int height);
+    BaseConfigEntry<?> create(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar);
 }

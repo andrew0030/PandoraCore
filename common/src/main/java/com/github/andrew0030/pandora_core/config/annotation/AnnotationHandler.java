@@ -10,6 +10,7 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.en
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.StringEntry;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
+import com.github.andrew0030.pandora_core.config.annotation.converters.*;
 import com.github.andrew0030.pandora_core.config.manager.*;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.google.common.collect.ImmutableList;
@@ -219,19 +220,16 @@ public class AnnotationHandler {
                         "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
                         field.getName(),
                         this.manager.getConfigClass().getName(),
-                        defaultValue,
-                        minVal,
-                        maxVal
+                        defaultValue, minVal, maxVal
                 ));
             String key = category + field.getName();
             configSpec.defineInRange(key, defaultValue, minVal, maxVal);
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            if (holder instanceof ConfigDataHolderEntry holderEntry)
-                this.dataHolders.put(key, holderEntry
-                        .setRange(minVal == Integer.MIN_VALUE ? null : minVal, maxVal == Integer.MAX_VALUE ? null : maxVal)
-                        .setShowFullRange(showFullRange, minVal, maxVal)
-                        .setPath(key)
-                );
+            @SuppressWarnings("unchecked")
+            ConfigDataHolderEntry<Integer> holder = (ConfigDataHolderEntry<Integer>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            holder.setPath(key);
+            holder.setRange(minVal == Integer.MIN_VALUE ? null : minVal, maxVal == Integer.MAX_VALUE ? null : maxVal);
+            holder.setShowFullRange(showFullRange, minVal, maxVal);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -258,29 +256,21 @@ public class AnnotationHandler {
                         "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
                         field.getName(),
                         this.manager.getConfigClass().getName(),
-                        defaultValue,
-                        minVal,
-                        maxVal
+                        defaultValue, minVal, maxVal
                 ));
             String key = category + field.getName();
+            ByteConfigConverter converter = new ByteConfigConverter(minVal, maxVal);
             configSpec.define(key, defaultValue, o -> {
-                if (o instanceof Integer || o instanceof Byte) {
-                    byte byteValue = ((Number) o).byteValue();
-                    return byteValue >= minVal && byteValue <= maxVal;
-                }
-                return false;
+                if (!(o instanceof Number)) return false;
+                return converter.getSerializedPredicate().test((Number) o);
             });
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            if (holder instanceof ConfigDataHolderEntry holderEntry)
-                this.dataHolders.put(key, holderEntry
-                        .setRange(minVal == Byte.MIN_VALUE ? null : minVal, maxVal == Byte.MAX_VALUE ? null : maxVal)
-                        .setShowFullRange(showFullRange, minVal, maxVal)
-                        .setConverter(value -> {
-                            if (value instanceof Number number)
-                                return number.byteValue();
-                            throw new IllegalArgumentException("Config value is not a Number as expected for byte.");
-                        }).setPath(key)
-                );
+            @SuppressWarnings("unchecked")
+            ConfigDataHolderEntry<Byte> holder = (ConfigDataHolderEntry<Byte>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            holder.setPath(key);
+            holder.setRange(minVal == Byte.MIN_VALUE ? null : minVal, maxVal == Byte.MAX_VALUE ? null : maxVal);
+            holder.setShowFullRange(showFullRange, minVal, maxVal);
+            holder.setConverter(converter);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -307,29 +297,21 @@ public class AnnotationHandler {
                         "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
                         field.getName(),
                         this.manager.getConfigClass().getName(),
-                        defaultValue,
-                        minVal,
-                        maxVal
+                        defaultValue, minVal, maxVal
                 ));
             String key = category + field.getName();
+            ShortConfigConverter converter = new ShortConfigConverter(minVal, maxVal);
             configSpec.define(key, defaultValue, o -> {
-                if (o instanceof Integer || o instanceof Short) {
-                    short shortValue = ((Number) o).shortValue();
-                    return shortValue >= minVal && shortValue <= maxVal;
-                }
-                return false;
+                if (!(o instanceof Number)) return false;
+                return converter.getSerializedPredicate().test((Number) o);
             });
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            if (holder instanceof ConfigDataHolderEntry holderEntry)
-                this.dataHolders.put(key, holderEntry
-                        .setRange(minVal == Short.MIN_VALUE ? null : minVal, maxVal == Short.MAX_VALUE ? null : maxVal)
-                        .setShowFullRange(showFullRange, minVal, maxVal)
-                        .setConverter(value -> {
-                            if (value instanceof Number number)
-                                return number.shortValue();
-                            throw new IllegalArgumentException("Config value is not a Number as expected for short.");
-                        }).setPath(key)
-                );
+            @SuppressWarnings("unchecked")
+            ConfigDataHolderEntry<Short> holder = (ConfigDataHolderEntry<Short>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            holder.setPath(key);
+            holder.setRange(minVal == Short.MIN_VALUE ? null : minVal, maxVal == Short.MAX_VALUE ? null : maxVal);
+            holder.setShowFullRange(showFullRange, minVal, maxVal);
+            holder.setConverter(converter);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -356,19 +338,16 @@ public class AnnotationHandler {
                         "Invalid value for field '%s' in class '%s': Default value %f is out of range (min: %f, max: %f).",
                         field.getName(),
                         this.manager.getConfigClass().getName(),
-                        defaultValue,
-                        minVal,
-                        maxVal
+                        defaultValue, minVal, maxVal
                 ));
             String key = category + field.getName();
             configSpec.defineInRange(key, defaultValue, minVal, maxVal);
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            if (holder instanceof ConfigDataHolderEntry holderEntry)
-                this.dataHolders.put(key, holderEntry
-                        .setRange(minVal == Double.MIN_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal)
-                        .setShowFullRange(showFullRange, minVal, maxVal)
-                        .setPath(key)
-                );
+            @SuppressWarnings("unchecked")
+            ConfigDataHolderEntry<Double> holder = (ConfigDataHolderEntry<Double>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            holder.setPath(key);
+            holder.setRange(minVal == Double.MIN_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal);
+            holder.setShowFullRange(showFullRange, minVal, maxVal);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -395,23 +374,23 @@ public class AnnotationHandler {
                         "Invalid value for field '%s' in class '%s': Default value %f is out of range (min: %f, max: %f).",
                         field.getName(),
                         this.manager.getConfigClass().getName(),
-                        defaultValue,
-                        minVal,
-                        maxVal
+                        defaultValue, minVal, maxVal
                 ));
             String key = category + field.getName();
+            FloatConfigConverter converter = new FloatConfigConverter(minVal, maxVal);
+
+
+            // TODO test if using the converter here fixes the Forge IDE float bug
             configSpec.defineInRange(key, defaultValue, minVal, maxVal);
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            if (holder instanceof ConfigDataHolderEntry holderEntry)
-                this.dataHolders.put(key, holderEntry
-                        .setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal)
-                        .setShowFullRange(showFullRange, minVal, maxVal)
-                        .setConverter(value -> {
-                            if (value instanceof Number number)
-                                return number.floatValue();
-                            throw new IllegalArgumentException("Config value is not a Number as expected for float.");
-                        }).setPath(key)
-                );
+
+
+            @SuppressWarnings("unchecked")
+            ConfigDataHolderEntry<Float> holder = (ConfigDataHolderEntry<Float>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            holder.setPath(key);
+            holder.setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal);
+            holder.setShowFullRange(showFullRange, minVal, maxVal);
+            holder.setConverter(converter);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -438,29 +417,21 @@ public class AnnotationHandler {
                         "Invalid value for field '%s' in class '%s': Default value %d is out of range (min: %d, max: %d).",
                         field.getName(),
                         this.manager.getConfigClass().getName(),
-                        defaultValue,
-                        minVal,
-                        maxVal
+                        defaultValue, minVal, maxVal
                 ));
             String key = category + field.getName();
+            LongConfigConverter converter = new LongConfigConverter(minVal, maxVal);
             configSpec.define(key, defaultValue, o -> {
-                if (o instanceof Integer || o instanceof Long) {
-                    long longValue = ((Number) o).longValue();
-                    return longValue >= minVal && longValue <= maxVal;
-                }
-                return false;
+                if (!(o instanceof Number)) return false;
+                return converter.getSerializedPredicate().test((Number) o);
             });
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            if (holder instanceof ConfigDataHolderEntry holderEntry)
-                this.dataHolders.put(key, holderEntry
-                        .setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal)
-                        .setShowFullRange(showFullRange, minVal, maxVal)
-                        .setConverter(value -> {
-                            if (value instanceof Number number)
-                                return number.longValue();
-                            throw new IllegalArgumentException("Config value is not a Number as expected for long.");
-                        }).setPath(key)
-                );
+            @SuppressWarnings("unchecked")
+            ConfigDataHolderEntry<Long> holder = (ConfigDataHolderEntry<Long>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            holder.setPath(key);
+            holder.setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal);
+            holder.setShowFullRange(showFullRange, minVal, maxVal);
+            holder.setConverter(converter);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -474,7 +445,7 @@ public class AnnotationHandler {
             String key = category + field.getName();
             configSpec.define(key, defaultValue);
             @SuppressWarnings("unchecked")
-            ConfigDataHolder<String> holder = (ConfigDataHolder<String>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+            ConfigDataHolder<String> holder = (ConfigDataHolder<String>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
             ConfigEntryFactory factory = this.getConfigEntryFactory(field, StringEntry.class);
             holder.setPath(key);
             holder.setConfigEntryFactory(factory);
@@ -492,13 +463,15 @@ public class AnnotationHandler {
             List<?> defaultValue = (List<?>) getOrThrow(field);
             String key = category + field.getName();
             configSpec.defineList(key, defaultValue, element -> listAnnotation.elementType().isInstance(element));
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            this.dataHolders.put(key, holder.setPath(key));
+            ConfigDataHolder<?> holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            holder.setPath(key);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void handleEnumField(Field field, String category) {
         if (!field.getType().isEnum())
             throw new IllegalArgumentException(String.format(
@@ -509,36 +482,28 @@ public class AnnotationHandler {
         field.setAccessible(true);
         try {
             Enum<?> defaultValue = (Enum<?>) this.getOrThrow(field);
-            Class<? extends Enum> enumClass = (Class<? extends Enum>) field.getType();
+            Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) field.getType();
             Object[] enumConstants = enumClass.getEnumConstants();
             List<String> enumNames = Arrays.stream(enumConstants)
                     .map(enumConstant -> ((Enum<?>) enumConstant).name())
                     .toList();
             String key = category + field.getName();
-            configSpec.define(key, defaultValue.name(), value -> {
-                if (value instanceof String stringVal) {
-                    try {
-                        Enum.valueOf(enumClass, stringVal);
-                        return true;
-                    } catch (IllegalArgumentException ignored) {}
-                }
-                return false;
+            EnumConfigConverter converter = new EnumConfigConverter(enumClass);
+            configSpec.define(key, defaultValue.name(), o -> {
+                if (!(o instanceof String)) return false;
+                return converter.getSerializedPredicate().test(o);
             });
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            if (holder instanceof ConfigDataHolderEntry holderEntry)
-                this.dataHolders.put(key, holderEntry
-                        .setValidValues(enumNames)
-                        .setConverter(value -> {
-                            if (value instanceof String stringVal)
-                                return Enum.valueOf(enumClass, stringVal);
-                            throw new IllegalArgumentException("Config value is not a String as expected for enum.");
-                        }).setPath(key)
-                );
+            ConfigDataHolderEntry<Enum<?>> holder = (ConfigDataHolderEntry<Enum<?>>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            holder.setPath(key);
+            holder.setValidValues(enumNames);
+            holder.setConverter(converter);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handleCustomField(Field field, String category) {
         PaCoConfigValues.CustomValue customAnnotation = field.getAnnotation(PaCoConfigValues.CustomValue.class);
         field.setAccessible(true);
@@ -557,25 +522,20 @@ public class AnnotationHandler {
             Object serializedDefault = ((IPaCoConfigConverter<Object, Object>) converter).serialize(defaultValue);
             Class<?> expectedType = converter.getSerializedType();
             configSpec.define(key, serializedDefault, value -> {
-                if (!expectedType.isInstance(value))
-                    return false;
+                if (!expectedType.isInstance(value)) return false;
                 Predicate<Object> predicate = (Predicate<Object>) converter.getSerializedPredicate();
                 return predicate.test(value);
             });
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            if (holder instanceof ConfigDataHolderEntry holderEntry)
-                this.dataHolders.put(key, holderEntry
-                        .setConverter(value -> {
-                            if (expectedType.isInstance(value))
-                                return this.deserializeHelper(converter, value);
-                            throw new IllegalArgumentException(String.format("Custom config value '%s' is not expected type '%s'.", key, expectedType.getSimpleName()));
-                        }).setPath(key)
-                );
+            ConfigDataHolderEntry<Object> holder = (ConfigDataHolderEntry<Object>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            holder.setPath(key);
+            holder.setConverter((IPaCoConfigConverter<Object, ?>) converter);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void handleCustomListField(Field field, String category) {
         this.checkFieldValidity(field, PaCoConfigValues.CustomListValue.class.getSimpleName(), List.class);
         PaCoConfigValues.CustomListValue customListAnnotation = field.getAnnotation(PaCoConfigValues.CustomListValue.class);
@@ -594,26 +554,15 @@ public class AnnotationHandler {
                 serializedDefaults.add(((IPaCoConfigConverter<Object, Object>) converter).serialize(element));
             }
             configSpec.defineList(key, serializedDefaults, element -> {
-                if (!serializedType.isInstance(element))
-                    return false;
+                if (!serializedType.isInstance(element)) return false;
                 Predicate<Object> predicate = (Predicate<Object>) converter.getSerializedPredicate();
                 return predicate.test(element);
             });
-            ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-            if (holder instanceof ConfigDataHolderEntry holderEntry) {
-                this.dataHolders.put(key, holderEntry.setConverter(value -> {
-                        if (!(value instanceof List<?> rawList))
-                            throw new IllegalArgumentException(String.format("Expected list for custom list value '%s'", key));
-                        List<Object> deserialized = new ArrayList<>();
-                        for (Object element : rawList) {
-                            if (!converter.getSerializedType().isInstance(element))
-                                throw new IllegalArgumentException(String.format("Invalid element type '%s' in list '%s'", element.getClass().getSimpleName(), key));
-                            deserialized.add(this.deserializeHelper(converter, element));
-                        }
-                        return deserialized;
-                    }).setPath(key)
-                );
-            }
+            ConfigDataHolderEntry<Object> holder = (ConfigDataHolderEntry<Object>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            CustomListConfigConverter listConverter = new CustomListConfigConverter(converter);
+            holder.setPath(key);
+            holder.setConverter(listConverter);
+            this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -655,34 +604,31 @@ public class AnnotationHandler {
         });
     }
 
-    private <T, R> Object deserializeHelper(IPaCoConfigConverter<T, R> converter, Object value) {
-        Class<R> type = converter.getSerializedType();
-        R casted = type.cast(value);
-        return converter.deserialize(casted);
-    }
-
     private void handleGuiEntryKey(Field field, String category) {
         PaCoConfigValues.GuiEntryKey keyAnnotation = field.getAnnotation(PaCoConfigValues.GuiEntryKey.class);
         String key = category + field.getName();
-        ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+        ConfigDataHolder<?> holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
         Component component = Component.translatable(keyAnnotation.value());
-        this.dataHolders.put(key, holder.setKeyComponent(component));
+        holder.setKeyComponent(component);
+        this.dataHolders.put(key, holder);
     }
 
     private void handleGuiEntryTooltip(Field field, String category) {
         PaCoConfigValues.GuiEntryTooltip tooltipAnnotation = field.getAnnotation(PaCoConfigValues.GuiEntryTooltip.class);
         String key = category + field.getName();
-        ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
+        ConfigDataHolder<?> holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
         List<Component> components = new ArrayList<>();
         components.add(Component.translatable(tooltipAnnotation.value()));
-        this.dataHolders.put(key, holder.setTooltipComponents(components));
+        holder.setTooltipComponents(components);
+        this.dataHolders.put(key, holder);
     }
 
     private void handleComment(Field field, String category) {
         PaCoConfigValues.Comment commentAnnotation = field.getAnnotation(PaCoConfigValues.Comment.class);
         String key = category + field.getName();
-        ConfigDataHolder holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry(field));
-        this.dataHolders.put(key, holder.setComment(commentAnnotation.value(), commentAnnotation.padding()));
+        ConfigDataHolder<?> holder = this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+        holder.setComment(commentAnnotation.value(), commentAnnotation.padding());
+        this.dataHolders.put(key, holder);
     }
 
     public void handleCategory(Class<?> clazz, String category) {

@@ -228,7 +228,7 @@ public class PaCoConfigManager {
      * match the fields specified in {@link PaCoConfig}.
      */
     private void setConfigComments() {
-        for (ConfigDataHolder holder : this.annotationHandler.getConfigDataHolders())
+        for (ConfigDataHolder<?> holder : this.annotationHandler.getConfigDataHolders())
             if (holder.hasComment())
                 this.config.setComment(holder.getPath(), holder.getComment());
     }
@@ -241,15 +241,15 @@ public class PaCoConfigManager {
      * match the fields specified in {@link PaCoConfig}.
      */
     public void updateConfigFields() {
-        for (ConfigDataHolder holder : this.annotationHandler.getConfigDataHolders()) {
+        for (ConfigDataHolder<?> holder : this.annotationHandler.getConfigDataHolders()) {
             // Skips over holders that don't have a field e.g. categories.
             if (!holder.hasField())
                 continue;
-            ConfigDataHolderEntry holderEntry = (ConfigDataHolderEntry) holder;
+            ConfigDataHolderEntry<?> holderEntry = (ConfigDataHolderEntry<?>) holder;
             Field field = holderEntry.getField();
             field.setAccessible(true);
             try {
-                field.set(null, holderEntry.convert(this.getConfig().get(holderEntry.getPath())));
+                field.set(null, holderEntry.deserialize(this.getConfig().get(holderEntry.getPath())));
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Failed to set value for field: " + field.getName(), e);
             }

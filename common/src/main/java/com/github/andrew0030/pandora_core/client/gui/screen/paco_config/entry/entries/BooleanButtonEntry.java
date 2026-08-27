@@ -3,7 +3,6 @@ package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.e
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
-import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -20,22 +19,20 @@ public class BooleanButtonEntry extends BaseConfigEntry<Boolean> {
         super(screen, node, y, height, hasScrollbar);
         // Creates the interactable widget
         // TODO maybe improve what kind of data is passed to the widgets? Something to look into after more of the types are implemented!
-        Button<Boolean> widget = new Button<>(this, Component.literal("TODO")); //TODO fix narration
+        Button widget = new Button(this, Component.literal("TODO")); //TODO fix narration
         // Sets the value to the current value from the config
         widget.setValue(this.getValue());
         // Lastly we add the widget to the list
         this.widgets.add(widget);
     }
 
-    private static class Button<T> extends AbstractWidget {
-        private final BaseConfigEntry<T> entry;
-        private final PaCoConfigManager manager;
+    private static class Button extends AbstractWidget {
+        private final BaseConfigEntry<Boolean> entry;
         private boolean value;
 
-        public Button(BaseConfigEntry<T> entry, Component message) {
+        public Button(BaseConfigEntry<Boolean> entry, Component message) {
             super(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), message);
             this.entry = entry;
-            this.manager = entry.screen.getManager();
         }
 
         // NOTE: The code in this block should be implemented by all widgets used for config entries, the methods
@@ -92,12 +89,8 @@ public class BooleanButtonEntry extends BaseConfigEntry<Boolean> {
         }
 
         private void onPress() {
-            this.setValue(!this.value);
-
-            // TODO improve how config values are set (should be a bulk operation)
-            String key = this.entry.getDataHolder().getPath();
-            manager.getConfig().set(key, this.value);
-            manager.correctIfNeeded(true);
+            this.value = !this.value;        // Inverts the value on click
+            this.entry.setValue(this.value); // Lets the backend handle the config logic
         }
 
         private void setValue(boolean value) {

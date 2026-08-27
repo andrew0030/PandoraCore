@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.config.manager;
 
+import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
 import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -7,11 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.function.Function;
 
 public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> {
     private final Field field;
-    private Function<Object, T> converter; // TODO replace with IPaCoConfigConverter
+    private IPaCoConfigConverter<T, ?> converter;
     private List<String> validValues;
     private Number minVal;
     private Number maxVal;
@@ -29,9 +29,54 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> {
         return this.field.getName();
     }
 
-    public ConfigDataHolderEntry<T> setConverter(Function<Object, T> converter) {
+    public ConfigDataHolderEntry<T> setConverter(IPaCoConfigConverter<T, ?> converter) {
         this.converter = converter;
         return this;
+    }
+
+    /**
+     * Serializes a runtime {@link Object} into the corresponding config file value.
+     * <p>
+     * If an {@link IPaCoConfigConverter} is present, it is called on the value before it is written to
+     * the config file, as the type may require a conversion, e.g. (Enum -> String) or (Float -> Double).
+     *
+     * @param value The deserialized runtime {@link Object} to be serialized
+     * @return The serialized representation of this object ready to be written to the config file.
+     *         If no {@link IPaCoConfigConverter} was specified, the {@link Object} is returned as is.
+     */
+    public Object serialize(T value) {
+        if (converter != null)
+            return converter.serialize(value);
+        return value;
+    }
+
+    /**
+     * Deserializes a config file value into the corresponding runtime {@link Object}.
+     * <p>
+     * If an {@link IPaCoConfigConverter} is present, it is called on the value retrieved from the
+     * config file, as the type may require a conversion, e.g. (String -> Enum) or (Double -> Float).
+     *
+     * @param value The serialized {@link Object} retrieved from the config file
+     * @return The deserialized runtime object.
+     *         If no {@link IPaCoConfigConverter} was specified, the {@link Object} is returned as is.
+     * @throws RuntimeException If no {@code converter} was provided and casting the value to the runtime type fails
+     */
+    @SuppressWarnings("unchecked")
+    public T deserialize(Object value) {
+        if (this.converter != null)
+            return ((IPaCoConfigConverter<T, Object>) this.converter).deserialize(value);
+        return (T) value;
+    }
+
+    public void setValue(T value) {
+        Object serialized = this.serialize(value);
+        String key = this.getPath();
+
+        // TODO get the current manager through the config data holder constructor instead of this temporary bandaid solution!
+        PaCoConfigManager manager = PaCoConfigManager.getManager(PaCoMainConfig.class);
+        manager.getConfig().set(key, serialized);
+        // TODO replace this with a bulk save system!
+        manager.correctIfNeeded(true);
     }
 
     /**
@@ -47,34 +92,9 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> {
         }
     }
 
-    /**
-     * A converter {@link Function} may be present depending on the type of the field, the {@link Function}
-     * is called on the value retrieved from the config file, before its stored in the field, as the type
-     * may require a conversion, e.g. (String -> Enum) or (Double -> Float).
-     *
-     * @param value The {@link Object} that will be converted to a different {@link Object}
-     * @return The converted {@link Object}, if no converter {@link Function} was specified, the {@link Object} is returned as is
-     * @throws RuntimeException If no converter was provided the casting the value fails
-     */
-    @SuppressWarnings("unchecked")
-    public T convert(Object value) {
-        if (converter != null)
-            return converter.apply(value);
-        try {
-            return (T) value;
-        } catch (ClassCastException e) {
-            throw new RuntimeException("Could not cast the value: " + value + " to: " + this.getValue().getClass(), e);
-        }
-    }
-
-    // TODO generics
     public ConfigDataHolderEntry<T> setValidValues(List<String> validValues) {
         this.validValues = validValues;
         return this;
-    }
-
-    public List<String> getValidValues() {
-        return this.validValues;
     }
 
     /** Used to cache the value range (if applicable), which is then used for internal logic */

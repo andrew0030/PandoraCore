@@ -188,10 +188,11 @@ public abstract class BaseConfigEntry<T> implements Renderable {
         return ((ConfigDataHolderEntry<T>) this.holder).getValue();
     }
 
+    //TODO write javadocs
+    // NOTE: Eventually this should only flag the value for change but NOT APPLY the change every click!
     public void setValue(T value) {
-
-        // TODO implement the value setting
-
+        if (!this.holder.hasField()) return;
+        ((ConfigDataHolderEntry<T>) this.holder).setValue(value);
     }
 
     public void tick() {}

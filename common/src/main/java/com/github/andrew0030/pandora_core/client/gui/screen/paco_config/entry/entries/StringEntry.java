@@ -3,18 +3,17 @@ package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.e
 import com.github.andrew0030.pandora_core.client.gui.edit_boxes.PaCoEditBox;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
-import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 public class StringEntry extends BaseConfigEntry<String> {
-    private final TextField<String> widget;
+    private final TextField widget;
 
     public StringEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar) {
         super(screen, node, y, height, hasScrollbar);
         // Creates the interactable widget
         // TODO maybe improve what kind of data is passed to the widgets? Something to look into after more of the types are implemented!
-        this.widget = new TextField<>(this, Component.literal("TODO")); //TODO fix narration
+        this.widget = new TextField(this, Component.literal("TODO")); //TODO fix narration
         this.widget.setForceLineIndicator(true);
         this.widget.setMidpointCharSelection(true);
         // Sets the value to the current value from the config
@@ -28,14 +27,12 @@ public class StringEntry extends BaseConfigEntry<String> {
         this.widget.tick();
     }
 
-    private static class TextField<T> extends PaCoEditBox {
-        private final BaseConfigEntry<T> entry;
-        private final PaCoConfigManager manager;
+    private static class TextField extends PaCoEditBox {
+        private final BaseConfigEntry<String> entry;
 
-        public TextField(BaseConfigEntry<T> entry, Component message) {
+        public TextField(BaseConfigEntry<String> entry, Component message) {
             super(Minecraft.getInstance().font, entry.getX() + entry.getWidth() - 120, entry.getY() + 1, 119, entry.getHeight() - 2, message);
             this.entry = entry;
-            this.manager = entry.screen.getManager();
         }
 
         // NOTE: The code in this block should be implemented by all widgets used for config entries, the methods
@@ -57,9 +54,7 @@ public class StringEntry extends BaseConfigEntry<String> {
 
         @Override
         public void onTextChanged(String newText) {
-            String key = this.entry.getDataHolder().getPath();
-            manager.getConfig().set(key, newText);
-            manager.correctIfNeeded(true);
+            this.entry.setValue(newText);
         }
     }
 }

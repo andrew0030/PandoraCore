@@ -9,6 +9,7 @@ import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.annotation.AnnotationHandler;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
+import com.github.andrew0030.pandora_core.config.registry.PaCoConfigRegistry;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import net.minecraft.util.StringUtil;
@@ -21,13 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class PaCoConfigManager {
-
+public class PaCoConfigManager implements IConfigManager {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "PaCoConfigManager");
-    // A Map to store PaCoConfigManager instances associated with their config class
-    private static final Map<Class<?>, PaCoConfigManager> CONFIG_MANAGERS = new HashMap<>();
-    // A Map to store PaCoConfigManager instances associated with their mod id
-    private static final Map<String, List<PaCoConfigManager>> MOD_MANAGERS = new LinkedHashMap<>();
     // Config Managing
     private final Class<?> configClass;                // The config class with the annotated fields
     private final AnnotationHandler annotationHandler; // Helper class that deals with annotations
@@ -38,6 +34,35 @@ public class PaCoConfigManager {
         this.annotationHandler = new AnnotationHandler(this);
         this.config = this.createEmptyConfig();
         this.loadAndCorrect(); // Loads the config and corrects it if needed
+    }
+
+    @Override
+    public Collection<ConfigDataHolder<?>> getDataHolders() {
+        return this.annotationHandler.getConfigDataHolders();
+    }
+
+    @Override
+    public String getModId() {
+        return this.annotationHandler.getModId();
+    }
+
+    @Override
+    public String getConfigName() {
+        return this.annotationHandler.getConfigName();
+    }
+
+    @Override
+    public void close() {
+        this.config.close();
+    }
+
+    public static void register(Class<?> configClass) {
+        PaCoConfig.Config configAnnotation = configClass.getAnnotation(PaCoConfig.Config.class);
+        if (configAnnotation == null)
+            throw new IllegalArgumentException("Class " + configClass.getName() + " must be annotated with @PaCoConfig.Config");
+        PaCoConfigManager manager =  new PaCoConfigManager(configClass);
+        // Delegates storage to the registry, using the Class as the unique key
+        PaCoConfigRegistry.register(configClass, manager);
     }
 
     /**
@@ -172,12 +197,6 @@ public class PaCoConfigManager {
         return this.config;
     }
 
-    public static void closeConfigs() {
-        for (PaCoConfigManager manager : PaCoConfigManager.getManagers()) {
-            manager.getConfig().close();
-        }
-    }
-
     /**
      * Re-orders the config entries, to match the annotation order of the given {@link PaCoConfig}.
      * <br/>
@@ -243,7 +262,7 @@ public class PaCoConfigManager {
     public void updateConfigFields() {
         for (ConfigDataHolder<?> holder : this.annotationHandler.getConfigDataHolders()) {
             // Skips over holders that don't have a field e.g. categories.
-            if (!holder.hasField())
+            if (!holder.hasValue())
                 continue;
             ConfigDataHolderEntry<?> holderEntry = (ConfigDataHolderEntry<?>) holder;
             Field field = holderEntry.getField();
@@ -259,40 +278,6 @@ public class PaCoConfigManager {
     /** Runnable that gets called when the config is automatically re-loaded. */
     private Runnable autoReloadListener() {
         return this::correctIfNeeded;
-    }
-
-    // TODO These may still get replaced or modified, it all depends on how I decide to deal with registration...
-    //##################################################################################################################
-    public static void register(Class<?> configClass) {
-        PaCoConfig.Config configAnnotation = configClass.getAnnotation(PaCoConfig.Config.class);
-        if (configAnnotation == null)
-            throw new IllegalArgumentException("Class " + configClass.getName() + " must be annotated with @PaCoConfig.Config");
-        if (CONFIG_MANAGERS.containsKey(configClass))
-            throw new IllegalStateException("Config class " + configClass.getName() + " is already registered!");
-        PaCoConfigManager manager =  new PaCoConfigManager(configClass);
-        // Associates the manager with the given class
-        CONFIG_MANAGERS.put(configClass, manager);
-        // Associates the manager with mod id it was registered under
-        String modId = configAnnotation.modId();
-        MOD_MANAGERS.computeIfAbsent(modId, ignored -> new ArrayList<>()).add(manager);
-    }
-
-    /**
-     * @return The {@link PaCoConfigManager} instance associated with the given
-     *         config {@code class}, or {@code null} if none is registered.
-     */
-    public static PaCoConfigManager getManager(Class<?> configClass) {
-        return CONFIG_MANAGERS.get(configClass);
-    }
-
-    /** @return All registered {@link PaCoConfigManager} instances. */
-    public static Collection<PaCoConfigManager> getManagers() {
-        return CONFIG_MANAGERS.values();
-    }
-
-    /** @return A list of {@link PaCoConfigManager} instances associated with the given {@code modId}. */
-    public static List<PaCoConfigManager> getManagersForMod(String modId) {
-        return MOD_MANAGERS.getOrDefault(modId, Collections.emptyList());
     }
 
     /** A small helper class to temporarily store config corrections. */

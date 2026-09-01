@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.config.manager;
 
 import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
+import com.github.andrew0030.pandora_core.config.registry.PaCoConfigRegistry;
 import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +10,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> {
+public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> implements IConfigValueHolder<T> {
     private final Field field;
     private IPaCoConfigConverter<T, ?> converter;
     private List<String> validValues;
@@ -68,12 +69,13 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> {
         return (T) value;
     }
 
+    @Override
     public void setValue(T value) {
         Object serialized = this.serialize(value);
         String key = this.getPath();
 
         // TODO get the current manager through the config data holder constructor instead of this temporary bandaid solution!
-        PaCoConfigManager manager = PaCoConfigManager.getManager(PaCoMainConfig.class);
+        PaCoConfigManager manager = (PaCoConfigManager) PaCoConfigRegistry.getManager(PaCoMainConfig.class);
         manager.getConfig().set(key, serialized);
         // TODO replace this with a bulk save system!
         manager.correctIfNeeded(true);
@@ -84,6 +86,7 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> {
      * @throws RuntimeException If the field cant be accessed
      */
     @SuppressWarnings("unchecked")
+    @Override
     public T getValue() {
         try {
             return (T) this.field.get(null);
@@ -153,7 +156,7 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> {
     }
 
     @Override
-    public boolean hasField() {
+    public boolean hasValue() {
         return true;
     }
 }

@@ -1,7 +1,9 @@
 package com.github.andrew0030.pandora_core;
 
 import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
+import com.github.andrew0030.pandora_core.config.PaCoSecondaryConfig;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
+import com.github.andrew0030.pandora_core.config.registry.PaCoConfigRegistry;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistry;
 import com.github.andrew0030.pandora_core.registry.PaCoRegistryBuilder;
@@ -62,13 +64,14 @@ public class PandoraCore {
 
         // Configs
         PaCoConfigManager.register(PaCoMainConfig.class);
+        PaCoConfigManager.register(PaCoSecondaryConfig.class);
 
         // Inserts items into existing tabs
         // TODO remove when done testing
         PaCoCreativeModeTabs.insertItems();
 
         // Calls FileConfig#close() on all registered configs when the game shuts down
-        Runtime.getRuntime().addShutdownHook(new Thread(PaCoConfigManager::closeConfigs));
+        Runtime.getRuntime().addShutdownHook(new Thread(PaCoConfigRegistry::closeAll));
     }
 
     /** Thread Safe Common Init */

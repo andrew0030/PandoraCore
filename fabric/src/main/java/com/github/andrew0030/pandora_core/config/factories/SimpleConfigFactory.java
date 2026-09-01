@@ -1,8 +1,8 @@
 package com.github.andrew0030.pandora_core.config.factories;
 
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
-import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
+import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
+import com.github.andrew0030.pandora_core.config.registry.PaCoConfigRegistry;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.gui.screens.Screen;
@@ -13,12 +13,10 @@ public class SimpleConfigFactory {
     public static Screen createConfigScreen(Screen currentScreen, ModContainer container) {
         if (currentScreen instanceof IPaCoParentScreenGetter pacoParentScreenGetter) {
             if (pacoParentScreenGetter.pandoraCore$getParentScreen() instanceof TitleScreen titleScreen) {
-//                return new PaCoScreen(titleScreen, screen);
-                return new PaCoConfigScreen(PaCoConfigManager.getManager(PaCoMainConfig.class), titleScreen, currentScreen); // TODO clean up the manager logic for this
+                return PaCoConfigRegistry.openConfigScreen(PandoraCore.MOD_ID, titleScreen, currentScreen);
             }
         }
-//        return new PaCoScreen(null, screen);
-        return new PaCoConfigScreen(PaCoConfigManager.getManager(PaCoMainConfig.class), null, currentScreen);
+        return PaCoConfigRegistry.openConfigScreen(PandoraCore.MOD_ID, null, currentScreen);
     }
 
     //TODO: remove this when done with tests!

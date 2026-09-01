@@ -35,23 +35,20 @@ public class AnnotationHandler {
     private final Map<String, ConfigDataHolder<?>> dataHolders = new LinkedHashMap<>();
     private final ConfigSpec configSpec = new ConfigSpec();
     private final PaCoConfigManager manager;
+    private final String modId;
     private final String configName;
     private final String subFolder;
 
     public AnnotationHandler(PaCoConfigManager manager) {
         this.manager = manager;
-        this.configName = this.initConfigName();
-        this.subFolder = this.initConfigSubFolder();
-        // Initializes the: annotatedFields, configSpec
-        this.initConfigCaches();
-    }
-
-    /** Initializes the config name */
-    private String initConfigName() {
         PaCoConfig.Config configAnnotation = this.manager.getConfigClass().getAnnotation(PaCoConfig.Config.class);
         if (configAnnotation == null)
             throw new IllegalArgumentException("Class " + this.manager.getConfigClass().getName() + " must be annotated with @PaCoConfig.Config");
-        return String.format("%s-%s", configAnnotation.modId(), configAnnotation.name());
+        this.modId = configAnnotation.modId();
+        this.configName = String.format("%s-%s", this.modId, configAnnotation.name());
+        this.subFolder = this.initConfigSubFolder();
+        // Initializes the: ANNOTATION_HANDLERS, configSpec
+        this.initConfigCaches();
     }
 
     /** Retrieves and "normalizes" the config sub-folder, or returns an empty {@code String} if none was specified. */
@@ -69,6 +66,11 @@ public class AnnotationHandler {
         subFolder = subFolder.replaceAll("/+", "/"); // Collapses multiple slashes
 
         return subFolder;
+    }
+
+    /** @return The Mod ID that was used to register this config */
+    public String getModId() {
+        return modId;
     }
 
     /**

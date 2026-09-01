@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.utils.data_holders;
 import com.github.andrew0030.pandora_core.client.gui.buttons.mod_selection.ModButton;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BackgroundContentElement;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.content_panel.elements.BannerContentElement;
+import com.github.andrew0030.pandora_core.config.factory_manager.ConfigScreenFactoryManager;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.tuple.Triple;
 import com.google.common.hash.Hashing;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.loading.StringUtils;
 import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -22,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class ForgeModDataHolder extends ModDataHolder {
@@ -40,6 +43,7 @@ public class ForgeModDataHolder extends ModDataHolder {
     private final List<String> authors = new ArrayList<>();
     private final List<String> credits = new ArrayList<>();
     private final boolean isMinecraft;
+    private final Optional<BiFunction<Minecraft, Screen, Screen>> configScreenFactory;
 
     public ForgeModDataHolder(IModInfo modInfo) {
         this.modInfo = modInfo;
@@ -156,6 +160,9 @@ public class ForgeModDataHolder extends ModDataHolder {
 
         // Simple boolean to quickly check if this data holder is the minecraft data holder
         this.isMinecraft = this.getModId().equals("minecraft");
+
+        // Screen factory used to open the config screen
+        this.configScreenFactory = ConfigScreenFactoryManager.getConfigScreenFactory(this.getModId());
     }
 
     @Override
@@ -293,6 +300,9 @@ public class ForgeModDataHolder extends ModDataHolder {
         if (this.isMinecraft)
             return Optional.of(new OptionsScreen(current, mc.options));
         // Opens the ConfigScreen specified through forges system
-        return ConfigScreenHandler.getScreenFactoryFor(this.modInfo).map((configScreen) -> configScreen.apply(mc, current));
+//        return ConfigScreenHandler.getScreenFactoryFor(this.modInfo).map((configScreen) -> configScreen.apply(mc, current));
+
+        // Opens the ConfigScreen if one was specified. Check order is: Forge -> PaCo
+        return this.configScreenFactory.flatMap(factory -> Optional.ofNullable(factory.apply(mc, current)));
     }
 }

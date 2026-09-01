@@ -41,9 +41,9 @@ public class ConfigTreeNode {
         return this.parent;
     }
 
-    /** @return Whether this {@link ConfigTreeNode} has a {@link ConfigDataHolder} with a corresponding {@code field} */
+    /** @return Whether this {@link ConfigTreeNode} has a {@link ConfigDataHolder} with a corresponding {@code value} */
     public boolean isValue() {
-        return dataHolder != null && !dataHolder.isCategory();
+        return dataHolder != null && dataHolder.hasValue();
     }
 
     /**

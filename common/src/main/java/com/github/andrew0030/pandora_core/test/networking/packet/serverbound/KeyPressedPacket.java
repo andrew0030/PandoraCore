@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.test.networking.packet.serverbound;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
 import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
+import com.github.andrew0030.pandora_core.config.registry.PaCoConfigRegistry;
 import com.github.andrew0030.pandora_core.network.PaCoPacket;
 import com.github.andrew0030.pandora_core.network.PaCoPacketFlow;
 import com.github.andrew0030.pandora_core.network.PaCoPacketType;
@@ -29,7 +30,7 @@ public record KeyPressedPacket(int key) implements PaCoPacket {
 
                     player.sendSystemMessage(Component.literal("Server Side Value: " + PaCoMainConfig.integerValue1));
                     player.sendSystemMessage(Component.literal("Adding +1 Server Side..."));
-                    PaCoConfigManager manager = PaCoConfigManager.getManager(PaCoMainConfig.class);
+                    PaCoConfigManager manager = (PaCoConfigManager) PaCoConfigRegistry.getManager(PaCoMainConfig.class);
                     manager.getConfig().set("integerValue1", PaCoMainConfig.integerValue1 + 1);
                     manager.correctIfNeeded(true);
 

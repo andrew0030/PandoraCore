@@ -70,7 +70,7 @@ dependencies {
 
     // ################### Tests Dependencies ####################
     // MrCrayfish (Config Screen Tests)
-    modCompileOnly "curse.maven:configured-457570:5180900" // Configured
+    modImplementation "curse.maven:configured-457570:5180900" // Configured
     // My Mods (PaCoScreen Tests)
     modRuntimeOnly "curse.maven:swampier-swamps-632591:4578599" // Swampier Swamps
     modRuntimeOnly "curse.maven:online-detector-454487:4574905" // Online Detector

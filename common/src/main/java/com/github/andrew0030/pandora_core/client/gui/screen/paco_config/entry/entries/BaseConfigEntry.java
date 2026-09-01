@@ -6,7 +6,7 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.Con
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderEntry;
+import com.github.andrew0030.pandora_core.config.manager.IConfigValueHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.github.andrew0030.pandora_core.utils.easing.Easing;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -183,16 +183,18 @@ public abstract class BaseConfigEntry<T> implements Renderable {
     // TODO write javadocs for the methods bellow
 
     /** @return The value of the {@code field} associated with this {@link BaseConfigEntry}, or {@code null} if none exists */
+    @SuppressWarnings("unchecked")
     public T getValue() {
-        if (!this.holder.hasField()) return null;
-        return ((ConfigDataHolderEntry<T>) this.holder).getValue();
+        if (!this.holder.hasValue()) return null;
+        return ((IConfigValueHolder<T>) this.holder).getValue();
     }
 
     //TODO write javadocs
     // NOTE: Eventually this should only flag the value for change but NOT APPLY the change every click!
+    @SuppressWarnings("unchecked")
     public void setValue(T value) {
-        if (!this.holder.hasField()) return;
-        ((ConfigDataHolderEntry<T>) this.holder).setValue(value);
+        if (!this.holder.hasValue()) return;
+        ((IConfigValueHolder<T>) this.holder).setValue(value);
     }
 
     public void tick() {}

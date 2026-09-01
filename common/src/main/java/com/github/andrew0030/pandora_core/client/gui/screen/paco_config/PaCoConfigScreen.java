@@ -12,7 +12,7 @@ import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoSlider;
 import com.github.andrew0030.pandora_core.client.gui.sliders.PaCoVerticalSlider;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
-import com.github.andrew0030.pandora_core.config.manager.PaCoConfigManager;
+import com.github.andrew0030.pandora_core.config.manager.IConfigManager;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoModifyTitleScreen;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -36,7 +36,7 @@ public class PaCoConfigScreen extends Screen {
     // Config management stuff
     private final List<ConfigEntryNavigationButton> navButtons = new ArrayList<>();
     private final List<BaseConfigEntry<?>> visibleEntries = new ArrayList<>();
-    private final PaCoConfigManager manager;
+    private final IConfigManager manager;
     private final ConfigTreeNode currentNode;
     private final ConfigTreeNode rootNode;
     // Screens for navigation
@@ -62,7 +62,7 @@ public class PaCoConfigScreen extends Screen {
     public int entriesHandleHeight;
 
     // TODO maybe pass along previous node for better performance?
-    public PaCoConfigScreen(PaCoConfigManager manager, ConfigTreeNode currentNode, @Nullable TitleScreen titleScreen, @Nullable Screen previousScreen) {
+    public PaCoConfigScreen(IConfigManager manager, ConfigTreeNode currentNode, @Nullable TitleScreen titleScreen, @Nullable Screen previousScreen) {
         super(Component.empty()); // TODO: Add a proper config screen title (maybe the node name?)
 
         this.manager = manager;
@@ -81,8 +81,8 @@ public class PaCoConfigScreen extends Screen {
             ((IPaCoModifyTitleScreen) titleScreen).pandoraCore$hideElements(true);
     }
 
-    public PaCoConfigScreen(PaCoConfigManager manager, @Nullable TitleScreen titleScreen, @Nullable Screen previousScreen) {
-        this(manager, ConfigTreeBuilder.buildTree(manager.getAnnotationHandler().getConfigDataHolders()), titleScreen, previousScreen);
+    public PaCoConfigScreen(IConfigManager manager, @Nullable TitleScreen titleScreen, @Nullable Screen previousScreen) {
+        this(manager, ConfigTreeBuilder.buildTree(manager.getDataHolders()), titleScreen, previousScreen);
     }
 
     /**
@@ -445,8 +445,8 @@ public class PaCoConfigScreen extends Screen {
         return currentY;
     }
 
-    /** @return The {@link PaCoConfigManager} instance associated to this {@link PaCoConfigScreen} */
-    public PaCoConfigManager getManager() {
+    /** @return The {@link IConfigManager} instance associated to this {@link PaCoConfigScreen} */
+    public IConfigManager getManager() {
         return this.manager;
     }
 

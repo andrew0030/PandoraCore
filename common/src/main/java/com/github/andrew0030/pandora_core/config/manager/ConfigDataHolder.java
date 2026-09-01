@@ -92,11 +92,7 @@ public abstract class ConfigDataHolder<T> {
         return this.tooltipComponents;
     }
 
-    public boolean hasField() {
-        return false;
-    }
-
-    public boolean isCategory() {
+    public boolean hasValue() {
         return false;
     }
 }

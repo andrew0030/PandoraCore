@@ -16,7 +16,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,7 +67,12 @@ public abstract class BaseConfigEntry<T> implements Renderable {
         this.height = height;
         this.holder = (ConfigDataHolder<T>) this.node.getDataHolder();
         // The name config entries will render
-        this.entryKey = this.holder.getKeyComponent() != null ? this.holder.getKeyComponent() : Component.literal(this.node.getName());
+        Component specifiedKey = this.holder.getKeyComponent();
+        // If the key is translatable but the translation is missing we skip it
+        if (specifiedKey != null && specifiedKey.getContents() instanceof TranslatableContents translatable && !I18n.exists(translatable.getKey()))
+            specifiedKey = null;
+        // Uses the specified key if it's valid, and otherwise falls back to the beautified key
+        this.entryKey = specifiedKey != null ? specifiedKey : Component.literal(this.beautifyKey(this.node.getName()));
         // The user specified tooltip
         this.holder.getTooltipComponents().forEach(component -> {
             // Checks if a color was explicitly specified
@@ -336,5 +343,50 @@ public abstract class BaseConfigEntry<T> implements Renderable {
 
     public boolean isVisible() {
         return this.isVisible;
+    }
+
+    /**
+     * Beautifies a raw config key {@link String} into a Title Case {@link String}.
+     * <p> Handles {@code camelCase}, {@code PascalCase}, {@code snake_case}, and {@code kebab-case}. </p>
+     * <p> Also preserves acronyms e.g. {@code FOV}, {@code GUI}, {@code ID}. </p>
+     *
+     * @param rawKey The raw config key {@link String}
+     * @return The formatted {@link String}
+     */
+    private String beautifyKey(String rawKey) {
+        // If the input is empty or null we return early
+        if (StringUtil.isNullOrEmpty(rawKey)) return rawKey;
+        // Replaces snake_case and kebab-case separators with spaces
+        String spaced = rawKey.replace('_', ' ').replace('-', ' ');
+        // Inserts spaces for camelCase and numbers followed by uppercase
+        spaced = spaced.replaceAll("([a-z0-9])([A-Z])", "$1 $2");
+        // Inserts spaces for numbers followed by lowercase
+        spaced = spaced.replaceAll("([0-9])([a-z])", "$1 $2");
+        // Inserts spaces for acronyms (Requires 2+ uppercase letters)
+        spaced = spaced.replaceAll("([A-Z]{2,})([A-Z][a-z])", "$1 $2");
+        // Loops over all words and makes them Title Case
+        String[] words = spaced.split("\\s+");
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            if (word.isEmpty()) continue;
+
+            // Adds spaces
+            if (i > 0 && !result.isEmpty()) result.append(" ");
+
+            if (word.length() > 1 && word.equals(word.toUpperCase())) {
+                // Preserves pure acronyms, basically it keeps the word as is (FOV, GUI, etc.)
+                result.append(word);
+            } else if (word.length() > 1 && word.substring(1).matches(".*[A-Z0-9].*")) {
+                // Preserves words with internal complexity
+                result.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+            } else {
+                // Standard Title Case
+                result.append(Character.toUpperCase(word.charAt(0)));
+                if (word.length() > 1)
+                    result.append(word.substring(1).toLowerCase());
+            }
+        }
+        return result.toString();
     }
 }

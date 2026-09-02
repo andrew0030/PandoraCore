@@ -292,20 +292,21 @@ public class PaCoConfigScreen extends Screen {
                     v += TOOLTIP_GRADIENT_SIZE - gradientHeight;
                 }
             }
-
-            PaCoGuiUtils.enableScissor(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
-            graphics.pose().pushPose();
-            RenderSystem.enableBlend();
-            RenderSystem.disableDepthTest();
-            graphics.blitRepeating(
-                    PaCoScreen.TEXTURE,               // The texture
-                    entry.getX(), posY,               // Position to render at
-                    entry.getWidth(), gradientHeight, // Size to render
-                    u, v,                             // UV coordinates on texture
-                    25, gradientHeight                // Size on texture
-            );
-            graphics.pose().popPose();
-            graphics.disableScissor();
+            if (gradientHeight > 0) {
+                PaCoGuiUtils.enableScissor(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
+                graphics.pose().pushPose();
+                RenderSystem.enableBlend();
+                RenderSystem.disableDepthTest();
+                graphics.blitRepeating(
+                        PaCoScreen.TEXTURE,               // The texture
+                        entry.getX(), posY,               // Position to render at
+                        entry.getWidth(), gradientHeight, // Size to render
+                        u, v,                             // UV coordinates on texture
+                        25, gradientHeight                // Size on texture
+                );
+                graphics.pose().popPose();
+                graphics.disableScissor();
+            }
         }
     }
 

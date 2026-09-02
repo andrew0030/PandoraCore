@@ -7,7 +7,9 @@ import com.github.andrew0030.pandora_core.modules.templater.loader.ShaderCapabil
 import com.github.andrew0030.pandora_core.modules.templater.loader.TemplateLoader;
 import com.github.andrew0030.pandora_core.modules.templater.loader.impl.VanillaTemplateLoader;
 import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.jellysquid.mods.sodium.client.gl.shader.ShaderLoader;
+import org.joml.Vector3f;
 
 public class PaCoRenderState {
 	private static ShaderCapability[] PREFERRED_CAPABILITIES = new ShaderCapability[0];
@@ -61,5 +63,29 @@ public class PaCoRenderState {
 			return true;
 		}
 		return false;
+	}
+	
+	public static void rotateLightingX(float radians) {
+		for (int i = 0; i < RenderSystem.shaderLightDirections.length; i++) {
+			Vector3f cpy = new Vector3f(RenderSystem.shaderLightDirections[i]);
+			cpy.rotateX(radians);
+			RenderSystem.shaderLightDirections[i] = cpy;
+		}
+	}
+	
+	public static void rotateLightingY(float radians) {
+		for (int i = 0; i < RenderSystem.shaderLightDirections.length; i++) {
+			Vector3f cpy = new Vector3f(RenderSystem.shaderLightDirections[i]);
+			cpy.rotateY(radians);
+			RenderSystem.shaderLightDirections[i] = cpy;
+		}
+	}
+	
+	public static void rotateLightingZ(float radians) {
+		for (int i = 0; i < RenderSystem.shaderLightDirections.length; i++) {
+			Vector3f cpy = new Vector3f(RenderSystem.shaderLightDirections[i]);
+			cpy.rotateZ(radians);
+			RenderSystem.shaderLightDirections[i] = cpy;
+		}
 	}
 }

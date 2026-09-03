@@ -50,12 +50,22 @@ public class CollectiveVBO extends InstancedVBO {
 
     @Override
     public void draw() {
+		if (datas.size() == 0)
+			return;
+		
+		drawBatches++;
+	    drawCalls += datas.size();
+		
         // TODO: batching system for hardware that doesn't support instancing
         //       requires uniform injection to work though
         IPaCoAccessibleVBO accessibleVBO = (IPaCoAccessibleVBO) this;
         int mode = accessibleVBO.pandoraCore$mode().asGLMode;
         int type = accessibleVBO.pandoraCore$indexType().asGLType;
         for (Map.Entry<CollectiveBufferBuilder.MeshRange, Pair<InstanceData, Integer>> value : datas.entrySet()) {
+			
+	        instancesDrawn += value.getValue().getSecond();
+	        polygonsDrawn += ((value.getKey().end() - value.getKey().start()) / 3) * instancesDrawn;
+			
             bindData(value.getValue().getFirst());
             GL33C.nglDrawElementsInstancedBaseVertex(
                     mode,

@@ -1,34 +1,57 @@
 package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.iris;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPaCoShadowRendererAccessor;
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullBox;
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullSphere;
+import com.github.andrew0030.pandora_core.modules.fastlib.render.PaCoFrustum;
 import com.github.andrew0030.pandora_core.modules.instancer.compat.InstancerHooks;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.BlockEntityTypeAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.EntityTypeAttachments;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.InstancingResults;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.sodium.RenderListAttachments;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.sodium.SodiumRendererAccessor;
+import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
+import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
+import me.jellysquid.mods.sodium.client.render.chunk.lists.ChunkRenderList;
+import me.jellysquid.mods.sodium.client.render.chunk.lists.SortedRenderLists;
+import me.jellysquid.mods.sodium.client.util.iterator.ByteIterator;
+import me.jellysquid.mods.sodium.client.world.WorldRendererExtended;
 import net.irisshaders.iris.mixin.LevelRendererAccessor;
 import net.irisshaders.iris.shadows.ShadowRenderer;
+import net.irisshaders.iris.shadows.frustum.FrustumHolder;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Iterator;
+import java.util.List;
+
 @Mixin(value = ShadowRenderer.class, remap = false)
 public abstract class ShadowRendererMixin implements IPaCoShadowRendererAccessor {
+	@Shadow
+	private FrustumHolder entityFrustumHolder;
 	@Unique LevelRendererAccessor pandoraCore$renderer;
 
     @Override
@@ -103,5 +126,10 @@ public abstract class ShadowRendererMixin implements IPaCoShadowRendererAccessor
 		PaCoRenderState.resetInstancerState();
 		
 		PaCoRenderState.ACTIVE_ENVIRONMENT = null;
+	}
+	
+	@Override
+	public Frustum getEntityFrustum() {
+		return entityFrustumHolder.getFrustum();
 	}
 }

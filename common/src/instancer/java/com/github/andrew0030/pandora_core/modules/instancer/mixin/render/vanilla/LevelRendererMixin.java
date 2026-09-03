@@ -1,5 +1,8 @@
 package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.vanilla;
 
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullBox;
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullSphere;
+import com.github.andrew0030.pandora_core.modules.fastlib.render.PaCoFrustum;
 import com.github.andrew0030.pandora_core.modules.instancer.compat.InstancerHooks;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
@@ -19,8 +22,11 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,11 +36,18 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 	@Shadow @Final private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
 	@Shadow @Nullable private ClientLevel level;
+	
+	@Shadow
+	private @org.jetbrains.annotations.Nullable Frustum capturedFrustum;
+	
+	@Shadow
+	private Frustum cullingFrustum;
 	
 	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
 	public void preRenderEnts(PoseStack stack, float pct, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
@@ -108,18 +121,50 @@ public class LevelRendererMixin {
 		
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
+		PacoInstancingLevel instLvl = (PacoInstancingLevel) level;
+		Frustum frustum = capturedFrustum == null ? cullingFrustum : capturedFrustum;
+		PaCoFrustum pcFrustum = (PaCoFrustum) frustum;
+		
+		CullBox box = new CullBox(0, 0, 0, 0, 0, 0);
+		CullSphere sphere = new CullSphere(0, 0, 0, 0);
+		
 		for (LevelRenderer.RenderChunkInfo info : this.renderChunksInFrustum) {
 			ChunkRenderDispatcher.CompiledChunk chnk = info.chunk.getCompiledChunk();
-			for (BlockEntity be : ((InstancingResults) chnk).getAll()) {
-				InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
-				if (renderer.shouldRender(
-						be, camera.getPosition()
-				)) {
-					renderer.render((PacoInstancingLevel) level, be, be.getBlockPos(), pct, camera.getPosition());
+			List<BlockEntity> bes = ((InstancingResults) chnk).getAll();
+			if (bes.isEmpty()) continue; // no work to do
+			
+			if (bes.size() < 4 ||
+					pcFrustum.containsAllCorners(box.set(info.chunk.getBoundingBox()))
+			) {
+				for (BlockEntity be : bes) {
+					InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
+					
+					if (renderer.shouldRender(
+							be, camera.getPosition()
+					)) {
+						BlockPos pos = be.getBlockPos();
+						renderer.render(instLvl, be, pos, pct, camera.getPosition());
+					}
+				}
+			} else {
+				for (BlockEntity be : bes) {
+					InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
+					
+					if (renderer.shouldRender(
+							be, camera.getPosition()
+					)) {
+						BlockPos pos = be.getBlockPos();
+						renderer.getCullBox(box, instLvl, be, pos);
+						sphere.contain(box);
+						
+						if (pcFrustum.isInFrustum(sphere) && pcFrustum.isInFrustum(box)) {
+							renderer.render(instLvl, be, pos, pct, camera.getPosition());
+						}
+					}
 				}
 			}
 		}
-		manager.drawFrame((PacoInstancingLevel) level);
+		manager.drawFrame(instLvl);
 		
 		InstancerHooks.postEndInstancing();
 		

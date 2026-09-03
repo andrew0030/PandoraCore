@@ -1,5 +1,8 @@
 package com.github.andrew0030.pandora_core.modules.instancer.mixin.render.optifine;
 
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullBox;
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullSphere;
+import com.github.andrew0030.pandora_core.modules.fastlib.render.PaCoFrustum;
 import com.github.andrew0030.pandora_core.modules.instancer.compat.InstancerHooks;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstanceManager;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
@@ -24,8 +27,10 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
@@ -46,6 +51,12 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 	@Shadow
 	@Final
 	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
+	
+	@Shadow
+	private @org.jetbrains.annotations.Nullable Frustum capturedFrustum;
+	
+	@Shadow
+	private Frustum cullingFrustum;
 	
 	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
 	public void preRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
@@ -125,16 +136,46 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
 		manager.markFrame();
 		List<LevelRenderer.RenderChunkInfo> infs = this.renderInfosInstancer;
-		for (
-				LevelRenderer.RenderChunkInfo info : infs
-		) {
+		PacoInstancingLevel instLvl = (PacoInstancingLevel) level;
+		Frustum frustum = capturedFrustum == null ? cullingFrustum : capturedFrustum;
+		PaCoFrustum pcFrustum = (PaCoFrustum) frustum;
+		
+		CullBox box = new CullBox(0, 0, 0, 0, 0, 0);
+		CullSphere sphere = new CullSphere(0, 0, 0, 0);
+		
+		for (LevelRenderer.RenderChunkInfo info : infs) {
 			ChunkRenderDispatcher.CompiledChunk chnk = info.chunk.getCompiledChunk();
-			for (BlockEntity be : ((InstancingResults) chnk).getAll()) {
-				InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
-				if (renderer.shouldRender(
-						be, $$4.getPosition()
-				)) {
-					renderer.render((PacoInstancingLevel) level, be, be.getBlockPos(), $$1, $$4.getPosition());
+			List<BlockEntity> bes = ((InstancingResults) chnk).getAll();
+			if (bes.isEmpty()) continue; // no work to do
+			
+			AABB aabb = info.chunk.getBoundingBox();
+			
+			if (bes.size() < 4 || pcFrustum.containsAllCorners(box.set(aabb))) {
+				for (BlockEntity be : bes) {
+					InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
+					
+					if (renderer.shouldRender(
+							be, $$4.getPosition()
+					)) {
+						BlockPos pos = be.getBlockPos();
+						renderer.render(instLvl, be, pos, $$1, $$4.getPosition());
+					}
+				}
+			} else {
+				for (BlockEntity be : bes) {
+					InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
+					
+					if (renderer.shouldRender(
+							be, $$4.getPosition()
+					)) {
+						BlockPos pos = be.getBlockPos();
+						renderer.getCullBox(box, instLvl, be, pos);
+						sphere.contain(box);
+						
+						if (pcFrustum.isInFrustum(sphere) && pcFrustum.isInFrustum(box)) {
+							renderer.render(instLvl, be, pos, $$1, $$4.getPosition());
+						}
+					}
 				}
 			}
 		}

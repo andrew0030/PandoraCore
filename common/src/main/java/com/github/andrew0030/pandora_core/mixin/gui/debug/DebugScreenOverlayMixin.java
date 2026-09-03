@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.mixin.gui.debug;
 
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstancedVBO;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.DebugScreenOverlay;
@@ -17,5 +18,7 @@ public class DebugScreenOverlayMixin {
         cir.getReturnValue().add("");
         cir.getReturnValue().add(ChatFormatting.GOLD + "[Pandora Core]");
         TemplateManager.writeF3(cir.getReturnValue());
+	    
+	    InstancedVBO.writeF3(cir.getReturnValue());
     }
 }

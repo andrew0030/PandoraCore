@@ -66,6 +66,7 @@ configurations {
 def extraSourceIds = []
 extraSourceIds.add('instancer')
 extraSourceIds.add('templater')
+extraSourceIds.add('fastlib')
 // The tests source set can easily be disabled in the gradle properties
 if (include_tests.toBoolean()) {
     extraSourceIds.add('tests')

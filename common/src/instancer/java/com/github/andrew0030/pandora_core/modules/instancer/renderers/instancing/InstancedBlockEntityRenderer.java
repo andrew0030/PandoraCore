@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing;
 
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullBox;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import net.minecraft.core.BlockPos;
@@ -15,4 +16,9 @@ public abstract class InstancedBlockEntityRenderer<T extends BlockEntity> extend
     public boolean shouldRender(T object, Vec3 pCameraPos) {
         return Vec3.atCenterOf(object.getBlockPos()).closerThan(pCameraPos, this.getViewDistance());
     }
+	
+	@Override
+	public void getCullBox(CullBox box, PacoInstancingLevel level, T object, BlockPos pos) {
+		box.set(pos);
+	}
 }

@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing;
 
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullBox;
 import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveVBO;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
@@ -28,4 +29,9 @@ public abstract class InstancedItemRenderer extends InstanceRenderer<InstancingE
     public final boolean shouldRender(ItemStack object, Vec3 pCameraPos) {
 	    return true;
     }
+	
+	@Override
+	public void getCullBox(CullBox box, InstancingEnvironment level, ItemStack object, ItemDrawData pos) {
+		box.set(0, 0, 0, 1, 1, 1);
+	}
 }

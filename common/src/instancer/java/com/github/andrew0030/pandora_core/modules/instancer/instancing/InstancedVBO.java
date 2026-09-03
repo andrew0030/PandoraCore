@@ -31,8 +31,8 @@ public class InstancedVBO extends AcceleratedVBO {
     protected ShaderWrapper wrapper;
 
     List<Integer> clientState = new ArrayList<>();
-
-    public void bindData(InstanceData data) {
+	
+	public void bindData(InstanceData data) {
         for (Integer i : clientState) {
             GL33.glVertexAttribDivisor(
                     i, 0
@@ -60,11 +60,31 @@ public class InstancedVBO extends AcceleratedVBO {
         this.count = count;
     }
 
+	public static long polygonsDrawn = 0;
+	public static int instancesDrawn = 0;
+	public static int drawCalls = 0;
+	public static int drawBatches = 0;
+	
+	public static void writeF3(List<String> returnValue) {
+		returnValue.add("Instances: " + instancesDrawn);
+		returnValue.add("Polygons: " + polygonsDrawn);
+		returnValue.add("Batches: " + drawBatches);
+		returnValue.add("Calls: " + drawCalls);
+		instancesDrawn = 0;
+		polygonsDrawn = 0;
+		drawBatches = 0;
+		drawCalls = 0;
+	}
+	
     @Override
     public void draw() {
         // TODO: batching system for hardware that doesn't support instancing
         //       requires uniform injection to work though
         IPaCoAccessibleVBO accessibleVBO = (IPaCoAccessibleVBO) this;
+	    instancesDrawn += count;
+	    polygonsDrawn += (accessibleVBO.pandoraCore$indexCount() / 3) * count;
+		drawCalls++;
+		drawBatches++;
         GL31C.nglDrawElementsInstanced(
                 accessibleVBO.pandoraCore$mode().asGLMode,
                 accessibleVBO.pandoraCore$indexCount(),

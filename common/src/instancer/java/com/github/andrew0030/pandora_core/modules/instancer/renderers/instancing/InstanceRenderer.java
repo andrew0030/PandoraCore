@@ -1,10 +1,14 @@
 package com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing;
 
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullBox;
 import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstancingEnvironment;
+import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class InstanceRenderer<M extends InstancingEnvironment, T, Y> {
@@ -34,4 +38,6 @@ public abstract class InstanceRenderer<M extends InstancingEnvironment, T, Y> {
     public CollectiveDrawData makeData() {
         return new CollectiveDrawData(format, 256, VertexBuffer.Usage.DYNAMIC);
     }
+	
+	public abstract void getCullBox(CullBox box, M level, T object, Y pos);
 }

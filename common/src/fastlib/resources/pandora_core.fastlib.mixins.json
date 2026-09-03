@@ -1,0 +1,24 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.github.andrew0030.pandora_core.modules.fastlib.mixin",
+	"refmap": "${mod_id}.refmap.json",
+	"plugin": "com.github.andrew0030.pandora_core.modules.fastlib.MixinPluginFastlib",
+	"compatibilityLevel": "JAVA_${java_version}",
+	"mixins": [],
+	"client": [
+		"render.iris.AdvancedShadowCullingFrustumMixin",
+		"render.sodium.SimpleFrustumMixin",
+		"render.vanilla.FrustumMixin"
+	],
+	"server": [],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	},
+	"mixinextras": {
+		"minVersion": "0.5.4"
+	}
+}

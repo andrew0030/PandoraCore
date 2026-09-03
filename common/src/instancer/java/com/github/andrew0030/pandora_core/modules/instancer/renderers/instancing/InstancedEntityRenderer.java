@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing;
 
+import com.github.andrew0030.pandora_core.modules.fastlib.render.CullBox;
 import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveVBO;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
@@ -18,4 +19,9 @@ public abstract class InstancedEntityRenderer<T extends Entity> extends Instance
     public boolean shouldRender(T object, Vec3 pCameraPos) {
 	    return object.shouldRender(pCameraPos.x, pCameraPos.y, pCameraPos.z);
     }
+	
+	@Override
+	public void getCullBox(CullBox box, PacoInstancingLevel level, T object, Vec3 pos) {
+		box.set(object.getBoundingBoxForCulling());
+	}
 }

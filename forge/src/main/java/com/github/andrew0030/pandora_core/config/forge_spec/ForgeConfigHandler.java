@@ -6,7 +6,6 @@ import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.en
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.UnsupportedEntry;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderCategory;
-import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderEntry;
 import com.github.andrew0030.pandora_core.config.manager.ForgeConfigDataHolderEntry;
 import com.github.andrew0030.pandora_core.utils.function.TriConsumer;
 import com.google.common.collect.ImmutableList;
@@ -49,13 +48,13 @@ public class ForgeConfigHandler {
      * <strong>Note</strong>: This method ensures type safety.
      */
     private void initConfigCaches() {
-        VALUE_HANDLERS.put(Boolean.class, this::handleBoolean); // Boolean & boolean
-        VALUE_HANDLERS.put(Integer.class, this::handleInteger); // Integer & int
-        VALUE_HANDLERS.put(Double.class, this::handleDouble);   // Double & double
-        VALUE_HANDLERS.put(Long.class, this::handleLong);       // Long & long
-        VALUE_HANDLERS.put(String.class, this::handleString);   // String
-        VALUE_HANDLERS.put(List.class, this::handleList);       // List
-        VALUE_HANDLERS.put(Enum.class, this::handleEnum);       // Enum
+        VALUE_HANDLERS.put(ForgeConfigSpec.BooleanValue.class, this::handleBoolean); // Boolean & boolean
+        VALUE_HANDLERS.put(ForgeConfigSpec.IntValue.class,     this::handleInteger); // Integer & int
+        VALUE_HANDLERS.put(ForgeConfigSpec.DoubleValue.class,  this::handleDouble);  // Double & double
+        VALUE_HANDLERS.put(ForgeConfigSpec.LongValue.class,    this::handleLong);    // Long & long
+        VALUE_HANDLERS.put(String.class,                       this::handleString);  // String
+        VALUE_HANDLERS.put(List.class,                         this::handleList);    // List
+        VALUE_HANDLERS.put(ForgeConfigSpec.EnumValue.class,    this::handleEnum);    // Enum
 
         // TODO maybe custom objects added using the raw "define" ?
 
@@ -77,17 +76,27 @@ public class ForgeConfigHandler {
             String path = StringUtil.isNullOrEmpty(category) ? key : category + "." + key;
             // Processes values
             if (value instanceof ForgeConfigSpec.ConfigValue<?> configValue) {
-                Object defaultValue = configValue.getDefault();
-                if (defaultValue != null) {
-                    // TODO Look into enums
-//                    if (defaultValue instanceof Enum<?>) {
-//                        this.handleEnum(configValue, this.spec.getRaw(configValue.getPath()), path);
-//                    } else {
-                    TriConsumer<ForgeConfigSpec.ConfigValue<?>, ForgeConfigSpec.ValueSpec, String> consumer = VALUE_HANDLERS.get(defaultValue.getClass());
-                    if (consumer != null)
-                        consumer.accept(configValue, this.spec.getRaw(configValue.getPath()), path);
-//                    }
+                TriConsumer<ForgeConfigSpec.ConfigValue<?>, ForgeConfigSpec.ValueSpec, String> consumer = VALUE_HANDLERS.get(configValue.getClass());
+                // Checks for explicit value types or falls back to standard classes
+                if (consumer == null) {
+                    Object defaultValue = configValue.getDefault();
+                    if (defaultValue != null) {
+                        Class<?> defaultClass = defaultValue.getClass();
+                        consumer = VALUE_HANDLERS.get(defaultClass);
+                        // If the raw class is also not defined, we check for super classes (e.g. ArrayList -> List)
+                        if (consumer == null) {
+                            for (Map.Entry<Class<?>, TriConsumer<ForgeConfigSpec.ConfigValue<?>, ForgeConfigSpec.ValueSpec, String>> entry : VALUE_HANDLERS.entrySet()) {
+                                if (entry.getKey().isAssignableFrom(defaultClass)) {
+                                    consumer = entry.getValue();
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
+                // If any handler was found we run it
+                if (consumer != null)
+                    consumer.accept(configValue, this.spec.getRaw(configValue.getPath()), path);
             }
             // Processes categories
             else if (this.isSubConfig(value)) {
@@ -183,15 +192,15 @@ public class ForgeConfigHandler {
 
     private void handleEnum(ForgeConfigSpec.ConfigValue<?> value, ForgeConfigSpec.ValueSpec spec, String path) {
         @SuppressWarnings("unchecked")
-        ConfigDataHolderEntry<Enum<?>> holder = (ConfigDataHolderEntry<Enum<?>>) this.dataHolders.getOrDefault(path, new ForgeConfigDataHolderEntry<>(value, spec));
+        ForgeConfigDataHolderEntry<Enum<?>> holder = (ForgeConfigDataHolderEntry<Enum<?>>) this.dataHolders.getOrDefault(path, new ForgeConfigDataHolderEntry<>(value, spec));
         holder.setPath(path);
         holder.setConfigEntryFactory(UnsupportedEntry::new); // TODO make this use the proper factory
         this.extractMetadata(holder, spec);
-        if (value.getDefault() instanceof Enum<?> enumVal) {
-            Class<? extends Enum<?>> enumClass = enumVal.getDeclaringClass();
-            List<String> validValues = Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).toList();
-            holder.setValidValues(validValues);
-        }
+//        if (value.getDefault() instanceof Enum<?> enumVal) {
+//            Class<? extends Enum<?>> enumClass = enumVal.getDeclaringClass();
+//            List<String> validValues = Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).toList();
+//            holder.setValidValues(validValues); // TODO maybe implement these for... GUI display reasons? TBD
+//        }
         this.dataHolders.put(path, holder);
     }
 

@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.config.registry;
 
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.selection.PaCoConfigSelectionScreen;
 import com.github.andrew0030.pandora_core.config.manager.IConfigManager;
 import net.minecraft.client.gui.screens.Screen;
@@ -57,7 +58,9 @@ public class PaCoConfigRegistry {
     public static Screen openConfigScreen(String modId, @Nullable TitleScreen titleScreen, @Nullable Screen previousScreen) {
         List<IConfigManager> managers = PaCoConfigRegistry.getManagersForMod(modId);
         if (managers.isEmpty()) return null; // TODO handle this is a better way...
-//        if (managers.size() == 1) return new PaCoConfigScreen(managers.get(0), titleScreen, previousScreen);
-        return new PaCoConfigSelectionScreen(managers, titleScreen, previousScreen);
+        // If the mod only has a single config, we open it directly
+        if (managers.size() == 1) return new PaCoConfigScreen(managers.get(0), titleScreen, previousScreen);
+        // If the mod has multiple configs, we open the config selection screen
+        return new PaCoConfigSelectionScreen(managers, titleScreen, previousScreen); // TODO make a better config selection screen!
     }
 }

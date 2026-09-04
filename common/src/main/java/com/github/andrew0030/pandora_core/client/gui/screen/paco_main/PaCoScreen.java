@@ -387,6 +387,7 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
         }
     }
 
+    // TODO add config option to determine if PaCo is a pause screen
     @Override
     public boolean isPauseScreen() {
         return false;

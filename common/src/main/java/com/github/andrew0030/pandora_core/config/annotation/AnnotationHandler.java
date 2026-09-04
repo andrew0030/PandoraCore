@@ -36,6 +36,7 @@ public class AnnotationHandler {
     private final ConfigSpec configSpec = new ConfigSpec();
     private final PaCoConfigManager manager;
     private final String modId;
+    private final String name;
     private final String configName;
     private final String subFolder;
 
@@ -45,6 +46,7 @@ public class AnnotationHandler {
         if (configAnnotation == null)
             throw new IllegalArgumentException("Class " + this.manager.getConfigClass().getName() + " must be annotated with @PaCoConfig.Config");
         this.modId = configAnnotation.modId();
+        this.name = configAnnotation.name();
         this.configName = String.format("%s-%s", this.modId, configAnnotation.name());
         this.subFolder = this.initConfigSubFolder();
         // Initializes the: ANNOTATION_HANDLERS, configSpec
@@ -70,7 +72,12 @@ public class AnnotationHandler {
 
     /** @return The Mod ID that was used to register this config */
     public String getModId() {
-        return modId;
+        return this.modId;
+    }
+
+    /** @return The name that was used to register this config */
+    public String getName() {
+        return this.name;
     }
 
     /**

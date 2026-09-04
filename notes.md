@@ -29,7 +29,7 @@ Systems TODO:
     - [ ] Look into serialization for custom object handling
   - [x] Add TranslatableComponent support for entry description and key
   - [ ] Add support for loading configs from a `defaultconfigs` folder
-  - [ ] Maybe add some sort of wrapper for forge's config system
+  - [x] Maybe add some sort of wrapper for forge's config system
   - [x] Maybe add support for custom Objects?
   - [x] Maybe add support for lists of custom Objects?
   - [ ] Maybe add support for per-world configs
@@ -76,7 +76,9 @@ Systems TODO:
   - [ ] Maybe add optional config setting to open the PaCo mods list when the _Mods_ button is pressed?
 - PaCo Config Screen
   - [x] Create config screen that can take any number of components and dynamically adjust to it
-  - [ ] Hook mod config system into it
+  - [x] Hook mod config system into it
+  - [ ] Add bulk saving
+  - [ ] Maybe add server config editing?
 - Warning Factory
   - [x] Rewrite WarningFactory system. Instead of an interface, it will use a **specific** static method, which will be invoked with a method handle
 - Update Checker

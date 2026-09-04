@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.client.render;
 
-import com.github.andrew0030.pandora_core.client.render.optifine.TriangularSVB;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
@@ -8,7 +7,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
-import net.optifine.shaders.SVertexBuilder;
 
 public class BufferBuilderUtils {
     /**
@@ -32,12 +30,7 @@ public class BufferBuilderUtils {
             WorldRenderingSettings.INSTANCE.setUseExtendedVertexFormat(usingExtended);
         } else {
 			if (OptifineAccessor.optifinePresent && ShaderChecker.isShaderActive()) {
-				if (mode == VertexFormat.Mode.TRIANGLES) {
-					OptifineAccessor.setSVB(builder, new TriangularSVB());
-				} else {
-					OptifineAccessor.setSVB(builder, new SVertexBuilder());
-				}
-				
+				OptifineAccessor.prepareSVB(builder, VertexFormat.Mode.TRIANGLES, format);
 				builder.begin(VertexFormat.Mode.TRIANGLES, format);
 				OptifineAccessor.debug(builder);
 			} else {

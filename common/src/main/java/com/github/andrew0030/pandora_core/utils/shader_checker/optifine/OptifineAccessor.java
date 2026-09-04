@@ -274,4 +274,12 @@ public class OptifineAccessor {
 		if (uniforms == null) return new CustomUniform[0];
 		return CUSTOM_UNIFORMS_LIST.get(theUnsafe, uniforms, CustomUniform[].class);
 	}
+	
+	public static void prepareSVB(BufferBuilder builder, VertexFormat.Mode mode, VertexFormat format) {
+		if (mode == VertexFormat.Mode.TRIANGLES) {
+			setSVB(builder, new TriangularSVB());
+		} else {
+			setSVB(builder, new SVertexBuilder());
+		}
+	}
 }

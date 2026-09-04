@@ -20,7 +20,9 @@ import net.irisshaders.iris.uniforms.custom.cached.CachedUniform;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.Shaders;
 import net.optifine.shaders.uniform.CustomUniforms;
+import net.optifine.shaders.uniform.CustomUniform;
 import net.optifine.shaders.uniform.ShaderUniformBase;
+import net.optifine.shaders.uniform.ShaderUniforms;
 import net.optifine.shaders.uniform.ShaderUniforms;
 import org.lwjgl.opengl.GL20;
 
@@ -127,7 +129,6 @@ public class OptifineTemplatedShader extends TemplatedShader {
 	}
 	
 	private void setupProg(OFTemplatedProgram program, Program vanilla) {
-		Map<CachedUniform, Integer> uniformModCounts = new HashMap<>();
 		// caches parent value so that it can be reset
 		Map<IPaCoPainReducer, Object> uniformValueCache = new HashMap<>();
 		long[] lastTick = new long[2];
@@ -137,8 +138,13 @@ public class OptifineTemplatedShader extends TemplatedShader {
 		Map<IPaCoPainReducer, Object> selfCache = new HashMap<>();
 		Map<IPaCoPainReducer, Integer> uniformIds = new HashMap<>();
 		
-		program.setPreBind(() -> preBind(program.id, vanilla, uniformModCounts, uniformValueCache, lastTick, lastFrame, parCache, selfCache, uniformIds));
-		program.setPostClear(() -> postClear(vanilla, uniformModCounts, uniformValueCache, lastTick, lastFrame, parCache, selfCache, uniformIds));
+		program.setPreBind(() -> preBind(program.id, vanilla, uniformValueCache, lastTick, lastFrame, parCache, selfCache, uniformIds));
+//		program.setPostBind(() -> {
+//			CustomUniforms uniforms = OptifineAccessor.getCustomUniforms();
+//			uniforms.setProgram(vanilla.getId());
+//			uniforms.update();
+//		});
+		program.setPostClear(() -> postClear(vanilla, uniformValueCache, lastTick, lastFrame, parCache, selfCache, uniformIds));
 	}
 	
 	private void firstBind(Program vanilla) {
@@ -146,7 +152,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 	}
 	
 	private void preBind(
-			int progId, Program vanilla, Map<CachedUniform, Integer> uniformModCounts,
+			int progId, Program vanilla,
 			Map<IPaCoPainReducer, Object> uniformValueCache, long[] lastTick, int[] lastFrame,
 			Map<IPaCoPainReducer, Object> parCache, Map<IPaCoPainReducer, Object> selfCache,
 			Map<IPaCoPainReducer, Integer> uniformIds
@@ -157,13 +163,31 @@ public class OptifineTemplatedShader extends TemplatedShader {
 		
 		PaCoOFUniformListable mtPU = ((PaCoOFUniformListable) progUniforms);
 		
+		CustomUniform[] unis = OptifineAccessor.getUniformList(uniforms);
+		
 		if (FIRST_BIND) {
 			for (ShaderUniformBase uniformB : mtPU.pandoraCore$getUforms()) {
 				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
 				int id = GL20.glGetUniformLocation(progId, uniformB.getName());
 //				System.out.println(uniformB.getName() + " " + uniformB.getLocation() + "->" + id);
 				uniformIds.put(uniform, id);
-
+				
+				try {
+					parCache.put(uniform, uniform.getCachedValue());
+					uniform.setCachedValue(null);
+					((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
+				} catch (Throwable err) {
+					err.printStackTrace();
+				}
+			}
+			
+			for (CustomUniform uniformA : unis) {
+				ShaderUniformBase uniformB = uniformA.getShaderUniform();
+				
+				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
+				int id = GL20.glGetUniformLocation(progId, uniformB.getName());
+				uniformIds.put(uniform, id);
+				
 				try {
 					parCache.put(uniform, uniform.getCachedValue());
 					uniform.setCachedValue(null);
@@ -182,6 +206,17 @@ public class OptifineTemplatedShader extends TemplatedShader {
 				uniform.setCachedValue(selfCache.get(uniform));
 				((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
 			}
+			for (CustomUniform uniformA : unis) {
+				ShaderUniformBase uniformB = uniformA.getShaderUniform();
+				
+//				System.out.println(uniformB.getName());
+				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
+				int id = uniformIds.get(uniform);
+				
+				parCache.put(uniform, uniform.getCachedValue());
+				uniform.setCachedValue(selfCache.get(uniform));
+				((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
+			}
 		}
 
 //		if (uniforms != null) {
@@ -192,17 +227,29 @@ public class OptifineTemplatedShader extends TemplatedShader {
 	}
 	
 	private void postClear(
-			Program vanilla, Map<CachedUniform, Integer> uniformModCounts,
+			Program vanilla,
 			Map<IPaCoPainReducer, Object> uniformValueCache, long[] lastTick, int[] lastFrame,
 			Map<IPaCoPainReducer, Object> parCache, Map<IPaCoPainReducer, Object> selfCache,
 			Map<IPaCoPainReducer, Integer> uniformIds
 	) {
-		CustomUniforms uniforms = OptifineAccessor.getCustomUniforms();
 		ShaderUniforms progUniforms = OptifineAccessor.getShaderUniforms();
 		
 		PaCoOFUniformListable mtPU = ((PaCoOFUniformListable) progUniforms);
 		
 		for (ShaderUniformBase uniformB : mtPU.pandoraCore$getUforms()) {
+			IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
+			selfCache.put(uniform, uniform.getCachedValue());
+			Object o = parCache.getOrDefault(uniform, null);
+			uniform.setCachedValue(o);
+			((ILocationedObject) uniform).pandoraCore$virtualLocation(-1);
+		}
+		
+		CustomUniforms uniforms = OptifineAccessor.getCustomUniforms();
+		CustomUniform[] unis = OptifineAccessor.getUniformList(uniforms);
+		
+		for (CustomUniform uniformA : unis) {
+			ShaderUniformBase uniformB = uniformA.getShaderUniform();
+
 			IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
 			selfCache.put(uniform, uniform.getCachedValue());
 			Object o = parCache.getOrDefault(uniform, null);

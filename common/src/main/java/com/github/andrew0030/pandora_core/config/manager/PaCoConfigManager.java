@@ -6,6 +6,7 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfigBuilder;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import com.github.andrew0030.pandora_core.PandoraCore;
+import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
 import com.github.andrew0030.pandora_core.config.annotation.AnnotationHandler;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
@@ -28,11 +29,17 @@ public class PaCoConfigManager implements IConfigManager {
     private final Class<?> configClass;                // The config class with the annotated fields
     private final AnnotationHandler annotationHandler; // Helper class that deals with annotations
     private final CommentedFileConfig config;          // The config file
+    // Util
+    private final String formatedName;
 
     private PaCoConfigManager(Class<?> configClass) {
         this.configClass = configClass;
         this.annotationHandler = new AnnotationHandler(this);
         this.config = this.createEmptyConfig();
+        String name = this.annotationHandler.getName();
+        if (!name.toLowerCase(Locale.ROOT).contains("config"))
+            name = name + " config";
+        this.formatedName = PaCoGuiUtils.toTitleCaseFormat(name);
         this.loadAndCorrect(); // Loads the config and corrects it if needed
     }
 
@@ -48,7 +55,7 @@ public class PaCoConfigManager implements IConfigManager {
 
     @Override
     public String getConfigName() {
-        return this.annotationHandler.getConfigName();
+        return this.formatedName;
     }
 
     @Override

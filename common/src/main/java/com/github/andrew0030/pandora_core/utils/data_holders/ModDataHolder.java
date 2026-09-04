@@ -150,11 +150,16 @@ public abstract class ModDataHolder {
      */
     protected Optional<URL> toURL(String string) {
         if (string != null && !string.trim().isEmpty() && !string.contains("myurl.me") && !string.contains("example.invalid")) {
+            String trimmed = string.trim();
             try {
-                URL url = URI.create(string).toURL();
-                return Optional.of(url);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
+                URI uri = URI.create(trimmed);
+                // If the URI lacks a scheme (e.g. "discord.gg/xyz", "www.example.com"),
+                // we try treating it as an HTTP URL by prepending "http://"
+//                if (!uri.isAbsolute())
+//                    uri = URI.create("http://" + trimmed); // TODO maybe add config option to toggle this between HTTP/HTTPS/NONE
+                return Optional.of(uri.toURL());
+            } catch (MalformedURLException | IllegalArgumentException ignored) {
+                LOGGER.error("Failed to create URL: '{}' for mod: '{}'", trimmed, this.getModId());
             }
         }
         return Optional.empty();

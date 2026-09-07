@@ -15,6 +15,7 @@ import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackho
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.AttachmentSpecifier;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program.attachment.ShaderAttachment;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
+import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineDereference;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import net.irisshaders.iris.uniforms.custom.cached.CachedUniform;
 import net.optifine.shaders.Program;
@@ -163,7 +164,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 		
 		PaCoOFUniformListable mtPU = ((PaCoOFUniformListable) progUniforms);
 		
-		CustomUniform[] unis = OptifineAccessor.getUniformList(uniforms);
+		CustomUniform[] unis = OptifineDereference.getUniformList(uniforms);
 		
 		if (FIRST_BIND) {
 			for (ShaderUniformBase uniformB : mtPU.pandoraCore$getUforms()) {
@@ -245,7 +246,7 @@ public class OptifineTemplatedShader extends TemplatedShader {
 		}
 		
 		CustomUniforms uniforms = OptifineAccessor.getCustomUniforms();
-		CustomUniform[] unis = OptifineAccessor.getUniformList(uniforms);
+		CustomUniform[] unis = OptifineDereference.getUniformList(uniforms);
 		
 		for (CustomUniform uniformA : unis) {
 			ShaderUniformBase uniformB = uniformA.getShaderUniform();

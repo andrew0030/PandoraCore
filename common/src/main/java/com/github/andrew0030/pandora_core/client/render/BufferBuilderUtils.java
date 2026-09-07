@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.client.render;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
+import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineDereference;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -30,9 +31,9 @@ public class BufferBuilderUtils {
             WorldRenderingSettings.INSTANCE.setUseExtendedVertexFormat(usingExtended);
         } else {
 			if (OptifineAccessor.optifinePresent && ShaderChecker.isShaderActive()) {
-				OptifineAccessor.prepareSVB(builder, VertexFormat.Mode.TRIANGLES, format);
+				OptifineDereference.prepareSVB(builder, VertexFormat.Mode.TRIANGLES, format);
 				builder.begin(VertexFormat.Mode.TRIANGLES, format);
-				OptifineAccessor.debug(builder);
+				OptifineDereference.debug(builder);
 			} else {
 				builder.begin(VertexFormat.Mode.TRIANGLES, format);
 			}

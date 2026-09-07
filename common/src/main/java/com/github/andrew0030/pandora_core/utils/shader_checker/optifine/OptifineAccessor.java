@@ -29,38 +29,38 @@ public class OptifineAccessor {
 	public static boolean FALSE_BIND = false;
 	public static final boolean optifinePresent;
 	
-	private static FieldAccessor svb;
-	private static FieldAccessor svbVertexSize;
-	private static FieldAccessor svbHasNormal;
-	private static FieldAccessor svbHasTangent;
+	static FieldAccessor svb;
+	static FieldAccessor svbVertexSize;
+	static FieldAccessor svbHasNormal;
+	static FieldAccessor svbHasTangent;
 	
-	private static FieldAccessor svbEntityDat;
-	private static FieldAccessor svbEntityDatIdx;
-	private static FieldAccessor svbUVOff;
-	private static FieldAccessor svbNormOff;
+	static FieldAccessor svbEntityDat;
+	static FieldAccessor svbEntityDatIdx;
+	static FieldAccessor svbUVOff;
+	static FieldAccessor svbNormOff;
 	
-	private static FieldAccessor vbIntBuffer;
-	private static FieldAccessor vbFloatBuffer;
+	static FieldAccessor vbIntBuffer;
+	static FieldAccessor vbFloatBuffer;
 	
-	private static FieldAccessor program;
-	private static FieldAccessor currentWorld;
+	static FieldAccessor program;
+	static FieldAccessor currentWorld;
 	
-	private static FieldAccessor BLOCK_VANILLA;
-	private static FieldAccessor BLOCK_SHADERS;
-	private static FieldAccessor ENTITY_VANILLA;
-	private static FieldAccessor ENTITY_SHADERS;
+	static FieldAccessor BLOCK_VANILLA;
+	static FieldAccessor BLOCK_SHADERS;
+	static FieldAccessor ENTITY_VANILLA;
+	static FieldAccessor ENTITY_SHADERS;
 	
-	private static FieldAccessor CUSTOM_UNIFORMS;
-	private static FieldAccessor SHADER_UNIFORMS;
-	private static FieldAccessor CUSTOM_UNIFORMS_LIST;
+	static FieldAccessor CUSTOM_UNIFORMS;
+	static FieldAccessor SHADER_UNIFORMS;
+	static FieldAccessor CUSTOM_UNIFORMS_LIST;
 	
-	private static Method checkGlError;
-	private static Method bindGbuffersTextures;
+	static Method checkGlError;
+	static Method bindGbuffersTextures;
 
-	private static Method isRenderItemGui;
-	private static Method setRenderItemGui;
+	static Method isRenderItemGui;
+	static Method setRenderItemGui;
 	
-	private static final Unsafe theUnsafe;
+	static final Unsafe theUnsafe;
 	
 	static {
 		theUnsafe = TheUnsafeHelper.getTheUnsafe();
@@ -210,76 +210,6 @@ public class OptifineAccessor {
 		try {
 			setRenderItemGui.invoke(null, value);
 		} catch (IllegalAccessException | InvocationTargetException e) {
-		}
-	}
-	
-	public static void debug(BufferBuilder builder) {
-		Object svertBuilder = svb.get(theUnsafe, builder, Object.class);
-		if (svertBuilder == null) return;
-		
-		System.out.println("== OPTIFINE SHADER VERTEX BUILDER ==");
-		System.out.println("Draw Mode: " + ((IPaCoAccessibleBufferBuilder) builder).pandoraCore$getDrawMode());
-		System.out.println("Vertex Size: " + svbVertexSize.getPrimitive(theUnsafe, svertBuilder, int.class));
-		System.out.println("Normals: " + svbHasNormal.getPrimitive(theUnsafe, svertBuilder, boolean.class));
-		System.out.println("Tangents: " + svbHasTangent.getPrimitive(theUnsafe, svertBuilder, boolean.class));
-	}
-	
-	public static int getVertexSize(Object svertBuilder) {
-		return svbVertexSize.getPrimitive(theUnsafe, svertBuilder, int.class);
-	}
-	
-	public static Object getSVB(BufferBuilder builder) {
-		return svb.get(theUnsafe, builder, Object.class);
-	}
-	
-	public static IntBuffer getIntBuffer(BufferBuilder builder) {
-		return vbIntBuffer.get(theUnsafe, builder, IntBuffer.class);
-	}
-	
-	public static FloatBuffer getFloatBuffer(BufferBuilder builder) {
-		return vbFloatBuffer.get(theUnsafe, builder, FloatBuffer.class);
-	}
-	
-	public static int getIntSize(BufferBuilder builder) {
-		IPaCoAccessibleBufferBuilder bb = (IPaCoAccessibleBufferBuilder) builder;
-		return bb.pandoraCore$getVertexCount() * ((IPaCoAccessibleBufferBuilder) builder).pandoraCore$getFormat().getIntegerSize();
-	}
-	
-	public static int getIntStartPos(BufferBuilder builder) {
-		IPaCoAccessibleBufferBuilder bb = (IPaCoAccessibleBufferBuilder) builder;
-		return bb.pandoraCore$getRenderedBufferPointer() / 4;
-	}
-	
-	public static long[] getEntityData(SVertexBuilder svb) {
-		return svbEntityDat.get(theUnsafe, svb, long[].class);
-	}
-	
-	public static int getEntityDatIndex(SVertexBuilder svb) {
-		return svbEntityDatIdx.getPrimitive(theUnsafe, svb, int.class);
-	}
-	
-	public static int getUVOffset(SVertexBuilder svb) {
-		return svbUVOff.getPrimitive(theUnsafe, svb, int.class);
-	}
-	
-	public static int getNormOffset(SVertexBuilder svb) {
-		return svbNormOff.getPrimitive(theUnsafe, svb, int.class);
-	}
-	
-	public static void setSVB(BufferBuilder builder, SVertexBuilder triangularSVB) {
-		svb.set(theUnsafe, builder, triangularSVB);
-	}
-	
-	public static CustomUniform[] getUniformList(CustomUniforms uniforms) {
-		if (uniforms == null) return new CustomUniform[0];
-		return CUSTOM_UNIFORMS_LIST.get(theUnsafe, uniforms, CustomUniform[].class);
-	}
-	
-	public static void prepareSVB(BufferBuilder builder, VertexFormat.Mode mode, VertexFormat format) {
-		if (mode == VertexFormat.Mode.TRIANGLES) {
-			setSVB(builder, new TriangularSVB());
-		} else {
-			setSVB(builder, new SVertexBuilder());
 		}
 	}
 }

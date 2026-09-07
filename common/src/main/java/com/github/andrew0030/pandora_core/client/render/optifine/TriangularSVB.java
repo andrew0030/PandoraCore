@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.client.render.optifine;
 import com.github.andrew0030.pandora_core.mixin_interfaces.render.IPaCoAccessibleBufferBuilder;
 import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
+import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineDereference;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.util.Mth;
@@ -26,9 +27,9 @@ public class TriangularSVB extends SVertexBuilder implements PaCoSVB {
 		if (!(!ShaderChecker.isShaderActive() || !OptifineAccessor.isItemRendering()))
 			return;
 		
-		SVertexBuilder svb = (SVertexBuilder) OptifineAccessor.getSVB(builder);
+		SVertexBuilder svb = OptifineDereference.getSVB(builder);
 		
-		int vertSize = OptifineAccessor.getVertexSize(svb);
+		int vertSize = OptifineDereference.getVertexSize(svb);
 		
 		if (vertSize != 18)
 			return;
@@ -39,17 +40,17 @@ public class TriangularSVB extends SVertexBuilder implements PaCoSVB {
 			return;
 //		System.out.println("TANGENT");
 		
-		int size = OptifineAccessor.getIntSize(builder);
+		int size = OptifineDereference.getIntSize(builder);
 		this.calcTangent(builder, size - 2 * vertSize);
 		
-		IntBuffer ib = OptifineAccessor.getIntBuffer(builder);
+		IntBuffer ib = OptifineDereference.getIntBuffer(builder);
 		
-		long[] edat = OptifineAccessor.getEntityData(svb);
-		int idx = OptifineAccessor.getEntityDatIndex(svb);
+		long[] edat = OptifineDereference.getEntityData(svb);
+		int idx = OptifineDereference.getEntityDatIndex(svb);
 		long eData = edat[idx];
 		int pos = size - 18 + 13;
 		
-		pos += OptifineAccessor.getIntStartPos(builder);
+		pos += OptifineDereference.getIntStartPos(builder);
 		ib.put(pos, (int) eData);
 		ib.put(pos + 1, (int) (eData >> 32));
 	}
@@ -60,9 +61,9 @@ public class TriangularSVB extends SVertexBuilder implements PaCoSVB {
 		if (bb.pandoraCore$getVertexCount() % bb.pandoraCore$getDrawMode().primitiveStride != 0)
 			return;
 		
-		SVertexBuilder svb = (SVertexBuilder) OptifineAccessor.getSVB(builder);
-		int vertSize = OptifineAccessor.getVertexSize(svb);
-		int size = OptifineAccessor.getIntSize(builder);
+		SVertexBuilder svb = OptifineDereference.getSVB(builder);
+		int vertSize = OptifineDereference.getVertexSize(svb);
+		int size = OptifineDereference.getIntSize(builder);
 		this.calcTangent(builder, size - 2 * vertSize);
 	}
 	
@@ -90,15 +91,15 @@ public class TriangularSVB extends SVertexBuilder implements PaCoSVB {
 	}
 	
 	private void calcTangent(BufferBuilder builder, int baseIndex) {
-		SVertexBuilder svb = (SVertexBuilder) OptifineAccessor.getSVB(builder);
-		int vertSize = OptifineAccessor.getVertexSize(svb);
+		SVertexBuilder svb = OptifineDereference.getSVB(builder);
+		int vertSize = OptifineDereference.getVertexSize(svb);
 
-		IntBuffer ib = OptifineAccessor.getIntBuffer(builder);
-		FloatBuffer fb = OptifineAccessor.getFloatBuffer(builder);
-		baseIndex += OptifineAccessor.getIntStartPos(builder);
+		IntBuffer ib = OptifineDereference.getIntBuffer(builder);
+		FloatBuffer fb = OptifineDereference.getFloatBuffer(builder);
+		baseIndex += OptifineDereference.getIntStartPos(builder);
 
-		int offsetUV = OptifineAccessor.getUVOffset(svb);
-		int offsetNormal = OptifineAccessor.getNormOffset(svb);
+		int offsetUV = OptifineDereference.getUVOffset(svb);
+		int offsetNormal = OptifineDereference.getNormOffset(svb);
 
 		v0.set(
 				fb.get(baseIndex + 0 * vertSize),

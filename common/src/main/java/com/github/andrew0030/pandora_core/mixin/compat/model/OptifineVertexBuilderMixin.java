@@ -2,6 +2,7 @@ package com.github.andrew0030.pandora_core.mixin.compat.model;
 
 import com.github.andrew0030.pandora_core.client.render.optifine.PaCoSVB;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
+import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineDereference;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.optifine.shaders.SVertexBuilder;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class OptifineVertexBuilderMixin {
 	@Inject(at = @At("HEAD"), method = "endAddVertex", cancellable = true)
 	private static void preEnd(BufferBuilder builder, CallbackInfo ci) {
-		SVertexBuilder builder1 = (SVertexBuilder) OptifineAccessor.getSVB(builder);
+		SVertexBuilder builder1 = OptifineDereference.getSVB(builder);
 		if (builder1 instanceof PaCoSVB pSVB) {
 			pSVB.pandoraCore$endAddVertex(builder);
 			ci.cancel();
@@ -22,7 +23,7 @@ public class OptifineVertexBuilderMixin {
 	
 	@Inject(at = @At("HEAD"), method = "endAddVertexData", cancellable = true)
 	private static void preEnd1(BufferBuilder builder, CallbackInfo ci) {
-		SVertexBuilder builder1 = (SVertexBuilder) OptifineAccessor.getSVB(builder);
+		SVertexBuilder builder1 = OptifineDereference.getSVB(builder);
 		if (builder1 instanceof PaCoSVB pSVB) {
 			pSVB.pandoraCore$endAddVertexData(builder);
 			ci.cancel();

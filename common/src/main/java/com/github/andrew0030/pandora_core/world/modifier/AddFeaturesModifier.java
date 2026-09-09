@@ -95,10 +95,10 @@ public record AddFeaturesModifier(HolderSet<Biome> biomes, HolderSet<PlacedFeatu
          * Now technically this could also be done by manually updating all of those fields,
          * however that is likely more fragile, so in this case this approach is cleaner.
          */
-        ((BiomeAccessor) (Object) biome).setGenerationSettings(
+        ((BiomeAccessor) (Object) biome).pandoraCore$setGenerationSettings(
             // Creates a new BiomeGenerationSettings instance with the additional features
             BiomeGenerationSettingsAccessor.createBiomeGenerationSettings(
-                ((BiomeGenerationSettingsAccessor) settings).getCarvers(),
+                ((BiomeGenerationSettingsAccessor) settings).pandoraCore$getCarvers(),
                 biomeFeatures
             )
         );

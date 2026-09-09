@@ -66,7 +66,7 @@ public record RemoveCarversModifier(HolderSet<Biome> biomes, HolderSet<Configure
     private void removeFromBiome(Biome biome) {
         // Gets current biome generation settings and a copy of the internal map
         BiomeGenerationSettings settings = biome.getGenerationSettings();
-        Map<GenerationStep.Carving, HolderSet<ConfiguredWorldCarver<?>>> biomeCarvers = new HashMap<>(((BiomeGenerationSettingsAccessor) settings).getCarvers());
+        Map<GenerationStep.Carving, HolderSet<ConfiguredWorldCarver<?>>> biomeCarvers = new HashMap<>(((BiomeGenerationSettingsAccessor) settings).pandoraCore$getCarvers());
 
         // Builds a Set of carvers to quickly check if they are present
         Set<Holder<ConfiguredWorldCarver<?>>> toRemove = this.carvers().stream().collect(Collectors.toCollection(HashSet::new));
@@ -116,7 +116,7 @@ public record RemoveCarversModifier(HolderSet<Biome> biomes, HolderSet<Configure
          * Now technically this could also be done by manually updating all of those fields,
          * however that is likely more fragile, so in this case this approach is cleaner.
          */
-        ((BiomeAccessor) (Object) biome).setGenerationSettings(
+        ((BiomeAccessor) (Object) biome).pandoraCore$setGenerationSettings(
             // Creates a new BiomeGenerationSettings instance with the specified features removed
             BiomeGenerationSettingsAccessor.createBiomeGenerationSettings(
                 biomeCarvers,

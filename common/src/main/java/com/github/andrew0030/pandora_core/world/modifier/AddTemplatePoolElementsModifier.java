@@ -78,15 +78,15 @@ public record AddTemplatePoolElementsModifier(HolderSet<StructureTemplatePool> t
         if (this.elements().isEmpty()) return;
 
         // Gets the existing rawTemplates list, and adds all elements this modifier is adding
-        List<Pair<StructurePoolElement, Integer>> mutableRawTemplates = new ArrayList<>(accessor.getRawTemplates());
+        List<Pair<StructurePoolElement, Integer>> mutableRawTemplates = new ArrayList<>(accessor.pandoraCore$getRawTemplates());
         mutableRawTemplates.addAll(this.elements());
-        accessor.setRawTemplates(mutableRawTemplates);
+        accessor.pandoraCore$setRawTemplates(mutableRawTemplates);
 
         /*
          * Gets the existing templates list, and adds all elements this modifier is adding.
          * Elements are added n times, (where n is the element weight). This is essentially also what minecraft does.
          */
-        ObjectArrayList<StructurePoolElement> mutableTemplates = new ObjectArrayList<>(accessor.getTemplates());
+        ObjectArrayList<StructurePoolElement> mutableTemplates = new ObjectArrayList<>(accessor.pandoraCore$getTemplates());
         for (Pair<StructurePoolElement, Integer> pair : this.elements()) {
             StructurePoolElement poolElement = pair.getFirst();
             int weight = pair.getSecond();
@@ -94,6 +94,6 @@ public record AddTemplatePoolElementsModifier(HolderSet<StructureTemplatePool> t
                 mutableTemplates.add(poolElement);
             }
         }
-        accessor.setTemplates(mutableTemplates);
+        accessor.pandoraCore$setTemplates(mutableTemplates);
     }
 }

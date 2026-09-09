@@ -24,7 +24,7 @@ public class Screen_OptionsScreenMixin {
     @Inject(method = "onClose", at = @At("HEAD"), cancellable = true)
     public void returnToPaCoScreen(CallbackInfo ci) {
         if (((Screen)(Object)this) instanceof OptionsScreen optionsScreen) {
-            Screen lastScreen = ((OptionsScreenAccessor) optionsScreen).getLastScreen();
+            Screen lastScreen = ((OptionsScreenAccessor) optionsScreen).pandoraCore$getLastScreen();
             if (lastScreen instanceof PaCoScreen) {
                 this.minecraft.setScreen(lastScreen);
                 ci.cancel();

@@ -71,6 +71,6 @@ public record RemoveStructureSetStructuresModifier(HolderSet<StructureSet> struc
         if (filtered.size() == structureSet.structures().size()) return;
 
         // Updates the structures list of the structure set
-        ((StructureSetAccessor) (Object) structureSet).setStructures(filtered);
+        ((StructureSetAccessor) (Object) structureSet).pandoraCore$setStructures(filtered);
     }
 }

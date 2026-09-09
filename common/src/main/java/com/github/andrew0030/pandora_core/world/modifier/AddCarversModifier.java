@@ -62,7 +62,7 @@ public record AddCarversModifier(HolderSet<Biome> biomes, HolderSet<ConfiguredWo
     private void applyToBiome(Biome biome) {
         // Gets current biome generation settings and a copy of the internal map
         BiomeGenerationSettings settings = biome.getGenerationSettings();
-        Map<GenerationStep.Carving, HolderSet<ConfiguredWorldCarver<?>>> biomeCarvers = new HashMap<>(((BiomeGenerationSettingsAccessor) settings).getCarvers());
+        Map<GenerationStep.Carving, HolderSet<ConfiguredWorldCarver<?>>> biomeCarvers = new HashMap<>(((BiomeGenerationSettingsAccessor) settings).pandoraCore$getCarvers());
 
         /*
          * Gets a list of the existing configured world carvers, for the specified carving step
@@ -92,7 +92,7 @@ public record AddCarversModifier(HolderSet<Biome> biomes, HolderSet<ConfiguredWo
          * Now technically this could also be done by manually updating all of those fields,
          * however that is likely more fragile, so in this case this approach is cleaner.
          */
-        ((BiomeAccessor) (Object) biome).setGenerationSettings(
+        ((BiomeAccessor) (Object) biome).pandoraCore$setGenerationSettings(
             // Creates a new BiomeGenerationSettings instance with the additional carvers
             BiomeGenerationSettingsAccessor.createBiomeGenerationSettings(
                 biomeCarvers,

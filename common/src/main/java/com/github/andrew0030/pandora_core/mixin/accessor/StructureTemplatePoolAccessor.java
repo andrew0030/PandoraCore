@@ -10,20 +10,19 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.List;
 
-// TODO: all non-static handlers should be prefixed as: modid$getFieldOrMethodName
 @Mixin(StructureTemplatePool.class)
 public interface StructureTemplatePoolAccessor {
     @Accessor("rawTemplates")
-    List<Pair<StructurePoolElement, Integer>> getRawTemplates();
+    List<Pair<StructurePoolElement, Integer>> pandoraCore$getRawTemplates();
 
     @Accessor("rawTemplates")
     @Mutable
-    void setRawTemplates(List<Pair<StructurePoolElement, Integer>> rawTemplates);
+    void pandoraCore$setRawTemplates(List<Pair<StructurePoolElement, Integer>> rawTemplates);
 
     @Accessor("templates")
-    ObjectArrayList<StructurePoolElement> getTemplates();
+    ObjectArrayList<StructurePoolElement> pandoraCore$getTemplates();
 
     @Accessor("templates")
     @Mutable
-    void setTemplates(ObjectArrayList<StructurePoolElement> templates);
+    void pandoraCore$setTemplates(ObjectArrayList<StructurePoolElement> templates);
 }

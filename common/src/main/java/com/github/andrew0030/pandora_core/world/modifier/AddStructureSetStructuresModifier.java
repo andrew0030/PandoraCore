@@ -70,6 +70,6 @@ public record AddStructureSetStructuresModifier(HolderSet<StructureSet> structur
         merged.addAll(toAdd);
 
         // Updates the structures list of the structure set
-        ((StructureSetAccessor) (Object) structureSet).setStructures(merged);
+        ((StructureSetAccessor) (Object) structureSet).pandoraCore$setStructures(merged);
     }
 }

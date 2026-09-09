@@ -60,7 +60,7 @@ public record RemoveSpawnsModifier(HolderSet<Biome> biomes, HolderSet<EntityType
     private void removeFromBiome(Biome biome) {
         // Gets current spawn settings and a mutable copy of the internal map
         MobSpawnSettings spawnSettings = biome.getMobSettings();
-        Map<MobCategory, WeightedRandomList<MobSpawnSettings.SpawnerData>> biomeSpawners = new HashMap<>(((MobSpawnSettingsAccessor) spawnSettings).getSpawners());
+        Map<MobCategory, WeightedRandomList<MobSpawnSettings.SpawnerData>> biomeSpawners = new HashMap<>(((MobSpawnSettingsAccessor) spawnSettings).pandoraCore$getSpawners());
 
         // Builds a Set of entity types to quickly check if they are present
         Set<EntityType<?>> toRemove = this.entityTypes().stream().map(Holder::value).collect(Collectors.toCollection(HashSet::new));
@@ -102,7 +102,7 @@ public record RemoveSpawnsModifier(HolderSet<Biome> biomes, HolderSet<EntityType
         if (!changed) return;
 
         // Updates the spawn settings before updating the mob settings of the Biome
-        ((MobSpawnSettingsAccessor) spawnSettings).setSpawners(biomeSpawners);
-        ((BiomeAccessor) (Object) biome).setMobSettings(spawnSettings);
+        ((MobSpawnSettingsAccessor) spawnSettings).pandoraCore$setSpawners(biomeSpawners);
+        ((BiomeAccessor) (Object) biome).pandoraCore$setMobSettings(spawnSettings);
     }
 }

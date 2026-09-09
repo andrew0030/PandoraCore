@@ -112,10 +112,10 @@ public record RemoveFeaturesModifier(HolderSet<Biome> biomes, HolderSet<PlacedFe
          * Now technically this could also be done by manually updating all of those fields,
          * however that is likely more fragile, so in this case this approach is cleaner.
          */
-        ((BiomeAccessor) (Object) biome).setGenerationSettings(
+        ((BiomeAccessor) (Object) biome).pandoraCore$setGenerationSettings(
             // Creates a new BiomeGenerationSettings instance with the specified features removed
             BiomeGenerationSettingsAccessor.createBiomeGenerationSettings(
-                ((BiomeGenerationSettingsAccessor) biome.getGenerationSettings()).getCarvers(),
+                ((BiomeGenerationSettingsAccessor) biome.getGenerationSettings()).pandoraCore$getCarvers(),
                 biomeFeatures
             )
         );

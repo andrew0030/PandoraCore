@@ -62,7 +62,7 @@ public record AddSpawnsModifier(HolderSet<Biome> biomes, List<MobSpawnSettings.S
     private void applyToBiome(Biome biome) {
         // Gets current spawn settings and a mutable copy of the internal map
         MobSpawnSettings settings = biome.getMobSettings();
-        Map<MobCategory, WeightedRandomList<MobSpawnSettings.SpawnerData>> biomeSpawners = new HashMap<>(((MobSpawnSettingsAccessor) settings).getSpawners());
+        Map<MobCategory, WeightedRandomList<MobSpawnSettings.SpawnerData>> biomeSpawners = new HashMap<>(((MobSpawnSettingsAccessor) settings).pandoraCore$getSpawners());
 
         // Groups new spawners by category
         Map<MobCategory, List<MobSpawnSettings.SpawnerData>> toAdd = new EnumMap<>(MobCategory.class);
@@ -85,7 +85,7 @@ public record AddSpawnsModifier(HolderSet<Biome> biomes, List<MobSpawnSettings.S
         }
 
         // Updates the spawn settings before updating the mob settings of the Biome
-        ((MobSpawnSettingsAccessor) settings).setSpawners(biomeSpawners);
-        ((BiomeAccessor) (Object) biome).setMobSettings(settings);
+        ((MobSpawnSettingsAccessor) settings).pandoraCore$setSpawners(biomeSpawners);
+        ((BiomeAccessor) (Object) biome).pandoraCore$setMobSettings(settings);
     }
 }

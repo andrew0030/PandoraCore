@@ -67,7 +67,7 @@ public record AddSpawnCostsModifier(HolderSet<Biome> biomes, HolderSet<EntityTyp
     private void applyToBiome(Biome biome) {
         // Gets current spawn settings and a mutable copy of the internal map
         MobSpawnSettings settings = biome.getMobSettings();
-        Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> mobSpawnCosts = new HashMap<>(((MobSpawnSettingsAccessor) settings).getMobSpawnCosts());
+        Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> mobSpawnCosts = new HashMap<>(((MobSpawnSettingsAccessor) settings).pandoraCore$getMobSpawnCosts());
 
         // Builds a Set of entity types to quickly check if they are present
         Set<EntityType<?>> toAdd = this.entityTypes().stream().map(Holder::value).collect(Collectors.toCollection(HashSet::new));
@@ -97,11 +97,11 @@ public record AddSpawnCostsModifier(HolderSet<Biome> biomes, HolderSet<EntityTyp
          * adds some fields to MobSpawnSettings, and initializes them using the existing fields.
          * Ergo if we try to modify just the field, Forge's field won't have the added entry.
          */
-        ((BiomeAccessor) (Object) biome).setMobSettings(
+        ((BiomeAccessor) (Object) biome).pandoraCore$setMobSettings(
             // Creates a new BiomeGenerationSettings instance with the additional features
             MobSpawnSettingsAccessor.createMobSpawnSettings(
                 settings.getCreatureProbability(),
-                ((MobSpawnSettingsAccessor) settings).getSpawners(),
+                ((MobSpawnSettingsAccessor) settings).pandoraCore$getSpawners(),
                 mobSpawnCosts
             )
         );

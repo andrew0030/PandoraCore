@@ -1,7 +1,5 @@
 package com.github.andrew0030.pandora_core.config.manager;
 
-import com.github.andrew0030.pandora_core.config.PaCoMainConfig;
-import com.github.andrew0030.pandora_core.config.registry.PaCoConfigRegistry;
 import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -69,20 +67,22 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> implements ICo
         return (T) value;
     }
 
+    /**
+     * Sets the value of the {@code field} associated with this {@link ConfigDataHolder}.
+     * @throws RuntimeException If the field cant be accessed
+     */
     @Override
     public void setValue(T value) {
-        Object serialized = this.serialize(value);
-        String key = this.getPath();
-
-        // TODO get the current manager through the config data holder constructor instead of this temporary bandaid solution!
-        PaCoConfigManager manager = (PaCoConfigManager) PaCoConfigRegistry.getManager(PaCoMainConfig.class);
-        manager.getConfig().set(key, serialized);
-        // TODO replace this with a bulk save system!
-        manager.correctIfNeeded(true);
+        this.field.setAccessible(true);
+        try {
+            this.field.set(null, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to set value of config field: " + this.field.getName(), e);
+        }
     }
 
     /**
-     * @return The value of the {@code field}
+     * @return The value of the {@code field} associated with this {@link ConfigDataHolder}.
      * @throws RuntimeException If the field cant be accessed
      */
     @SuppressWarnings("unchecked")
@@ -91,7 +91,7 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> implements ICo
         try {
             return (T) this.field.get(null);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to read config field: " + this.field.getName(), e);
+            throw new RuntimeException("Failed to get value of config field: " + this.field.getName(), e);
         }
     }
 

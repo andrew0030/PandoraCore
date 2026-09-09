@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
+// TODO: all non-static handlers should be prefixed as: modid$getFieldOrMethodName
 @Mixin(OptionsScreen.class)
 public interface OptionsScreenAccessor {
     @Accessor("lastScreen")

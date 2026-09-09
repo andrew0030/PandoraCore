@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import java.util.List;
 import java.util.Map;
 
+// TODO: all non-static handlers should be prefixed as: modid$getFieldOrMethodName
 @Mixin(BiomeGenerationSettings.class)
 public interface BiomeGenerationSettingsAccessor {
     @Invoker("<init>")

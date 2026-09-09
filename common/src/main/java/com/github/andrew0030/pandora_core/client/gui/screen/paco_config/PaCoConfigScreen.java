@@ -265,8 +265,17 @@ public class PaCoConfigScreen extends Screen {
             // Checks for focused entries (only stores the first found one)
             else if (entry.isFocused() && focusedIdx == -1) focusedIdx = i;
         }
+        boolean isMouseHoveringAnyEntry = (hoveredIdx != -1);
+        // If an entry is hovered, resets all other entries hover time (needed so focused entries get their time reset)
+        if (isMouseHoveringAnyEntry) {
+            for (int i = 0; i < this.visibleEntries.size(); i++) {
+                if (i == hoveredIdx) continue;
+                BaseConfigEntry<?> entry = this.visibleEntries.get(i);
+                entry.resetHoverTime();
+            }
+        }
         // Prioritizes hover over focus if both exist
-        int activeIdx = (hoveredIdx != -1) ? hoveredIdx : focusedIdx;
+        int activeIdx = isMouseHoveringAnyEntry ? hoveredIdx : focusedIdx;
         // Renders the tooltip at the active index, if there is one
         if (activeIdx != -1) {
             BaseConfigEntry<?> entry = this.visibleEntries.get(activeIdx);
@@ -321,6 +330,11 @@ public class PaCoConfigScreen extends Screen {
         if (this.currentNode != this.rootNode && this.currentNode.getParent() != null) {
             Minecraft.getInstance().setScreen(new PaCoConfigScreen(this.manager, this.currentNode.getParent(), this.titleScreen, this.previousScreen));
         } else { // If the current node is the root, we return to the actual previous screen
+
+            // TODO remove this line after testing
+            // TODO move this code into a dedicated save button
+            this.getManager().savePendingChanges();
+
             // If there was a title screen we make the elements visible
             if (this.titleScreen != null)
                 ((IPaCoModifyTitleScreen) this.titleScreen).pandoraCore$hideElements(false);
@@ -422,22 +436,26 @@ public class PaCoConfigScreen extends Screen {
         boolean isVisibleEntry = node == this.currentNode;
         for (ConfigTreeNode child : node.getChildren()) {
             ConfigDataHolder<?> holder = child.getDataHolder();
-            BaseConfigEntry<?> entry = holder.getConfigEntryFactory().create(this, child, currentY, ctx.entryHeight(), ctx.hasEntryScrollbar());
-            // If the entry is visible (in the currently viewed panel) we add it to the visible entries list
-            if (isVisibleEntry) {
-                entry.setVisible(true);
-                this.visibleEntries.add(entry);
-                currentY += ctx.entryHeight() + ctx.spacing();
-            }
-            // If the config tree node doesn't have a value it's a category
-            if (!child.isValue()) {
-                // Since nav button height doesn't change, we can use the list size to determine the current height
-                int navCurrentY = this.navMenuEntriesStart + ConfigEntryNavigationButton.BUTTON_PADDING + (this.navButtons.size() * (ConfigEntryNavigationButton.BUTTON_HEIGHT + ConfigEntryNavigationButton.BUTTON_PADDING));
-                // Technically this isn't needed, but in case there is ever an entry that isn't a value and also not a category I will keep this check here
-                if (entry instanceof CategoryEntry categoryEntry) {
-                    ConfigEntryNavigationButton button = new ConfigEntryNavigationButton(this, categoryEntry, navCurrentY, depth);
-                    entry.setNavButton(button);
-                    this.navButtons.add(button);
+            boolean isCategory = !child.isValue();
+            // We only really need to create a config entry instance if its visible or if it's a category (so it can be passed to the nav button) // TODO maybe make it so nav buttons don't use the entries
+            if (isVisibleEntry || isCategory) {
+                BaseConfigEntry<?> entry = holder.getConfigEntryFactory().create(this, child, currentY, ctx.entryHeight(), ctx.hasEntryScrollbar());
+                // If the entry is visible (in the currently viewed panel) we add it to the visible entries list
+                if (isVisibleEntry) {
+                    entry.setVisible(true);
+                    this.visibleEntries.add(entry);
+                    currentY += ctx.entryHeight() + ctx.spacing();
+                }
+                // If the config tree node doesn't have a value it's a category, so we create a navigation button and attach the entry // TODO maybe make it so nav buttons don't use the entries
+                if (isCategory) {
+                    // Since nav button height doesn't change, we can use the list size to determine the current height
+                    int navCurrentY = this.navMenuEntriesStart + ConfigEntryNavigationButton.BUTTON_PADDING + (this.navButtons.size() * (ConfigEntryNavigationButton.BUTTON_HEIGHT + ConfigEntryNavigationButton.BUTTON_PADDING));
+                    // Technically this check shouldn't be needed, but in case there is ever an entry that isn't a value and also not a category I will keep this check here
+                    if (entry instanceof CategoryEntry categoryEntry) {
+                        ConfigEntryNavigationButton button = new ConfigEntryNavigationButton(this, categoryEntry, navCurrentY, depth);
+                        entry.setNavButton(button);
+                        this.navButtons.add(button);
+                    }
                 }
             }
             // Recursively checks the remaining tree branches

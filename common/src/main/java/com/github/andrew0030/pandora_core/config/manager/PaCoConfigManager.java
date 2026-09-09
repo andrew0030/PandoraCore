@@ -17,7 +17,6 @@ import net.minecraft.util.StringUtil;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +25,7 @@ import java.util.*;
 public class PaCoConfigManager implements IConfigManager {
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "PaCoConfigManager");
     // Config Managing
+    private final Map<ConfigDataHolder<?>, Object> pendingChanges = new HashMap<>();
     private final Class<?> configClass;                // The config class with the annotated fields
     private final AnnotationHandler annotationHandler; // Helper class that deals with annotations
     private final CommentedFileConfig config;          // The config file
@@ -61,6 +61,50 @@ public class PaCoConfigManager implements IConfigManager {
     @Override
     public void close() {
         this.config.close();
+    }
+
+    @Override
+    public <T> void addPendingChange(ConfigDataHolder<T> holder, T pendingValue) {
+        if (!holder.hasValue()) return;
+        @SuppressWarnings("unchecked")
+        IConfigValueHolder<T> valueHolder = (IConfigValueHolder<T>) holder;
+        T currentValue = valueHolder.getValue();
+        if (Objects.equals(currentValue, pendingValue)) {
+            this.pendingChanges.remove(holder);
+        } else {
+            this.pendingChanges.put(holder, pendingValue);
+        }
+    }
+
+    @Override
+    public Map<ConfigDataHolder<?>, Object> getPendingChanges() {
+        return this.pendingChanges;
+    }
+
+    @Override
+    public boolean hasPendingChanges() {
+        return !this.pendingChanges.isEmpty();
+    }
+
+    @Override
+    public void clearPendingChanges() {
+        this.pendingChanges.clear();
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public void savePendingChanges() {
+        if (!this.hasPendingChanges()) return;
+        // Applies all pending changes to the in memory config
+        for (Map.Entry<ConfigDataHolder<?>, Object> pendingChange : this.getPendingChanges().entrySet()) {
+            ConfigDataHolder<?> holder = pendingChange.getKey();
+            if (!holder.hasValue()) continue;
+            Object pendingValue = pendingChange.getValue();
+            Object serializedValue = ((ConfigDataHolderEntry) holder).serialize(pendingValue);
+            this.config.set(holder.getPath(), serializedValue);
+        }
+        this.clearPendingChanges();
+        this.correctIfNeeded(true);
     }
 
     public static void register(Class<?> configClass) {
@@ -269,17 +313,16 @@ public class PaCoConfigManager implements IConfigManager {
     public void updateConfigFields() {
         for (ConfigDataHolder<?> holder : this.annotationHandler.getConfigDataHolders()) {
             // Skips over holders that don't have a field e.g. categories.
-            if (!holder.hasValue())
-                continue;
-            ConfigDataHolderEntry<?> holderEntry = (ConfigDataHolderEntry<?>) holder;
-            Field field = holderEntry.getField();
-            field.setAccessible(true);
-            try {
-                field.set(null, holderEntry.deserialize(this.getConfig().get(holderEntry.getPath())));
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Failed to set value for field: " + field.getName(), e);
-            }
+            if (!holder.hasValue()) continue;
+            Object configValue = this.getConfig().get(holder.getPath());
+            this.applyConfigValueToField((ConfigDataHolderEntry<?>) holder, configValue);
         }
+    }
+
+    /** Helper method to bypass "Object to T" generics friction. */
+    private <T> void applyConfigValueToField(ConfigDataHolderEntry<T> holder, Object configValue) {
+        T deserializedValue = holder.deserialize(configValue);
+        holder.setValue(deserializedValue);
     }
 
     /** Runnable that gets called when the config is automatically re-loaded. */

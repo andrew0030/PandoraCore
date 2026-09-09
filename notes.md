@@ -77,7 +77,7 @@ Systems TODO:
 - PaCo Config Screen
   - [x] Create config screen that can take any number of components and dynamically adjust to it
   - [x] Hook mod config system into it
-  - [ ] Add bulk saving
+  - [x] Add bulk saving
   - [ ] Maybe add server config editing?
 - Warning Factory
   - [x] Rewrite WarningFactory system. Instead of an interface, it will use a **specific** static method, which will be invoked with a method handle

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.Map;
 
+// TODO: all non-static handlers should be prefixed as: modid$getFieldOrMethodName
 @Mixin(MobSpawnSettings.class)
 public interface MobSpawnSettingsAccessor {
     @Invoker("<init>")

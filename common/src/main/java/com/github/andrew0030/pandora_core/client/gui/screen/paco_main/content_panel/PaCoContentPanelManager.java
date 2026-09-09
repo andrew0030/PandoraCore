@@ -83,8 +83,10 @@ public class PaCoContentPanelManager {
         }
         this.elements.add(new TitleContentElement(this, paddingX, -16, configScreen.isPresent() ? "   " + holder.getModName() : holder.getModName()));
         this.elements.add(new KeyTextContentElement(this, paddingX, paddingY, MOD_VERSION_KEY.getString(), holder.getModVersion()).setValueColor(PaCoColor.color(160, 160, 160)));
-        if (holder.hasModWarnings()) // We only add warnings if there are any
-            this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_WARNING_KEY.getString(), holder.getModWarnings().stream().map(Component::getString).toList(), "• ").setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR));
+        if (holder.hasModWarnings()) { // We only add warnings if there are any
+            // NOTE: The character bellow HAS TO BE unicode, otherwise it doesn't properly display in-game!
+            this.elements.add(new KeyTextListContentElement(this, paddingX, paddingY, MOD_WARNING_KEY.getString(), holder.getModWarnings().stream().map(Component::getString).toList(), "\u2022 ").setValueColor(PaCoScreen.SOFT_RED_TEXT_COLOR));
+        }
         if (holder.isOutdated()) {
             UpdateInfo updateInfo = holder.getUpdateInfo().get();
             String type = updateInfo.getType() != null ? updateInfo.getType().getDisplayName().getString() : "";

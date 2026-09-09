@@ -62,3 +62,5 @@ accessible field net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo chu
 # Render Helpers
 #=================================================================================================================
 accessible field com/mojang/blaze3d/systems/RenderSystem shaderLightDirections [Lorg/joml/Vector3f;
+accessible field net/minecraft/client/renderer/LevelRenderer cullingFrustum Lnet/minecraft/client/renderer/culling/Frustum;
+accessible field net/minecraft/client/renderer/LevelRenderer capturedFrustum Lnet/minecraft/client/renderer/culling/Frustum;

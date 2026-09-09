@@ -110,30 +110,45 @@ public class ModButton extends AbstractButton {
 
             // Warning/Update Icons
             if (this.modDataHolder.hasModWarnings())
-                this.renderWarningIcon(graphics);
+                this.renderWarningIcon(graphics, partialTick);
             if (this.isOutdated)
-                this.renderUpdateIcon(graphics);
+                this.renderUpdateIcon(graphics, partialTick);
         }
     }
 
-    private void renderWarningIcon(GuiGraphics graphics) {
+    private void renderWarningIcon(GuiGraphics graphics, float partialTick) {
         RenderSystem.enableBlend();
         graphics.pose().pushPose();
         int idx = Math.max(this.screen.filteredMods.indexOf(this.getModDataHolder()), 0);
-        float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick() + idx * 2) * 0.16F));
-        graphics.pose().translate(0F, offset, 0F);
-        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getHeight() + 2, this.getY() + 2, 16, 170, 8, 10);
+        float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + partialTick + idx * 2) * 0.16F));
+        float x = this.getX() + this.getHeight() + 2;
+        float y = this.getY() + 2 + this.snapToScreenPixels(offset);
+        graphics.pose().translate(x, y, 0F);
+        graphics.blit(PaCoScreen.TEXTURE, 0, 0, 16, 170, 8, 10);
         graphics.pose().popPose();
     }
 
-    private void renderUpdateIcon(GuiGraphics graphics) {
+    private void renderUpdateIcon(GuiGraphics graphics, float partialTick) {
         RenderSystem.enableBlend();
         graphics.pose().pushPose();
         int idx = Math.max(this.screen.filteredMods.indexOf(this.getModDataHolder()), 0);
-        float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + PaCoClientTicker.getPartialTick() + idx * 2) * 0.16F));
-        graphics.pose().translate(0F, offset, 0F);
-        graphics.blit(PaCoScreen.TEXTURE, this.getX() + this.getHeight() + 2, this.getY() + 13, this.updateArrowU, 170, 8, 10);
+        float offset = -Mth.abs(Mth.sin((PaCoClientTicker.getGlobal() + partialTick + idx * 2) * 0.16F));
+        float x = this.getX() + this.getHeight() + 2;
+        float y = this.getY() + 13 + this.snapToScreenPixels(offset);
+        graphics.pose().translate(x, y, 0F);
+        graphics.blit(PaCoScreen.TEXTURE, 0, 0, this.updateArrowU, 170, 8, 10);
         graphics.pose().popPose();
+    }
+
+    /**
+     * Since we are moving the blit, sometimes due to non-perfect screen pixel offsets,
+     * the texture around the specified area bleeds into it, so this method ensures the
+     * given offset is rounded to the nearest screen pixels.
+     */
+    private float snapToScreenPixels(float value) {
+        double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
+        if (guiScale <= 0.0D) return value;
+        return (float) (Math.round(value * guiScale) / guiScale);
     }
 
     @Override

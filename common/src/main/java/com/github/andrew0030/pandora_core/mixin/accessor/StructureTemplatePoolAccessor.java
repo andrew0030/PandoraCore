@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.List;
 
+// TODO: all non-static handlers should be prefixed as: modid$getFieldOrMethodName
 @Mixin(StructureTemplatePool.class)
 public interface StructureTemplatePoolAccessor {
     @Accessor("rawTemplates")

@@ -21,7 +21,6 @@ public class ForgeConfigDataHolderEntry<T> extends ConfigDataHolder<T> implement
 
     @Override
     public void setValue(T value) {
-        // TODO: Push this to a staging/pending changes map instead of applying immediately!
         this.value.set(value);
     }
 

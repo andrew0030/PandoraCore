@@ -29,8 +29,6 @@ import java.util.List;
 //TODO Some adjustments to config entries that might be needed/useful
 // - Make the rendering more strict
 // - Allow custom heights
-// - Abstract value retrieval to avoid direct interaction with the config instance
-// - Add bulk modification logic, rather than saving the config each time
 // - Maybe add option to choose if a tooltip should favor top/bottom displaying
 public abstract class BaseConfigEntry<T> implements Renderable {
     private static final int SLICE_SIZE = 3;
@@ -110,10 +108,7 @@ public abstract class BaseConfigEntry<T> implements Renderable {
         this.isHovered = (this.navButton != null && this.navButton.isHoveredOrFocused()) || (mouseInBounds && isHovered);
 
         // No rendering is needed when the entry is out of bounds
-        if (!this.isInBounds) {
-            this.hoverAnimationProgress = 0F;
-            return;
-        }
+        if (!this.isInBounds) return;
 
         // Animation Times
         long currentTime = Util.getMillis();
@@ -127,7 +122,7 @@ public abstract class BaseConfigEntry<T> implements Renderable {
             this.hoverAnimationProgress += deltaTime * (1F / TEXT_ANIMATION_SPEED_MS);
             if (this.hoverAnimationProgress > 1F) this.hoverAnimationProgress = 1F;
         } else {
-            if (this.hoverTime != 0) hoverTime = 0;
+            if (this.hoverTime != 0) this.hoverTime = 0;
             this.hoverAnimationProgress -= deltaTime * (1F / TEXT_ANIMATION_SPEED_MS);
             if (this.hoverAnimationProgress < 0F) this.hoverAnimationProgress = 0F;
         }
@@ -189,19 +184,21 @@ public abstract class BaseConfigEntry<T> implements Renderable {
 
     // TODO write javadocs for the methods bellow
 
-    /** @return The value of the {@code field} associated with this {@link BaseConfigEntry}, or {@code null} if none exists */
+    /** @return The value of the {@link IConfigValueHolder} associated with this {@link BaseConfigEntry}, or {@code null} if none exists */
     @SuppressWarnings("unchecked")
     public T getValue() {
         if (!this.holder.hasValue()) return null;
+        // If there is a pending value, we retrieve that value instead of the current value, to avoid replacing the pending changes
+        T pendingValue = (T) this.screen.getManager().getPendingChanges().get(this.holder);
+        if (pendingValue != null)
+            return pendingValue;
+        // If there is no pending value we return the current config value as is
         return ((IConfigValueHolder<T>) this.holder).getValue();
     }
 
-    //TODO write javadocs
-    // NOTE: Eventually this should only flag the value for change but NOT APPLY the change every click!
-    @SuppressWarnings("unchecked")
     public void setValue(T value) {
         if (!this.holder.hasValue()) return;
-        ((IConfigValueHolder<T>) this.holder).setValue(value);
+        this.screen.getManager().addPendingChange(this.holder, value);
     }
 
     public void tick() {}
@@ -343,5 +340,9 @@ public abstract class BaseConfigEntry<T> implements Renderable {
 
     public boolean isVisible() {
         return this.isVisible;
+    }
+
+    public void resetHoverTime() {
+        this.hoverTime = 0;
     }
 }

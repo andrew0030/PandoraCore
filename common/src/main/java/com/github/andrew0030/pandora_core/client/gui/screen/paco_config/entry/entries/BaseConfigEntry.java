@@ -1,6 +1,6 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries;
 
-import com.github.andrew0030.pandora_core.client.gui.buttons.ConfigEntryNavigationButton;
+import com.github.andrew0030.pandora_core.client.gui.buttons.config.ConfigEntryNavigationButton;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_main.PaCoScreen;
@@ -46,7 +46,7 @@ public abstract class BaseConfigEntry<T> implements Renderable {
     protected final List<Component> entryTooltip = new ArrayList<>();
     protected final int tooltipHeight;
     // Animation & Fade-in
-    private static final int TOOLTIP_DELAY_MS = 500;
+    private static final int TOOLTIP_DELAY_MS = 750;
     private static final int TEXT_ANIMATION_SPEED_MS = 300; // Note: above 0 to prevent divided by 0 exceptions
     private static final int TEXT_MOVEMENT_DISTANCE = 2;
     protected float hoverAnimationProgress = 0.0F;

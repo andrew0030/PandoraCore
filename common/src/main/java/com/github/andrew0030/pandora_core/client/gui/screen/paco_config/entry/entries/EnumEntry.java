@@ -13,13 +13,14 @@ import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class BooleanButtonEntry extends BaseConfigEntry<Boolean> {
+// TODO use the valid values list or some other thing to limit which enums are accepted to support forges "acceptedValues"
+public class EnumEntry extends BaseConfigEntry<Enum<?>> {
 
-    public BooleanButtonEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar) {
+    public EnumEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar) {
         super(screen, node, y, height, hasScrollbar);
         // Creates the interactable widget
         // TODO maybe improve what kind of data is passed to the widgets? Something to look into after more of the types are implemented!
-        Button widget = new Button(this, Component.literal("TODO")); //TODO fix narration
+        EnumEntry.Button widget = new EnumEntry.Button(this, Component.literal("TODO")); //TODO fix narration
         // Sets the value to the current value from the config
         widget.setValue(this.getValue());
         // Lastly we add the widget to the list
@@ -27,12 +28,13 @@ public class BooleanButtonEntry extends BaseConfigEntry<Boolean> {
     }
 
     private static class Button extends AbstractWidget {
-        private final BaseConfigEntry<Boolean> entry;
-        private boolean value;
+        private final BaseConfigEntry<Enum<?>> entry;
+        private Enum<?> value;
 
-        public Button(BaseConfigEntry<Boolean> entry, Component message) {
+        public Button(BaseConfigEntry<Enum<?>> entry, Component message) {
             super(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), message);
             this.entry = entry;
+            this.value = entry.getValue();
         }
 
         // NOTE: The code in this block should be implemented by all widgets used for config entries, the methods
@@ -65,7 +67,7 @@ public class BooleanButtonEntry extends BaseConfigEntry<Boolean> {
             graphics.blitNineSliced(WIDGETS_LOCATION, this.getX() + getWidth() - 80, this.getY(), 80, this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
             graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-            PaCoGuiUtils.drawCenteredString(graphics, minecraft.font, this.value ? "True" : "False", posX, posY, PaCoColor.WHITE, true);
+            PaCoGuiUtils.drawCenteredString(graphics, minecraft.font, this.value.name(), posX, posY, PaCoColor.WHITE, true);
         }
 
         @Override
@@ -89,12 +91,19 @@ public class BooleanButtonEntry extends BaseConfigEntry<Boolean> {
         }
 
         private void onPress() {
-            this.value = !this.value;        // Inverts the value on click
-            this.entry.setValue(this.value); // Lets the backend handle the config logic
+            Enum<?>[] values = this.value.getDeclaringClass().getEnumConstants();
+            boolean forward = true; // TODO maybe add backwards cycling through different buttons or right/shift click?
+            int step = forward ? 1 : -1;
+            int nextIndex = Math.floorMod(this.value.ordinal() + step, values.length);
+            Enum<?> nextValue = values[nextIndex];
+
+            this.setValue(nextValue);       // Cycles the enum and updates the button message
+            this.entry.setValue(nextValue); // Lets the backend handle the config logic
         }
 
-        private void setValue(boolean value) {
+        private void setValue(Enum<?> value) {
             this.value = value;
+            this.setMessage(Component.literal(value != null ? value.name() : "null"));
         }
 
         private int getTextureY() {

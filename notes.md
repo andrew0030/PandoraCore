@@ -50,6 +50,7 @@ Systems TODO:
   - [ ] Improve the way exp4j deals with degree based cos/sin (maybe functions can be overwritten like operators)
   - [ ] Maybe add Item animations
   - [ ] Maybe add Player animations
+  - [ ] In future add support for animating instanced entities
 - Click Location System (Abstract TTCs System)
   - Not sure yet how I want to make this...
 - PaCo Screen

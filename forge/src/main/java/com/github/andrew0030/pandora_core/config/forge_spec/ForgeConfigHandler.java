@@ -1,9 +1,6 @@
 package com.github.andrew0030.pandora_core.config.forge_spec;
 
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BooleanEntry;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.CategoryEntry;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.StringEntry;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.UnsupportedEntry;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.*;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolder;
 import com.github.andrew0030.pandora_core.config.manager.ConfigDataHolderCategory;
 import com.github.andrew0030.pandora_core.config.manager.ForgeConfigDataHolderEntry;
@@ -149,7 +146,7 @@ public class ForgeConfigHandler {
         @SuppressWarnings("unchecked")
         ForgeConfigDataHolderEntry<Integer> holder = (ForgeConfigDataHolderEntry<Integer>) this.dataHolders.getOrDefault(path, new ForgeConfigDataHolderEntry<>(value, spec));
         holder.setPath(path);
-        holder.setConfigEntryFactory(UnsupportedEntry::new); // TODO make this use the proper factory
+        holder.setConfigEntryFactory(IntegerEntry::new);
         this.extractMetadata(holder, spec);
         this.dataHolders.put(path, holder);
     }
@@ -158,7 +155,7 @@ public class ForgeConfigHandler {
         @SuppressWarnings("unchecked")
         ForgeConfigDataHolderEntry<Double> holder = (ForgeConfigDataHolderEntry<Double>) this.dataHolders.getOrDefault(path, new ForgeConfigDataHolderEntry<>(value, spec));
         holder.setPath(path);
-        holder.setConfigEntryFactory(UnsupportedEntry::new); // TODO make this use the proper factory
+        holder.setConfigEntryFactory(DoubleEntry::new);
         this.extractMetadata(holder, spec);
         this.dataHolders.put(path, holder);
     }
@@ -167,7 +164,7 @@ public class ForgeConfigHandler {
         @SuppressWarnings("unchecked")
         ForgeConfigDataHolderEntry<Long> holder = (ForgeConfigDataHolderEntry<Long>) this.dataHolders.getOrDefault(path, new ForgeConfigDataHolderEntry<>(value, spec));
         holder.setPath(path);
-        holder.setConfigEntryFactory(UnsupportedEntry::new); // TODO make this use the proper factory
+        holder.setConfigEntryFactory(LongEntry::new);
         this.extractMetadata(holder, spec);
         this.dataHolders.put(path, holder);
     }
@@ -194,7 +191,7 @@ public class ForgeConfigHandler {
         @SuppressWarnings("unchecked")
         ForgeConfigDataHolderEntry<Enum<?>> holder = (ForgeConfigDataHolderEntry<Enum<?>>) this.dataHolders.getOrDefault(path, new ForgeConfigDataHolderEntry<>(value, spec));
         holder.setPath(path);
-        holder.setConfigEntryFactory(UnsupportedEntry::new); // TODO make this use the proper factory
+        holder.setConfigEntryFactory(EnumEntry::new);
         this.extractMetadata(holder, spec);
 //        if (value.getDefault() instanceof Enum<?> enumVal) {
 //            Class<? extends Enum<?>> enumClass = enumVal.getDeclaringClass();
@@ -253,14 +250,14 @@ public class ForgeConfigHandler {
     }
 
     /** Extracts Min/Max values and applies them to the {@link ConfigDataHolder}. */
-    private void extractRange(ForgeConfigDataHolderEntry<?> holder, ForgeConfigSpec.Range<?> range) {
-        Object min = range.getMin();
-        Object max = range.getMax();
-        Number numMin = (min instanceof Number) ? (Number) min : null;
-        Number numMax = (max instanceof Number) ? (Number) max : null;
-        if (numMin != null || numMax != null) {
-            holder.setRange(numMin, numMax);
-            holder.setShowFullRange(true, numMin != null ? numMin : 0, numMax != null ? numMax : 0);
-        }
+    @SuppressWarnings("unchecked")
+    private <T extends Comparable<? super T>> void extractRange(ForgeConfigDataHolderEntry<?> holder, ForgeConfigSpec.Range<?> range) {
+        ForgeConfigDataHolderEntry<T> typedHolder = (ForgeConfigDataHolderEntry<T>) holder;
+        ForgeConfigSpec.Range<T> typedRange = (ForgeConfigSpec.Range<T>) range;
+        T min = typedRange.getMin();
+        T max = typedRange.getMax();
+        typedHolder.setRange(min, max);
+        if (min != null && max != null)
+            typedHolder.setShowFullRange(true, min, max);
     }
 }

@@ -9,6 +9,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.slf4j.Logger;
 
+import java.nio.file.Path;
 import java.util.*;
 
 public class ForgeConfigManager implements IConfigManager {
@@ -23,7 +24,7 @@ public class ForgeConfigManager implements IConfigManager {
     public ForgeConfigManager(ModConfig modConfig) {
         this.modConfig = modConfig;
         this.handler = new ForgeConfigHandler(modConfig);
-        String name = this.modConfig.getFileName().replace(this.getModId(), "").replace(".toml", "");
+        String name = Path.of(this.modConfig.getFileName()).getFileName().toString().replace(this.getModId(), "").replace(".toml", "");
         if (!name.toLowerCase(Locale.ROOT).contains("config"))
             name = name + " config";
         this.formatedName = PaCoGuiUtils.toTitleCaseFormat(name);

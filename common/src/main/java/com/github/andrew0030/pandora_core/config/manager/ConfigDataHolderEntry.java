@@ -12,8 +12,8 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> implements ICo
     private final Field field;
     private IPaCoConfigConverter<T, ?> converter;
     private List<String> validValues;
-    private Number minVal;
-    private Number maxVal;
+    private T minVal;
+    private T maxVal;
     private boolean showFullRange;
 
     public ConfigDataHolderEntry(Field field) {
@@ -95,6 +95,16 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> implements ICo
         }
     }
 
+    @Override
+    public T getMinVal() {
+        return this.minVal;
+    }
+
+    @Override
+    public T getMaxVal() {
+        return this.maxVal;
+    }
+
     public ConfigDataHolderEntry<T> setValidValues(List<String> validValues) {
         this.validValues = validValues;
         return this;
@@ -102,7 +112,7 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> implements ICo
 
     /** Used to cache the value range (if applicable), which is then used for internal logic */
     @ApiStatus.Internal
-    public ConfigDataHolderEntry<T> setRange(@Nullable Number minVal, @Nullable Number maxVal) {
+    public ConfigDataHolderEntry<T> setRange(@Nullable T minVal, @Nullable T maxVal) {
         // We check for null to make sure this won't override "showFullRange", this is technically a bit
         // overkill as both of these methods are flagged as internal, however I say "better safe than sorry!"
         if (this.minVal == null)
@@ -114,7 +124,7 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> implements ICo
 
     /** Used to toggle whether the range should be displayed, regardless of the value. (Useful for small values like byte) */
     @ApiStatus.Internal
-    public ConfigDataHolderEntry<T> setShowFullRange(boolean showFullRange, @NotNull Number minVal, @NotNull Number maxVal) {
+    public ConfigDataHolderEntry<T> setShowFullRange(boolean showFullRange, @NotNull T minVal, @NotNull T maxVal) {
         this.showFullRange = showFullRange;
         if (showFullRange) {
             this.minVal = minVal;

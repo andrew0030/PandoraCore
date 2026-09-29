@@ -4,10 +4,7 @@ import com.electronwill.nightconfig.core.ConfigSpec;
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.ConfigEntryFactory;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.PaCoConfigEntryManager;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BooleanEntry;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.CategoryEntry;
-import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.StringEntry;
+import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.*;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfig;
 import com.github.andrew0030.pandora_core.config.annotation.annotations.PaCoConfigValues;
 import com.github.andrew0030.pandora_core.config.annotation.converters.*;
@@ -235,7 +232,9 @@ public class AnnotationHandler {
             configSpec.defineInRange(key, defaultValue, minVal, maxVal);
             @SuppressWarnings("unchecked")
             ConfigDataHolderEntry<Integer> holder = (ConfigDataHolderEntry<Integer>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            ConfigEntryFactory factory = this.getConfigEntryFactory(field, IntegerEntry.class);
             holder.setPath(key);
+            holder.setConfigEntryFactory(factory);
             holder.setRange(minVal == Integer.MIN_VALUE ? null : minVal, maxVal == Integer.MAX_VALUE ? null : maxVal);
             holder.setShowFullRange(showFullRange, minVal, maxVal);
             this.dataHolders.put(key, holder);
@@ -275,7 +274,9 @@ public class AnnotationHandler {
             });
             @SuppressWarnings("unchecked")
             ConfigDataHolderEntry<Byte> holder = (ConfigDataHolderEntry<Byte>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            ConfigEntryFactory factory = this.getConfigEntryFactory(field, ByteEntry.class);
             holder.setPath(key);
+            holder.setConfigEntryFactory(factory);
             holder.setRange(minVal == Byte.MIN_VALUE ? null : minVal, maxVal == Byte.MAX_VALUE ? null : maxVal);
             holder.setShowFullRange(showFullRange, minVal, maxVal);
             holder.setConverter(converter);
@@ -316,7 +317,9 @@ public class AnnotationHandler {
             });
             @SuppressWarnings("unchecked")
             ConfigDataHolderEntry<Short> holder = (ConfigDataHolderEntry<Short>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            ConfigEntryFactory factory = this.getConfigEntryFactory(field, ShortEntry.class);
             holder.setPath(key);
+            holder.setConfigEntryFactory(factory);
             holder.setRange(minVal == Short.MIN_VALUE ? null : minVal, maxVal == Short.MAX_VALUE ? null : maxVal);
             holder.setShowFullRange(showFullRange, minVal, maxVal);
             holder.setConverter(converter);
@@ -353,8 +356,10 @@ public class AnnotationHandler {
             configSpec.defineInRange(key, defaultValue, minVal, maxVal);
             @SuppressWarnings("unchecked")
             ConfigDataHolderEntry<Double> holder = (ConfigDataHolderEntry<Double>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            ConfigEntryFactory factory = this.getConfigEntryFactory(field, DoubleEntry.class);
             holder.setPath(key);
-            holder.setRange(minVal == Double.MIN_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal);
+            holder.setConfigEntryFactory(factory);
+            holder.setRange(minVal == -Double.MAX_VALUE ? null : minVal, maxVal == Double.MAX_VALUE ? null : maxVal);
             holder.setShowFullRange(showFullRange, minVal, maxVal);
             this.dataHolders.put(key, holder);
         } catch (IllegalAccessException e) {
@@ -387,16 +392,16 @@ public class AnnotationHandler {
                 ));
             String key = category + field.getName();
             FloatConfigConverter converter = new FloatConfigConverter(minVal, maxVal);
-
-
-            // TODO test if using the converter here fixes the Forge IDE float bug
-            configSpec.defineInRange(key, defaultValue, minVal, maxVal);
-
-
+            configSpec.define(key, defaultValue, o -> {
+                if (!(o instanceof Number)) return false;
+                return converter.getSerializedPredicate().test((Number) o);
+            });
             @SuppressWarnings("unchecked")
             ConfigDataHolderEntry<Float> holder = (ConfigDataHolderEntry<Float>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            ConfigEntryFactory factory = this.getConfigEntryFactory(field, FloatEntry.class);
             holder.setPath(key);
-            holder.setRange(minVal == Float.MIN_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal);
+            holder.setConfigEntryFactory(factory);
+            holder.setRange(minVal == -Float.MAX_VALUE ? null : minVal, maxVal == Float.MAX_VALUE ? null : maxVal);
             holder.setShowFullRange(showFullRange, minVal, maxVal);
             holder.setConverter(converter);
             this.dataHolders.put(key, holder);
@@ -436,7 +441,9 @@ public class AnnotationHandler {
             });
             @SuppressWarnings("unchecked")
             ConfigDataHolderEntry<Long> holder = (ConfigDataHolderEntry<Long>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            ConfigEntryFactory factory = this.getConfigEntryFactory(field, LongEntry.class);
             holder.setPath(key);
+            holder.setConfigEntryFactory(factory);
             holder.setRange(minVal == Long.MIN_VALUE ? null : minVal, maxVal == Long.MAX_VALUE ? null : maxVal);
             holder.setShowFullRange(showFullRange, minVal, maxVal);
             holder.setConverter(converter);
@@ -503,7 +510,9 @@ public class AnnotationHandler {
                 return converter.getSerializedPredicate().test(o);
             });
             ConfigDataHolderEntry<Enum<?>> holder = (ConfigDataHolderEntry<Enum<?>>) this.dataHolders.getOrDefault(key, new ConfigDataHolderEntry<>(field));
+            ConfigEntryFactory factory = this.getConfigEntryFactory(field, EnumEntry.class);
             holder.setPath(key);
+            holder.setConfigEntryFactory(factory);
             holder.setValidValues(enumNames);
             holder.setConverter(converter);
             this.dataHolders.put(key, holder);

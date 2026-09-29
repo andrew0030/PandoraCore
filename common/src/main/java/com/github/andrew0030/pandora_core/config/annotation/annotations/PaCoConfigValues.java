@@ -42,7 +42,7 @@ public class PaCoConfigValues {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface DoubleValue {
-        double minValue() default Double.MIN_VALUE;
+        double minValue() default -Double.MAX_VALUE;
         double maxValue() default Double.MAX_VALUE;
         boolean showFullRange() default false;
     }
@@ -50,7 +50,7 @@ public class PaCoConfigValues {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface FloatValue {
-        float minValue() default Float.MIN_VALUE;
+        float minValue() default -Float.MAX_VALUE;
         float maxValue() default Float.MAX_VALUE;
         boolean showFullRange() default false;
     }

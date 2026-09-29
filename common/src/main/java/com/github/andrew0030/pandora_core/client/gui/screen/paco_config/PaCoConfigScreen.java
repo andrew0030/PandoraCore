@@ -1,7 +1,10 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_config;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.client.gui.buttons.ConfigEntryNavigationButton;
+import com.github.andrew0030.pandora_core.client.gui.buttons.config.ConfigBackButton;
+import com.github.andrew0030.pandora_core.client.gui.buttons.config.ConfigEntryNavigationButton;
+import com.github.andrew0030.pandora_core.client.gui.buttons.config.ConfigResetButton;
+import com.github.andrew0030.pandora_core.client.gui.buttons.config.ConfigSaveButton;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.CategoryEntry;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeBuilder;
@@ -96,7 +99,7 @@ public class PaCoConfigScreen extends Screen {
         this.navMenuHeightStop = this.navMenuHeightStart + this.navMenuHeight;
         this.navMenuWidth = 150;
         this.navMenuWidthStart = PaCoGuiUtils.PADDING_TWO;
-        this.navMenuEntriesHeight = this.navMenuHeight - 50; // TODO: 25 is a placeholder the the nav panel island that will be added later
+        this.navMenuEntriesHeight = this.navMenuHeight - 50; // TODO: 50 is a placeholder the the nav panel island that will be added later
         this.navMenuEntriesStart = this.navMenuHeightStart + 50;
 
         // Config Entries Panel
@@ -145,6 +148,13 @@ public class PaCoConfigScreen extends Screen {
         // Entry Widgets
         // TODO maybe move/change this so rendering and clicking are both handled by MC?
         this.visibleEntries.forEach(element -> element.getWidgets().forEach(this::addWidget));
+
+
+        // TODO add all actions
+        // Menu Action Buttons
+        this.addRenderableWidget(new ConfigBackButton(this));
+        this.addRenderableWidget(new ConfigResetButton(this));
+        this.addRenderableWidget(new ConfigSaveButton(this));
     }
 
     @Override
@@ -193,6 +203,8 @@ public class PaCoConfigScreen extends Screen {
         // Entries Panel
         this.renderEntriesPanel(graphics, mouseX, mouseY, partialTick);
 
+
+        super.render(graphics, mouseX, mouseY, partialTick);
         // Debug Outline
 //        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight, null, PaCoColor.color(255, 40, 40), 1);
     }
@@ -208,7 +220,7 @@ public class PaCoConfigScreen extends Screen {
         // TODO replace later with the navigation panel
         PaCoGuiUtils.renderBoxWithRim(graphics, this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, this.navMenuHeightStart, this.navMenuWidth - PaCoGuiUtils.PADDING_TWO * 2, this.navMenuEntriesStart - this.navMenuHeightStart, null, PaCoColor.color(255, 40, 40), 1);
         // TODO remove later when config entry buttons are added
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStop + 6, this.menuWidth - PaCoGuiUtils.PADDING_TWO * 2, 18, null, PaCoColor.color(255, 40, 40), 1);
+//        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStop + 6, this.menuWidth - PaCoGuiUtils.PADDING_TWO * 2, 18, null, PaCoColor.color(255, 40, 40), 1);
     }
 
     protected void renderEntriesPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
@@ -330,11 +342,6 @@ public class PaCoConfigScreen extends Screen {
         if (this.currentNode != this.rootNode && this.currentNode.getParent() != null) {
             Minecraft.getInstance().setScreen(new PaCoConfigScreen(this.manager, this.currentNode.getParent(), this.titleScreen, this.previousScreen));
         } else { // If the current node is the root, we return to the actual previous screen
-
-            // TODO remove this line after testing
-            // TODO move this code into a dedicated save button
-            this.getManager().savePendingChanges();
-
             // If there was a title screen we make the elements visible
             if (this.titleScreen != null)
                 ((IPaCoModifyTitleScreen) this.titleScreen).pandoraCore$hideElements(false);

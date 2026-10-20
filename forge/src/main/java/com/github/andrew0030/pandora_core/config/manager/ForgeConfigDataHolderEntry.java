@@ -5,11 +5,12 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class ForgeConfigDataHolderEntry<T> extends ConfigDataHolder<T> implements IConfigValueHolder<T> {
     private final ForgeConfigSpec.ConfigValue<T> value;
     private final ForgeConfigSpec.ValueSpec spec; // TODO remove this eventually as its no longer needed
-
+    private List<String> validValues;
     private T minVal;
     private T maxVal;
     private boolean showFullRange;
@@ -30,6 +31,11 @@ public class ForgeConfigDataHolderEntry<T> extends ConfigDataHolder<T> implement
     }
 
     @Override
+    public List<String> getValidValues() {
+        return this.validValues;
+    }
+
+    @Override
     public T getMinVal() {
         return this.minVal;
     }
@@ -37,6 +43,11 @@ public class ForgeConfigDataHolderEntry<T> extends ConfigDataHolder<T> implement
     @Override
     public T getMaxVal() {
         return this.maxVal;
+    }
+
+    public ForgeConfigDataHolderEntry<T> setValidValues(List<String> validValues) {
+        this.validValues = validValues;
+        return this;
     }
 
     /** Used to cache the value range (if applicable), which is then used for internal logic */

@@ -3,6 +3,7 @@ package com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.e
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.PaCoConfigScreen;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeNode;
 import com.github.andrew0030.pandora_core.client.utils.gui.PaCoGuiUtils;
+import com.github.andrew0030.pandora_core.config.manager.IConfigValueHolder;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -13,7 +14,9 @@ import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-// TODO use the valid values list or some other thing to limit which enums are accepted to support forges "acceptedValues"
+import java.util.Arrays;
+import java.util.List;
+
 public class EnumEntry extends BaseConfigEntry<Enum<?>> {
 
     public EnumEntry(PaCoConfigScreen screen, ConfigTreeNode node, int y, int height, boolean hasScrollbar) {
@@ -28,6 +31,7 @@ public class EnumEntry extends BaseConfigEntry<Enum<?>> {
     }
 
     private static class Button extends AbstractWidget {
+        private final List<Enum<?>> acceptedValues;
         private final BaseConfigEntry<Enum<?>> entry;
         private Enum<?> value;
 
@@ -35,6 +39,23 @@ public class EnumEntry extends BaseConfigEntry<Enum<?>> {
             super(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), message);
             this.entry = entry;
             this.value = entry.getValue();
+            // NOTE: needs to be called after the value field was initialized
+            this.acceptedValues = this.resolveAcceptedValues();
+        }
+
+        /**
+         * Resolves the accepted enum values.
+         * @return If the config restricts valid values, only those are returned. Otherwise, all enum constants are used.
+         */
+        @SuppressWarnings("unchecked")
+        private List<Enum<?>> resolveAcceptedValues() {
+            if (this.value == null || !this.entry.getDataHolder().hasValue()) return List.of();
+            Enum<?>[] enumConstants = this.value.getDeclaringClass().getEnumConstants();
+            List<String> validNames = ((IConfigValueHolder<Enum<?>>) this.entry.getDataHolder()).getValidValues();
+            // If no restrictions are defined all constants are returned
+            if (validNames == null || validNames.isEmpty()) return Arrays.asList(enumConstants);
+            // Filters to only return the restricted values
+            return Arrays.stream(enumConstants).filter(e -> validNames.contains(e.name())).toList();
         }
 
         // NOTE: The code in this block should be implemented by all widgets used for config entries, the methods
@@ -91,12 +112,12 @@ public class EnumEntry extends BaseConfigEntry<Enum<?>> {
         }
 
         private void onPress() {
-            Enum<?>[] values = this.value.getDeclaringClass().getEnumConstants();
+            if (this.acceptedValues.isEmpty()) return;
             boolean forward = true; // TODO maybe add backwards cycling through different buttons or right/shift click?
             int step = forward ? 1 : -1;
-            int nextIndex = Math.floorMod(this.value.ordinal() + step, values.length);
-            Enum<?> nextValue = values[nextIndex];
-
+            int currentIndex = this.acceptedValues.indexOf(this.value);
+            int nextIndex = Math.floorMod(currentIndex + step, this.acceptedValues.size());
+            Enum<?> nextValue = this.acceptedValues.get(nextIndex);
             this.setValue(nextValue);       // Cycles the enum and updates the button message
             this.entry.setValue(nextValue); // Lets the backend handle the config logic
         }

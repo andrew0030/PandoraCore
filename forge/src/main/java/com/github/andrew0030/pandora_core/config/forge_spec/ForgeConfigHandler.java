@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ForgeConfigHandler {
     private static final Map<Class<?>, TriConsumer<ForgeConfigSpec.ConfigValue<?>, ForgeConfigSpec.ValueSpec, String>> VALUE_HANDLERS = new HashMap<>();
@@ -193,11 +194,11 @@ public class ForgeConfigHandler {
         holder.setPath(path);
         holder.setConfigEntryFactory(EnumEntry::new);
         this.extractMetadata(holder, spec);
-//        if (value.getDefault() instanceof Enum<?> enumVal) {
-//            Class<? extends Enum<?>> enumClass = enumVal.getDeclaringClass();
-//            List<String> validValues = Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).toList();
-//            holder.setValidValues(validValues); // TODO maybe implement these for... GUI display reasons? TBD
-//        }
+        if (value.getDefault() instanceof Enum<?> enumVal) {
+            Class<? extends Enum<?>> enumClass = enumVal.getDeclaringClass();
+            List<String> validValues = Arrays.stream(enumClass.getEnumConstants()).filter(spec::test).map(Enum::name).toList();
+            holder.setValidValues(validValues);
+        }
         this.dataHolders.put(path, holder);
     }
 

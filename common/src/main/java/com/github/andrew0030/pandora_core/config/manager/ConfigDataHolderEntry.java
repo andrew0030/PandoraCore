@@ -96,6 +96,11 @@ public class ConfigDataHolderEntry<T> extends ConfigDataHolder<T> implements ICo
     }
 
     @Override
+    public List<String> getValidValues() {
+        return this.validValues;
+    }
+
+    @Override
     public T getMinVal() {
         return this.minVal;
     }

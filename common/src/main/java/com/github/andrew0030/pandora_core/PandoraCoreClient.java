@@ -5,8 +5,8 @@ import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
 import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
 import com.github.andrew0030.pandora_core.client.registry.PaCoModelLayers;
 import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
-import com.github.andrew0030.pandora_core.modules.instancer.registry.InstancedRendererRegistry;
 import com.github.andrew0030.pandora_core.client.shader.compute.ComputeLoader;
+import com.github.andrew0030.pandora_core.modules.instancer.registry.InstancedRendererRegistry;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
 import com.github.andrew0030.pandora_core.platform.Services;
 import com.github.andrew0030.pandora_core.registry.test.PaCoBlockEntities;
@@ -17,7 +17,6 @@ import com.github.andrew0030.pandora_core.test.block_entities.TestBEWLR;
 import com.github.andrew0030.pandora_core.test.entity.PaCoEntities;
 import com.github.andrew0030.pandora_core.test.particle.PaCoParticleProviders;
 import com.github.andrew0030.pandora_core.utils.LogicalSide;
-import net.minecraft.world.entity.EntityType;
 
 import java.util.List;
 import java.util.Set;
@@ -55,18 +54,17 @@ public class PandoraCoreClient {
 
         // TODO: remove this when done with testing
         PaCoClientManager.registerItemBEWLR(Set.of(PaCoBlocks.TEST.get(), PaCoItems.FUNK.get()), TestBEWLR::new);
+        // Instanced Renderers
+        InstancedRendererRegistry.register(PaCoBlockEntities.INSTANCING_TEST.get(), InstancingTestBlockEntityRenderer::new);
+        InstancedRendererRegistry.register(PaCoEntities.TEST_ENTITY.get(), InstancingTestEntityRenderer::new);
+        InstancedRendererRegistry.register(PaCoBlocks.INSTANCING_TEST.get().asItem(), InstancingTestItemRenderer::new);
     }
 
     /** Thread Safe Client Init */
     public static void initThreadSafe() {
-        // Immediate Rendering
+        // BlockEntity Renderers
         PaCoBlockEntities.registerBlockEntityRenderers();
-        // Instanced Rendering
-        InstancedRendererRegistry.register(PaCoBlockEntities.INSTANCING_TEST.get(), new InstancingTestBlockEntityRenderer());
-        InstancedRendererRegistry.register(PaCoEntities.TEST_ENTITY.get(), new InstancingTestEntityRenderer());
-        InstancedRendererRegistry.register(PaCoBlocks.INSTANCING_TEST.get().asItem(), new InstancingTestItemRenderer());
-		
-	    // Entities
+	    // Entity Renderers
         PaCoEntities.registerEntityRenderers();
     }
 }

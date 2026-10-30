@@ -17,6 +17,6 @@ public class ItemMixin implements ItemAttachments {
 
     @Override
     public InstancedItemRenderer pandoraCore$getInstancedRenderer() {
-        return pandoraCore$renderer;
+        return this.pandoraCore$renderer;
     }
 }

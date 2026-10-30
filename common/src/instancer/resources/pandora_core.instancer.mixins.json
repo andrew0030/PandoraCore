@@ -12,6 +12,7 @@
 	  "render.attach.BlockEntityTypeMixin",
 	  "render.attach.EntityTypeMixin",
 	  "render.attach.ItemMixin",
+	  "render.attach.GameRendererMixin",
 	  "render.item.ItemRendererMixin",
 	  "render.item.AbstractContainerScreenMixin",
 	  "render.item.GameRenderMixin",

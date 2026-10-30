@@ -17,6 +17,6 @@ public class BlockEntityTypeMixin implements BlockEntityTypeAttachments {
 
     @Override
     public InstancedBlockEntityRenderer<?> pandoraCore$getInstancedRenderer() {
-        return pandoraCore$renderer;
+        return this.pandoraCore$renderer;
     }
 }

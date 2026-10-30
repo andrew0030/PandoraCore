@@ -17,6 +17,6 @@ public class EntityTypeMixin implements EntityTypeAttachments {
 
     @Override
     public InstancedEntityRenderer<?> pandoraCore$getInstancedRenderer() {
-        return pandoraCore$renderer;
+        return this.pandoraCore$renderer;
     }
 }

@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+// TODO maybe rename this to something more BEWLR related
+// TODO maybe implement a registration process (back-end) akin to the one used by instanced renderers
 public class PaCoClientManager {
     /**
      * Registers a {@link BlockEntityWithoutLevelRenderer} (BEWLR) for the specified {@link ItemLike} object.

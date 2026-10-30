@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 //TODO Some adjustments to config entries that might be needed/useful
 // - Make the rendering more strict
@@ -41,6 +42,7 @@ public abstract class BaseConfigEntry<T> implements Renderable {
     protected boolean isFocused;
     protected boolean isInBounds;
     protected boolean isVisible;
+    protected final String searchIndex;
     // Components
     protected final Component entryKey;
     protected final List<Component> entryTooltip = new ArrayList<>();
@@ -96,6 +98,8 @@ public abstract class BaseConfigEntry<T> implements Renderable {
         
 
         this.tooltipHeight = PaCoGuiUtils.getTooltipHeight(Minecraft.getInstance().font, this.entryTooltip, this.getWidth(), SLICE_SIZE);
+
+        this.searchIndex = this.buildSearchIndex();
     }
 
     @Override
@@ -344,5 +348,37 @@ public abstract class BaseConfigEntry<T> implements Renderable {
 
     public void resetHoverTime() {
         this.hoverTime = 0;
+    }
+
+    public boolean isUnsupported() {
+        return false;
+    }
+
+    // TODO: maybe add a config category to finetune the search logic?
+    private String buildSearchIndex() {
+        StringBuilder builder = new StringBuilder();
+        // The component based name
+        builder.append(StringUtil.stripColor(this.entryKey.getString()).toLowerCase(Locale.ROOT));
+        // The raw path
+        builder.append(this.holder.getPath().toLowerCase(Locale.ROOT));
+        // Tooltip text
+        // NOTE: We don't include the last line, as the last line holds the path (which should be optional for the search index
+        // TODO keep this disabled by default and have a config option to enable it
+//        if (!this.entryTooltip.isEmpty()) {
+//            this.entryTooltip.subList(0, this.entryTooltip.size() - 1).forEach(line -> {
+//                builder.append(StringUtil.stripColor(line.getString()).toLowerCase(Locale.ROOT));
+//            });
+//        }
+        // Entry Values
+        // NOTE: Unsupported entries have their values excluded since it cant be modified in the UI
+        if (!this.isUnsupported() && this.holder.hasValue()) {
+            Object val = ((IConfigValueHolder<?>) this.holder).getValue();
+            builder.append(val.toString().toLowerCase(Locale.ROOT));
+        }
+        return builder.toString();
+    }
+
+    public boolean matchesSearch(String searchString) {
+        return this.searchIndex.contains(searchString.toLowerCase(Locale.ROOT));
     }
 }

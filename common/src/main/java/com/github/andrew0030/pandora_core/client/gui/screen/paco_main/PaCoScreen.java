@@ -273,7 +273,7 @@ public class PaCoScreen extends Screen implements IPaCoParentScreenGetter {
                 }
             }
             int yPadding = 4;
-            Pair<Integer, Integer> dimensions = PaCoGuiUtils.drawCenteredWordWrapWithDimensions(graphics, this.font, message, 5, this.modButtonsStart + yPadding, this.modButtonWidth, SOFT_RED_TEXT_COLOR, true);
+            Pair<Integer, Integer> dimensions = PaCoGuiUtils.drawCenteredWordWrapWithDimensions(graphics, this.font, message, 5 + (this.modButtonWidth / 4), this.modButtonsStart + yPadding, this.modButtonWidth / 2, SOFT_RED_TEXT_COLOR, true);
             RenderSystem.enableBlend();
             graphics.blitRepeating(TEXTURE, 5, this.modButtonsStart, this.modButtonWidth, dimensions.getSecond() + yPadding * 2, 25, 72, 25, 25);
         }

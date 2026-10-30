@@ -33,6 +33,9 @@
   "gui.pandora_core.paco.content.mod.issues.key": "Open Issue Tracker",
   "gui.pandora_core.paco.content.mod.sources.key": "Open Sources",
 
+  "gui.pandora_core.config.search": "Search Options",
+  "gui.pandora_core.config.no_matches": "No Matching Options...",
+
   "gui.pandora_core.narrate.slider.scroll_bar.mods_panel": "mods panel scrollbar",
   "gui.pandora_core.narrate.slider.scroll_bar.content_panel": "content panel scrollbar",
 

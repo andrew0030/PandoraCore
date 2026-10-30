@@ -18,6 +18,8 @@ Jank:
 - Isometric projection seems breaks the instancer (I Like Vanilla v1.0.6)
 - Resource reloading causes things to vanish instantly, because the shaders are dumped instantly
 - `miniature shader` causes shader templater to break
+- With `Complementary Reimagined 5.1.1`, when dropping an instanced chess piece (and waiting a moment before pickup) on pickup GL errors are thrown
+- Check if resize GL error is somehow caused by the render related source sets
 
 <hr/>
 

@@ -259,7 +259,7 @@ public class PaCoGuiUtils {
      * @param dropShadow Whether to apply a drop shadow to the text
      */
     public static void drawCenteredWordWrap(GuiGraphics graphics, Font font, FormattedText text, int x, int y, int lineWidth, int color, boolean dropShadow) {
-        for(FormattedCharSequence charSequence : font.split(text, lineWidth / 2)) {
+        for(FormattedCharSequence charSequence : font.split(text, lineWidth)) {
             PaCoGuiUtils.drawCenteredString(graphics, font, charSequence, x + lineWidth / 2, y, color, dropShadow);
             y += 9;
         }
@@ -284,7 +284,7 @@ public class PaCoGuiUtils {
     public static Pair<Integer, Integer> drawCenteredWordWrapWithDimensions(GuiGraphics graphics, Font font, FormattedText text, int x, int y, int lineWidth, int color, boolean dropShadow) {
         int startY = y;
         int biggestWidth = 0;
-        for(FormattedCharSequence charSequence : font.split(text, lineWidth / 2)) {
+        for(FormattedCharSequence charSequence : font.split(text, lineWidth)) {
             PaCoGuiUtils.drawCenteredString(graphics, font, charSequence, x + lineWidth / 2, y, color, dropShadow);
             biggestWidth = Math.max(font.width(charSequence), biggestWidth);
             y += 9;

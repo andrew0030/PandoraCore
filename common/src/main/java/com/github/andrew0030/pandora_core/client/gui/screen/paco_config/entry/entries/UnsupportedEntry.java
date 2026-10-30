@@ -22,4 +22,9 @@ public class UnsupportedEntry extends BaseConfigEntry<Void> {
         Font font = Minecraft.getInstance().font;
         graphics.drawString(Minecraft.getInstance().font, "Unsupported", this.getX() + this.getWidth() - font.width("Unsupported") - PaCoGuiUtils.PADDING_TWO, this.getY() + PaCoGuiUtils.PADDING_FOUR, PaCoColor.color(200, 80, 80), false);
     }
+
+    @Override
+    public boolean isUnsupported() {
+        return true;
+    }
 }

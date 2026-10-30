@@ -1,10 +1,8 @@
 package com.github.andrew0030.pandora_core.client.gui.screen.paco_config;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
-import com.github.andrew0030.pandora_core.client.gui.buttons.config.ConfigBackButton;
-import com.github.andrew0030.pandora_core.client.gui.buttons.config.ConfigEntryNavigationButton;
-import com.github.andrew0030.pandora_core.client.gui.buttons.config.ConfigResetButton;
-import com.github.andrew0030.pandora_core.client.gui.buttons.config.ConfigSaveButton;
+import com.github.andrew0030.pandora_core.client.gui.buttons.config.*;
+import com.github.andrew0030.pandora_core.client.gui.edit_boxes.ConfigSearchEditBox;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.BaseConfigEntry;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.entry.entries.CategoryEntry;
 import com.github.andrew0030.pandora_core.client.gui.screen.paco_config.tree.ConfigTreeBuilder;
@@ -19,6 +17,7 @@ import com.github.andrew0030.pandora_core.config.manager.IConfigManager;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoModifyTitleScreen;
 import com.github.andrew0030.pandora_core.utils.color.PaCoColor;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,8 +25,10 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,9 @@ public class PaCoConfigScreen extends Screen {
     // Some generic UI stuff
     public static final ResourceLocation TEXTURE = new ResourceLocation(PandoraCore.MOD_ID, "textures/gui/paco_screen.png");
     public static final int TOOLTIP_GRADIENT_SIZE = 10;
+    // Navigation Panel
+    public static final Component SEARCH = Component.translatable("gui.pandora_core.config.search");
+    public static final Component NO_MATCHES = Component.translatable("gui.pandora_core.config.no_matches");
     // Config management stuff
     private final List<ConfigEntryNavigationButton> navButtons = new ArrayList<>();
     private final List<BaseConfigEntry<?>> visibleEntries = new ArrayList<>();
@@ -46,8 +50,13 @@ public class PaCoConfigScreen extends Screen {
     public final TitleScreen titleScreen;
     public final Screen previousScreen; // TODO change accessibility by altering how the category entry accesses these
     // Widgets
+    public ConfigSearchEditBox searchBox;
     public PaCoSlider entriesScrollBar;
+    public ConfigActionButton backButton;
     // Misc
+    public static final int DARK_GRAY_TEXT_COLOR = PaCoColor.color(130, 130, 130);
+    public static final int SOFT_RED_TEXT_COLOR = PaCoColor.color(255, 90, 100);
+    public static final int DARK_RED_TEXT_COLOR = PaCoColor.color(235, 74, 74);
     public int navMenuHeight;
     public int navMenuHeightStart;
     public int navMenuHeightStop;
@@ -131,6 +140,17 @@ public class PaCoConfigScreen extends Screen {
         this.fieldInit();
 
         /* Adding Widgets */
+        // Search Edit Box
+        String activeSearchText = this.searchBox != null ? this.searchBox.getValue() : null; // If there is text we grab it before the EditBox is discarded.
+        this.searchBox = new ConfigSearchEditBox(this.font, this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, this.navMenuHeightStart, this.navMenuWidth - (PaCoGuiUtils.PADDING_TWO * 2), 14, Component.literal("TODO"), this); //TODO narration
+        this.searchBox.setMaxLength(50);
+        this.searchBox.setHint(SEARCH);
+        this.searchBox.setTextColor(DARK_GRAY_TEXT_COLOR);
+//        this.searchBox.setBackgroundHidden(true);
+//        this.searchBox.setRimHidden(true);
+        this.searchBox.setForceLineIndicator(true);
+        this.searchBox.setMidpointCharSelection(true);
+        this.addRenderableWidget(this.searchBox);
         // Navigation Widgets
         this.navButtons.forEach(this::addWidget);
         // Scroll Bar (Slider)
@@ -152,13 +172,18 @@ public class PaCoConfigScreen extends Screen {
 
         // TODO add all actions
         // Menu Action Buttons
-        this.addRenderableWidget(new ConfigBackButton(this));
+        this.addRenderableWidget(this.backButton = new ConfigBackButton(this));
         this.addRenderableWidget(new ConfigResetButton(this));
         this.addRenderableWidget(new ConfigSaveButton(this));
+
+        // On resize if there was text in the search bar we apply it to the new one, which will update everything
+        if (activeSearchText != null)
+            this.searchBox.setValue(activeSearchText);
     }
 
     @Override
     public void tick() {
+        this.searchBox.tick();
         this.visibleEntries.forEach(BaseConfigEntry::tick);
         // Technically this isn't needed when the title screen renders a panorama, however when it has
         // animated content, due to mods like "PackMenu" we need this to ensure the content stays animated
@@ -234,6 +259,15 @@ public class PaCoConfigScreen extends Screen {
         int posX = hasEntriesScrollBar ? this.menuWidthStart + 10 : this.menuWidthStart + PaCoGuiUtils.PADDING_TWO;
         int width = hasEntriesScrollBar ? this.menuWidth - 10 - PaCoGuiUtils.PADDING_TWO : this.menuWidth - (PaCoGuiUtils.PADDING_TWO * 2);
         graphics.blitRepeating(TEXTURE, posX, this.menuHeightStart, width, this.menuHeight, 0, 122, 48, 48);
+
+        // No Entries Message
+        if (this.searchBox.isHidingAllEntries()) {
+            int yPadding = 3;
+            Pair<Integer, Integer> dimensions = PaCoGuiUtils.drawCenteredWordWrapWithDimensions(graphics, this.font, NO_MATCHES, this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStart + PaCoGuiUtils.PADDING_THREE + yPadding, this.menuWidth - (PaCoGuiUtils.PADDING_TWO * 2), SOFT_RED_TEXT_COLOR, true);
+            RenderSystem.enableBlend();
+            graphics.blitRepeating(TEXTURE, this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStart + PaCoGuiUtils.PADDING_TWO, this.menuWidth - (PaCoGuiUtils.PADDING_TWO * 2), dimensions.getSecond() + yPadding * 2 + 1, 48, 122, 48, 48);
+        }
+
         // Renders the Mods Panel Scroll Bar
         if (this.entriesScrollBar != null) this.entriesScrollBar.render(graphics, mouseX, mouseY, partialTick);
         // Renders all the widgets attached to entries
@@ -334,6 +368,24 @@ public class PaCoConfigScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // TODO maybe the PaCo screen key should also close the config screen?
+//        if (PaCoKeyMappings.KEY_PACO.matches(keyCode, scanCode) && this.searchBox != null && !this.searchBox.isFocused()) {
+//            this.onClose();
+//            return true;
+//        }
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE && this.shouldCloseOnEsc()) {
+            // If there is an active search we clear the search instead of closing the menu
+            // TODO Probably fine tune this to exit fully if optional instant escape close is enabled!
+            if (!StringUtil.isNullOrEmpty(this.searchBox.getValue())) {
+                this.searchBox.setValue("");
+                return true;
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
@@ -439,21 +491,25 @@ public class PaCoConfigScreen extends Screen {
      * @return The {@code y} coordinate of the final {@link ConfigTreeNode}'s height
      */
     private int traverseTree(ConfigTreeNode node, int currentY, int depth, LayoutContext ctx) {
-        // Checks if the child is in the currently viewed panel
-        boolean isVisibleEntry = node == this.currentNode;
+        boolean isInViewedCategory = node == this.currentNode;
+        String searchText = this.searchBox == null ? "" : this.searchBox.getValue();
+        boolean isSearching = !searchText.isEmpty();
         for (ConfigTreeNode child : node.getChildren()) {
             ConfigDataHolder<?> holder = child.getDataHolder();
             boolean isCategory = !child.isValue();
-            // We only really need to create a config entry instance if its visible or if it's a category (so it can be passed to the nav button) // TODO maybe make it so nav buttons don't use the entries
-            if (isVisibleEntry || isCategory) {
+            boolean isValue = !isCategory;
+            // Categories always require instantiation to build the nav menu
+            // Values are only instantiated if they are in the viewed category, or while searching (we need the entries to compare them)
+            if (isInViewedCategory || isCategory || isSearching) {
                 BaseConfigEntry<?> entry = holder.getConfigEntryFactory().create(this, child, currentY, ctx.entryHeight(), ctx.hasEntryScrollbar());
-                // If the entry is visible (in the currently viewed panel) we add it to the visible entries list
-                if (isVisibleEntry) {
+                // If the entry is visible (in the currently viewed panel), and there is no active search, we add it to the visible entries list
+                // Otherwise if there is an active search and the entry is a value, we check if it matches the search
+                if ((isInViewedCategory && !isSearching) || (isSearching && isValue && entry.matchesSearch(searchText))) {
                     entry.setVisible(true);
                     this.visibleEntries.add(entry);
                     currentY += ctx.entryHeight() + ctx.spacing();
                 }
-                // If the config tree node doesn't have a value it's a category, so we create a navigation button and attach the entry // TODO maybe make it so nav buttons don't use the entries
+                // If the config tree node is a category, we create a navigation button and attach the entry // TODO maybe make it so nav buttons don't use the entries
                 if (isCategory) {
                     // Since nav button height doesn't change, we can use the list size to determine the current height
                     int navCurrentY = this.navMenuEntriesStart + ConfigEntryNavigationButton.BUTTON_PADDING + (this.navButtons.size() * (ConfigEntryNavigationButton.BUTTON_HEIGHT + ConfigEntryNavigationButton.BUTTON_PADDING));
@@ -469,6 +525,11 @@ public class PaCoConfigScreen extends Screen {
             currentY = this.traverseTree(child, currentY, depth + 1, ctx);
         }
         return currentY;
+    }
+
+    /** @return A {@link List} containing all {@link BaseConfigEntry} instances that are currently displayed. */
+    public List<BaseConfigEntry<?>> getVisibleEntries() {
+        return this.visibleEntries;
     }
 
     /** @return The {@link IConfigManager} instance associated to this {@link PaCoConfigScreen} */
@@ -489,6 +550,34 @@ public class PaCoConfigScreen extends Screen {
     /** @return Whether the mouse is within the entries panel */
     public boolean isMouseInEntriesBounds(double mouseX, double mouseY) {
         return PaCoGuiUtils.isMouseWithin(mouseX, mouseY, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight);
+    }
+
+    /** Called to update the navigation buttons list and visible entries list, as well as their corresponding UI elements. */
+    public void refresh() {
+        // Removes the previous widgets
+        this.navButtons.forEach(this::removeWidget);
+        this.visibleEntries.forEach(element -> element.getWidgets().forEach(this::removeWidget));
+        if (this.entriesScrollBar != null) {
+            this.removeWidget(this.entriesScrollBar);
+            this.entriesScrollBar = null;
+        }
+        // Since there is (probably) a new number of entries we need to refresh all the fields
+        // NOTE: This also clears and repopulates the lists used above to remove the old widgets
+        this.fieldInit();
+        // Adds new widgets based on the newly populated lists
+        this.navButtons.forEach(this::addWidget);
+        this.visibleEntries.forEach(element -> element.getWidgets().forEach(this::addWidget));
+        if (this.entriesHeight > this.menuHeight) { // We only add it if its needed
+            this.entriesScrollBar = new PaCoVerticalSlider(this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStart + PaCoGuiUtils.PADDING_TWO, 6, this.menuHeight - PaCoGuiUtils.PADDING_FOUR, 0, (this.entriesHeight - this.menuHeight), 0, 1)
+                .setSilent(true)
+                .setTextHidden(true)
+//                .setNarrationMessage(SCROLLBAR) //TODO add narration
+                .setHandleSize(8, this.entriesHandleHeight)
+                .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
+                .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
+            this.addWidget(this.entriesScrollBar);
+        }
     }
 
     /**

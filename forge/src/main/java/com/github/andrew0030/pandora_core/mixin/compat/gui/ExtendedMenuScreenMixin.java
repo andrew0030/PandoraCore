@@ -19,7 +19,7 @@ public class ExtendedMenuScreenMixin {
      * NOTE: Since ExtendedMenuScreen extends TitleScreen and overrides Screen#render(),
      * we actually don't need to (remap = false) since the method is a vanilla method.
      */
-    @Inject(method = "render", at = @At(value = "FIELD", target = "Ldev/shadowsoffire/packmenu/PackMenuClient;drawTitle:Z"), cancellable = true)
+    @Inject(method = "render", at = @At(value = "FIELD", target = "Ldev/shadowsoffire/packmenu/PackMenuClient;drawTitle:Z", remap = false), cancellable = true)
     public void injectAboveLogoRenderer(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (((IPaCoModifyTitleScreen) this).pandoraCore$areElementsHidden())
             ci.cancel();

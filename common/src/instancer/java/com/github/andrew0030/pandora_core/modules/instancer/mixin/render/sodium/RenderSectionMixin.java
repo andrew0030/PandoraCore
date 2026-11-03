@@ -21,28 +21,28 @@ public class RenderSectionMixin implements InstancingResults, RenderSectionAttac
     @Unique public List<BlockEntity> pandoraCore$instancableBlockEntities = new ArrayList<>();
 
     @Override
-    public void addInstancer(BlockEntity be) {
+    public void pandoraCore$addInstancer(BlockEntity be) {
         throw new RuntimeException("Unsupported");
     }
 
     @Override
-    public List<BlockEntity> getAll() {
+    public List<BlockEntity> pandoraCore$getAll() {
         return pandoraCore$instancableBlockEntities;
     }
 
     @Override
-    public void addAll(List<BlockEntity> all) {
+    public void pandoraCore$addAll(List<BlockEntity> all) {
         this.pandoraCore$instancableBlockEntities = all;
     }
 
     @Override
-    public boolean hasInstancedBlockEntities() {
+    public boolean pandoraCore$hasInstancedBlockEntities() {
         return !pandoraCore$instancableBlockEntities.isEmpty();
     }
 
     @Inject(at = @At("RETURN"), method = "setRenderState")
     public void postSetRenderState(BuiltSectionInfo info, CallbackInfo ci) {
-        pandoraCore$instancableBlockEntities = ((InstancingResults) info).getAll();
+        pandoraCore$instancableBlockEntities = ((InstancingResults) info).pandoraCore$getAll();
         if (!pandoraCore$instancableBlockEntities.isEmpty()) {
             flags |= -1;
         }

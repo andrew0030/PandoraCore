@@ -17,22 +17,22 @@ public class SectionBuilderMixin implements InstancingResults {
     @Unique List<BlockEntity> pandoraCore$instancableBEs = new ArrayList<>();
 
     @Override
-    public void addInstancer(BlockEntity be) {
+    public void pandoraCore$addInstancer(BlockEntity be) {
         pandoraCore$instancableBEs.add(be);
     }
 
     @Override
-    public List<BlockEntity> getAll() {
+    public List<BlockEntity> pandoraCore$getAll() {
         return pandoraCore$instancableBEs;
     }
 
     @Override
-    public void addAll(List<BlockEntity> all) {
+    public void pandoraCore$addAll(List<BlockEntity> all) {
         pandoraCore$instancableBEs.addAll(all);
     }
 
     @Inject(at = @At("RETURN"), method = "build")
     public void postBuild(CallbackInfoReturnable<BuiltSectionInfo> cir) {
-        ((InstancingResults) cir.getReturnValue()).addAll(pandoraCore$instancableBEs);
+        ((InstancingResults) cir.getReturnValue()).pandoraCore$addAll(pandoraCore$instancableBEs);
     }
 }

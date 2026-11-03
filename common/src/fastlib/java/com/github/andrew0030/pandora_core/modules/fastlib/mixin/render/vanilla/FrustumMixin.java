@@ -11,24 +11,14 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(Frustum.class)
 public abstract class FrustumMixin implements PaCoFrustum {
-	@Shadow
-	protected abstract boolean cubeInFrustum(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
-	
-	@Shadow
-	@Final
-	private FrustumIntersection intersection;
-	
-	@Shadow
-	private double camX;
-	
-	@Shadow
-	private double camY;
-	
-	@Shadow
-	private double camZ;
+	@Shadow protected abstract boolean cubeInFrustum(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
+	@Shadow @Final private FrustumIntersection intersection;
+	@Shadow private double camX;
+	@Shadow private double camY;
+	@Shadow private double camZ;
 	
 	@Override
-	public boolean isInFrustum(CullBox box) {
+	public boolean pandoraCore$isInFrustum(CullBox box) {
 		return cubeInFrustum(
 				box.minX, box.minY, box.minZ,
 				box.maxX, box.maxY, box.maxZ
@@ -36,7 +26,7 @@ public abstract class FrustumMixin implements PaCoFrustum {
 	}
 	
 	@Override
-	public boolean isInFrustum(CullSphere sphere) {
+	public boolean pandoraCore$isInFrustum(CullSphere sphere) {
 		FrustumIntersection intersection1 = intersection;
 		
 		float x = (float) (sphere.x - camX);
@@ -46,7 +36,7 @@ public abstract class FrustumMixin implements PaCoFrustum {
 	}
 	
 	@Override
-	public boolean isInFrustum(double x, double y, double z) {
+	public boolean pandoraCore$isInFrustum(double x, double y, double z) {
 		FrustumIntersection intersection1 = intersection;
 		
 		float ax = (float) (x - camX);
@@ -56,7 +46,7 @@ public abstract class FrustumMixin implements PaCoFrustum {
 	}
 	
 	@Override
-	public boolean containsAllCorners(CullBox box) {
+	public boolean pandoraCore$containsAllCorners(CullBox box) {
 		float f = (float)(box.minX - this.camX);
 		float f1 = (float)(box.minY - this.camY);
 		float f2 = (float)(box.minZ - this.camZ);

@@ -8,8 +8,6 @@ import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.In
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.ItemAttachments;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedItemRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
-import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
-import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;

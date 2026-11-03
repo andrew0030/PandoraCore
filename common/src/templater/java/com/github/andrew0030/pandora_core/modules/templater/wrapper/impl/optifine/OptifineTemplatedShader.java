@@ -17,13 +17,11 @@ import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.program
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineDereference;
 import com.mojang.blaze3d.shaders.AbstractUniform;
-import net.irisshaders.iris.uniforms.custom.cached.CachedUniform;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.Shaders;
 import net.optifine.shaders.uniform.CustomUniforms;
 import net.optifine.shaders.uniform.CustomUniform;
 import net.optifine.shaders.uniform.ShaderUniformBase;
-import net.optifine.shaders.uniform.ShaderUniforms;
 import net.optifine.shaders.uniform.ShaderUniforms;
 import org.lwjgl.opengl.GL20;
 
@@ -174,8 +172,8 @@ public class OptifineTemplatedShader extends TemplatedShader {
 				uniformIds.put(uniform, id);
 				
 				try {
-					parCache.put(uniform, uniform.getCachedValue());
-					uniform.setCachedValue(null);
+					parCache.put(uniform, uniform.pandoraCore$getCachedValue());
+					uniform.pandoraCore$setCachedValue(null);
 					((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
 				} catch (Throwable err) {
 					err.printStackTrace();
@@ -190,8 +188,8 @@ public class OptifineTemplatedShader extends TemplatedShader {
 				uniformIds.put(uniform, id);
 				
 				try {
-					parCache.put(uniform, uniform.getCachedValue());
-					uniform.setCachedValue(null);
+					parCache.put(uniform, uniform.pandoraCore$getCachedValue());
+					uniform.pandoraCore$setCachedValue(null);
 					((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
 				} catch (Throwable err) {
 					err.printStackTrace();
@@ -203,8 +201,8 @@ public class OptifineTemplatedShader extends TemplatedShader {
 				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
 				int id = uniformIds.get(uniform);
 
-				parCache.put(uniform, uniform.getCachedValue());
-				uniform.setCachedValue(selfCache.get(uniform));
+				parCache.put(uniform, uniform.pandoraCore$getCachedValue());
+				uniform.pandoraCore$setCachedValue(selfCache.get(uniform));
 				((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
 			}
 			for (CustomUniform uniformA : unis) {
@@ -214,8 +212,8 @@ public class OptifineTemplatedShader extends TemplatedShader {
 				IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
 				int id = uniformIds.get(uniform);
 				
-				parCache.put(uniform, uniform.getCachedValue());
-				uniform.setCachedValue(selfCache.get(uniform));
+				parCache.put(uniform, uniform.pandoraCore$getCachedValue());
+				uniform.pandoraCore$setCachedValue(selfCache.get(uniform));
 				((ILocationedObject) uniform).pandoraCore$virtualLocation(id);
 			}
 		}
@@ -239,9 +237,9 @@ public class OptifineTemplatedShader extends TemplatedShader {
 		
 		for (ShaderUniformBase uniformB : mtPU.pandoraCore$getUforms()) {
 			IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
-			selfCache.put(uniform, uniform.getCachedValue());
+			selfCache.put(uniform, uniform.pandoraCore$getCachedValue());
 			Object o = parCache.getOrDefault(uniform, null);
-			uniform.setCachedValue(o);
+			uniform.pandoraCore$setCachedValue(o);
 			((ILocationedObject) uniform).pandoraCore$virtualLocation(-1);
 		}
 		
@@ -252,9 +250,9 @@ public class OptifineTemplatedShader extends TemplatedShader {
 			ShaderUniformBase uniformB = uniformA.getShaderUniform();
 
 			IPaCoPainReducer uniform = (IPaCoPainReducer) uniformB;
-			selfCache.put(uniform, uniform.getCachedValue());
+			selfCache.put(uniform, uniform.pandoraCore$getCachedValue());
 			Object o = parCache.getOrDefault(uniform, null);
-			uniform.setCachedValue(o);
+			uniform.pandoraCore$setCachedValue(o);
 			((ILocationedObject) uniform).pandoraCore$virtualLocation(-1);
 		}
 	}

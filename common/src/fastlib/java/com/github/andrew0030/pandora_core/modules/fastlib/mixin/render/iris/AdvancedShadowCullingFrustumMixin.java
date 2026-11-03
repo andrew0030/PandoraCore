@@ -5,35 +5,22 @@ import com.github.andrew0030.pandora_core.modules.fastlib.render.CullSphere;
 import com.github.andrew0030.pandora_core.modules.fastlib.render.PaCoFrustum;
 import net.irisshaders.iris.shadows.frustum.advanced.AdvancedShadowCullingFrustum;
 import net.minecraft.world.phys.AABB;
-import org.joml.Vector3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(AdvancedShadowCullingFrustum.class)
+@Mixin(value = AdvancedShadowCullingFrustum.class, remap = false)
 public abstract class AdvancedShadowCullingFrustumMixin implements PaCoFrustum {
-	@Shadow
-	protected abstract int checkCornerVisibility(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
-	
-	@Shadow
-	public double z;
-	
-	@Shadow
-	public double y;
-	
-	@Shadow
-	public double x;
-	
-	@Shadow
-	public abstract boolean checkCornerVisibilityBool(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
-	
-	@Shadow
-	public abstract boolean isVisible(AABB aabb);
-	
-	@Shadow
-	protected abstract int isVisible(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
-	
+	@Shadow protected abstract int checkCornerVisibility(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
+	@Shadow public double z;
+	@Shadow public double y;
+	@Shadow public double x;
+	@Shadow public abstract boolean checkCornerVisibilityBool(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
+	@Shadow protected abstract int isVisible(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
+	// NOTE: The iris "AdvancedShadowCullingFrustum" extends minecraft's "Frustum", which is where this method originates from
+	@Shadow(remap = true) public abstract boolean isVisible(AABB aabb);
+
 	@Override
-	public boolean isInFrustum(CullBox box) {
+	public boolean pandoraCore$isInFrustum(CullBox box) {
 		return isVisible(
 				box.minX, box.minY, box.minZ,
 				box.maxX, box.maxY, box.maxZ
@@ -41,21 +28,23 @@ public abstract class AdvancedShadowCullingFrustumMixin implements PaCoFrustum {
 	}
 	
 	@Override
-	public boolean isInFrustum(CullSphere sphere) {
+	public boolean pandoraCore$isInFrustum(CullSphere sphere) {
 		// TODO: ideally this gets implemented
 		return true;
 	}
 	
 	@Override
-	public boolean isInFrustum(double x, double y, double z) {
+	public boolean pandoraCore$isInFrustum(double x, double y, double z) {
 		float f = (float) (x - this.x);
 		float g = (float) (y - this.y);
 		float h = (float) (z - this.z);
-		return isInFrustum(f, g, h);
+
+		// TODO: this shouldn't be a recursive death loop...
+		return pandoraCore$isInFrustum(f, g, h);
 	}
 	
 	@Override
-	public boolean containsAllCorners(CullBox box) {
+	public boolean pandoraCore$containsAllCorners(CullBox box) {
 		float f = (float) (box.minX - this.x);
 		float g = (float) (box.minY - this.y);
 		float h = (float) (box.minZ - this.z);

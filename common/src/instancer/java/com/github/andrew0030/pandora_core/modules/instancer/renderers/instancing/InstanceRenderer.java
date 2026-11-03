@@ -5,10 +5,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.collective.Collectiv
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.InstanceFormat;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.BatchData;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.InstancingEnvironment;
-import com.github.andrew0030.pandora_core.modules.instancer.instancing.engine.PacoInstancingLevel;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class InstanceRenderer<M extends InstancingEnvironment, T, Y> {
@@ -22,16 +19,16 @@ public abstract class InstanceRenderer<M extends InstancingEnvironment, T, Y> {
         return 64;
     }
 
-    public abstract boolean shouldRender(T object, Vec3 pCameraPos);
+    public abstract boolean shouldRender(T object, Vec3 cameraPos);
 
-    public void render(M environment, T object, Y pos, float pct, Vec3 cameraPos) {
-	    BatchData data = environment.getManager().getData(this);
+    public void render(M environment, T object, Y pos, float partialTick, Vec3 cameraPos) {
+	    BatchData data = environment.pandoraCore$getManager().getData(this);
 	    if (data == null) data = new BatchData(this::makeData);
-	    render(environment, object, pos, data, pct, cameraPos);
-	    environment.getManager().markForFrame(this, data);
+	    render(environment, object, pos, data, partialTick, cameraPos);
+	    environment.pandoraCore$getManager().markForFrame(this, data);
     }
 
-    public abstract void render(M level, T object, Y pos, BatchData data, float pct, Vec3 cameraPos);
+    public abstract void render(M level, T object, Y pos, BatchData data, float partialTick, Vec3 cameraPos);
 
     public abstract void flush(M level, BatchData data);
 

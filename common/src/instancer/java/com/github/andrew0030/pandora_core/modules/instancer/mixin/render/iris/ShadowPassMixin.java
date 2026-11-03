@@ -47,8 +47,8 @@ public abstract class ShadowPassMixin {
 	private static void preRenderBEs(ShadowRenderer shadowRenderer, MultiBufferSource.BufferSource bufferSource, PoseStack modelView, Camera camera, double cameraX, double cameraY, double cameraZ, float tickDelta, boolean hasEntityFrustum, boolean lightsOnly, CallbackInfoReturnable<Integer> cir) {
 	    PaCoRenderState.setupWorld();
 		
-        ClientLevel level = ((IPaCoShadowRendererAccessor) shadowRenderer).getActiveLevel();
-        LevelRendererAccessor levelRenderer = ((IPaCoShadowRendererAccessor) shadowRenderer).getRenderer();
+        ClientLevel level = ((IPaCoShadowRendererAccessor) shadowRenderer).pandoraCore$getActiveLevel();
+        LevelRendererAccessor levelRenderer = ((IPaCoShadowRendererAccessor) shadowRenderer).pandoraCore$getRenderer();
 		
 		SodiumWorldRenderer renderer = ((WorldRendererExtended) levelRenderer).sodium$getWorldRenderer();
 		
@@ -58,7 +58,7 @@ public abstract class ShadowPassMixin {
 		);
 		
 		PacoInstancingLevel instancingLevel = (PacoInstancingLevel) level;
-		InstanceManager manager = instancingLevel.getManager();
+		InstanceManager manager = instancingLevel.pandoraCore$getManager();
 		
 		RenderSystem.getModelViewStack().pushPose();
 		RenderSystem.getModelViewStack().last().pose().mul(modelView.last().pose());
@@ -71,19 +71,19 @@ public abstract class ShadowPassMixin {
 		SortedRenderLists renderLists = ((SodiumRendererAccessor) renderer).pandoraCore$sectionManager().getRenderLists();
 		Iterator<ChunkRenderList> renderListIterator = renderLists.iterator();
 		
-		Frustum frustum = ((IPaCoShadowRendererAccessor) shadowRenderer).getEntityFrustum();
+		Frustum frustum = ((IPaCoShadowRendererAccessor) shadowRenderer).pandoraCore$getEntityFrustum();
 		PacoInstancingLevel instLvl = (PacoInstancingLevel) level;
 		
 		if (!hasEntityFrustum || frustum == null) {
 			renderListIterator.forEachRemaining(renderList -> {
-				ByteIterator iterator = ((RenderListAttachments) renderList).sectionsWithInstancableBEsIterator(false);
+				ByteIterator iterator = ((RenderListAttachments) renderList).pandoraCore$sectionsWithInstancableBEsIterator(false);
 				if (iterator == null) return;
 				
 				while (iterator.hasNext()) {
 					int element = iterator.nextByteAsInt();
 					RenderSection section = renderList.getRegion().getSection(element);
 					
-					for (BlockEntity be : ((InstancingResults) section).getAll()) {
+					for (BlockEntity be : ((InstancingResults) section).pandoraCore$getAll()) {
 						InstancedBlockEntityRenderer beRenderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
 						if (beRenderer.shouldRender(
 								be, camera.getPosition()
@@ -107,16 +107,16 @@ public abstract class ShadowPassMixin {
 							frustum.getClass().equals(AdvancedShadowCullingFrustum.class)
 			) {
 				renderListIterator.forEachRemaining(renderList -> {
-					ByteIterator iterator = ((RenderListAttachments) renderList).sectionsWithInstancableBEsIterator(false);
+					ByteIterator iterator = ((RenderListAttachments) renderList).pandoraCore$sectionsWithInstancableBEsIterator(false);
 					if (iterator == null) return;
 					
 					while (iterator.hasNext()) {
 						int element = iterator.nextByteAsInt();
 						RenderSection section = renderList.getRegion().getSection(element);
 						
-						List<BlockEntity> bes = ((InstancingResults) section).getAll();
+						List<BlockEntity> bes = ((InstancingResults) section).pandoraCore$getAll();
 						
-						if (bes.size() < 4 || pcFrustum.containsAllCorners(box.set(
+						if (bes.size() < 4 || pcFrustum.pandoraCore$containsAllCorners(box.set(
 								section.getPosition().minBlockX() - camera.getPosition().x,
 								section.getPosition().minBlockY() - camera.getPosition().y,
 								section.getPosition().minBlockZ() - camera.getPosition().z,
@@ -143,7 +143,7 @@ public abstract class ShadowPassMixin {
 									beRenderer.getCullBox(box, instLvl, be, pos);
 									sphere.contain(box);
 									
-									if (pcFrustum.isInFrustum(sphere) && pcFrustum.isInFrustum(box)) {
+									if (pcFrustum.pandoraCore$isInFrustum(sphere) && pcFrustum.pandoraCore$isInFrustum(box)) {
 										beRenderer.render(instLvl, be, pos, tickDelta, camera.getPosition());
 									}
 								}
@@ -153,14 +153,14 @@ public abstract class ShadowPassMixin {
 				});
 			} else {
 				renderListIterator.forEachRemaining(renderList -> {
-					ByteIterator iterator = ((RenderListAttachments) renderList).sectionsWithInstancableBEsIterator(false);
+					ByteIterator iterator = ((RenderListAttachments) renderList).pandoraCore$sectionsWithInstancableBEsIterator(false);
 					if (iterator == null) return;
 					
 					while (iterator.hasNext()) {
 						int element = iterator.nextByteAsInt();
 						RenderSection section = renderList.getRegion().getSection(element);
 						
-						List<BlockEntity> bes = ((InstancingResults) section).getAll();
+						List<BlockEntity> bes = ((InstancingResults) section).pandoraCore$getAll();
 						
 						if (bes.size() < 4) {
 							for (BlockEntity be : bes) {
@@ -182,7 +182,7 @@ public abstract class ShadowPassMixin {
 									beRenderer.getCullBox(box, instLvl, be, pos);
 									sphere.contain(box);
 									
-									if (pcFrustum.isInFrustum(box)) {
+									if (pcFrustum.pandoraCore$isInFrustum(box)) {
 										beRenderer.render(instLvl, be, pos, tickDelta, camera.getPosition());
 									}
 								}

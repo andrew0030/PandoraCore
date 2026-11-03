@@ -16,8 +16,8 @@ public abstract class InstancedEntityRenderer<T extends Entity> extends Instance
     }
 
     @Override
-    public boolean shouldRender(T object, Vec3 pCameraPos) {
-	    return object.shouldRender(pCameraPos.x, pCameraPos.y, pCameraPos.z);
+    public boolean shouldRender(T object, Vec3 cameraPos) {
+	    return object.shouldRender(cameraPos.x, cameraPos.y, cameraPos.z);
     }
 	
 	@Override

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(ExtendedShader.class)
+@Mixin(value = ExtendedShader.class, remap = false)
 public class ExtendedProgramMixin implements IPacoAccessInitializables, IPacoCustomUniformAccessor {
     @Shadow @Final private ProgramSamplers samplers;
     @Shadow @Final private ProgramImages images;

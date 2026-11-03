@@ -6,17 +6,17 @@ import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(MatrixUniform.class)
+@Mixin(value = MatrixUniform.class, remap = false)
 public class MatrixUMixin implements IPaCoPainReducer {
 	@Shadow private Matrix4f cachedValue;
 	
 	@Override
-	public Object getCachedValue() {
+	public Object pandoraCore$getCachedValue() {
 		return cachedValue;
 	}
 	
 	@Override
-	public void setCachedValue(Object object) {
+	public void pandoraCore$setCachedValue(Object object) {
 		cachedValue = (Matrix4f) object;
 	}
 }

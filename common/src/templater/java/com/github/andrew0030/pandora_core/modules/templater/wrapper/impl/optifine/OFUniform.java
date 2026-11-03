@@ -2,7 +2,6 @@ package com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.optifi
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.iris.IPaCoPainReducer;
 import com.mojang.blaze3d.shaders.AbstractUniform;
-import com.mojang.blaze3d.shaders.Uniform;
 import net.optifine.shaders.uniform.ShaderUniformBase;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -20,22 +19,22 @@ public class OFUniform extends AbstractUniform {
 	
 	@Override
 	public void set(float x) {
-		pr.setCachedValue(x);
+		pr.pandoraCore$setCachedValue(x);
 	}
 	
 	@Override
 	public void set(float x, float y) {
-		pr.setCachedValue(new float[]{x, y});
+		pr.pandoraCore$setCachedValue(new float[]{x, y});
 	}
 	
 	@Override
 	public void set(float x, float y, float z) {
-		pr.setCachedValue(new float[]{x, y, z});
+		pr.pandoraCore$setCachedValue(new float[]{x, y, z});
 	}
 	
 	@Override
 	public void set(float x, float y, float z, float w) {
-		pr.setCachedValue(new float[]{x, y, z, w});
+		pr.pandoraCore$setCachedValue(new float[]{x, y, z, w});
 	}
 	
 	@Override
@@ -50,27 +49,27 @@ public class OFUniform extends AbstractUniform {
 	
 	@Override
 	public void set(int x) {
-		pr.setCachedValue(x);
+		pr.pandoraCore$setCachedValue(x);
 	}
 	
 	@Override
 	public void set(int x, int y) {
-		pr.setCachedValue(new int[]{x, y});
+		pr.pandoraCore$setCachedValue(new int[]{x, y});
 	}
 	
 	@Override
 	public void set(int x, int y, int z) {
-		pr.setCachedValue(new int[]{x, y, z});
+		pr.pandoraCore$setCachedValue(new int[]{x, y, z});
 	}
 	
 	@Override
 	public void set(int x, int y, int z, int w) {
-		pr.setCachedValue(new int[]{x, y, z, w});
+		pr.pandoraCore$setCachedValue(new int[]{x, y, z, w});
 	}
 	
 	@Override
 	public void set(float[] valueArray) {
-		pr.setCachedValue(valueArray);
+		pr.pandoraCore$setCachedValue(valueArray);
 	}
 	
 	@Override

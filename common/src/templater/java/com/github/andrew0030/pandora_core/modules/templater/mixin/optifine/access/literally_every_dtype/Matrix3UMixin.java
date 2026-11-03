@@ -7,17 +7,17 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.nio.FloatBuffer;
 
-@Mixin(ShaderUniformM3.class)
+@Mixin(value = ShaderUniformM3.class, remap = false)
 public class Matrix3UMixin implements IPaCoPainReducer {
 	@Shadow private FloatBuffer matrixBuffer;
 	
 	@Override
-	public Object getCachedValue() {
+	public Object pandoraCore$getCachedValue() {
 		return matrixBuffer;
 	}
 	
 	@Override
-	public void setCachedValue(Object object) {
+	public void pandoraCore$setCachedValue(Object object) {
 //		if (object == null) {
 //			matrixBuffer = MemoryUtil.memAllocFloat(9);
 //		} else {

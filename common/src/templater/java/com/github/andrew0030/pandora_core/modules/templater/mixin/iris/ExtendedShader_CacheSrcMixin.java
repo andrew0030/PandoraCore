@@ -10,28 +10,28 @@ import net.irisshaders.iris.pipeline.programs.ExtendedShader;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.io.InputStream;
 
-@Mixin(value = ExtendedShader.class)
+@Mixin(value = ExtendedShader.class, remap = false)
 public class ExtendedShader_CacheSrcMixin {
 	@WrapOperation(
 			at = @At(
 					value = "INVOKE",
-					target = "Lcom/mojang/blaze3d/shaders/Program;compileShader(Lcom/mojang/blaze3d/shaders/Program$Type;Ljava/lang/String;Ljava/io/InputStream;Ljava/lang/String;Lcom/mojang/blaze3d/preprocessor/GlslPreprocessor;)Lcom/mojang/blaze3d/shaders/Program;"
+					target = "Lcom/mojang/blaze3d/shaders/Program;compileShader(Lcom/mojang/blaze3d/shaders/Program$Type;Ljava/lang/String;Ljava/io/InputStream;Ljava/lang/String;Lcom/mojang/blaze3d/preprocessor/GlslPreprocessor;)Lcom/mojang/blaze3d/shaders/Program;",
+					remap = true // Program.compileShader(...) needs re-mapping
 			),
 			method = "lambda$iris$createExtraShaders$0"
 	)
-	protected Program wrapCreateShaderG(Program.Type pType, String pName, InputStream pShaderData, String pSourceName, GlslPreprocessor pPreprocessor, Operation<Program> original) {
+	protected Program wrapCreateShaderG(Program.Type type, String name, InputStream shaderData, String sourceName, GlslPreprocessor preprocessor, Operation<Program> original) {
 		try {
-			ResourceLocation loc = new ResourceLocation(pName);
+			ResourceLocation loc = new ResourceLocation(name);
 			IrisTemplateLoader.activeFile(loc.getNamespace(), loc.getPath() + ".gsh");
 			
 			return original.call(
-					pType, pName,
-					pShaderData, pSourceName,
-					pPreprocessor
+					type, name,
+					shaderData, sourceName,
+					preprocessor
 			);
 		} catch (Throwable err) {
 			Iris.logger.error("Failed to create shader program", err);

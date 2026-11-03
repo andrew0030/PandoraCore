@@ -23,9 +23,7 @@ public class ShadowMapMixin {
 			at = @At(value = "INVOKE", target = "Lnet/optifine/shaders/Shaders;setCameraShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V"),
 			remap = false
 	)
-	private static void matrix(
-			PoseStack matrixStack, Camera activeRenderInfo, float partialTicks, Operation<Void> original
-	) {
+	private static void matrix(PoseStack matrixStack, Camera activeRenderInfo, float partialTicks, Operation<Void> original) {
 		pandoraCore$stack = matrixStack;
 		pandoraCore$spct = partialTicks;
 		pandoraCore$camera = activeRenderInfo;
@@ -38,10 +36,7 @@ public class ShadowMapMixin {
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;getRenderInfosTileEntities()Ljava/util/List;"),
 			remap = false
 	)
-	private static List preRenderEnts(
-			LevelRenderer instance,
-			Operation<List> original
-	) {
+	private static List preRenderEnts(LevelRenderer instance, Operation<List> original) {
 //		PaCoRenderState.setupWorld();
 //
 //		Lighting.setupLevel(RenderSystem.getModelViewMatrix());

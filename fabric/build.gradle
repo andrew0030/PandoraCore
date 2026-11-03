@@ -91,6 +91,19 @@ loom {
 // Excludes the Forge specific AccessTransformer from Fabric resources
 processResources { exclude 'META-INF/accesstransformer.cfg' }
 
+// Used to set "remap = false" to "remap = true" for certain mixins (needed because on fabric they otherwise cause crashes)
+// NOTE: This only swaps the first "remap = false" that is found (should be the one in the class annotation)
+tasks.register('patchMixinSources') {
+    ext {
+        // Classes in which the first "remap = false" should be swapped to "true"
+        mixinTargetClasses = [
+            "com.github.andrew0030.pandora_core.modules.instancer.mixin.render.sodium.SodiumRendererMixin"
+        ]
+        // Packages in which all classes will get their first "remap = false" swapped to "true"
+        mixinTargetPackages = []
+    }
+}
+
 shadowJar {
     archiveClassifier.set('') // Output as the main jar (no classifier)
     configurations = [project.configurations.shade] // Limits shaded libs to what was specified by "shade"
@@ -108,7 +121,11 @@ shadowJar {
 }
 // Makes sure that the remapJar task depends on the shadowJar task.
 // This means that the shadow jar will be built before the remapJar task.
-remapJar.dependsOn shadowJar
+remapJar {
+    dependsOn shadowJar
+    // Explicitly tells the remapJar task to use the shadowed jar
+    inputFile.set(tasks.named('shadowJar', Jar).flatMap { it.archiveFile })
+}
 
 // Implement mcgradleconventions loader attribute (variant-aware resolution)
 // Tags configs with loader='fabric' to ensure fabric-specific dependency resolution
@@ -126,4 +143,63 @@ sourceSets.configureEach {
             }
         }
     }
+}
+
+// Takes the files from the common module and replaces the "remap = false" attribute of the specified classes
+// NOTE: This ONLY replaces the first found "remap = false" with "remap = true"
+patchMixinSources {
+    def commonSrcDirs = (project(':common').sourceSets.main.java.srcDirs as Set<File>).findAll { it.exists() }
+    def outputDir = layout.buildDirectory.dir('generated/mixin-patched')
+    // Specifies inputs and outputs for gradle's incremental build tracking (skips building if no changes occurred)
+    commonSrcDirs.each { inputs.dir(it) }
+    outputs.dir(outputDir)
+
+    doLast {
+        // Clears and recreates the output folder to ensure no stale files remain
+        project.delete(outputDir)
+        outputDir.get().asFile.mkdirs()
+        // Creates a list of normalized target paths
+        def targetPaths = ext.mixinTargetClasses.collect { it.replace('.', '/') + ".java" } + ext.mixinTargetPackages.collect { it.replace('.', '/') }
+
+        commonSrcDirs.each { srcDir ->
+            srcDir.eachFileRecurse { file ->
+                // Only java files can be mixins so anything else can be skipped
+                if (!file.name.endsWith('.java')) return
+                // Grabs the file's relative path to the current source folder
+                def relativePath = srcDir.toPath().relativize(file.toPath())
+                def relativePathStr = relativePath.toString().replace('\\', '/')
+                // Checks if the file matches any any of the targets
+                if (targetPaths.any { relativePathStr == it || relativePathStr.startsWith("${it}/") }) {
+                    // Finds the first "remap = false" in the file, patches it to "true", and writes the patched file to the output folder
+                    def content = file.text.replaceFirst(/remap\s*=\s*false/, 'remap = true')
+                    def outputFile = outputDir.get().asFile.toPath().resolve(relativePath).toFile()
+                    outputFile.parentFile.mkdirs()
+                    outputFile.text = content
+                    println "\u001B[32m[PaCo/SourcePatch]\u001B[0m Patched 'remap' attribute in: \u001B[36m${relativePathStr}\u001B[0m"
+                }
+            }
+        }
+    }
+}
+tasks.named('compileJava', JavaCompile) {
+    dependsOn patchMixinSources // Makes "compileJava" run after "patchMixinSources" so we can ensure all patches are done
+    def commonSrcDirs = (project(':common').sourceSets.main.java.srcDirs as Set<File>).findAll { it.exists() }
+    def patchTask = tasks.named('patchMixinSources').get()
+    def outputDir = patchTask.outputs.files.singleFile
+
+    // Creates a copy of the original sources, with all the patched files excluded
+    def filteredSource = source.filter { File file ->
+        // Early skip for all files that arent from any of the common source sets
+        if (!commonSrcDirs.any { file.toPath().startsWith(it.toPath()) }) return true
+        // If a patched version of the file exists in the output folder, the file is excluded from "filteredSource"
+        return !commonSrcDirs.any { srcDir ->
+            if (file.toPath().startsWith(srcDir.toPath())) {
+                def relPath = srcDir.toPath().relativize(file.toPath())
+                return new File(outputDir, relPath.toString()).exists()
+            }
+            return false
+        }
+    }
+    setSource(filteredSource)       // Replaces the original sources with the filtered ones
+    source(patchTask.outputs.files) // Adds the patched files as a source
 }

@@ -11,9 +11,7 @@ import java.util.List;
 @ApiStatus.Internal
 @Deprecated(forRemoval = false)
 public interface InstancingResults {
-    void addInstancer(BlockEntity be);
-
-    List<BlockEntity> getAll();
-
-    void addAll(List<BlockEntity> all);
+    void pandoraCore$addInstancer(BlockEntity be);
+    List<BlockEntity> pandoraCore$getAll();
+    void pandoraCore$addAll(List<BlockEntity> all);
 }

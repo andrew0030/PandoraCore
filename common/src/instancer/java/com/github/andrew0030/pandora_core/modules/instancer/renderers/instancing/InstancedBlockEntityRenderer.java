@@ -13,8 +13,8 @@ public abstract class InstancedBlockEntityRenderer<T extends BlockEntity> extend
     }
 
     @Override
-    public boolean shouldRender(T object, Vec3 pCameraPos) {
-        return Vec3.atCenterOf(object.getBlockPos()).closerThan(pCameraPos, this.getViewDistance());
+    public boolean shouldRender(T object, Vec3 cameraPos) {
+        return Vec3.atCenterOf(object.getBlockPos()).closerThan(cameraPos, this.getViewDistance());
     }
 	
 	@Override

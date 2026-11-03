@@ -4,9 +4,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public interface InstancingEnvironment {
-	InstanceManager getManager();
-	
-	boolean isLevel();
-	
-	@Nullable Level getLevel();
+	InstanceManager pandoraCore$getManager();
+	boolean pandoraCore$isLevel();
+	@Nullable Level pandoraCore$getLevel();
 }

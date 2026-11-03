@@ -19,7 +19,7 @@ public class AetherTitleScreenMixin {
      * NOTE: Since AetherTitleScreen extends TitleScreen and overrides Screen#render(),
      * we actually don't need to (remap = false) since the method is a vanilla method.
      */
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/aetherteam/aether/client/gui/screen/menu/AetherTitleScreen;setupLogo(Lnet/minecraft/client/gui/GuiGraphics;FF)V"), cancellable = true)
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/aetherteam/aether/client/gui/screen/menu/AetherTitleScreen;setupLogo(Lnet/minecraft/client/gui/GuiGraphics;FF)V", remap = false), cancellable = true)
     public void injectAboveLogoRenderer(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (((IPaCoModifyTitleScreen) this).pandoraCore$areElementsHidden())
             ci.cancel();

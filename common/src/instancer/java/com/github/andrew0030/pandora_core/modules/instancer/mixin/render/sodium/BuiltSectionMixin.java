@@ -15,17 +15,17 @@ public class BuiltSectionMixin implements InstancingResults {
     @Unique public List<BlockEntity> pandoraCore$instancableBlockEntities = new ArrayList<>();
 
     @Override
-    public void addInstancer(BlockEntity be) {
+    public void pandoraCore$addInstancer(BlockEntity be) {
         throw new RuntimeException("Unsupported");
     }
 
     @Override
-    public List<BlockEntity> getAll() {
+    public List<BlockEntity> pandoraCore$getAll() {
         return pandoraCore$instancableBlockEntities;
     }
 
     @Override
-    public void addAll(List<BlockEntity> all) {
+    public void pandoraCore$addAll(List<BlockEntity> all) {
         this.pandoraCore$instancableBlockEntities = all;
     }
 }

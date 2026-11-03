@@ -5,5 +5,5 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 @Deprecated
 public interface RenderSectionAttachments {
-    boolean hasInstancedBlockEntities();
+    boolean pandoraCore$hasInstancedBlockEntities();
 }

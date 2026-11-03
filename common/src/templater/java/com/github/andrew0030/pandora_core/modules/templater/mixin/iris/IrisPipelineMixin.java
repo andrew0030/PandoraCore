@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = IrisRenderingPipeline.class)
+@Mixin(value = IrisRenderingPipeline.class, remap = false)
 public class IrisPipelineMixin {
     @Inject(at = @At("TAIL"), method = "<init>")
     public void postInit(ProgramSet programSet, CallbackInfo ci) {

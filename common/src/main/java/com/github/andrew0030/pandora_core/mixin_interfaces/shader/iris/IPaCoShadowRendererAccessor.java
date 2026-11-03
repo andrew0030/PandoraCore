@@ -5,7 +5,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.culling.Frustum;
 
 public interface IPaCoShadowRendererAccessor {
-    ClientLevel getActiveLevel();
-    LevelRendererAccessor getRenderer();
-	Frustum getEntityFrustum();
+    ClientLevel pandoraCore$getActiveLevel();
+    LevelRendererAccessor pandoraCore$getRenderer();
+	Frustum pandoraCore$getEntityFrustum();
 }

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ProgramUniforms.class)
+@Mixin(value = ProgramUniforms.class, remap = false)
 public abstract class ProgramUniformsMixin implements IPacoInitCachable<ImmutableList<Uniform>>, IPaCoFrameTickAccessor {
     @Shadow private ImmutableList<Uniform> once;
 	@Shadow long lastTick;
@@ -47,42 +47,42 @@ public abstract class ProgramUniformsMixin implements IPacoInitCachable<Immutabl
     }
 	
 	@Override
-	public long getLastTick() {
+	public long pandoraCore$getLastTick() {
 		return lastTick;
 	}
 	
 	@Override
-	public int getLastFrame() {
+	public int pandoraCore$getLastFrame() {
 		return lastFrame;
 	}
 	
 	@Override
-	public void setLastTick(long tick) {
+	public void pandoraCore$setLastTick(long tick) {
 		lastTick = tick;
 	}
 	
 	@Override
-	public void setLastFrame(int frame) {
+	public void pandoraCore$setLastFrame(int frame) {
 		lastFrame = frame;
 	}
 	
 	@Override
-	public ImmutableList<Uniform> getPerFrame() {
+	public ImmutableList<Uniform> pandoraCore$getPerFrame() {
 		return perFrame;
 	}
 	
 	@Override
-	public ImmutableList<Uniform> getPerTick() {
+	public ImmutableList<Uniform> pandoraCore$getPerTick() {
 		return perTick;
 	}
 	
 	@Override
-	public ImmutableList<Uniform> getDynamic() {
+	public ImmutableList<Uniform> pandoraCore$getDynamic() {
 		return dynamic;
 	}
 	
 	@Override
-	public long accessGetCurrentTick() {
+	public long pandoraCore$accessGetCurrentTick() {
 		return getCurrentTick();
 	}
 }

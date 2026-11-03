@@ -5,6 +5,5 @@ import net.minecraft.world.item.ItemStack;
 
 public interface ItemRendererAccessor {
 	int pandoraCore$getRenderAmount(ItemStack stack);
-	
 	RandomSource pandoraCore$getRandom();
 }

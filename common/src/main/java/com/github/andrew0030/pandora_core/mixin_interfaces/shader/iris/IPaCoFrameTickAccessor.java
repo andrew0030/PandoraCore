@@ -4,14 +4,14 @@ import com.google.common.collect.ImmutableList;
 import net.irisshaders.iris.gl.uniform.Uniform;
 
 public interface IPaCoFrameTickAccessor {
-	long getLastTick();
-	int getLastFrame();
-	void setLastTick(long tick);
-	void setLastFrame(int frame);
+	long pandoraCore$getLastTick();
+	int pandoraCore$getLastFrame();
+	void pandoraCore$setLastTick(long tick);
+	void pandoraCore$setLastFrame(int frame);
 	
-	long accessGetCurrentTick();
+	long pandoraCore$accessGetCurrentTick();
 	
-	ImmutableList<Uniform> getPerFrame();
-	ImmutableList<Uniform> getPerTick();
-	ImmutableList<Uniform> getDynamic();
+	ImmutableList<Uniform> pandoraCore$getPerFrame();
+	ImmutableList<Uniform> pandoraCore$getPerTick();
+	ImmutableList<Uniform> pandoraCore$getDynamic();
 }

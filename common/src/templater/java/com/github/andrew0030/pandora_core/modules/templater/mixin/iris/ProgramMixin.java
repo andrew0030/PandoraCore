@@ -48,10 +48,9 @@ public abstract class ProgramMixin {
 		}
 	}
 	
-	@WrapOperation(method = "compileShaderInternal", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;glShaderSource(ILjava/util/List;)V"))
+	@WrapOperation(method = "compileShaderInternal", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;glShaderSource(ILjava/util/List;)V", remap = false))
 	private static void wrapCompilation(int i, List<String> list, Operation<Void> original) {
 		list = IrisTemplateLoader.shaderSource(list);
-		
 		original.call(i, list);
 	}
 }

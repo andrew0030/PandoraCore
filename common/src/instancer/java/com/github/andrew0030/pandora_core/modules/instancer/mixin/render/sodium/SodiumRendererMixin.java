@@ -27,13 +27,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -45,19 +43,20 @@ import java.util.SortedSet;
 @Mixin(value = SodiumWorldRenderer.class, remap = false)
 public class SodiumRendererMixin implements SodiumRendererAccessor {
     @Shadow private ClientLevel world;
-    @Shadow private RenderSectionManager renderSectionManager;
+    // NOTE: The "remap" attribute of the class gets set to true on fabric (build), but this field has to remain unmapped
+	@Shadow(remap = false) private RenderSectionManager renderSectionManager;
 
-	@Inject(at = @At("HEAD"), method = "drawChunkLayer", require = 0)
-	public void preDrawLayer(RenderType renderLayer, PoseStack matrixStack, double x, double y, double z, CallbackInfo ci) {
-	
-	}
+//	@Inject(at = @At("HEAD"), method = "drawChunkLayer", require = 0)
+//	public void preDrawLayer(RenderType renderLayer, PoseStack matrixStack, double x, double y, double z, CallbackInfo ci) {
+//
+//	}
 	
 	@Inject(at = @At("HEAD"), method = "renderBlockEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderBuffers;Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;Lnet/minecraft/client/Camera;F)V")
     public void preRenderBEs(PoseStack matrices, RenderBuffers bufferBuilders, Long2ObjectMap<SortedSet<BlockDestructionProgress>> blockBreakingProgressions, Camera camera, float tickDelta, CallbackInfo ci) {
 	    PaCoRenderState.setupWorld();
 		
         PacoInstancingLevel instancingLevel = (PacoInstancingLevel) world;
-        InstanceManager manager = instancingLevel.getManager();
+        InstanceManager manager = instancingLevel.pandoraCore$getManager();
 
         Lighting.setupLevel(RenderSystem.getModelViewMatrix());
         RenderSystem.setupShaderLights(
@@ -82,16 +81,16 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
 		CullSphere sphere = new CullSphere(0, 0, 0, 0);
 		
 		renderListIterator.forEachRemaining(renderList -> {
-			ByteIterator iterator = ((RenderListAttachments) renderList).sectionsWithInstancableBEsIterator(false);
+			ByteIterator iterator = ((RenderListAttachments) renderList).pandoraCore$sectionsWithInstancableBEsIterator(false);
 			if (iterator == null) return;
 			
 			while (iterator.hasNext()) {
 				int element = iterator.nextByteAsInt();
 				RenderSection section = renderList.getRegion().getSection(element);
 				
-				List<BlockEntity> bes = ((InstancingResults) section).getAll();
+				List<BlockEntity> bes = ((InstancingResults) section).pandoraCore$getAll();
 				
-				if (bes.size() < 4 || pcFrustum.containsAllCorners(box.set(
+				if (bes.size() < 4 || pcFrustum.pandoraCore$containsAllCorners(box.set(
 						section.getPosition().minBlockX() - camera.getPosition().x,
 						section.getPosition().minBlockY() - camera.getPosition().y,
 						section.getPosition().minBlockZ() - camera.getPosition().z,
@@ -118,7 +117,7 @@ public class SodiumRendererMixin implements SodiumRendererAccessor {
 							renderer.getCullBox(box, instLvl, be, pos);
 							sphere.contain(box);
 							
-							if (pcFrustum.isInFrustum(sphere) && pcFrustum.isInFrustum(box)) {
+							if (pcFrustum.pandoraCore$isInFrustum(sphere) && pcFrustum.pandoraCore$isInFrustum(box)) {
 								renderer.render(instLvl, be, pos, tickDelta, camera.getPosition());
 							}
 						}

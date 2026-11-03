@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.List;
 
-@Mixin(ShaderUniforms.class)
+@Mixin(value = ShaderUniforms.class, remap = false)
 public class ShaderUniformsMixin implements PaCoOFUniformListable {
 	@Shadow @Final private List<ShaderUniformBase> listUniforms;
 	

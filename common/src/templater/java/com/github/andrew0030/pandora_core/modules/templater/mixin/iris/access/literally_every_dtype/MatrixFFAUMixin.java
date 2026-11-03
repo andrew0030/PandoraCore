@@ -5,17 +5,17 @@ import net.irisshaders.iris.gl.uniform.MatrixFromFloatArrayUniform;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(MatrixFromFloatArrayUniform.class)
+@Mixin(value = MatrixFromFloatArrayUniform.class, remap = false)
 public class MatrixFFAUMixin implements IPaCoPainReducer {
 	@Shadow private float[] cachedValue;
 	
 	@Override
-	public Object getCachedValue() {
+	public Object pandoraCore$getCachedValue() {
 		return cachedValue;
 	}
 	
 	@Override
-	public void setCachedValue(Object object) {
+	public void pandoraCore$setCachedValue(Object object) {
 		cachedValue = (float[]) object;
 	}
 }

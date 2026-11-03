@@ -7,5 +7,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(RenderStateShard.class)
 public interface RenderTypeAccessor {
 	@Accessor("setupState")
-	void setSetupState(Runnable r);
+	void pandoraCore$setSetupState(Runnable r);
 }

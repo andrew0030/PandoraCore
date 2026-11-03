@@ -13,7 +13,6 @@ import com.github.andrew0030.pandora_core.modules.instancer.renderers.backend.In
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedBlockEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing.InstancedEntityRenderer;
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoRenderState;
-import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.Lighting;
@@ -32,13 +31,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
@@ -47,19 +45,12 @@ import java.util.List;
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin implements OptifineInstanceListAccessor {
 	@Shadow @Nullable private ClientLevel level;
-	
-	@Shadow
-	@Final
-	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
-	
-	@Shadow
-	private @org.jetbrains.annotations.Nullable Frustum capturedFrustum;
-	
-	@Shadow
-	private Frustum cullingFrustum;
-	
+	@Shadow @Final private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
+	@Shadow public Frustum cullingFrustum;
+	@Shadow @Nullable public Frustum capturedFrustum;
+
 	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
-	public void preRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
+	public void preRenderEnts(PoseStack stack, float partialTick, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
 //		if (ShaderChecker.isShaderActive()) return;
 
 		PaCoRenderState.setupWorld();
@@ -76,7 +67,7 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 
 		InstancerHooks.preStartInstancing();
 
-		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+		InstanceManager manager = ((PacoInstancingLevel) level).pandoraCore$getManager();
 		manager.markFrame();
 //		// TODO: optimize this loop
 		for(Entity entity : this.level.entitiesForRendering()) {
@@ -84,9 +75,9 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 			InstancedEntityRenderer renderer = attachments.pandoraCore$getInstancedRenderer();
 			if (renderer != null) {
 				if (renderer.shouldRender(
-						entity, $$4.getPosition()
+						entity, camera.getPosition()
 				)) {
-					renderer.render((PacoInstancingLevel) level, entity, entity.getPosition($$1), $$1, $$4.getPosition());
+					renderer.render((PacoInstancingLevel) level, entity, entity.getPosition(partialTick), partialTick, camera.getPosition());
 				}
 			}
 		}
@@ -104,10 +95,10 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch(Lnet/minecraft/client/renderer/RenderType;)V", ordinal = 3, shift = At.Shift.AFTER), method = "renderLevel")
-	public void postRenderEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
+	public void postRenderEnts(PoseStack stack, float partialTick, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
 //		if (ShaderChecker.isShaderActive()) return;
 
-		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+		InstanceManager manager = ((PacoInstancingLevel) level).pandoraCore$getManager();
 		manager.drawFrame((PacoInstancingLevel) level);
 		PaCoRenderState.resetInstancerState();
 
@@ -115,8 +106,8 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 	}
 
 //	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderInfosTileEntities:Ljava/util/List;", ordinal = 0), method = "renderLevel")
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/blockentity/SignRenderer;updateTextRenderDistance()V", ordinal = 0, shift = At.Shift.AFTER), method = "renderLevel")
-	public void preRenderBlockEnts(PoseStack stack, float $$1, long $$2, boolean $$3, Camera $$4, GameRenderer $$5, LightTexture $$6, Matrix4f $$7, CallbackInfo ci) {
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/blockentity/SignRenderer;updateTextRenderDistance()V", ordinal = 0, shift = At.Shift.AFTER, remap = false), method = "renderLevel")
+	public void preRenderBlockEnts(PoseStack stack, float partialTick, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
 //		if (ShaderChecker.isShaderActive()) return;
 
 		PaCoRenderState.setupWorld();
@@ -133,9 +124,9 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 
 		InstancerHooks.preStartInstancing();
 
-		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+		InstanceManager manager = ((PacoInstancingLevel) level).pandoraCore$getManager();
 		manager.markFrame();
-		List<LevelRenderer.RenderChunkInfo> infs = this.renderInfosInstancer;
+		List<LevelRenderer.RenderChunkInfo> infs = this.pandoraCore$renderInfosInstancer;
 		PacoInstancingLevel instLvl = (PacoInstancingLevel) level;
 		Frustum frustum = capturedFrustum == null ? cullingFrustum : capturedFrustum;
 		PaCoFrustum pcFrustum = (PaCoFrustum) frustum;
@@ -145,20 +136,20 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		
 		for (LevelRenderer.RenderChunkInfo info : infs) {
 			ChunkRenderDispatcher.CompiledChunk chnk = info.chunk.getCompiledChunk();
-			List<BlockEntity> bes = ((InstancingResults) chnk).getAll();
+			List<BlockEntity> bes = ((InstancingResults) chnk).pandoraCore$getAll();
 			if (bes.isEmpty()) continue; // no work to do
 			
 			AABB aabb = info.chunk.getBoundingBox();
 			
-			if (bes.size() < 4 || pcFrustum.containsAllCorners(box.set(aabb))) {
+			if (bes.size() < 4 || pcFrustum.pandoraCore$containsAllCorners(box.set(aabb))) {
 				for (BlockEntity be : bes) {
 					InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
 					
 					if (renderer.shouldRender(
-							be, $$4.getPosition()
+							be, camera.getPosition()
 					)) {
 						BlockPos pos = be.getBlockPos();
-						renderer.render(instLvl, be, pos, $$1, $$4.getPosition());
+						renderer.render(instLvl, be, pos, partialTick, camera.getPosition());
 					}
 				}
 			} else {
@@ -166,14 +157,14 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 					InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
 					
 					if (renderer.shouldRender(
-							be, $$4.getPosition()
+							be, camera.getPosition()
 					)) {
 						BlockPos pos = be.getBlockPos();
 						renderer.getCullBox(box, instLvl, be, pos);
 						sphere.contain(box);
 						
-						if (pcFrustum.isInFrustum(sphere) && pcFrustum.isInFrustum(box)) {
-							renderer.render(instLvl, be, pos, $$1, $$4.getPosition());
+						if (pcFrustum.pandoraCore$isInFrustum(sphere) && pcFrustum.pandoraCore$isInFrustum(box)) {
+							renderer.render(instLvl, be, pos, partialTick, camera.getPosition());
 						}
 					}
 				}
@@ -189,24 +180,21 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 		PaCoRenderState.resetInstancerState();
 	}
 
-	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancer = new ObjectArrayList<>(1024);
-	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancerNormal = new ObjectArrayList<>(1024);
-	private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderInfosInstancerShadow = new ObjectArrayList<>(1024);
+	@Unique private ObjectArrayList<LevelRenderer.RenderChunkInfo> pandoraCore$renderInfosInstancer = new ObjectArrayList<>(1024);
+	@Unique private final ObjectArrayList<LevelRenderer.RenderChunkInfo> pandoraCore$renderInfosInstancerNormal = new ObjectArrayList<>(1024);
+	@Unique private final ObjectArrayList<LevelRenderer.RenderChunkInfo> pandoraCore$renderInfosInstancerShadow = new ObjectArrayList<>(1024);
 
 	@WrapOperation(
 			method = "applyFrustum",
 			at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer$RenderChunkInfo;chunk:Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk;", remap = true),
 			remap = false
 	)
-	public ChunkRenderDispatcher.RenderChunk wrapGetChunk(
-			LevelRenderer.RenderChunkInfo inf,
-			Operation<ChunkRenderDispatcher.RenderChunk> original
-	) {
+	public ChunkRenderDispatcher.RenderChunk wrapGetChunk(LevelRenderer.RenderChunkInfo inf, Operation<ChunkRenderDispatcher.RenderChunk> original) {
 		ChunkRenderDispatcher.RenderChunk chnk = original.call(inf);
 		ChunkRenderDispatcher.CompiledChunk instance = chnk.getCompiledChunk();
 		
-		if (!((InstancingResults) instance).getAll().isEmpty()) {
-			renderInfosInstancer.add(inf);
+		if (!((InstancingResults) instance).pandoraCore$getAll().isEmpty()) {
+			pandoraCore$renderInfosInstancer.add(inf);
 		}
 
 		return chnk;
@@ -217,10 +205,7 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 //			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;clearRenderInfosTerrain()V", remap = true),
 //			remap = false
 //	)
-//	public void doClear(
-//			Frustum frustumIn, boolean updateRenderInfos, int maxChunkDistance,
-//			CallbackInfo ci
-//	) {
+//	public void doClear(Frustum frustumIn, boolean updateRenderInfos, int maxChunkDistance, CallbackInfo ci) {
 //		renderInfosInstancer.clear();
 //	}
 	
@@ -229,13 +214,10 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 			method = "updateRenderChunks",
 			remap = false
 	)
-	public boolean instancerCondition(
-			ChunkRenderDispatcher.RenderChunk inf,
-			Operation<Boolean> original
-	) {
+	public boolean instancerCondition(ChunkRenderDispatcher.RenderChunk inf, Operation<Boolean> original) {
 		ChunkRenderDispatcher.CompiledChunk instance = inf.getCompiledChunk();
 		
-		if (!((InstancingResults) instance).getAll().isEmpty()) {
+		if (!((InstancingResults) instance).pandoraCore$getAll().isEmpty()) {
 			return true;
 		}
 		
@@ -248,7 +230,7 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 			remap = false
 	)
 	public void postClear(CallbackInfo ci) {
-		renderInfosInstancer.clear();
+		pandoraCore$renderInfosInstancer.clear();
 	}
 
 	@Inject(
@@ -258,19 +240,19 @@ public class LevelRendererMixin implements OptifineInstanceListAccessor {
 	)
 	public void postSetSI(boolean shadowInfos, CallbackInfo ci) {
 		if (shadowInfos) {
-			this.renderInfosInstancer = this.renderInfosInstancerShadow;
+			this.pandoraCore$renderInfosInstancer = this.pandoraCore$renderInfosInstancerShadow;
 		} else {
-			this.renderInfosInstancer = this.renderInfosInstancerNormal;
+			this.pandoraCore$renderInfosInstancer = this.pandoraCore$renderInfosInstancerNormal;
 		}
 	}
 	
 	@Override
-	public ObjectArrayList<LevelRenderer.RenderChunkInfo> getRenderInfosInstancer() {
-		return renderInfosInstancer;
+	public ObjectArrayList<LevelRenderer.RenderChunkInfo> pandoraCore$getRenderInfosInstancer() {
+		return pandoraCore$renderInfosInstancer;
 	}
 	
 	@Override
-	public ClientLevel getLevel() {
+	public ClientLevel pandoraCore$getLevel() {
 		return level;
 	}
 }

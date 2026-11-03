@@ -17,12 +17,12 @@ public class FloatUMixin implements IPaCoPainReducer {
 	@Unique private boolean pandoraCore$cacheNulled = false;
 	
 	@Override
-	public Object getCachedValue() {
+	public Object pandoraCore$getCachedValue() {
 		return cachedValue;
 	}
 	
 	@Override
-	public void setCachedValue(Object object) {
+	public void pandoraCore$setCachedValue(Object object) {
 		if (object == null) {
 			pandoraCore$cacheNulled = true;
 		} else {

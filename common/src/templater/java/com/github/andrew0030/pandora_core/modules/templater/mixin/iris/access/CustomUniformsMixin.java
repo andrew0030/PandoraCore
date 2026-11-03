@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.List;
 
-@Mixin(CustomUniforms.class)
+@Mixin(value = CustomUniforms.class, remap = false)
 public class CustomUniformsMixin implements IPaCoModTrackerListable {
 	@Shadow @Final private List<CachedUniform> uniforms;
 	

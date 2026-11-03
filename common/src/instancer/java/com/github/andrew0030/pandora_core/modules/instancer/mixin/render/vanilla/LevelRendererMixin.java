@@ -26,7 +26,6 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,17 +39,13 @@ import java.util.List;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
-	@Shadow @Final private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
 	@Shadow @Nullable private ClientLevel level;
-	
-	@Shadow
-	private @org.jetbrains.annotations.Nullable Frustum capturedFrustum;
-	
-	@Shadow
-	private Frustum cullingFrustum;
-	
+	@Shadow @Final private ObjectArrayList<LevelRenderer.RenderChunkInfo> renderChunksInFrustum;
+	@Shadow public Frustum cullingFrustum;
+	@Shadow @Nullable public Frustum capturedFrustum;
+
 	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderedEntities:I", ordinal = 0), method = "renderLevel")
-	public void preRenderEnts(PoseStack stack, float pct, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
+	public void preRenderEnts(PoseStack stack, float partialTick, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
 		PaCoRenderState.setupWorld();
 		
 		Lighting.setupLevel(RenderSystem.getModelViewMatrix());
@@ -65,7 +60,7 @@ public class LevelRendererMixin {
 		
 		InstancerHooks.preStartInstancing();
 		
-		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+		InstanceManager manager = ((PacoInstancingLevel) level).pandoraCore$getManager();
 		manager.markFrame();
 		// TODO: optimize this loop
 		for (Entity entity : this.level.entitiesForRendering()) {
@@ -75,7 +70,7 @@ public class LevelRendererMixin {
 				if (renderer.shouldRender(
 						entity, camera.getPosition()
 				)) {
-					renderer.render((PacoInstancingLevel) level, entity, entity.getPosition(pct), pct, camera.getPosition());
+					renderer.render((PacoInstancingLevel) level, entity, entity.getPosition(partialTick), partialTick, camera.getPosition());
 				}
 			}
 		}
@@ -94,8 +89,8 @@ public class LevelRendererMixin {
 	}
 	
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0, shift = At.Shift.AFTER), method = "renderLevel")
-	public void postRenderEnts(PoseStack stack, float pct, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
-		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+	public void postRenderEnts(PoseStack stack, float partialTick, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
+		InstanceManager manager = ((PacoInstancingLevel) level).pandoraCore$getManager();
 		manager.drawFrame((PacoInstancingLevel) level);
 		InstancerHooks.postEndInstancing();
 		PaCoRenderState.resetInstancerState();
@@ -104,7 +99,7 @@ public class LevelRendererMixin {
 	}
 	
 	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunksInFrustum:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;", ordinal = 0), method = "renderLevel")
-	public void preRenderBlockEnts(PoseStack stack, float pct, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
+	public void preRenderBlockEnts(PoseStack stack, float partialTick, long finishNano, boolean renderOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci) {
 		PaCoRenderState.setupWorld();
 		
 		Lighting.setupLevel(RenderSystem.getModelViewMatrix());
@@ -119,7 +114,7 @@ public class LevelRendererMixin {
 		
 		InstancerHooks.preStartInstancing();
 		
-		InstanceManager manager = ((PacoInstancingLevel) level).getManager();
+		InstanceManager manager = ((PacoInstancingLevel) level).pandoraCore$getManager();
 		manager.markFrame();
 		PacoInstancingLevel instLvl = (PacoInstancingLevel) level;
 		Frustum frustum = capturedFrustum == null ? cullingFrustum : capturedFrustum;
@@ -130,11 +125,11 @@ public class LevelRendererMixin {
 		
 		for (LevelRenderer.RenderChunkInfo info : this.renderChunksInFrustum) {
 			ChunkRenderDispatcher.CompiledChunk chnk = info.chunk.getCompiledChunk();
-			List<BlockEntity> bes = ((InstancingResults) chnk).getAll();
+			List<BlockEntity> bes = ((InstancingResults) chnk).pandoraCore$getAll();
 			if (bes.isEmpty()) continue; // no work to do
 			
 			if (bes.size() < 4 ||
-					pcFrustum.containsAllCorners(box.set(info.chunk.getBoundingBox()))
+					pcFrustum.pandoraCore$containsAllCorners(box.set(info.chunk.getBoundingBox()))
 			) {
 				for (BlockEntity be : bes) {
 					InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) be.getType()).pandoraCore$getInstancedRenderer();
@@ -143,7 +138,7 @@ public class LevelRendererMixin {
 							be, camera.getPosition()
 					)) {
 						BlockPos pos = be.getBlockPos();
-						renderer.render(instLvl, be, pos, pct, camera.getPosition());
+						renderer.render(instLvl, be, pos, partialTick, camera.getPosition());
 					}
 				}
 			} else {
@@ -157,8 +152,8 @@ public class LevelRendererMixin {
 						renderer.getCullBox(box, instLvl, be, pos);
 						sphere.contain(box);
 						
-						if (pcFrustum.isInFrustum(sphere) && pcFrustum.isInFrustum(box)) {
-							renderer.render(instLvl, be, pos, pct, camera.getPosition());
+						if (pcFrustum.pandoraCore$isInFrustum(sphere) && pcFrustum.pandoraCore$isInFrustum(box)) {
+							renderer.render(instLvl, be, pos, partialTick, camera.getPosition());
 						}
 					}
 				}

@@ -26,7 +26,7 @@ public abstract class InstancedItemRenderer extends InstanceRenderer<InstancingE
 	}
 	
 	@Override
-    public final boolean shouldRender(ItemStack object, Vec3 pCameraPos) {
+    public final boolean shouldRender(ItemStack object, Vec3 cameraPos) {
 	    return true;
     }
 	

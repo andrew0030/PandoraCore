@@ -161,7 +161,7 @@ shadowJar {
     }
 }
 // Tells ModDev to reobfuscate the shadowJar output
-obfuscation.reobfuscate(tasks.named('shadowJar'), sourceSets.main)
+obfuscation.reobfuscate(tasks.named('shadowJar', Jar), sourceSets.main)
 // Makes sure that the assemble task depends on the shadowJar task.
 // This means that the shadow jar will be built before the final assembly of the project.
 assemble.dependsOn shadowJar

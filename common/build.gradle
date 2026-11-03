@@ -86,7 +86,7 @@ artifacts {
 
 // A small reminder that the tests source set is enabled
 if (include_tests.toBoolean()) {
-    println("\u001B[32m[INFO] The 'tests' source set is enabled!\u001B[0m")
+    println("\u001B[1;32m[INFO] The 'tests' source set is enabled!\u001B[0m")
 }
 
 // Implement mcgradleconventions loader attribute (variant-aware resolution)

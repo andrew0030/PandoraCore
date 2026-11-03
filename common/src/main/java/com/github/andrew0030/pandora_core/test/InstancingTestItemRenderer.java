@@ -1,6 +1,5 @@
 package com.github.andrew0030.pandora_core.test;
 
-import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveDrawData;
 import com.github.andrew0030.pandora_core.modules.instancer.collective.CollectiveVBO;
 import com.github.andrew0030.pandora_core.modules.instancer.instancing.builtin.ItemDrawData;
@@ -53,9 +52,9 @@ public class InstancingTestItemRenderer extends InstancedItemRenderer {
 	
 	@Override
 	public void render(
-			InstancingEnvironment env, ItemStack object,
-			ItemDrawData drawData, BatchData batches,
-			float pct, Vec3 cameraPos
+            InstancingEnvironment env, ItemStack object,
+            ItemDrawData drawData, BatchData batches,
+            float partialTick, Vec3 cameraPos
 	) {
 		CollectiveDrawData data = batches.buildBatch(STANDARD_KEY);
 		

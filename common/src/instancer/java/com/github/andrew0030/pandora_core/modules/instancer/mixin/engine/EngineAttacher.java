@@ -32,12 +32,12 @@ public class EngineAttacher implements PacoInstancingLevel {
     }
 
     @Override
-    public InstanceManager getManager() {
+    public InstanceManager pandoraCore$getManager() {
         return pandoraCore$manager;
     }
 	
 	@Override
-	public @Nullable Level getLevel() {
+	public @Nullable Level pandoraCore$getLevel() {
 		return (Level) (Object) this;
 	}
 }

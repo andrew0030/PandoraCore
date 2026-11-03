@@ -7,5 +7,5 @@ import org.jetbrains.annotations.Nullable;
 @ApiStatus.Internal
 @Deprecated
 public interface RenderListAttachments {
-    public @Nullable ByteIterator sectionsWithInstancableBEsIterator(boolean reverse);
+    public @Nullable ByteIterator pandoraCore$sectionsWithInstancableBEsIterator(boolean reverse);
 }

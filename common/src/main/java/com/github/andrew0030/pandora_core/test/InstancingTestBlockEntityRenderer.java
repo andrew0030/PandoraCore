@@ -11,11 +11,7 @@ import com.github.andrew0030.pandora_core.modules.instancer.renderers.instancing
 import com.github.andrew0030.pandora_core.modules.instancer.state.PaCoShaderStateShard;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -55,7 +51,7 @@ public class InstancingTestBlockEntityRenderer extends InstancedBlockEntityRende
 	}
 	
 	@Override
-	public void render(PacoInstancingLevel ilevel, InstancingTestBlockEntity object, BlockPos pos, BatchData batches, float pct, Vec3 cameraPos) {
+	public void render(PacoInstancingLevel ilevel, InstancingTestBlockEntity object, BlockPos pos, BatchData batches, float partialTick, Vec3 cameraPos) {
 		Level level = (Level) ilevel;
 		
 		CollectiveDrawData data = batches.buildBatch(STANDARD_KEY);

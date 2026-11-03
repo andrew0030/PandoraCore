@@ -50,7 +50,7 @@ public class ChunkBuilderMeshingTaskMixin {
     ) {
         InstancedBlockEntityRenderer renderer = ((BlockEntityTypeAttachments) entity.getType()).pandoraCore$getInstancedRenderer();
         if (renderer != null) {
-            ((InstancingResults) renderData).addInstancer(entity);
+            ((InstancingResults) renderData).pandoraCore$addInstancer(entity);
         }
     }
 }

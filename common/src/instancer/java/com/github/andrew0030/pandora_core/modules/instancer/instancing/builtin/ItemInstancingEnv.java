@@ -13,17 +13,17 @@ public class ItemInstancingEnv implements InstancingEnvironment {
 	}
 	
 	@Override
-	public InstanceManager getManager() {
+	public InstanceManager pandoraCore$getManager() {
 		return manager;
 	}
 	
 	@Override
-	public boolean isLevel() {
+	public boolean pandoraCore$isLevel() {
 		return false;
 	}
 	
 	@Override
-	public @Nullable Level getLevel() {
+	public @Nullable Level pandoraCore$getLevel() {
 		return null;
 	}
 }

@@ -46,7 +46,7 @@ public class InstancingTestEntityRenderer extends InstancedEntityRenderer<TestEn
     }
 
     @Override
-    public void render(PacoInstancingLevel ilevel, TestEntity object, Vec3 pos, BatchData batches, float pct, Vec3 cameraPos) {
+    public void render(PacoInstancingLevel ilevel, TestEntity object, Vec3 pos, BatchData batches, float partialTick, Vec3 cameraPos) {
 	    Level level = (Level) ilevel;
 		
         CollectiveDrawData data = batches.buildBatch(STANDARD_KEY);
@@ -57,14 +57,14 @@ public class InstancingTestEntityRenderer extends InstancedEntityRenderer<TestEn
 //                1, 0, 0
 //        ).identity();
         Matrix3f matrix3f = new Matrix3f();
-        float angle = Mth.rotLerp(pct, object.yBodyRotO, object.yBodyRot);
+        float angle = Mth.rotLerp(partialTick, object.yBodyRotO, object.yBodyRot);
         matrix3f = matrix3f.rotate(angle * Mth.DEG_TO_RAD, 0, -1, 0);
         data.writeMesh(TemplateShaderTest.queenRange);
         data.ensureInstance();
         data.activateData();
 	    data.writeFloat((float) (pos.x - cameraPos.x), (float) (pos.y - cameraPos.y), (float) (pos.z - cameraPos.z));
         data.writeMatrix(matrix3f);
-	    Vec3 probe = object.getLightProbePosition(pct);
+	    Vec3 probe = object.getLightProbePosition(partialTick);
 	    BlockPos blockPos = (BlockPos.containing(probe));
 	    int packedLight = LightTexture.pack(
 //                2, 0

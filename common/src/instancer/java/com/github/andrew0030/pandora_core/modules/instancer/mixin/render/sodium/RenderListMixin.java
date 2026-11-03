@@ -18,14 +18,15 @@ public class RenderListMixin implements RenderListAttachments {
     @Unique private final byte[] pandoraCore$sectionsWithInstancableBEs = new byte[256];
     @Unique private int pandoraCore$sectionsWithInstancableBEsCount = 0;
 
-    public @Nullable ByteIterator sectionsWithInstancableBEsIterator(boolean reverse) {
+    @Override
+    public @Nullable ByteIterator pandoraCore$sectionsWithInstancableBEsIterator(boolean reverse) {
         return this.pandoraCore$sectionsWithInstancableBEsCount == 0 ? null : new ReversibleByteArrayIterator(this.pandoraCore$sectionsWithInstancableBEs, this.pandoraCore$sectionsWithInstancableBEsCount, reverse);
     }
 
     @Inject(at = @At("TAIL"), method = "add")
     public void postAdd(RenderSection render, CallbackInfo ci) {
         this.pandoraCore$sectionsWithInstancableBEs[this.pandoraCore$sectionsWithInstancableBEsCount] = (byte)render.getSectionIndex();
-        this.pandoraCore$sectionsWithInstancableBEsCount += ((RenderSectionAttachments) render).hasInstancedBlockEntities() ? 1 : 0;
+        this.pandoraCore$sectionsWithInstancableBEsCount += ((RenderSectionAttachments) render).pandoraCore$hasInstancedBlockEntities() ? 1 : 0;
     }
 
     @Inject(at = @At("TAIL"), method = "reset")

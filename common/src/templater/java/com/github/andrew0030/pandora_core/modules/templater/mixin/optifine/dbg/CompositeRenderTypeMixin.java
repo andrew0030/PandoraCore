@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class CompositeRenderTypeMixin {
 	@Inject(at = @At("TAIL"), method = "<init>")
 	public void postInit(String name, VertexFormat format, VertexFormat.Mode mode, int bufferSize, boolean affectsCrumbling, boolean sortOnUpload, RenderType.CompositeState state, CallbackInfo ci) {
-		((RenderTypeAccessor) this).setSetupState(() -> {
-			((CompositeStateAccessor) (Object) state).getStates().forEach((s) -> {
+		((RenderTypeAccessor) this).pandoraCore$setSetupState(() -> {
+			((CompositeStateAccessor) (Object) state).pandoraCore$getStates().forEach((s) -> {
 				s.setupRenderState();
 				RenderDebugger.checkError("Setup" + s.toString());
 			});

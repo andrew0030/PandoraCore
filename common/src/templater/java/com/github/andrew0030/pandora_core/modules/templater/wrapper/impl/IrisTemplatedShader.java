@@ -163,41 +163,41 @@ public class IrisTemplatedShader extends TemplatedShader {
 		IPacoInitCachable<ImmutableList<Uniform>> accessor = (IPacoInitCachable<ImmutableList<Uniform>>) progUniforms;
 		
 		IPaCoFrameTickAccessor ft = (IPaCoFrameTickAccessor) progUniforms;
-		lastTick[0] = ft.getLastTick();
-		lastFrame[0] = ft.getLastFrame();
+		lastTick[0] = ft.pandoraCore$getLastTick();
+		lastFrame[0] = ft.pandoraCore$getLastFrame();
 		
 		{
-			for (Uniform uniform : ft.getDynamic()) {
+			for (Uniform uniform : ft.pandoraCore$getDynamic()) {
 				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-				parCache.put(uniform, reducer.getCachedValue());
+				parCache.put(uniform, reducer.pandoraCore$getCachedValue());
 				
 				Object o = selfCache.getOrDefault(uniform, null);
-				reducer.setCachedValue(o);
+				reducer.pandoraCore$setCachedValue(o);
 			}
 			// TODO: call the method from iris code for consistency
-			long tick = ft.accessGetCurrentTick();
+			long tick = ft.pandoraCore$accessGetCurrentTick();
 			if (lastTick[1] != tick) {
-				ft.setLastTick(tick);
+				ft.pandoraCore$setLastTick(tick);
 				
-				for (Uniform uniform : ft.getPerTick()) {
+				for (Uniform uniform : ft.pandoraCore$getPerTick()) {
 					IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-					parCache.put(uniform, reducer.getCachedValue());
+					parCache.put(uniform, reducer.pandoraCore$getCachedValue());
 					
 					Object o = selfCache.getOrDefault(uniform, null);
-					reducer.setCachedValue(o);
+					reducer.pandoraCore$setCachedValue(o);
 				}
 			}
 			
 			int frame = SystemTimeUniforms.COUNTER.getAsInt();
 			if (lastFrame[1] != frame) {
-				ft.setLastFrame(frame);
+				ft.pandoraCore$setLastFrame(frame);
 				
-				for (Uniform uniform : ft.getPerFrame()) {
+				for (Uniform uniform : ft.pandoraCore$getPerFrame()) {
 					IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-					parCache.put(uniform, reducer.getCachedValue());
+					parCache.put(uniform, reducer.pandoraCore$getCachedValue());
 					
 					Object o = selfCache.getOrDefault(uniform, null);
-					reducer.setCachedValue(o);
+					reducer.pandoraCore$setCachedValue(o);
 				}
 			}
 		}
@@ -216,8 +216,8 @@ public class IrisTemplatedShader extends TemplatedShader {
 			
 			for (Uniform uniform : accessor.pandoraCore$getInitializer()) {
 				try {
-					uniformValueCache.put(uniform, ((IPaCoPainReducer) uniform).getCachedValue());
-					((IPaCoPainReducer) uniform).setCachedValue(null);
+					uniformValueCache.put(uniform, ((IPaCoPainReducer) uniform).pandoraCore$getCachedValue());
+					((IPaCoPainReducer) uniform).pandoraCore$setCachedValue(null);
 				} catch (Throwable err) {
 					err.printStackTrace();
 				}
@@ -272,35 +272,35 @@ public class IrisTemplatedShader extends TemplatedShader {
 			mt.pandoraCore$release();
 		}
 		
-		uniformValueCache.forEach((k, v) -> ((IPaCoPainReducer) k).setCachedValue(v));
+		uniformValueCache.forEach((k, v) -> ((IPaCoPainReducer) k).pandoraCore$setCachedValue(v));
 		
 		IPaCoFrameTickAccessor ft = (IPaCoFrameTickAccessor) progUniforms;
-		lastTick[1] = ft.getLastTick();
-		lastFrame[1] = ft.getLastFrame();
-		ft.setLastTick(lastTick[0]);
-		ft.setLastFrame(lastFrame[0]);
+		lastTick[1] = ft.pandoraCore$getLastTick();
+		lastFrame[1] = ft.pandoraCore$getLastFrame();
+		ft.pandoraCore$setLastTick(lastTick[0]);
+		ft.pandoraCore$setLastFrame(lastFrame[0]);
 		
 		{
-			for (Uniform uniform : ft.getDynamic()) {
+			for (Uniform uniform : ft.pandoraCore$getDynamic()) {
 				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-				selfCache.put(uniform, reducer.getCachedValue());
+				selfCache.put(uniform, reducer.pandoraCore$getCachedValue());
 				
 				Object o = parCache.getOrDefault(uniform, null);
-				reducer.setCachedValue(o);
+				reducer.pandoraCore$setCachedValue(o);
 			}
-			for (Uniform uniform : ft.getPerFrame()) {
+			for (Uniform uniform : ft.pandoraCore$getPerFrame()) {
 				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-				selfCache.put(uniform, reducer.getCachedValue());
+				selfCache.put(uniform, reducer.pandoraCore$getCachedValue());
 				
 				Object o = parCache.getOrDefault(uniform, null);
-				reducer.setCachedValue(o);
+				reducer.pandoraCore$setCachedValue(o);
 			}
-			for (Uniform uniform : ft.getPerTick()) {
+			for (Uniform uniform : ft.pandoraCore$getPerTick()) {
 				IPaCoPainReducer reducer = (IPaCoPainReducer) uniform;
-				selfCache.put(uniform, reducer.getCachedValue());
+				selfCache.put(uniform, reducer.pandoraCore$getCachedValue());
 				
 				Object o = parCache.getOrDefault(uniform, null);
-				reducer.setCachedValue(o);
+				reducer.pandoraCore$setCachedValue(o);
 			}
 		}
 	}

@@ -10,18 +10,16 @@ import org.spongepowered.asm.mixin.Unique;
 
 import java.util.EnumSet;
 
-@Mixin(Program.class)
+@Mixin(value = Program.class, remap = false)
 public abstract class ProgramMixin implements INamedShader, IPaCoExtOFProgram {
+	@Unique EnumSet<OFVtxAttribute> pandoraCore$attributes = EnumSet.noneOf(OFVtxAttribute.class);
 	@Shadow public abstract String getName();
-	
+
 	@Override
 	public String pandoraCore$getName() {
 		return getName();
 	}
-	
-	@Unique
-	EnumSet<OFVtxAttribute> pandoraCore$attributes = EnumSet.noneOf(OFVtxAttribute.class);
-	
+
 	@Override
 	public boolean pandoraCore$usesAttrib(OFVtxAttribute attribute) {
 		return pandoraCore$attributes.contains(attribute);

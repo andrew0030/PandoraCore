@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 
 @Mixin(ExtendedShader.class)
 public class ExtendedShader_CacheShaders_CondBindMixin {
-    @Shadow private static ExtendedShader lastApplied;
+    @Shadow(remap = false) private static ExtendedShader lastApplied;
 
     @Inject(at = @At("TAIL"), method = "<init>")
     public void postInit(ResourceProvider resourceFactory, String string, VertexFormat vertexFormat, boolean usesTessellation, GlFramebuffer writingToBeforeTranslucent, GlFramebuffer writingToAfterTranslucent, BlendModeOverride blendModeOverride, AlphaTest alphaTest, Consumer uniformCreator, BiConsumer samplerCreator, boolean isIntensity, IrisRenderingPipeline parent, List bufferBlendOverrides, CustomUniforms customUniforms, CallbackInfo ci) {
@@ -33,14 +33,14 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
 
     @Inject(at = @At("HEAD"), method = "apply")
     public void preApply(CallbackInfo ci) {
-        if (((IPaCoConditionallyBindable) this).isDisableBind()) {
+        if (((IPaCoConditionallyBindable) this).pandoraCore$isDisableBind()) {
             lastApplied = (ExtendedShader) (Object) this;
         }
     }
 
     @Inject(at = @At("RETURN"), method = "apply")
     public void postApply(CallbackInfo ci) {
-        if (((IPaCoConditionallyBindable) this).isDisableBind()) {
+        if (((IPaCoConditionallyBindable) this).pandoraCore$isDisableBind()) {
             if (IrisTemplatedShader.isFirstBind()) {
                 IrisTemplatedShader.setBound();
             }
@@ -49,7 +49,7 @@ public class ExtendedShader_CacheShaders_CondBindMixin {
 
     @Inject(at = @At("HEAD"), method = "clear", cancellable = true)
     public void preClear(CallbackInfo ci) {
-        if (((IPaCoConditionallyBindable) this).isDisableBind()) {
+        if (((IPaCoConditionallyBindable) this).pandoraCore$isDisableBind()) {
             lastApplied = null;
             ci.cancel();
         }

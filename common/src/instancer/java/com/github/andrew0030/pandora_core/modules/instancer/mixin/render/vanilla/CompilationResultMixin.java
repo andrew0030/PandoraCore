@@ -14,17 +14,17 @@ public class CompilationResultMixin implements InstancingResults {
     @Unique List<BlockEntity> pandoraCore$instancableBlockEntities = new ArrayList<>();
 
     @Override
-    public void addInstancer(BlockEntity be) {
+    public void pandoraCore$addInstancer(BlockEntity be) {
         pandoraCore$instancableBlockEntities.add(be);
     }
 
     @Override
-    public List<BlockEntity> getAll() {
+    public List<BlockEntity> pandoraCore$getAll() {
         return pandoraCore$instancableBlockEntities;
     }
 
     @Override
-    public void addAll(List<BlockEntity> all) {
+    public void pandoraCore$addAll(List<BlockEntity> all) {
         pandoraCore$instancableBlockEntities.addAll(all);
     }
 }

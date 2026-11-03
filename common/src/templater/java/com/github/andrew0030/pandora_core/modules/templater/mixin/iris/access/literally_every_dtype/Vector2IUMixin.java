@@ -6,17 +6,17 @@ import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(Vector2IntegerJomlUniform.class)
+@Mixin(value = Vector2IntegerJomlUniform.class, remap = false)
 public class Vector2IUMixin implements IPaCoPainReducer {
 	@Shadow private Vector2i cachedValue;
 	
 	@Override
-	public Object getCachedValue() {
+	public Object pandoraCore$getCachedValue() {
 		return cachedValue;
 	}
 	
 	@Override
-	public void setCachedValue(Object object) {
+	public void pandoraCore$setCachedValue(Object object) {
 		cachedValue = (Vector2i) object;
 	}
 }

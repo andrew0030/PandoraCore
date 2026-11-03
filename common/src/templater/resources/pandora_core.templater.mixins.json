@@ -39,7 +39,6 @@
 		"optifine.ProgramMixin",
 		"optifine.access.VertexFormatAccessor",
 		"optifine.access.VertexFormatElementMixin",
-		"optifine.dmp.DoDump",
 		"optifine.GlStateManagerMixin",
 		"optifine.ShaderUniformsMixin",
 		"optifine.access.literally_every_dtype.ShaderUBaseAccessor",

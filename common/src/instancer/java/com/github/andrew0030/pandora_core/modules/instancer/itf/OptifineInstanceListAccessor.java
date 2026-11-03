@@ -5,7 +5,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 
 public interface OptifineInstanceListAccessor {
-	ObjectArrayList<LevelRenderer.RenderChunkInfo> getRenderInfosInstancer();
-	
-	ClientLevel getLevel();
+	ObjectArrayList<LevelRenderer.RenderChunkInfo> pandoraCore$getRenderInfosInstancer();
+	ClientLevel pandoraCore$getLevel();
 }

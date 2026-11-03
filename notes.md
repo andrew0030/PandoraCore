@@ -1,25 +1,28 @@
 Iris compat:
-- [Shadow map stuff](https://github.com/IrisShaders/Iris/blob/6c20dcd953f86b5f774abf0857ce9ecf28b44618/src/main/java/net/irisshaders/iris/pipeline/IrisRenderingPipeline.java#L743)
+- ~~[Shadow map stuff](https://github.com/IrisShaders/Iris/blob/6c20dcd953f86b5f774abf0857ce9ecf28b44618/src/main/java/net/irisshaders/iris/pipeline/IrisRenderingPipeline.java#L743)~~
 
 <hr/>
 
 Jank:
-- Investigate if spectator mode is broken (found on fabric). Basically looking diagonally and holding 'W' resulted in sideways movement instead of diagonal (maybe not a bug and just vanilla jank?).
+- ~~Investigate if spectator mode is broken (found on fabric). Basically looking diagonally and holding 'W' resulted in sideways movement instead of diagonal~~ No issues at all
 - ~~starting a game of chess creates triangles~~
 - ~~sometimes crashes when switching iris shaders~~
 - ~~crashes when disabling iris shaders~~
 - ~~does not properly reload when enabling iris shaders~~
-- shader patcher does not like full F3+T with ~~iris~~ fabric
+- ~~shader patcher does not like full F3+T with fabric~~
+- ~~game crashes in production on fabric if iris is present~~
+- ~~Resource reloading causes things to vanish instantly, because the shaders are dumped instantly~~
+- ~~`miniature shader` causes shader templater to break~~
 - apparently there is some kind of known memory leak that needs to be fixed
   - partially fixed, should also tie some closure logic to level close event on forge
   - might be nice to look into also making more immediate closure logic on fabric
-- game crashes in production on fabric if iris is present (need to move a mixin into loader modules)
 - use `ARBInstancedArrays.glVertexAttribDivisorARB();` if necessary
 - Isometric projection seems breaks the instancer (I Like Vanilla v1.0.6)
-- Resource reloading causes things to vanish instantly, because the shaders are dumped instantly
-- `miniature shader` causes shader templater to break
+  - instanced objects are attached to the players head?
 - With `Complementary Reimagined 5.1.1`, when dropping an instanced chess piece (and waiting a moment before pickup) on pickup GL errors are thrown
 - Check if resize GL error is somehow caused by the render related source sets
+- figure out where OF creates/handles its `internal` shader
+- there is a potential recursive death loop in `AdvancedShadowCullingFrustumMixin`
 
 <hr/>
 

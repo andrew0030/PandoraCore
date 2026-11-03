@@ -38,7 +38,8 @@ public class AbstractContainerScreenMixin {
 	@Inject(at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlight(Lnet/minecraft/client/gui/GuiGraphics;IIII)V",
-			shift = At.Shift.BEFORE
+			shift = At.Shift.BEFORE,
+			remap = false
 	), method = "render", require = 0)
 	public void preRenderHighlightForge(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
 		pandoraCore$manager.drawFrame(pandoraCore$env);

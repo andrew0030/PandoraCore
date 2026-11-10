@@ -13,7 +13,7 @@ Jank:
 - ~~game crashes in production on fabric if iris is present~~
 - ~~Resource reloading causes things to vanish instantly, because the shaders are dumped instantly~~
 - ~~`miniature shader` causes shader templater to break~~
-- apparently there is some kind of known memory leak that needs to be fixed
+- ~~apparently there is some kind of known memory leak that needs to be fixed~~
   - partially fixed, should also tie some closure logic to level close event on forge
   - might be nice to look into also making more immediate closure logic on fabric
 - use `ARBInstancedArrays.glVertexAttribDivisorARB();` if necessary
@@ -144,6 +144,7 @@ Systems TODO:
   - [x] ~~Maybe add a modifier that allows removing entries from jigsaw structure piece pools (if they can be identified)~~ Too annoying and I don't need it
   - [x] Add some sorta phase system like forges `Phase` enum, to ensure removing happens after adding
   - [ ] Expand/wrap `StructurePoolElement`, and use it to allow for additional properties, such as `min_count` and or `max_count`, _Maybe worth the required effort?_
+  - [ ] Maybe expand the structure piece terrain placement logic
 - Data-Driven Modifiers
   - [ ] Expand `world-generation` related modifiers.
     - [ ] Maybe modifying the noise so make mountains taller/oceans deeper?
@@ -168,6 +169,7 @@ Systems TODO:
   - [ ] Rewrite template manager?
 - Instancer
   - [x] Batching system
+  - [ ] Pass ordering features
   - [ ] Texturing optimizations
     - [ ] Bindless rendering
     - [ ] Texture arrays

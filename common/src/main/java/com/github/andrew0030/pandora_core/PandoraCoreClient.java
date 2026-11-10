@@ -57,7 +57,7 @@ public class PandoraCoreClient {
         // Instanced Renderers
         InstancedRendererRegistry.register(PaCoBlockEntities.INSTANCING_TEST.get(), InstancingTestBlockEntityRenderer::new);
         InstancedRendererRegistry.register(PaCoEntities.TEST_ENTITY.get(), InstancingTestEntityRenderer::new);
-        InstancedRendererRegistry.register(PaCoBlocks.INSTANCING_TEST.get().asItem(), InstancingTestItemRenderer::new);
+        InstancedRendererRegistry.register(PaCoBlocks.INSTANCING_TEST.get(), InstancingTestItemRenderer::new);
     }
 
     /** Thread Safe Client Init */

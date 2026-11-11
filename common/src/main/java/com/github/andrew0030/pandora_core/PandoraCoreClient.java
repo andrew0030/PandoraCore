@@ -1,10 +1,6 @@
 package com.github.andrew0030.pandora_core;
 
-import com.github.andrew0030.pandora_core.client.PaCoClientManager;
-import com.github.andrew0030.pandora_core.client.registry.PaCoCoreShaders;
-import com.github.andrew0030.pandora_core.client.registry.PaCoKeyMappings;
-import com.github.andrew0030.pandora_core.client.registry.PaCoModelLayers;
-import com.github.andrew0030.pandora_core.client.registry.PaCoPostShaders;
+import com.github.andrew0030.pandora_core.client.registry.*;
 import com.github.andrew0030.pandora_core.client.shader.compute.ComputeLoader;
 import com.github.andrew0030.pandora_core.modules.instancer.registry.InstancedRendererRegistry;
 import com.github.andrew0030.pandora_core.modules.templater.TemplateShaderResourceLoader;
@@ -13,10 +9,11 @@ import com.github.andrew0030.pandora_core.registry.test.PaCoBlockEntities;
 import com.github.andrew0030.pandora_core.registry.test.PaCoBlocks;
 import com.github.andrew0030.pandora_core.registry.test.PaCoItems;
 import com.github.andrew0030.pandora_core.test.*;
-import com.github.andrew0030.pandora_core.test.block_entities.TestBEWLR;
+import com.github.andrew0030.pandora_core.test.block_entities.TestDynamicItemRenderer;
 import com.github.andrew0030.pandora_core.test.entity.PaCoEntities;
 import com.github.andrew0030.pandora_core.test.particle.PaCoParticleProviders;
 import com.github.andrew0030.pandora_core.utils.LogicalSide;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
 import java.util.Set;
@@ -53,7 +50,7 @@ public class PandoraCoreClient {
         PaCoPostShaders.init();
 
         // TODO: remove this when done with testing
-        PaCoClientManager.registerItemBEWLR(Set.of(PaCoBlocks.TEST.get(), PaCoItems.FUNK.get()), TestBEWLR::new);
+        PaCoRendererRegistry.register(Set.of(PaCoBlocks.INSTANCING_TEST.get(), Blocks.TRAPPED_CHEST, PaCoBlocks.TEST.get(), PaCoItems.FUNK.get()), TestDynamicItemRenderer::new);
         // Instanced Renderers
         InstancedRendererRegistry.register(PaCoBlockEntities.INSTANCING_TEST.get(), InstancingTestBlockEntityRenderer::new);
         InstancedRendererRegistry.register(PaCoEntities.TEST_ENTITY.get(), InstancingTestEntityRenderer::new);

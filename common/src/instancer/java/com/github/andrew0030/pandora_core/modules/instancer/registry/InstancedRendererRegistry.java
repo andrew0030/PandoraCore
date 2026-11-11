@@ -19,6 +19,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class InstancedRendererRegistry {
@@ -36,8 +37,8 @@ public class InstancedRendererRegistry {
      * <p><strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.</p>
      * <p><strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.</p>
      *
-     * @param type    The {@link BlockEntityType} to associate with the instanced renderer.
-     * @param factory The {@link Supplier} used to initialize the instanced renderer.
+     * @param type    The {@link BlockEntityType} to associate with the instanced renderer
+     * @param factory The {@link Supplier} used to initialize the instanced renderer
      */
     public static <T extends BlockEntity> void register(BlockEntityType<T> type, Supplier<InstancedBlockEntityRenderer<T>> factory) {
         Objects.requireNonNull(type, "type is null");
@@ -53,13 +54,36 @@ public class InstancedRendererRegistry {
      * <p><strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.</p>
      * <p><strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.</p>
      *
-     * @param type     The {@link BlockEntityType} to associate with the instanced renderer.
-     * @param renderer An {@link InstancedBlockEntityRenderer} instance.
+     * @param type     The {@link BlockEntityType} to associate with the instanced renderer
+     * @param renderer An {@link InstancedBlockEntityRenderer} instance
      */
     public static <T extends BlockEntity> void register(BlockEntityType<T> type, InstancedBlockEntityRenderer<T> renderer) {
         Objects.requireNonNull(type, "type is null");
         Objects.requireNonNull(renderer, "renderer is null");
         InstancedRendererRegistry.register(type, () -> renderer);
+    }
+
+    /**
+     * Registers an {@link InstancedBlockEntityRenderer} for all the specified {@link BlockEntityType BlockEntityTypes}.
+     *
+     * <p>Here is a list of when to call it, on each loader:</p>
+     * <p><strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.</p>
+     * <p><strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.</p>
+     *
+     * @param types    A {@link Set} containing {@link BlockEntityType} instances, to associate with the instanced renderer
+     * @param renderer An {@link InstancedBlockEntityRenderer} instance
+     */
+    public static <T extends BlockEntity> void register(Set<BlockEntityType<T>> types, InstancedBlockEntityRenderer<T> renderer) {
+        Objects.requireNonNull(types, "types is null");
+        Objects.requireNonNull(renderer, "renderer is null");
+        if (types.isEmpty()) throw new IllegalArgumentException("types is empty");
+        for (BlockEntityType<T> type : types)
+            Objects.requireNonNull(type, "types contains null element");
+        // Creates a single PaCoRegistryObject instance that will be shared by all types in the given Set
+        PaCoRegistryObject<InstancedBlockEntityRenderer<T>> registryObject = new PaCoRegistryObject<>(() -> renderer);
+        for (BlockEntityType<T> type : types)
+            if (BLOCK_ENTITY_RENDERERS.putIfAbsent(type, registryObject) != null)
+                throw new IllegalArgumentException("Block Entity " + BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type) + " already has an instanced renderer attached!");
     }
 
     /**
@@ -92,8 +116,8 @@ public class InstancedRendererRegistry {
      * <p><strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.</p>
      * <p><strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.</p>
      *
-     * @param type    The {@link EntityType} to associate with the instanced renderer.
-     * @param factory The {@link Supplier} used to initialize the instanced renderer.
+     * @param type    The {@link EntityType} to associate with the instanced renderer
+     * @param factory The {@link Supplier} used to initialize the instanced renderer
      */
     public static <T extends Entity> void register(EntityType<T> type, Supplier<InstancedEntityRenderer<?>> factory) {
         Objects.requireNonNull(type, "type is null");
@@ -109,13 +133,36 @@ public class InstancedRendererRegistry {
      * <p><strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.</p>
      * <p><strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.</p>
      *
-     * @param type     The {@link EntityType} to associate with the instanced renderer.
-     * @param renderer An {@link InstancedEntityRenderer} instance.
+     * @param type     The {@link EntityType} to associate with the instanced renderer
+     * @param renderer An {@link InstancedEntityRenderer} instance
      */
     public static <T extends Entity> void register(EntityType<T> type, InstancedEntityRenderer<T> renderer) {
         Objects.requireNonNull(type, "type is null");
         Objects.requireNonNull(renderer, "renderer is null");
         InstancedRendererRegistry.register(type, () -> renderer);
+    }
+
+    /**
+     * Registers an {@link InstancedEntityRenderer} for all the specified {@link EntityType EntityTypes}.
+     *
+     * <p>Here is a list of when to call it, on each loader:</p>
+     * <p><strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.</p>
+     * <p><strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.</p>
+     *
+     * @param types    A {@link Set} containing {@link EntityType} instances, to associate with the instanced renderer
+     * @param renderer An {@link InstancedEntityRenderer} instance
+     */
+    public static <T extends Entity> void register(Set<EntityType<T>> types, InstancedEntityRenderer<T> renderer) {
+        Objects.requireNonNull(types, "types is null");
+        Objects.requireNonNull(renderer, "renderer is null");
+        if (types.isEmpty()) throw new IllegalArgumentException("types is empty");
+        for (EntityType<T> type : types)
+            Objects.requireNonNull(type, "types contains null element");
+        // Creates a single PaCoRegistryObject instance that will be shared by all types in the given Set
+        PaCoRegistryObject<InstancedEntityRenderer<T>> registryObject = new PaCoRegistryObject<>(() -> renderer);
+        for (EntityType<T> type : types)
+            if (ENTITY_RENDERERS.putIfAbsent(type, registryObject) != null)
+                throw new IllegalArgumentException("Entity " + BuiltInRegistries.ENTITY_TYPE.getKey(type) + " already has an instanced renderer attached!");
     }
 
     /**
@@ -148,8 +195,8 @@ public class InstancedRendererRegistry {
      * <p><strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.</p>
      * <p><strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.</p>
      *
-     * @param type    The {@link ItemLike} to associate with the instanced renderer.
-     * @param factory The {@link Supplier} used to initialize the instanced renderer.
+     * @param type    The {@link ItemLike} to associate with the instanced renderer
+     * @param factory The {@link Supplier} used to initialize the instanced renderer
      */
     public static void register(ItemLike type, Supplier<InstancedItemRenderer> factory) {
         Objects.requireNonNull(type, "type is null");
@@ -165,13 +212,36 @@ public class InstancedRendererRegistry {
      * <p><strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.</p>
      * <p><strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.</p>
      *
-     * @param type     The {@link ItemLike} to associate with the instanced renderer.
-     * @param renderer An {@link InstancedItemRenderer} instance.
+     * @param type     The {@link ItemLike} to associate with the instanced renderer
+     * @param renderer An {@link InstancedItemRenderer} instance
      */
     public static void register(ItemLike type, InstancedItemRenderer renderer) {
         Objects.requireNonNull(type, "type is null");
         Objects.requireNonNull(renderer, "renderer is null");
         InstancedRendererRegistry.register(type, () -> renderer);
+    }
+
+    /**
+     * Registers an {@link InstancedItemRenderer} for all the specified {@link ItemLike ItemLikes}.
+     *
+     * <p>Here is a list of when to call it, on each loader:</p>
+     * <p><strong>Forge</strong>: Inside {@code FMLClientSetupEvent}.</p>
+     * <p><strong>Fabric</strong>: Inside {@code ClientModInitializer#onInitializeClient}.</p>
+     *
+     * @param types    A {@link Set} containing {@link ItemLike} instances, to associate with the instanced renderer
+     * @param renderer An {@link InstancedItemRenderer} instance
+     */
+    public static void register(Set<ItemLike> types, InstancedItemRenderer renderer) {
+        Objects.requireNonNull(types, "types is null");
+        Objects.requireNonNull(renderer, "renderer is null");
+        if (types.isEmpty()) throw new IllegalArgumentException("types is empty");
+        for (ItemLike type : types)
+            Objects.requireNonNull(type, "types contains null element");
+        // Creates a single PaCoRegistryObject instance that will be shared by all types in the given Set
+        PaCoRegistryObject<InstancedItemRenderer> registryObject = new PaCoRegistryObject<>(() -> renderer);
+        for (ItemLike type : types)
+            if (ITEM_RENDERERS.putIfAbsent(type.asItem(), registryObject) != null)
+                throw new IllegalArgumentException("Item " + BuiltInRegistries.ITEM.getKey(type.asItem()) + " already has an instanced renderer attached!");
     }
 
     /**

@@ -87,8 +87,7 @@ public class CategoryEntry extends BaseConfigEntry<Void> {
         }
 
         private void onPress() {
-            // TODO look into a cleaner way to get the title screen
-            PaCoConfigScreen subScreen = new PaCoConfigScreen(this.screen.getManager(), this.node, screen.titleScreen, screen.previousScreen);
+            PaCoConfigScreen subScreen = new PaCoConfigScreen(this.screen, this.node);
             Minecraft.getInstance().setScreen(subScreen);
         }
     }

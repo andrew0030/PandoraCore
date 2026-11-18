@@ -127,6 +127,8 @@ Systems TODO:
   - [x] Add different types of ctm
   - [x] Add json option to toggle "in front of" checks
   - [x] Optimize ctm even more (this will involve some hacky stuff, so it should be the last step)
+  - [ ] Maybe add per-texture types?
+  - [ ] Maybe add builtin (default) transforms for vanilla parent model types such as pillar?
 - World Generation
   - [x] Add a data driven registry that allows for modifiers (essentially an alternative to forge biome modifiers)
   - [x] Add a modifier that allows registering entity spawns to biome/s

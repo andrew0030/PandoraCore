@@ -489,6 +489,26 @@ public class PaCo2DSlider extends AbstractSliderButton
         this.updateMessage();
     }
 
+    /** @return The minimum x-axis value of the slider. */
+    public double getMinValueX() {
+        return this.minValueX;
+    }
+
+    /** @return The minimum y-axis value of the slider. */
+    public double getMinValueY() {
+        return this.minValueY;
+    }
+
+    /** @return The maximum x-axis value of the slider. */
+    public double getMaxValueX() {
+        return this.maxValueX;
+    }
+
+    /** @return The maximum y-axis value of the slider. */
+    public double getMaxValueY() {
+        return this.maxValueY;
+    }
+
     /** @return The current x-axis value of the slider as a string. */
     public String getAsStringX() {
         return this.formatX.format(this.getValueX());

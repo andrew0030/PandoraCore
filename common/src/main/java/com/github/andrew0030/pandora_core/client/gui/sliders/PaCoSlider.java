@@ -456,6 +456,16 @@ public class PaCoSlider extends AbstractSliderButton {
         this.updateMessage();
     }
 
+    /** @return The minimum value of the slider. */
+    public double getMinValue() {
+        return this.minValue;
+    }
+
+    /** @return The maximum value of the slider. */
+    public double getMaxValue() {
+        return this.maxValue;
+    }
+
     /** @return The current value of the slider as a string. */
     public String getAsString() {
         return this.format.format(this.getValue());

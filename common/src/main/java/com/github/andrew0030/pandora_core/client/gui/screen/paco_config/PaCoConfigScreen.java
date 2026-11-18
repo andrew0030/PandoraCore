@@ -47,10 +47,13 @@ public class PaCoConfigScreen extends Screen {
     private final ConfigTreeNode currentNode;
     private final ConfigTreeNode rootNode;
     // Screens for navigation
-    public final TitleScreen titleScreen;
-    public final Screen previousScreen; // TODO change accessibility by altering how the category entry accesses these
+    private final TitleScreen titleScreen;
+    private final Screen previousScreen;
+    private PaCoConfigScreen previousConfigScreen;
     // Widgets
     public ConfigSearchEditBox searchBox;
+    public PaCoSlider navScrollBar;
+    public PaCoSlider navHrzScrollBar;
     public PaCoSlider entriesScrollBar;
     public ConfigActionButton backButton;
     // Misc
@@ -62,8 +65,11 @@ public class PaCoConfigScreen extends Screen {
     public int navMenuHeightStop;
     public int navMenuWidth;
     public int navMenuWidthStart;
+    public int navMenuBottomStart; // Area under island at the top
+    public int navMenuBottomHeight;
     public int navMenuEntriesHeight;
-    public int navMenuEntriesStart;
+    public int navMenuHandleHeight;
+    public int navMenuMaxButtonWidth;
 
     public int menuHeight;
     public int menuHeightStart;
@@ -93,6 +99,18 @@ public class PaCoConfigScreen extends Screen {
             ((IPaCoModifyTitleScreen) titleScreen).pandoraCore$hideElements(true);
     }
 
+    /**
+     * Creates a new {@link PaCoConfigScreen} instance, that inheriting the {@code screens} values,
+     * such as the {@code manager}, the {@code previousScreen}, the {@code titleScreen} and so on.
+     *
+     * @param configScreen The previous {@link PaCoConfigScreen}, that will be used for initialization
+     * @param currentNode  The {@link ConfigTreeNode} to display in the new {@link PaCoConfigScreen}
+     */
+    public PaCoConfigScreen(PaCoConfigScreen configScreen, ConfigTreeNode currentNode) {
+        this(configScreen.getManager(), currentNode, configScreen.titleScreen, configScreen.previousScreen);
+        this.previousConfigScreen = configScreen;
+    }
+
     public PaCoConfigScreen(IConfigManager manager, @Nullable TitleScreen titleScreen, @Nullable Screen previousScreen) {
         this(manager, ConfigTreeBuilder.buildTree(manager.getDataHolders()), titleScreen, previousScreen);
     }
@@ -108,8 +126,8 @@ public class PaCoConfigScreen extends Screen {
         this.navMenuHeightStop = this.navMenuHeightStart + this.navMenuHeight;
         this.navMenuWidth = 150;
         this.navMenuWidthStart = PaCoGuiUtils.PADDING_TWO;
-        this.navMenuEntriesHeight = this.navMenuHeight - 50; // TODO: 50 is a placeholder the the nav panel island that will be added later
-        this.navMenuEntriesStart = this.navMenuHeightStart + 50;
+        this.navMenuBottomStart = this.navMenuHeightStart + 50; // TODO: 50 is a placeholder the the nav panel island that will be added later
+        this.navMenuBottomHeight = this.navMenuHeight - 50;
 
         // Config Entries Panel
         this.menuHeight = this.height - 40;
@@ -119,8 +137,10 @@ public class PaCoConfigScreen extends Screen {
         this.menuWidth = (this.width - PaCoGuiUtils.PADDING_TWO * 2) - navMenuWidth - PaCoGuiUtils.PADDING_TWO;
 //        this.menuWidthStart = (this.width - this.menuWidth) / 2;
         this.menuWidthStart = ((this.width + navMenuWidth + PaCoGuiUtils.PADDING_TWO - this.menuWidth) / 2);
-//        this.entriesHeight = this.populateEntries(false);
-        this.entriesHeight = this.populateEntriesAndNavigation(false);
+
+        // Post Population Stuff
+        this.entriesHeight = this.populateEntriesAndNavigation(false, false);
+        this.navMenuHandleHeight = Math.max(8, this.navMenuBottomHeight - (this.navMenuEntriesHeight - this.navMenuBottomHeight) - PaCoGuiUtils.PADDING_FOUR);
         this.entriesHandleHeight = Math.max(8, this.menuHeight - (this.entriesHeight - this.menuHeight) - PaCoGuiUtils.PADDING_FOUR);
     }
 
@@ -136,13 +156,17 @@ public class PaCoConfigScreen extends Screen {
 
         /* Field Init */
         // Note: We need to remove the scroll bar before we generate the widgets to avoid position issues
+        double navScrollVal = this.navScrollBar != null ? this.navScrollBar.getValue() : 0;
+        double navHrzScrollVal = this.navHrzScrollBar != null ? this.navHrzScrollBar.getValue() : 0;
+        this.navScrollBar = null;
+        this.navHrzScrollBar = null;
         this.entriesScrollBar = null;
         this.fieldInit();
 
         /* Adding Widgets */
         // Search Edit Box
         String activeSearchText = this.searchBox != null ? this.searchBox.getValue() : null; // If there is text we grab it before the EditBox is discarded.
-        this.searchBox = new ConfigSearchEditBox(this.font, this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, this.navMenuHeightStart, this.navMenuWidth - (PaCoGuiUtils.PADDING_TWO * 2), 14, Component.literal("TODO"), this); //TODO narration
+        this.searchBox = new ConfigSearchEditBox(this.font, this.navMenuWidthStart + PaCoGuiUtils.PADDING_THREE, this.navMenuHeightStart + PaCoGuiUtils.PADDING_TWO, this.navMenuWidth - (PaCoGuiUtils.PADDING_THREE * 2), 14, Component.literal("TODO"), this); //TODO narration
         this.searchBox.setMaxLength(50);
         this.searchBox.setHint(SEARCH);
         this.searchBox.setTextColor(DARK_GRAY_TEXT_COLOR);
@@ -153,7 +177,45 @@ public class PaCoConfigScreen extends Screen {
         this.addRenderableWidget(this.searchBox);
         // Navigation Widgets
         this.navButtons.forEach(this::addWidget);
-        // Scroll Bar (Slider)
+        // Scroll Bars (Sliders)
+        if (this.navMenuEntriesHeight > this.navMenuBottomHeight) { // We only add it if its needed
+            this.navScrollBar = new PaCoVerticalSlider(this.navMenuWidthStart + this.navMenuWidth - 7, this.navMenuBottomStart + PaCoGuiUtils.PADDING_TWO, 6, this.navMenuBottomHeight - PaCoGuiUtils.PADDING_FOUR, 0, (this.navMenuEntriesHeight - this.navMenuBottomHeight), navScrollVal, 1)
+                    .setSilent(true)
+                    .setTextHidden(true)
+//                    .setNarrationMessage(SCROLLBAR) //TODO add narration
+                    .setHandleSize(8, this.navMenuHandleHeight)
+                    .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
+                    .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                    .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
+            this.addWidget(this.navScrollBar);
+            // When the scroll bar is created and a previous screen existed, we attempt to reuse the previous screen's scroll offset
+            if (this.previousConfigScreen != null) {
+                navScrollVal = this.previousConfigScreen.navScrollBar != null ? this.previousConfigScreen.navScrollBar.getValue() : navScrollVal;
+                this.navScrollBar.setValue(navScrollVal);
+                // By focusing and un-focusing the button here, it makes it snap into bounds
+                // The reason it stays active is, because focus gets also called within the button
+                this.focusSelectedNavButton(); // TODO maybe move this out of slider?
+                // NOTE: If focus is desired on "back" navigation, this is what stops it
+                this.setFocused(null);
+            }
+        }
+        int navButtonWidth = this.navMenuWidth - (PaCoGuiUtils.PADDING_TWO * 2) - (this.navScrollBar != null ? 8 : 0);
+        if (this.navMenuMaxButtonWidth > navButtonWidth) { // TODO slider size adjustment and offsets
+            this.navHrzScrollBar = new PaCoSlider(this.navMenuWidthStart, this.navMenuHeightStop + PaCoGuiUtils.PADDING_FOUR, this.navMenuWidth, 6, 0, (this.navMenuMaxButtonWidth - navButtonWidth), 0, 1)
+                    .setSilent(true)
+                    .setTextHidden(true)
+//                    .setNarrationMessage(SCROLLBAR) //TODO add narration
+                    .setHandleSize(Math.max(8, this.navMenuWidth - (this.navMenuMaxButtonWidth - navButtonWidth)), 8)
+                    .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
+                    .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                    .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
+            this.addWidget(this.navHrzScrollBar);
+            // When the scroll bar is created and a previous screen existed, we attempt to reuse the previous screen's scroll offset
+            if (this.previousConfigScreen != null) {
+                navHrzScrollVal = this.previousConfigScreen.navHrzScrollBar != null ? this.previousConfigScreen.navHrzScrollBar.getValue() : navHrzScrollVal;
+                this.navHrzScrollBar.setValue(navHrzScrollVal);
+            }
+        }
         if (this.entriesHeight > this.menuHeight) { // We only add it if its needed
             this.entriesScrollBar = new PaCoVerticalSlider(this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStart + PaCoGuiUtils.PADDING_TWO, 6, this.menuHeight - PaCoGuiUtils.PADDING_FOUR, 0, (this.entriesHeight - this.menuHeight), 0, 1)
                     .setSilent(true)
@@ -235,15 +297,49 @@ public class PaCoConfigScreen extends Screen {
     }
 
     protected void renderNavPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // Panel Background
         RenderSystem.enableBlend();
-        graphics.blitRepeating(TEXTURE, this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, this.navMenuEntriesStart, this.navMenuWidth - PaCoGuiUtils.PADDING_TWO * 2, this.navMenuEntriesHeight, 0, 122, 48, 48);
+        boolean hasNavScrollBar = this.navScrollBar != null;
+        int posX = this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO;
+        int width = hasNavScrollBar ? this.navMenuWidth - 10 - PaCoGuiUtils.PADDING_TWO : this.navMenuWidth - (PaCoGuiUtils.PADDING_TWO * 2);
+        graphics.blitRepeating(TEXTURE, posX, this.navMenuBottomStart, width, this.navMenuBottomHeight, 0, 122, 48, 48);
 
+        // Enables GLScissors
+        PaCoGuiUtils.enableScissor(graphics, posX, this.navMenuBottomStart, width, this.navMenuBottomHeight);
+        graphics.pose().pushPose();
 
+        // Renders Navigation Buttons
         this.navButtons.forEach(button -> button.render(graphics, mouseX, mouseY, partialTick));
 
+        // Navigation Buttons Gradients
+        RenderSystem.enableBlend();
+        if (this.navScrollBar != null && this.navMenuBottomHeight >= 50) {
+            RenderSystem.disableDepthTest();
+            int roundedVal = (int) Math.round(this.navScrollBar.getValue());
+            // Top Gradient
+            if (roundedVal > 0) {
+                int gradientHeight = Math.min(25, roundedVal);
+                graphics.blitRepeating(TEXTURE, this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, this.navMenuBottomStart, width, gradientHeight, 25, 122 - gradientHeight, 25, gradientHeight);
+            }
+            // Bottom Gradient
+            int maxVal = this.navMenuEntriesHeight - this.navMenuBottomHeight;
+            if (roundedVal < maxVal) {
+                int gradientHeight = Math.min(25, maxVal - roundedVal);
+                graphics.blitRepeating(TEXTURE, this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, this.navMenuBottomStart + this.navMenuBottomHeight - gradientHeight, width, gradientHeight, 0, 97, 25, gradientHeight);
+            }
+            RenderSystem.enableDepthTest();
+        }
+
+        // Disables GLScissors
+        graphics.pose().popPose();
+        graphics.disableScissor();
+
+        // Renders the Navigation Panel  Scroll Bars
+        if (this.navScrollBar != null) this.navScrollBar.render(graphics, mouseX, mouseY, partialTick);
+        if (this.navHrzScrollBar != null) this.navHrzScrollBar.render(graphics, mouseX, mouseY, partialTick);
 
         // TODO replace later with the navigation panel
-        PaCoGuiUtils.renderBoxWithRim(graphics, this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO, this.navMenuHeightStart, this.navMenuWidth - PaCoGuiUtils.PADDING_TWO * 2, this.navMenuEntriesStart - this.navMenuHeightStart, null, PaCoColor.color(255, 40, 40), 1);
+        PaCoGuiUtils.renderBoxWithRim(graphics, this.navMenuWidthStart, this.navMenuHeightStart, this.navMenuWidth, this.navMenuBottomStart - this.navMenuHeightStart, null, PaCoColor.color(255, 40, 40), 1);
         // TODO remove later when config entry buttons are added
 //        PaCoGuiUtils.renderBoxWithRim(graphics, this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStop + 6, this.menuWidth - PaCoGuiUtils.PADDING_TWO * 2, 18, null, PaCoColor.color(255, 40, 40), 1);
     }
@@ -392,7 +488,7 @@ public class PaCoConfigScreen extends Screen {
     public void onClose() {
         // If the current node isn't the root node, we simply move up to the node's parent
         if (this.currentNode != this.rootNode && this.currentNode.getParent() != null) {
-            Minecraft.getInstance().setScreen(new PaCoConfigScreen(this.manager, this.currentNode.getParent(), this.titleScreen, this.previousScreen));
+            Minecraft.getInstance().setScreen(new PaCoConfigScreen(this, this.currentNode.getParent()));
         } else { // If the current node is the root, we return to the actual previous screen
             // If there was a title screen we make the elements visible
             if (this.titleScreen != null)
@@ -410,6 +506,19 @@ public class PaCoConfigScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        // Navigation Panel Scroll
+        if (this.navScrollBar != null && PaCoGuiUtils.isMouseWithin(mouseX, mouseY, this.navMenuWidthStart, this.navMenuBottomStart, this.navMenuWidth, this.navMenuBottomHeight)) {
+            // TODO adjust the values to use nav panel entries instead of config entries
+            int maxVal = this.navMenuEntriesHeight - this.navMenuBottomHeight;
+            int pixelStep = (int) (maxVal * 0.12); // Modify the value by 12%
+            pixelStep = Mth.clamp(pixelStep, 5, 30); // Ensures that the step size is within 5-30
+            int newValue = (int) (this.navScrollBar.getValue() - (delta * pixelStep));
+            newValue = Mth.clamp(newValue, 0, maxVal);
+            this.navScrollBar.setValue(newValue);
+        }
+
+        // TODO maybe add scroll login when mouse is right over the horizontal scroll bar?
+
         // Entries Panel Scroll
         if (this.entriesScrollBar != null && PaCoGuiUtils.isMouseWithin(mouseX, mouseY, this.menuWidthStart, this.menuHeightStart, this.menuWidth, this.menuHeight)) {
             int maxVal = this.entriesHeight - this.menuHeight;
@@ -437,43 +546,48 @@ public class PaCoConfigScreen extends Screen {
         return true;
     }
 
+    /** If there is a selected navigation button, it gets focused. */
+    public void focusSelectedNavButton() {
+        for (ConfigEntryNavigationButton button : this.navButtons) {
+            if (button.isSelected()) {
+                this.setFocused(button);
+                break;
+            }
+        }
+    }
+
     /**
      * Loops over the {@link ConfigTreeNode} tree starting from the {@code root} node.
      * <p>Creates {@link ConfigEntryNavigationButton} instances for all relevant categories, and
      * creates {@link BaseConfigEntry} instances for all visible config entries of the current node.</p>
      *
+     * @param hasNavScrollBar     Whether the navigation panel has a scroll bar
      * @param hasEntriesScrollBar Whether the config entry panel has a scroll bar
      * @return The total height of the visible entries
      */
-    private int populateEntriesAndNavigation(boolean hasEntriesScrollBar) {
+    private int populateEntriesAndNavigation(boolean hasNavScrollBar, boolean hasEntriesScrollBar) {
         // Clears previous entries to avoid potential duplicates
         this.visibleEntries.clear();
         this.navButtons.clear();
-        // Navigation Panel
-        int navBaseX = this.navMenuWidthStart + PaCoGuiUtils.PADDING_TWO;
-        int navWidth = this.navMenuWidth - (2 * PaCoGuiUtils.PADDING_TWO);
-        int navHeight = ConfigEntryNavigationButton.BUTTON_HEIGHT;
+        this.navMenuMaxButtonWidth = 0;
         // Config Entries Panel
         int entriesStartY = this.menuHeightStart;
         int entryCurrentY = entriesStartY + PaCoGuiUtils.PADDING_TWO;
-        int entryX = this.menuWidthStart + PaCoGuiUtils.PADDING_TWO;
-        int entryWidth = this.menuWidth - (PaCoGuiUtils.PADDING_TWO * 2);
         int entryHeight = 16;
         int spacing = PaCoGuiUtils.PADDING_TWO;
-        // If the config entries panel has a scroll bar we need to offset the entries
-        if (hasEntriesScrollBar) {
-            entryX += 8;
-            entryWidth -= 8;
-        }
         // Small helper object to pass along the dimensions
-        LayoutContext ctx = new LayoutContext(hasEntriesScrollBar, entryHeight, spacing);
+        LayoutContext ctx = new LayoutContext(hasNavScrollBar, hasEntriesScrollBar, entryHeight, spacing);
         // Performs the recursive traversal from the root node
         int finalY = this.traverseTree(this.rootNode, entryCurrentY, 0, ctx);
         int entriesHeight = finalY - entriesStartY;
+        // Navigation buttons have a fixed height, so we can get their total height here
+        this.navMenuEntriesHeight = ConfigEntryNavigationButton.BUTTON_PADDING + this.navButtons.size() * (ConfigEntryNavigationButton.BUTTON_HEIGHT + ConfigEntryNavigationButton.BUTTON_PADDING);
         // If there are too many entries to display without a scroll bar we recalculate
         // NOTE: We need to check if the entries don't have a scroll bar already to avoid an infinity loop
-        if (!hasEntriesScrollBar && entriesHeight > this.menuHeight)
-            return this.populateEntriesAndNavigation(true);
+        boolean needsNavScrollBar = !hasNavScrollBar && this.navMenuEntriesHeight > this.navMenuBottomHeight;
+        boolean needsEntriesScrollBar = !hasEntriesScrollBar && entriesHeight > this.menuHeight;
+        if (needsNavScrollBar || needsEntriesScrollBar)
+            return this.populateEntriesAndNavigation(hasNavScrollBar || needsNavScrollBar, hasEntriesScrollBar || needsEntriesScrollBar);
         // The total height the entries fill
         return entriesHeight;
     }
@@ -512,12 +626,13 @@ public class PaCoConfigScreen extends Screen {
                 // If the config tree node is a category, we create a navigation button and attach the entry // TODO maybe make it so nav buttons don't use the entries
                 if (isCategory) {
                     // Since nav button height doesn't change, we can use the list size to determine the current height
-                    int navCurrentY = this.navMenuEntriesStart + ConfigEntryNavigationButton.BUTTON_PADDING + (this.navButtons.size() * (ConfigEntryNavigationButton.BUTTON_HEIGHT + ConfigEntryNavigationButton.BUTTON_PADDING));
+                    int navCurrentY = this.navMenuBottomStart + ConfigEntryNavigationButton.BUTTON_PADDING + (this.navButtons.size() * (ConfigEntryNavigationButton.BUTTON_HEIGHT + ConfigEntryNavigationButton.BUTTON_PADDING));
                     // Technically this check shouldn't be needed, but in case there is ever an entry that isn't a value and also not a category I will keep this check here
                     if (entry instanceof CategoryEntry categoryEntry) {
-                        ConfigEntryNavigationButton button = new ConfigEntryNavigationButton(this, categoryEntry, navCurrentY, depth);
+                        ConfigEntryNavigationButton button = new ConfigEntryNavigationButton(this, categoryEntry, navCurrentY, depth, ctx.hasNavScrollbar());
                         entry.setNavButton(button);
                         this.navButtons.add(button);
+                        this.navMenuMaxButtonWidth = Math.max(this.navMenuMaxButtonWidth, button.getContentsWidth());
                     }
                 }
             }
@@ -557,6 +672,22 @@ public class PaCoConfigScreen extends Screen {
         // Removes the previous widgets
         this.navButtons.forEach(this::removeWidget);
         this.visibleEntries.forEach(element -> element.getWidgets().forEach(this::removeWidget));
+        double prevNavScrollMax = 0;
+        double prevNavScrollVal = 0;
+        double prevNavHrzScrollMax = 0;
+        double prevNavHrzScrollVal = 0;
+        if (this.navScrollBar != null) {
+            prevNavScrollMax = this.navScrollBar.getMaxValue();
+            prevNavScrollVal = this.navScrollBar.getValue();
+            this.removeWidget(this.navScrollBar);
+            this.navScrollBar = null;
+        }
+        if (this.navHrzScrollBar != null) {
+            prevNavHrzScrollMax = this.navHrzScrollBar.getMaxValue();
+            prevNavHrzScrollVal = this.navHrzScrollBar.getValue();
+            this.removeWidget(this.navHrzScrollBar);
+            this.navHrzScrollBar = null;
+        }
         if (this.entriesScrollBar != null) {
             this.removeWidget(this.entriesScrollBar);
             this.entriesScrollBar = null;
@@ -566,7 +697,35 @@ public class PaCoConfigScreen extends Screen {
         this.fieldInit();
         // Adds new widgets based on the newly populated lists
         this.navButtons.forEach(this::addWidget);
-        this.visibleEntries.forEach(element -> element.getWidgets().forEach(this::addWidget));
+        if (this.navMenuEntriesHeight > this.navMenuBottomHeight) { // We only add it if its needed
+            this.navScrollBar = new PaCoVerticalSlider(this.navMenuWidthStart + this.navMenuWidth - 7, this.navMenuBottomStart + PaCoGuiUtils.PADDING_TWO, 6, this.navMenuBottomHeight - PaCoGuiUtils.PADDING_FOUR, 0, (this.navMenuEntriesHeight - this.navMenuBottomHeight), 0, 1)
+                    .setSilent(true)
+                    .setTextHidden(true)
+//                    .setNarrationMessage(SCROLLBAR) //TODO add narration
+                    .setHandleSize(8, this.navMenuHandleHeight)
+                    .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
+                    .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                    .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
+            this.addWidget(this.navScrollBar);
+            // Applies the previous scroll offset if the UI didn't resize
+            if (prevNavScrollMax != 0 && prevNavScrollMax == this.navScrollBar.getMaxValue())
+                this.navScrollBar.setValue(prevNavScrollVal);
+        }
+        int navButtonWidth = this.navMenuWidth - (PaCoGuiUtils.PADDING_TWO * 2) - (this.navScrollBar != null ? 8 : 0);
+        if (this.navMenuMaxButtonWidth > navButtonWidth) { // TODO slider size adjustment and offsets
+            this.navHrzScrollBar = new PaCoSlider(this.navMenuWidthStart, this.navMenuHeightStop + PaCoGuiUtils.PADDING_FOUR, this.navMenuWidth, 6, 0, (this.navMenuMaxButtonWidth - navButtonWidth), 0, 1)
+                    .setSilent(true)
+                    .setTextHidden(true)
+//                    .setNarrationMessage(SCROLLBAR) //TODO add narration
+                    .setHandleSize(Math.max(8, this.navMenuWidth - (this.navMenuMaxButtonWidth - navButtonWidth)), 8)
+                    .setFocusReactangleMode(FocusRectangleMode.HANDLE_CENTER)
+                    .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
+                    .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
+            this.addWidget(this.navHrzScrollBar);
+            // Applies the previous scroll offset if the UI didn't resize
+            if (prevNavHrzScrollMax != 0 && prevNavHrzScrollMax == this.navHrzScrollBar.getMaxValue())
+                this.navHrzScrollBar.setValue(prevNavHrzScrollVal);
+        }
         if (this.entriesHeight > this.menuHeight) { // We only add it if its needed
             this.entriesScrollBar = new PaCoVerticalSlider(this.menuWidthStart + PaCoGuiUtils.PADDING_TWO, this.menuHeightStart + PaCoGuiUtils.PADDING_TWO, 6, this.menuHeight - PaCoGuiUtils.PADDING_FOUR, 0, (this.entriesHeight - this.menuHeight), 0, 1)
                 .setSilent(true)
@@ -577,6 +736,7 @@ public class PaCoConfigScreen extends Screen {
                 .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                 .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
             this.addWidget(this.entriesScrollBar);
+            this.visibleEntries.forEach(element -> element.getWidgets().forEach(this::addWidget));
         }
     }
 
@@ -586,5 +746,5 @@ public class PaCoConfigScreen extends Screen {
      * @param entryHeight The {@code height} of a config entry // TODO maybe make this dynamic?
      * @param spacing     The {@code padding} between config entries
      */
-    private record LayoutContext(boolean hasEntryScrollbar, int entryHeight, int spacing) {}
+    private record LayoutContext(boolean hasNavScrollbar, boolean hasEntryScrollbar, int entryHeight, int spacing) {}
 }

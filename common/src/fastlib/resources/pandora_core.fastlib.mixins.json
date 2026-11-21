@@ -8,6 +8,7 @@
 	"mixins": [],
 	"client": [
 		"render.iris.AdvancedShadowCullingFrustumMixin",
+		"render.iris.BoxCullerMixin",
 		"render.sodium.SimpleFrustumMixin",
 		"render.vanilla.FrustumMixin"
 	],

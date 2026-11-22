@@ -55,6 +55,7 @@
 		"optifine.dbg.CompositeRenderTypeMixin",
 		"optifine.dbg.RenderTypeAccessor",
 		"optifine.dbg.CompositeStateAccessor",
+		"optifine.dbg.DefaultShadersMixin",
 		"optifine.ShaderInstanceMixin",
 		"optifine.SVBMixin",
 

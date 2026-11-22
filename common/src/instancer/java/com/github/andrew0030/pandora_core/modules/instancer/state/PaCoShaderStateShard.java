@@ -4,6 +4,7 @@ import com.github.andrew0030.pandora_core.modules.templater.wrapper.ShaderWrappe
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.TemplatedShader;
 import com.github.andrew0030.pandora_core.modules.templater.wrapper.impl.blackhole.VoidShader;
 import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
+import com.github.andrew0030.pandora_core.utils.shader_checker.optifine.OptifineAccessor;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
 
@@ -30,6 +31,10 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
 		    
 		    // TODO: render state aware
 		    if (ShaderChecker.isShaderActive()) {
+			    // optifine falls back to the vanilla core shader
+			    if (OptifineAccessor.optifinePresent) {
+				    return true;
+			    }
 			    return !shader.isVanilla();
 		    }
 		    
@@ -52,6 +57,10 @@ public class PaCoShaderStateShard extends RenderStateShard.ShaderStateShard {
 		    if (PaCoRenderState.isGUI()) {
 			    return shaderWrapper.getActiveUnwrap().isVanilla();
 		    } else if (ShaderChecker.isShaderActive()) {
+			    // optifine falls back to the vanilla core shader
+				if (OptifineAccessor.optifinePresent) {
+					return true;
+				}
 			    return !shaderWrapper.getActiveUnwrap().isVanilla();
 		    }
 		    

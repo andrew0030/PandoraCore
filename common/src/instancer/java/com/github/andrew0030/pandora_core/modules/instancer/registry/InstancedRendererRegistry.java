@@ -276,13 +276,4 @@ public class InstancedRendererRegistry {
         ENTITY_RENDERERS.forEach((type, factory) -> ((EntityTypeAttachments) type).pandoraCore$setInstancedRenderer(factory.get()));
         ITEM_RENDERERS.forEach((type, factory) -> ((ItemAttachments) type).pandoraCore$setInstancedRenderer(factory.get()));
     }
-
-    // TODO: Remove this method in the final release once TTC uses the ItemLike version!
-    /**
-     * <strong>NOTE:</strong> use {@link #register(ItemLike, InstancedItemRenderer)} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static void register(Item type, InstancedItemRenderer renderer) {
-        InstancedRendererRegistry.register(type, () -> renderer);
-    }
 }

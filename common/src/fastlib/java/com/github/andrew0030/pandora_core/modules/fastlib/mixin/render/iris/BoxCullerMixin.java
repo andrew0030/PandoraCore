@@ -5,32 +5,18 @@ import com.github.andrew0030.pandora_core.modules.fastlib.render.CullSphere;
 import com.github.andrew0030.pandora_core.modules.fastlib.render.PaCoFrustum;
 import net.irisshaders.iris.shadows.frustum.BoxCuller;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(BoxCuller.class)
+@Mixin(value = BoxCuller.class, remap = false)
 public abstract class BoxCullerMixin implements PaCoFrustum {
-	@Shadow
-	public abstract boolean isCulled(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
-	
-	@Shadow
-	private double minAllowedX;
-	
-	@Shadow
-	private double maxAllowedX;
-	
-	@Shadow
-	private double minAllowedY;
-	
-	@Shadow
-	private double minAllowedZ;
-	
-	@Shadow
-	private double maxAllowedZ;
-	
-	@Shadow
-	private double maxAllowedY;
+	@Shadow public abstract boolean isCulled(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
+	@Shadow private double minAllowedX;
+	@Shadow private double maxAllowedX;
+	@Shadow private double minAllowedY;
+	@Shadow private double minAllowedZ;
+	@Shadow private double maxAllowedZ;
+	@Shadow private double maxAllowedY;
 	
 	@Override
 	public boolean pandoraCore$isInFrustum(CullBox box) {

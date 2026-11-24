@@ -10,7 +10,9 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,6 +22,7 @@ import java.io.IOException;
 
 @Mixin(GameRenderer.class)
 public class GameRenderer_PostShaderMixin {
+    @Shadow @Final Minecraft minecraft;
     private static final @Unique Logger pandoraCore$LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "GameRenderer_PostShaderMixin");
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
@@ -49,9 +52,8 @@ public class GameRenderer_PostShaderMixin {
                 holder.getPostChain().close();
             // We attempt to load the post shader
             try {
-                Minecraft minecraft = Minecraft.getInstance();
-                holder.setPostChain(new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), minecraft.getMainRenderTarget(), holder.getResourceLocation()));
-                holder.getPostChain().resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
+                holder.setPostChain(new PostChain(this.minecraft.getTextureManager(), this.minecraft.getResourceManager(), this.minecraft.getMainRenderTarget(), holder.getResourceLocation()));
+                holder.getPostChain().resize(this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
             } catch (IOException iOException) {
                 pandoraCore$LOGGER.warn("Failed to load post shader: {}", holder.getResourceLocation(), iOException);
             } catch (JsonSyntaxException jsonSyntaxException) {

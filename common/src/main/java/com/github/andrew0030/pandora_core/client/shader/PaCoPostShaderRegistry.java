@@ -2,7 +2,6 @@ package com.github.andrew0030.pandora_core.client.shader;
 
 import com.github.andrew0030.pandora_core.client.shader.holder.IPaCoPostChainProcessor;
 import com.github.andrew0030.pandora_core.client.shader.holder.PostChainHolder;
-import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
 
@@ -21,9 +20,7 @@ public class PaCoPostShaderRegistry {
      */
     public static PostChainHolder register(ResourceLocation path, IPaCoPostChainProcessor processor) {
         PostChainHolder holder = new PostChainHolder(path, processor);
-        // OptiFine REALLY breaks post shaders, so if OptiFine is loaded we simply don't register any post shaders... ~ Use Iris
-        if (!ShaderChecker.OF_HANDLER.isLoaded())
-            POST_SHADERS.add(holder);
+        POST_SHADERS.add(holder);
         return holder;
     }
 }

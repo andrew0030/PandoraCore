@@ -2,7 +2,6 @@ package com.github.andrew0030.pandora_core.utils.mod_warnings;
 
 import com.github.andrew0030.pandora_core.PandoraCore;
 import com.github.andrew0030.pandora_core.platform.Services;
-import com.github.andrew0030.pandora_core.utils.shader_checker.ShaderChecker;
 import com.github.andrew0030.pandora_core.utils.update_checker.ComparableVersion;
 import net.minecraft.network.chat.Component;
 
@@ -73,8 +72,11 @@ public class PaCoWarningFactory {
      */
     public static List<Component> getWarningFactory() {
         List<Component> warnings = new ArrayList<>();
-        if (ShaderChecker.OF_HANDLER.isLoaded())
-            warnings.add(Component.translatable("warnings.pandora_core.opti_fine.post_shader"));
+
+        // TODO: replace the OptiFine warning with a warning that shaders are partially supported (no shadow pass), and remove the line bellow from the lang
+//        if (ShaderChecker.OF_HANDLER.isLoaded())
+//            warnings.add(Component.translatable("warnings.pandora_core.opti_fine.post_shader"));
+
         if (PaCoWarningFactory.isCTMDisabled)
             warnings.add(Component.translatable("warnings.pandora_core.sodium.indium"));
         return warnings;

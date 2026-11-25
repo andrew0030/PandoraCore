@@ -1,5 +1,6 @@
 package com.github.andrew0030.pandora_core.config.factory_manager;
 
+import com.github.andrew0030.pandora_core.config.manager.FMLConfigManager;
 import com.github.andrew0030.pandora_core.config.manager.ForgeConfigManager;
 import com.github.andrew0030.pandora_core.config.registry.PaCoConfigRegistry;
 import com.github.andrew0030.pandora_core.mixin_interfaces.IPaCoParentScreenGetter;
@@ -39,6 +40,11 @@ public class ConfigScreenFactoryManager {
             if (customFactory.isPresent()) {
                 FACTORIES_CACHE.put(modId, customFactory.get());
             } else {
+                // Manually attaches the fml config to forge's config managers
+                if (modId.equals("forge")) {
+                    PaCoConfigRegistry.register(modId, new FMLConfigManager());
+                }
+
                 List<ModConfig> forgeConfigs = getForgeConfigsForMod(modId);
                 if (!forgeConfigs.isEmpty()) {
                     for (ModConfig config : forgeConfigs) {
@@ -58,12 +64,6 @@ public class ConfigScreenFactoryManager {
                 }
             }
         });
-
-
-
-
-
-
 
 
 

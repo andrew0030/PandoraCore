@@ -736,8 +736,10 @@ public class PaCoConfigScreen extends Screen {
                 .setSliderTexture(TEXTURE, 0, 54, 6, 54, 6, 18, 1)
                 .setHandleTexture(TEXTURE, 12, 54, 20, 54, 8, 18, 1);
             this.addWidget(this.entriesScrollBar);
-            this.visibleEntries.forEach(element -> element.getWidgets().forEach(this::addWidget));
         }
+        this.visibleEntries.forEach(element -> element.getWidgets().forEach(this::addWidget));
+
+        // TODO action buttons index moves under nav menu buttons on refresh, they should stay at the end
     }
 
     /**

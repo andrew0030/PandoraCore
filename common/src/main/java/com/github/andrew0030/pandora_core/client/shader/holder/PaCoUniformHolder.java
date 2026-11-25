@@ -10,6 +10,7 @@ import com.github.andrew0030.pandora_core.utils.logger.PaCoLogger;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.renderer.PostPass;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
     private static final Logger LOGGER = PaCoLogger.create(PandoraCore.MOD_NAME, "PaCoUniformHolder");
 
     final UniformSetter value = new UniformSetter();
-    private final IPaCoUniformAccess uniformAccess;
+    private IPaCoUniformAccess uniformAccess;
     private final String key;
     boolean isDirty = true;
     private final Map<TagFilter, TaggedUniformHolder> taggedHolders = new Object2ObjectRBTreeMap<>();
@@ -48,7 +49,9 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
     @Override
     public UniformSetter get() {
         if (isDirty) {
-            this.value.uniforms = uniformAccess.pandoraCore$getUniforms(key);
+	        this.value.uniforms.clear();
+	        this.value.uniforms = uniformAccess.pandoraCore$getUniforms(key);
+	        this.value.readOnly = new ReadOnlyList<>(this.value.uniforms);
             isDirty = false;
         }
 
@@ -59,8 +62,13 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
     public List<PostPass> pandoraCore$getPasses() {
         return ((IPaCoPostChainAccess) uniformAccess).pandoraCore$getPasses();
     }
-
-    public class TaggedUniformHolder extends PaCoUniformHolder {
+	
+	@ApiStatus.Internal
+	void link(IPaCoUniformAccess uniformAccess) {
+		this.uniformAccess = uniformAccess;
+	}
+	
+	public class TaggedUniformHolder extends PaCoUniformHolder {
         private final TagFilter tag;
         private final List<PostPass> passes = new ArrayList<>();
         private final ReadOnlyList<PostPass> readOnlyView = new ReadOnlyList<>(passes);
@@ -74,6 +82,8 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
 
         private void checkDirty() {
             if (isDirty) {
+                isDirty = false;
+				
                 passes.clear();
                 for (PostPass pass : chainAccess.pandoraCore$getPasses()) {
                     if (tag.check((IPaCoTagged) pass)) {
@@ -81,15 +91,14 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
                     }
                 }
 
-                isDirty = false;
-
                 List<AbstractUniform> uniforms = new ArrayList<>();
                 for (PostPass pass : pandoraCore$getPasses()) {
                     AbstractUniform uniform = pass.getEffect().getUniform(key);
                     if (uniform != null)
                         uniforms.add(uniform);
                 }
-                value.uniforms = uniforms;
+				value.uniforms = uniforms;
+				value.readOnly = new ReadOnlyList<>(uniforms);
             }
         }
 
@@ -114,11 +123,58 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
 
     public class UniformSetter {
         List<AbstractUniform> uniforms;
+	    ReadOnlyList<AbstractUniform> readOnly;
 
-        public void set(float value) {
+        public void set(float x) {
             for (AbstractUniform uniform : uniforms) {
-                uniform.set(value);
+                uniform.set(x);
             }
         }
+
+        public void set(float x, float y) {
+            for (AbstractUniform uniform : uniforms) {
+                uniform.set(x, y);
+            }
+        }
+
+        public void set(float x, float y, float z) {
+            for (AbstractUniform uniform : uniforms) {
+                uniform.set(x, y, z);
+            }
+        }
+
+        public void set(float x, float y, float z, float w) {
+            for (AbstractUniform uniform : uniforms) {
+                uniform.set(x, y, z, w);
+            }
+        }
+
+        public void set(int x) {
+            for (AbstractUniform uniform : uniforms) {
+                uniform.set(x);
+            }
+        }
+
+        public void set(int x, int y) {
+            for (AbstractUniform uniform : uniforms) {
+                uniform.set(x, y);
+            }
+        }
+
+        public void set(int x, int y, int z) {
+            for (AbstractUniform uniform : uniforms) {
+                uniform.set(x, y, z);
+            }
+        }
+
+        public void set(int x, int y, int z, int w) {
+            for (AbstractUniform uniform : uniforms) {
+                uniform.set(x, y, z, w);
+            }
+        }
+	    
+	    public ReadOnlyList<AbstractUniform> getUniforms() {
+		    return readOnly;
+	    }
     }
 }

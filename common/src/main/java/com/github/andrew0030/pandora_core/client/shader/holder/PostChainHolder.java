@@ -1,6 +1,7 @@
 package com.github.andrew0030.pandora_core.client.shader.holder;
 
 import com.github.andrew0030.pandora_core.mixin_interfaces.shader.post.IPaCoUniformAccess;
+import com.github.andrew0030.pandora_core.utils.collection.ReadOnlyList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
@@ -64,6 +65,7 @@ public class PostChainHolder {
         this.postChain = postChain;
         for (PaCoUniformHolder value : this.uniforms.values()) {
             value.isDirty = true;
+			value.link((IPaCoUniformAccess) this.postChain);
         }
     }
 
@@ -78,8 +80,10 @@ public class PostChainHolder {
         PaCoUniformHolder holder = this.uniforms.get(name);
         if (holder == null)
             this.uniforms.put(name, holder = new PaCoUniformHolder((IPaCoUniformAccess) this.postChain, name));
-        if (holder.isDirty)
-            holder.value.uniforms = ((IPaCoUniformAccess) postChain).pandoraCore$getUniforms(name);
+        if (holder.isDirty) {
+	        holder.value.uniforms = ((IPaCoUniformAccess) postChain).pandoraCore$getUniforms(name);
+			holder.value.readOnly = new ReadOnlyList<>(holder.value.uniforms);
+        }
         return holder;
     }
 }

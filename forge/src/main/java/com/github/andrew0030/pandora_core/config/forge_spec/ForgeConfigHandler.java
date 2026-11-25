@@ -15,7 +15,6 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ForgeConfigHandler {
     private static final Map<Class<?>, TriConsumer<ForgeConfigSpec.ConfigValue<?>, ForgeConfigSpec.ValueSpec, String>> VALUE_HANDLERS = new HashMap<>();
@@ -41,7 +40,7 @@ public class ForgeConfigHandler {
     }
 
     /**
-     * This method initializes the annotation handler caches.
+     * This method initializes the value handler caches.
      * <br/>
      * <strong>Note</strong>: This method ensures type safety.
      */

@@ -63,10 +63,8 @@ public class PostChainHolder {
     @ApiStatus.Internal
     public void setPostChain(PostChain postChain) {
         this.postChain = postChain;
-        for (PaCoUniformHolder value : this.uniforms.values()) {
-            value.isDirty = true;
+        for (PaCoUniformHolder value : this.uniforms.values())
 			value.link((IPaCoUniformAccess) this.postChain);
-        }
     }
 
     /**

@@ -11,6 +11,11 @@ import com.mojang.blaze3d.shaders.AbstractUniform;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.renderer.PostPass;
 import org.jetbrains.annotations.ApiStatus;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.lwjgl.opengl.GL30;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -49,7 +54,6 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
     @Override
     public UniformSetter get() {
         if (isDirty) {
-	        this.value.uniforms.clear();
 	        this.value.uniforms = uniformAccess.pandoraCore$getUniforms(key);
 	        this.value.readOnly = new ReadOnlyList<>(this.value.uniforms);
             isDirty = false;
@@ -66,6 +70,10 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
 	@ApiStatus.Internal
 	void link(IPaCoUniformAccess uniformAccess) {
 		this.uniformAccess = uniformAccess;
+		isDirty = true;
+		for (TaggedUniformHolder taggedUniformHolder : taggedHolders.values()) {
+			taggedUniformHolder.isDirty = true;
+		}
 	}
 	
 	public class TaggedUniformHolder extends PaCoUniformHolder {
@@ -90,7 +98,7 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
                         passes.add(pass);
                     }
                 }
-
+				
                 List<AbstractUniform> uniforms = new ArrayList<>();
                 for (PostPass pass : pandoraCore$getPasses()) {
                     AbstractUniform uniform = pass.getEffect().getUniform(key);
@@ -99,6 +107,8 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
                 }
 				value.uniforms = uniforms;
 				value.readOnly = new ReadOnlyList<>(uniforms);
+				
+//	            isDirty = true;
             }
         }
 
@@ -172,6 +182,36 @@ public class PaCoUniformHolder implements Supplier<PaCoUniformHolder.UniformSett
                 uniform.set(x, y, z, w);
             }
         }
+	    
+	    public void set(float[] valueArray) {
+		    for (AbstractUniform uniform : uniforms) {
+			    uniform.set(valueArray);
+		    }
+	    }
+	    
+	    public void set(Vector3f vector) {
+		    for (AbstractUniform uniform : uniforms) {
+			    uniform.set(vector);
+		    }
+	    }
+	    
+	    public void set(Vector4f vector) {
+		    for (AbstractUniform uniform : uniforms) {
+			    uniform.set(vector);
+		    }
+	    }
+	    
+	    public void set(Matrix4f matrix) {
+		    for (AbstractUniform uniform : uniforms) {
+			    uniform.set(matrix);
+		    }
+	    }
+	    
+	    public void set(Matrix3f matrix) {
+		    for (AbstractUniform uniform : uniforms) {
+			    uniform.set(matrix);
+		    }
+	    }
 	    
 	    public ReadOnlyList<AbstractUniform> getUniforms() {
 		    return readOnly;
